@@ -410,7 +410,7 @@ func httpAdmin(kv skv.SKV, w http.ResponseWriter, r *http.Request, urlPath strin
 				printFunc(w,"/makeregistered db=%s bucket=%s new id=%s created\n",
 					dbMainName,dbRegisteredIDs,urlID)
 				var pwIdCombo PwIdCombo
-				err := createHashPw(urlID, urlPw, &pwIdCombo)
+				err := createHashPw(urlID, urlPw, &pwIdCombo, "/makeregistered")
 				if err!=nil {
 					printFunc(w,"# /makeregistered createHashPw key=%s err=%v\n", urlID, err)
 				}
