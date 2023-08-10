@@ -5,7 +5,6 @@ import (
 	"time"
 	"fmt"
 	"strings"
-	"strconv"
 	"bytes"
 	"unicode"
 	"encoding/gob"
@@ -231,28 +230,9 @@ func ticker3hours() {
 						}
 					}
 				} else {
-					// for backward compatibility (until Oct 10, 2023) only 
-					//userID := dbUserKey[:idxUnderline]
-					starttimeStr := dbUserKey[idxUnderline+1:]
-					starttime64, err := strconv.ParseInt(starttimeStr, 10, 64)
-					if err!=nil {
-						fmt.Printf("# ticker3hours error bucket=%s key=%s conv timestr err=%v\n",
-							dbBlockedIDs, dbUserKey, err)
-					} else {
-						sinceDeletedInSecs := timeNowUnix - starttime64
-						if sinceDeletedInSecs > blockedForDays * 24*60*60 {
-							deleteKeyArray2 = append(deleteKeyArray2,dbUserKey)
-							counterDeleted2++
-						} else {
-							if logWantedFor("timer") {
-								secsToLive := blockedForDays * 24*60*60 - sinceDeletedInSecs
-								if logWantedFor("blocked") {
-									fmt.Printf("ticker3hours blocked but not outdated key=%s (wait %ds %ddays)\n",
-										dbUserKey, secsToLive, secsToLive/(24*60*60))
-								}
-							}
-						}
-					}
+					// remove old dbBlockedIDs with _time in dbUserKey
+					deleteKeyArray2 = append(deleteKeyArray2,dbUserKey)
+					counterDeleted2++
 				}
 			}
 			return nil
