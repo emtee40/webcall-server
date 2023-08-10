@@ -222,10 +222,14 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 				//fmt.Printf("! /setmapping (%s) mappedID=(%s) entry(%v) err=%v\n",calleeID, mappedID, dbMappedEntry, err)
 				if err==nil {
 					// found in dbBlockedIDs
-					fmt.Printf("# /setmapping (%s) mappedID=(%s) currently blocked (%v)\n",calleeID, mappedID, dbMappedEntry)
-					time.Sleep(1000 * time.Millisecond)
-					fmt.Fprintf(w,"errorCurrentlyBlocked")
-					return
+					// TODO not blocked if dbMappedEntry.Ip == calleeID
+					if dbMappedEntry.Ip != calleeID {
+						fmt.Printf("# /setmapping (%s) mappedID=(%s) currently blocked (%v)\n",
+							calleeID, mappedID, dbMappedEntry)
+						time.Sleep(1000 * time.Millisecond)
+						fmt.Fprintf(w,"errorCurrentlyBlocked")
+						return
+					}
 				}
 				//fmt.Printf("/setmapping (%s) mappedID=(%s) is available\n",calleeID, mappedID)
 			}
