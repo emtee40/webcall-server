@@ -166,11 +166,10 @@ func ticker3hours() {
 			} else {
 				// all is well: create a dbBlockedIDs entry (will be deleted after 60 days)
 				//fmt.Printf("ticker3hours key=%s user deleted\n", key)
-				dbUserKey := fmt.Sprintf("%s_%d",userID, timeNowUnix)
-				err = kvMain.Put(dbBlockedIDs, dbUserKey, DbUser{}, false)
+				err = kvMain.Put(dbBlockedIDs, userID, DbEntry{timeNowUnix,""}, false)
 				if err!=nil {
 					fmt.Printf("# ticker3hours error db=%s bucket=%s put key=%s err=%v\n",
-						dbMainName,dbBlockedIDs,dbUserKey,err)
+						dbMainName,dbBlockedIDs,userID,err)
 				}
 			}
 

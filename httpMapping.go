@@ -441,7 +441,7 @@ func deleteMapping(calleeID string, delID string, remoteAddr string) int {
 	mappingMutex.Unlock()
 
 	// create a dbBlockedIDs entry (will be deleted after 60 days by timer)
-	err = kvMain.Put(dbBlockedIDs, delID, DbEntry{unixTime,remoteAddr}, false)
+	err = kvMain.Put(dbBlockedIDs, delID, DbEntry{unixTime,calleeID}, false)
 	if err!=nil {
 		fmt.Printf("# deletemapping (%s) error db=%s bucket=%s put key=%s err=%v\n",
 			calleeID, dbMainName, dbBlockedIDs, delID, err)
