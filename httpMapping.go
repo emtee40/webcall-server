@@ -200,22 +200,18 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 				var dbMappedEntry DbEntry
 				err := kvMain.Get(dbRegisteredIDs, mappedID, &dbMappedEntry)
 				if err == nil {
-/*
 					fmt.Printf("/setmapping (%s) mappedID=(%s) load dbMappedUser...\n",calleeID, mappedID)
 					// TODO why do I need to do this???
 					dbUserKey := fmt.Sprintf("%s_%d", mappedID, dbMappedEntry.StartTime)
 					var dbMappedUser DbUser
 					err = kvMain.Get(dbUserBucket, dbUserKey, &dbMappedUser)
 					if err == nil {
-*/
 						// mappedID is already someone elses valid CalleeId
 						fmt.Printf("# /setmapping (%s) mappedID=(%s) already a calleeID (%v)\n",calleeID, mappedID, dbMappedEntry)
 						time.Sleep(1000 * time.Millisecond)
 						fmt.Fprintf(w,"errorBlocked")
 						return
-/*
 					}
-*/
 				}
 
 				err = kvMain.Get(dbBlockedIDs,mappedID,&dbMappedEntry)

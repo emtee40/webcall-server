@@ -29,7 +29,7 @@ func ticker3hours() {
 	kvpw := kvHashedPw.(skv.SKV)
 
 	// put ticker3hours out of step with other tickers
-	time.Sleep(37 * time.Second)
+	time.Sleep(23 * time.Second)
 
 	threeHoursTicker := time.NewTicker(3*60*60*time.Second)
 	defer threeHoursTicker.Stop()
