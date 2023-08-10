@@ -163,7 +163,8 @@ function clickID(id) {
 }
 
 function add() {
-	// fetch and register a new/free random id
+	// fetch free new random id
+
 // TODO do not add more than max (5) entries
 	let api = apiPath+"/fetchid?id="+calleeID;
 	gLog('request fetchid api='+api);

@@ -200,14 +200,15 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 				var dbMappedEntry DbEntry
 				err := kvMain.Get(dbRegisteredIDs, mappedID, &dbMappedEntry)
 				if err == nil {
-					fmt.Printf("/setmapping (%s) mappedID=(%s) load dbMappedUser...\n",calleeID, mappedID)
-					// TODO why do I need to do this???
+					fmt.Printf("/setmapping (%s) mappedID=(%s) load dbMappedUser... (%v)\n",
+						calleeID, mappedID, dbMappedEntry)
 					dbUserKey := fmt.Sprintf("%s_%d", mappedID, dbMappedEntry.StartTime)
 					var dbMappedUser DbUser
 					err = kvMain.Get(dbUserBucket, dbUserKey, &dbMappedUser)
 					if err == nil {
 						// mappedID is already someone elses valid CalleeId
-						fmt.Printf("# /setmapping (%s) mappedID=(%s) already a calleeID (%v)\n",calleeID, mappedID, dbMappedEntry)
+						fmt.Printf("# /setmapping (%s) mappedID=(%s) already a calleeID (%v)\n",
+							calleeID, mappedID, dbMappedEntry)
 						time.Sleep(1000 * time.Millisecond)
 						fmt.Fprintf(w,"errorBlocked")
 						return
@@ -322,6 +323,7 @@ func httpFetchID(w http.ResponseWriter, r *http.Request, urlID string, calleeID 
 			return
 		}
 
+/*
 		unixTime := startRequestTime.Unix()
 		err = kvMain.Put(dbRegisteredIDs, registerID, DbEntry{unixTime, remoteAddr}, false)
 		if err!=nil {
@@ -331,12 +333,15 @@ func httpFetchID(w http.ResponseWriter, r *http.Request, urlID string, calleeID 
 			fmt.Fprintf(w,"errorRegisterFail")
 			// TODO this is bad! got to role back kvMain.Put((dbUser...) from above
 		} else {
+*/
 			// add registerID -> calleeID (assign) to mapping.map
 			mappingMutex.Lock()
 			mapping[registerID] = MappingDataType{calleeID,"none"}
 			mappingMutex.Unlock()
 			fmt.Fprintf(w,registerID)
+/*
 		}
+*/
 	}
 
 	return
@@ -425,12 +430,14 @@ func httpDeleteMapping(w http.ResponseWriter, r *http.Request, urlID string, cal
 }
 
 func deleteMapping(calleeID string, delID string, remoteAddr string) int {
+/*
 	// unregister delID from dbRegisteredIDs
 	err := kvMain.Delete(dbRegisteredIDs, delID)
 	if err!=nil && strings.Index(err.Error(), "skv key not found") < 0 {
 		fmt.Printf("# deletemapping (%s) fail to delete regID=%s err=%s\n", calleeID, delID, err)
 		return 1
 	}
+*/
 
 	unixTime := time.Now().Unix()
 	fmt.Printf("deletemapping (%s) id=%s rip=%s time=%v\n", calleeID, delID, remoteAddr, unixTime)
@@ -440,8 +447,11 @@ func deleteMapping(calleeID string, delID string, remoteAddr string) int {
 	delete(mapping,delID)
 	mappingMutex.Unlock()
 
+	// only needed to compensate for old bug: ignore err
+	kvMain.Delete(dbRegisteredIDs, delID)
+
 	// create a dbBlockedIDs entry (will be deleted after 60 days by timer)
-	err = kvMain.Put(dbBlockedIDs, delID, DbEntry{unixTime,calleeID}, false)
+	err := kvMain.Put(dbBlockedIDs, delID, DbEntry{unixTime,calleeID}, false)
 	if err!=nil {
 		fmt.Printf("# deletemapping (%s) error db=%s bucket=%s put key=%s err=%v\n",
 			calleeID, dbMainName, dbBlockedIDs, delID, err)
