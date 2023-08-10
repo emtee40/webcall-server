@@ -11,9 +11,7 @@ require (
 	github.com/nxadm/tail v1.4.8
 	github.com/pion/logging v0.2.2
 	go.etcd.io/bbolt v1.3.6
-	golang.org/x/crypto v0.0.0-20220314234659-1baeb1ce4c0b
+	golang.org/x/crypto v0.1.0
 	golang.org/x/net v0.7.0
 	gopkg.in/ini.v1 v1.63.0
 )
-
-//replace github.com/mattn/go-mastodon => ../go-mastodon

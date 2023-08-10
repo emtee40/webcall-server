@@ -198,10 +198,14 @@ func httpAdmin(kv skv.SKV, w http.ResponseWriter, r *http.Request, urlPath strin
 		err := db.Update(func(tx *bolt.Tx) error {
 			b := tx.Bucket([]byte(dbBlockedIDs))
 			c := b.Cursor()
-			for k, _ := c.First(); k != nil; k, _ = c.Next() {
+			for k, v := c.First(); k != nil; k, _ = c.Next() {
 				dbUserKey := string(k)
-				// dbUserKey format: 'calleeID_unixtime'
-				fmt.Fprintf(w,"blocked key=%s\n",dbUserKey)
+				var dbEntry DbEntry // DbEntry{unixTime, remoteAddr, urlPw}
+				d := gob.NewDecoder(bytes.NewReader(v))
+				d.Decode(&dbEntry)
+				// new dbUserKey format: 'calleeID'
+				// old dbUserKey format: 'calleeID_unixtime'
+				fmt.Fprintf(w,"blocked key=%s (%v)\n",dbUserKey,dbEntry)
 			}
 			return nil
 		})

@@ -206,23 +206,33 @@ func ticker3hours() {
 		err = db.Update(func(tx *bolt.Tx) error {
 			b := tx.Bucket([]byte(dbBlockedIDs))
 			c := b.Cursor()
-			for k, _ := c.First(); k != nil; k, _ = c.Next() {
+			for k, v := c.First(); k != nil; k, _ = c.Next() {
 				dbUserKey := string(k)
 				// dbUserKey format: 'calleeID_unixtime'
 				counter2++
+
 				idxUnderline := strings.LastIndex(dbUserKey,"_")
 				if idxUnderline<0 {
-					fmt.Printf("# ticker3hours error bucket=%s key=%s no underline\n", dbBlockedIDs, dbUserKey)
+					userID := dbUserKey
+					var dbEntry DbEntry // DbEntry{unixTime, remoteAddr, urlPw}
+					d := gob.NewDecoder(bytes.NewReader(v))
+					d.Decode(&dbEntry)
+					sinceDeletedInSecs := timeNowUnix - dbEntry.StartTime
+					if sinceDeletedInSecs > blockedForDays * 24*60*60 {
+						deleteKeyArray2 = append(deleteKeyArray2,userID)
+						counterDeleted2++
+					} else {
+						if logWantedFor("timer") {
+							secsToLive := blockedForDays * 24*60*60 - sinceDeletedInSecs
+							if logWantedFor("blocked") {
+								fmt.Printf("ticker3hours blocked but not outdated key=%s (wait %ds %ddays)\n",
+									dbUserKey, secsToLive, secsToLive/(24*60*60))
+							}
+						}
+					}
 				} else {
-					userID := dbUserKey[:idxUnderline]
-					if strings.HasPrefix(userID,"answie") || strings.HasPrefix(userID,"talkback") {
-						continue
-					}
-					if !isOnlyNumericString(userID) {
-						fmt.Printf("_ticker3hours !isOnlyNumericString key=%s\n", userID)
-						continue
-					}
-
+					// for backward compatibility (until Oct 10, 2023) only 
+					//userID := dbUserKey[:idxUnderline]
 					starttimeStr := dbUserKey[idxUnderline+1:]
 					starttime64, err := strconv.ParseInt(starttimeStr, 10, 64)
 					if err!=nil {

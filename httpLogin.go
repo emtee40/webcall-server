@@ -775,7 +775,7 @@ func createHashPw(urlID string, pw string, pwIdCombo *PwIdCombo, contextStr stri
 	expiration := time.Now().Add(6 * 31 * 24 * time.Hour) // same as in createCookie()
 	pwIdCombo.Expiration = expiration.Unix()
 
-	// cookieSecret is now opsolete
+	// cookieSecret is now obsolete
 	skipConfirm := true
 	return kvHashedPw.Put(dbHashedPwBucket, urlID, pwIdCombo, skipConfirm)
 }

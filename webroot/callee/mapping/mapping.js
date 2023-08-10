@@ -23,7 +23,7 @@ window.onload = function() {
 	}
 	if(calleeID=="") {
 		// no access without cookie
-		// TODO show err msg
+		// TODO show err msg (or not)
 		return;
 	}
 
@@ -98,7 +98,7 @@ function displayMapping() {
 
 	if(altIDs!="") {
 		dataBoxContent += "<table style='width:100%; border-collapse:separate; line-height:1.7em;'>"
-		dataBoxContent += "<tr style='color:#7c0;font-weight:600;user-select:none;'><td>ID</td><td>Label</td></tr>";
+		dataBoxContent += "<tr style='color:#7c0;font-weight:600;font-size:0.9em;user-select:none;'><td>ID (right click)</td><td>Label</td></tr>";
 
 		// main callee id
 		dataBoxContent += "<tr><td><a href='/user/"+calleeID+"' onclick='clickID("+calleeID+");return false;'>"+calleeID+"</a></td>" + "<td>(Main-ID)</td></tr>";
@@ -124,29 +124,32 @@ function displayMapping() {
 				if(id.indexOf(" ")>=0) {
 					id = id.replace(" ","");
 				}
-				if(id.length>11) {
-					id = id.substring(0,11);
+				if(id.length>16) {
+					id = id.substring(0,16);
 				}
 				if(assign.indexOf(" ")>=0) {
 					assign = assign.replace(" ","");
 				}
-				if(assign.length>8) {
-					assign = assign.substring(0,8);
+				if(assign.length>10) {
+					assign = assign.substring(0,10);
 				}
 				dataBoxContent += "<tr>"+
 				    "<td><a href='" +mainLink +id + "' onclick='clickID("+id+");return false;'>"+id+"</a></td>"+
 				    "<td><a onclick='edit(this,event,\""+id+"\",\""+assign+"\")'>"+ assign +"</a></td>"+
-				    "<td align='right'><a onclick='remove("+i+","+id+")' style='font-weight:600;'>X</a></td></tr>";
+				    "<td align='right'><a onclick='remove("+i+",\""+id+"\")' style='font-weight:600;'>X</a></td></tr>";
 			}
 		}
 		dataBoxContent += "</table>";
 	}
 
 	dataBoxContent += "<br>";
-	dataBoxContent += "<div style='margin-top:18px;'>";
+	dataBoxContent += "<div style='margin-top:18px; font-size:0.9em;'>";
 	if(count<5) {
 		// no more than 10 tmpID's per callee
-		dataBoxContent += "<button onclick='add()'>Add New ID</button> &nbsp; ";
+		dataBoxContent += "<span id='addbuttons'>";
+		dataBoxContent += "<button onclick='add()'>+ Random</button> &nbsp;";
+		dataBoxContent += "<button onclick='addCustom()'>+ Custom</button> &nbsp; ";
+		dataBoxContent += "</span>";
 	}
 	dataBoxContent += "<button style='float:right;' onclick='exitPage()'>Close</button>";
 	dataBoxContent += "</div>";
@@ -160,32 +163,130 @@ function clickID(id) {
 }
 
 function add() {
-	// fetch and register a new/free id
+	// fetch and register a new/free random id
+// TODO do not add more than max (5) entries
 	let api = apiPath+"/fetchid?id="+calleeID;
 	gLog('request fetchid api='+api);
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# add error("+xhr.responseText+")");
+			alert("Error: "+xhr.responseText);
 		} else if(xhr.responseText=="") {
 			console.log("# add empty response");
+			alert("Error: unknown");
 		} else {
 			let newID = xhr.responseText;
-			console.log("add newID="+newID);
+			console.log("add new random ID="+newID);
+			let oldAltIDs = altIDs;
 			// ",true," = activated and without an assigned name
 			if(altIDs=="") {
 				altIDs = newID+",true,";
 			} else {
 				altIDs += "|"+newID+",true,";
 			}
-			storeData();
+			storeData(function() {
+				// success: re-render id-manager
+				console.log("add storeData success");
+				displayMapping();
+			}, function(err) {
+				// fail: stay in the form
+				console.log("# add storeData fail "+err);
+				alert("Error: "+err);
+				altIDs = oldAltIDs;
+				// TODO
+				//addCustom();
+			});
 		}
-	}, errorAction);
+	}, errorAction); // will show an alert
+}
+
+let customID = "";
+let customIdMsg = "3-16 characters";
+function addCustom() {
+	console.log("addCustom customID="+customID);
+	let addbuttonsElement = document.getElementById("addbuttons");
+	addbuttonsElement.innerHTML = "";
+	let rect = addbuttonsElement.getBoundingClientRect();
+
+	formElement = document.createElement("div");
+	formElement.style = "position:absolute; left:"+rect.x+"px; top:"+(rect.y+window.scrollY)+"px; font-size:1.2em; z-index:100;";
+	formElement.innerHTML = "<form action='javascript:;' onsubmit='customSubmit(this,\""+customID+"\")' id='customID'> <input type='text' id='formtext' class='formtext' pattern='\\w{3,16}' value='"+customID+"' size='16' maxlength='16' autofocus> <input type='submit' id='submit' value='Store'> </form> <label for='customID' id='customIdLabel' style='display:inline-block;font-size:0.7em;'>"+customIdMsg+"</label>";
+	addbuttonsElement.appendChild(formElement);
+
+	// set focus
+	setTimeout(function() {
+		//console.log("addCustom focus");
+		let formtextElement = document.getElementById("formtext");
+		if(formtextElement) {
+			formtextElement.focus();
+		}
+	},300);
+	return;
+}
+
+function customSubmit() {
+	let formtextElement = document.getElementById("formtext");
+	customID = formtextElement.value;
+	if(customID==null || customID=="") {
+		customID = "";
+		displayMapping();
+		return;
+	}
+
+	customID = customID.toLowerCase();
+	console.log("customSubmit customID="+customID);
+
+	let formLabelElement = document.getElementById("customIdLabel");
+
+	// customID must be lowercase, only containing a-z + 0-9 (may never contain @ or apostrophe)
+	// TODO what about these: - . _ [ ] ( )
+	if(customID != customID.match(/([0-9a-z])/g).join("")) {
+		console.log("# customSubmit fail format");
+		addCustom();
+		return;
+	}
+
+	// TODO? must start with alphanumeric char (really?)
+	//       if customID.charAt(0) != a-z -> abort
+
+	// must be at least 3 and no longer than 16 chars
+	let len = customID.length;
+	if(len<3 || len>16) {
+		console.log("customSubmit fail len="+len);
+		addCustom();
+		return;
+	}
+
+	// TODO do not add more than max (5) entries
+
+	// customID is valid and can be stored (",true," = activated and without an assigned name)
+	let oldAltIDs = altIDs;
+	if(altIDs=="") {
+		altIDs = customID+",true,";
+	} else {
+		altIDs += "|"+customID+",true,";
+	}
+	storeData(function() {
+		// success: re-render id-manager
+		console.log("customSubmit storeData success");
+		customID = "";
+		displayMapping();
+	}, function(err) {
+		// fail:
+		console.log("# customSubmit storeData fail "+err);
+		customIdMsg = "Fail: "+err;
+		altIDs=oldAltIDs;
+		// keep the input form open
+		//setTimeout(function() {
+			addCustom();
+		//},1000);
+	});
 }
 
 var removeIdx = 0;
 var removeId = 0;
 function remove(idx,id) {
-	//console.log("remove "+idx+" "+id);
+	console.log("remove "+idx+" "+id);
 	removeIdx = idx;
 	removeId = id;
 
@@ -198,7 +299,7 @@ function removeDo() {
 	if(!gentle) console.log('request api',api);
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
-			console.log("# /deletemapping err="+err);
+			console.log("# /deletemapping err="+xhr.responseText);
 		} else if(xhr.responseText!="ok") {
 			console.log("/deletemapping response not 'ok' (%s)",xhr.responseText);
 		} else {
@@ -220,28 +321,35 @@ function removeDo() {
 				}
 			}
 			//console.log('remove new altIDs='+altIDs);
-			storeData();
+			storeData(function() {
+				// success: re-render id-manager
+				console.log("removeDo storeData success");
+				displayMapping();
+			}, function(err) {
+				// fail:
+				console.log("# removeDo storeData fail "+err);
+				alert("Error: "+err);
+				// TODO keep the input form open
+				//addCustom();
+			});
 		}
 	}, errorAction);
 }
 
-function storeData() {
+function storeData(successFkt,failFkt) {
 	// store string 'altIDs' into db
 	let api = apiPath+"/setmapping?id="+calleeID;
 	if(!gentle) console.log('/setmapping api',api);
 	ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log('# /setmapping err='+xhr.responseText);
+			failFkt(xhr.responseText.substring(5));
 		} else {
-			// all is well
-			displayMapping();
+			successFkt();
 		}
-	}, errorAction, altIDs);
+	}, errorAction, // errorAction may show an alert() TODO better call failFkt('err') ???
+	altIDs);
 }
-
-// TODO need a active/inactive checkbox (default = activated)
-// on deactivate: remove mapping[urlID] (via server) and patch altIDs and call storeData()
-// on reactivate: add mapping[urlID] (via server) and patch altIDs and call storeData()
 
 var myTableElement;
 function edit(tableElement,ev,key,assign) {
@@ -258,7 +366,7 @@ function edit(tableElement,ev,key,assign) {
 	// offer a form for the user to edit the name at pos rect.x / rect.y and rect.width
 	formElement = document.createElement("div");
 	formElement.style = "position:absolute; left:"+rect.x+"px; top:"+(rect.y+window.scrollY)+"px; z-index:100;";
-	formElement.innerHTML = "<form action='javascript:;' onsubmit='editSubmit(this,\""+key+"\",\""+assign+"\")' id='user-comment'> <input type='text' id='formtext' value='"+assign+"' size='8' maxlength='8' autofocus> <input type='submit' id='submit' value='Store'> </form>";
+	formElement.innerHTML = "<form action='javascript:;' onsubmit='editSubmit(this,\""+key+"\",\""+assign+"\")' id='user-comment'> <input type='text' id='formtext' value='"+assign+"' size='10' maxlength='10' autofocus> <input type='submit' id='submit' value='Store'> </form>";
 	databoxElement.appendChild(formElement);
 	formForNameOpen = true;
 }
@@ -316,7 +424,15 @@ function editSubmit(formElement, id, assign) {
 				}
 				if(!gentle) console.log("newAltIDs="+newAltIDs);
 				altIDs = newAltIDs;
-				storeData();
+				storeData(function() {
+					// success: re-render id-manager
+					console.log("editSubmit storeData success");
+					displayMapping();
+				}, function(err) {
+					// fail:
+					console.log("# editSubmit storeData fail "+err);
+					alert("Error: "+err);
+				});
 			}
 		}, errorAction);
 	}
@@ -355,8 +471,7 @@ function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {
 }
 
 function errorAction(errString,err) {
-	console.log('xhr error',errString);
-	// let user know via alert
+	console.log("# xhr error "+errString);
 	alert("xhr error "+errString);
 }
 

@@ -940,7 +940,11 @@ function getSettingDone() {
 				// TODO is altIdArray[i] sometimes garbage?
 				let userLinkMap = userLink.replace("/user/"+calleeID,"/user/"+altIdArray[i]);
 				let showUserLinkMap = altIdArray[i];
-				links += "<a target='_blank' href='"+userLinkMap+"'>"+showUserLinkMap+"</a> ("+altLabel[i]+")<br>";
+				if(altLabel[i]=="") {
+					links += "<a target='_blank' href='"+userLinkMap+"'>"+showUserLinkMap+"</a><br>";
+				} else {
+					links += "<a target='_blank' href='"+userLinkMap+"'>"+showUserLinkMap+"</a> ("+altLabel[i]+")<br>";
+				}
 			}
 		}
 		links += "</div>";
@@ -2980,8 +2984,8 @@ function openDialUrl(url) {
 function openIdMapping() {
 	let url = "/callee/mapping/"; //?ds="+playDialSounds;
 	gLog('openIdMapping',url);
-	// id manager does not need 600px width
-	iframeWindowOpen(url,false,"height:460px;max-width:500px;",true);
+	// id manager needs 500px height
+	iframeWindowOpen(url,false,"height:500px;max-width:500px;",true);
 }
 
 function openSettings() {

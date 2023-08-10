@@ -66,9 +66,20 @@ func getMapping(calleeID string, remoteAddr string) (int,string) {
 	return 0,dbUser.AltIDs
 }
 
+func isLowecaseLetter(c rune) bool {
+	return ('a' <= c && c <= 'z') || ('0' <= c && c <= '9')
+}
+
+func isLowercaseWord(s string) bool {
+	for _, c := range s {
+	    if !isLowecaseLetter(c) {
+	        return false
+	    }
+	}
+	return true
+}
+
 func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, calleeID string, cookie *http.Cookie, remoteAddr string) {
-	// store contactID with name into contacts of calleeID
-	// httpSetContacts does not report errors back to the client (only logs them)
 	if calleeID=="" || calleeID=="undefined" {
 		//fmt.Printf("# /setmapping calleeID empty\n")
 		return
@@ -90,21 +101,11 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 		data = string(postBuf[:length])
 	}
 
-	// NOTE: one mistake and the current .AltIDs are gone
-	// TODO: plausibility check on data: id must be numerical, must not contain blanks, max len of id and assign
-	//       must not contain linefeeds, '<' and '>'
-	// /setmapping (98597153158) done data=(93489236986,true,|77728892315,true,|48849331002,true,|94042933561,true,)
-	if strings.HasPrefix(data,"<") {
+	if strings.Index(data,"<")>=0 || strings.Index(data,"\n")>=0 {
 		dispData := data
-		if len(data)>20 { dispData = data[:20] }
-		fmt.Printf("# /setmapping (%s) format error '<' data=(%s)\n",calleeID, dispData)
-		fmt.Fprintf(w,"errorFormat")
-		return
-	}
-	if strings.Contains(data,"\n") {
-		dispData := data
-		if len(data)>20 { dispData = data[:20] }
-		fmt.Printf("# /setmapping (%s) format error 'lf' data=(%s)\n",calleeID, dispData)
+		if len(data)>40 { dispData = data[:40] }
+		fmt.Printf("# /setmapping (%s) data=(%s) format error \n",calleeID, dispData)
+		time.Sleep(1000 * time.Millisecond)
 		fmt.Fprintf(w,"errorFormat")
 		return
 	}
@@ -112,7 +113,8 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 	var dbEntry DbEntry
 	err := kvMain.Get(dbRegisteredIDs, calleeID, &dbEntry)
 	if err != nil {
-		fmt.Printf("# /setmapping (%s) data=(%s) err=%v\n",calleeID, data, err)
+		fmt.Printf("# /setmapping (%s) get dbEntry data=(%s) err=%v\n",calleeID, data, err)
+		time.Sleep(1000 * time.Millisecond)
 		fmt.Fprintf(w,"errorGetID")
 		return
 	}
@@ -120,38 +122,137 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 	var dbUser DbUser
 	err = kvMain.Get(dbUserBucket, dbUserKey, &dbUser)
 	if err != nil {
-		fmt.Printf("# /setmapping (%s) data=(%s) err=%v\n",calleeID, data, err)
+		fmt.Printf("# /setmapping (%s) get dbUser data=(%s) err=%v\n",calleeID, data, err)
+		time.Sleep(1000 * time.Millisecond)
 		fmt.Fprintf(w,"errorGetUser")
 		return
 	}
 
+	// /setmapping (98597153158) done data=(93489236986,true,|77728892315,true,|48849331002,true,|94042933561,true,)
+	fmt.Printf("/setmapping (%s) data=(%s) check...\n",calleeID, data)
+
+	// verify each element in data before writing over dbUser.AltIDs
+	if data!="" {
+		toks := strings.Split(data, "|")
+		if len(toks)>5 {
+			fmt.Printf("# /setmapping (%s) data=(%s) count=%d error\n",calleeID, data, len(toks))
+			time.Sleep(1000 * time.Millisecond)
+			fmt.Fprintf(w,"errorCount")
+			return
+		}
+		for tok := range toks {
+			toks2 := strings.Split(toks[tok], ",")
+			if toks2[0] != "" {
+				// verify mappedID: a-z 0-9, min/max len
+				mappedID := toks2[0]
+				if(!isLowercaseWord(mappedID)) {
+					// found forbidden char
+					fmt.Printf("# /setmapping (%s) mappedID=(%s) special char error\n",calleeID, mappedID)
+					time.Sleep(1000 * time.Millisecond)
+					fmt.Fprintf(w,"errorFormat")
+					return
+				}
+				if len(mappedID)<3 || len(mappedID)>16 {
+					fmt.Printf("# /setmapping (%s) mappedID=(%s) length error\n",calleeID, mappedID)
+					time.Sleep(1000 * time.Millisecond)
+					fmt.Fprintf(w,"errorLength")
+					return
+				}
+
+				// verify assignedName: max len 10
+				assignedName := toks2[2]
+/* TODO allow uppercase assignedName
+				if(!isLowercaseWord(assignedName)) {
+					// found forbidden char
+					fmt.Printf("# /setmapping (%s) assignedName=(%s) special char error\n",calleeID, assignedName)
+					time.Sleep(1000 * time.Millisecond)
+					fmt.Fprintf(w,"errorFormat")
+					return
+				}
+*/
+				if len(assignedName)>10 {
+					fmt.Printf("# /setmapping (%s) assignedName=(%s) length error\n",calleeID, assignedName)
+					time.Sleep(1000 * time.Millisecond)
+					fmt.Fprintf(w,"errorLength")
+					return
+				}
+
+				// mappedID must not be in use by anyone else yet (other than by calleeID)
+				// if it is already used by us (calleeID) or by noone, that is fine
+
+				// check if mappedID is already mapped
+				mappingMutex.RLock()
+				mappingData,ok := mapping[mappedID]
+				mappingMutex.RUnlock()
+				if ok {
+					if mappingData.CalleeId != calleeID {
+						// mappedID is already mapped and not by this calleeID
+						fmt.Printf("# /setmapping (%s) mappedID=(%s) already mapped\n",calleeID, mappedID)
+						time.Sleep(1000 * time.Millisecond)
+						fmt.Fprintf(w,"errorBlocked")
+						return
+					}
+					//fmt.Printf("/setmapping (%s) mappedID=(%s) mapped by us\n",calleeID, mappedID)
+				} else {
+					//fmt.Printf("/setmapping (%s) mappedID=(%s) not mapped\n",calleeID, mappedID)
+				}
+
+				var dbMappedEntry DbEntry
+				err := kvMain.Get(dbRegisteredIDs, mappedID, &dbMappedEntry)
+				if err == nil {
+/*
+					fmt.Printf("/setmapping (%s) mappedID=(%s) load dbMappedUser...\n",calleeID, mappedID)
+					// TODO why do I need to do this???
+					dbUserKey := fmt.Sprintf("%s_%d", mappedID, dbMappedEntry.StartTime)
+					var dbMappedUser DbUser
+					err = kvMain.Get(dbUserBucket, dbUserKey, &dbMappedUser)
+					if err == nil {
+*/
+						// mappedID is already someone elses valid CalleeId
+						fmt.Printf("# /setmapping (%s) mappedID=(%s) already a calleeID (%v)\n",calleeID, mappedID, dbMappedEntry)
+						time.Sleep(1000 * time.Millisecond)
+						fmt.Fprintf(w,"errorBlocked")
+						return
+/*
+					}
+*/
+				}
+
+				err = kvMain.Get(dbBlockedIDs,mappedID,&dbMappedEntry)
+				//fmt.Printf("! /setmapping (%s) mappedID=(%s) entry(%v) err=%v\n",calleeID, mappedID, dbMappedEntry, err)
+				if err==nil {
+					// found in dbBlockedIDs
+					fmt.Printf("# /setmapping (%s) mappedID=(%s) currently blocked (%v)\n",calleeID, mappedID, dbMappedEntry)
+					time.Sleep(1000 * time.Millisecond)
+					fmt.Fprintf(w,"errorCurrentlyBlocked")
+					return
+				}
+				//fmt.Printf("/setmapping (%s) mappedID=(%s) is available\n",calleeID, mappedID)
+			}
+		}
+	}
+	fmt.Printf("/setmapping (%s) data=(%s) is valid\n",calleeID, data)
+
+	// store dbUser with new/valid AltIDs
 	dbUser.AltIDs = data
 	err = kvMain.Put(dbUserBucket, dbUserKey, dbUser, true)
 	if err != nil {
-		fmt.Printf("# /setmapping (%s) data=(%s) err=%v\n",calleeID, data, err)
-		fmt.Fprintf(w,"errorSetUser")
+		fmt.Printf("# /setmapping (%s) put dbUser data=(%s) err=%v\n",calleeID, data, err)
+		time.Sleep(1000 * time.Millisecond)
+		fmt.Fprintf(w,"errorStore")
 		return
 	}
-	// no error
+	// we must add any new mappedID to mapping[] as quickly as possible, before another client may want to make use of it
 
 	// update mapping[] and ringMuted[] according to AltIDs
-	if dbUser.AltIDs!="" {
-		//fmt.Printf("initloop %s (%s)->%s\n",k,calleeID,dbUser.AltIDs)
-		toks := strings.Split(dbUser.AltIDs, "|")
+	if data!="" {
+		//fmt.Printf("initloop %s (%s)->%s\n",k,calleeID,data)
+		toks := strings.Split(data, "|")
 		for tok := range toks {
 			toks2 := strings.Split(toks[tok], ",")
 			if toks2[0] != "" {
 				// ensure mappedID is not overlong and does not contain wrong format data (e.g. HTML)
 				mappedID := toks2[0]
-				mappedID = strings.Replace(mappedID, " ", "", -1)
-				mappedID = strings.Replace(mappedID, "\n", "", -1)
-				mappedID = strings.Replace(mappedID, "<", "", -1)
-				mappedID = strings.Replace(mappedID, ">", "", -1)
-				mappedID = strings.TrimSpace(mappedID)
-				if len(mappedID)>32 {
-					mappedID = mappedID[:32]
-				}
-
 				ringMutedMutex.Lock()
 				if toks2[1] != "true" {
 					// this mapping has been deactivated: set ringMuted
@@ -167,15 +268,6 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 				mappingData := mapping[mappedID]
 				if mappingData.CalleeId != calleeID {
 					assignedName := toks2[2]
-					// ensure assignedName is not overlong and does not contain wrong format data (e.g. HTML)
-					assignedName = strings.Replace(assignedName, " ", "", -1)
-					assignedName = strings.Replace(assignedName, "\n", "", -1)
-					assignedName = strings.Replace(assignedName, "<", "", -1)
-					assignedName = strings.Replace(assignedName, ">", "", -1)
-					assignedName = strings.TrimSpace(assignedName)
-					if len(mappedID)>10 {
-						mappedID = mappedID[:10]
-					}
 
 					fmt.Printf("/setmapping (%s) set (%s)=(%s)\n",calleeID, mappedID, assignedName)
 					mappingMutex.Lock()
@@ -224,7 +316,8 @@ func httpFetchID(w http.ResponseWriter, r *http.Request, urlID string, calleeID 
 			// registerID is already registered
 			fmt.Printf("# /fetchid (%s) newid=%s already registered db=%s bucket=%s\n",
 				calleeID, registerID, dbMainName, dbRegisteredIDs)
-			fmt.Fprintf(w, "error already registered")
+			time.Sleep(1000 * time.Millisecond)
+			fmt.Fprintf(w, "errorRegistered")
 // TODO jump to GetRandomCalleeID()?
 			return
 		}
@@ -234,7 +327,8 @@ func httpFetchID(w http.ResponseWriter, r *http.Request, urlID string, calleeID 
 		if err!=nil {
 			fmt.Printf("# /fetchid (%s) error db=%s bucket=%s put err=%v\n",
 				registerID,dbMainName,dbRegisteredIDs,err)
-			fmt.Fprintf(w,"error cannot register ID")
+			time.Sleep(1000 * time.Millisecond)
+			fmt.Fprintf(w,"errorRegisterFail")
 			// TODO this is bad! got to role back kvMain.Put((dbUser...) from above
 		} else {
 			// add registerID -> calleeID (assign) to mapping.map
@@ -333,13 +427,12 @@ func httpDeleteMapping(w http.ResponseWriter, r *http.Request, urlID string, cal
 func deleteMapping(calleeID string, delID string, remoteAddr string) int {
 	// unregister delID from dbRegisteredIDs
 	err := kvMain.Delete(dbRegisteredIDs, delID)
-	if err!=nil {
-		fmt.Printf("# deletemapping fail to delete id=%s err=%s\n", delID, err)
+	if err!=nil && strings.Index(err.Error(), "skv key not found") < 0 {
+		fmt.Printf("# deletemapping (%s) fail to delete regID=%s err=%s\n", calleeID, delID, err)
 		return 1
 	}
 
 	fmt.Printf("deletemapping (%s) id=%s %s\n", calleeID, delID, remoteAddr)
-
 	// remove delID from mapping.map
 	mappingMutex.Lock()
 	delete(mapping,delID)
@@ -347,12 +440,20 @@ func deleteMapping(calleeID string, delID string, remoteAddr string) int {
 
 	// create a dbBlockedIDs entry (will be deleted after 60 days by timer)
 	unixTime := time.Now().Unix()
+/*
 	dbUserKey := fmt.Sprintf("%s_%d",delID, unixTime)
 	//fmt.Printf("deletemapping (%s) created blockedID key=%s %s\n", calleeID, dbUserKey, remoteAddr)
 	err = kvMain.Put(dbBlockedIDs, dbUserKey, DbUser{}, false)
 	if err!=nil {
-		fmt.Printf("# deletemapping error db=%s bucket=%s put key=%s err=%v\n",
-			dbMainName,dbBlockedIDs,delID,err)
+		fmt.Printf("# deletemapping (%s) error db=%s bucket=%s put key=%s err=%v\n",
+			calleeID, dbMainName, dbBlockedIDs, delID, err)
+		return 2
+	}
+*/
+	err = kvMain.Put(dbBlockedIDs, delID, DbEntry{unixTime,""}, false)
+	if err!=nil {
+		fmt.Printf("# deletemapping (%s) error db=%s bucket=%s put key=%s err=%v\n",
+			calleeID, dbMainName, dbBlockedIDs, delID, err)
 		return 2
 	}
 	return 0
