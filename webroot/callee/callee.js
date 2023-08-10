@@ -852,11 +852,18 @@ function getSettings() {
 					if(id.length>11) {
 						id = id.substring(0,11);
 					}
-					let active = tok2[1].trim();
+					let active = false;
+					if(typeof tok2[1] !== "undefined" && tok2[1] !== null) {
+						active = tok2[1].trim();
+					}
+					let label = "";
+					if(typeof tok2[2] !== "undefined" && tok2[2] !== null) {
+						label = tok2[2].trim();
+					}
 					//console.log("tok2 id="+id+" active="+active);
 					altIdArray.push(id);
 					altIdActive.push(active);
-					altLabel.push(tok2[2].trim());
+					altLabel.push(label);
 					//console.log("getsettings altIdArray.length="+altIdArray.length);
 				}
 			}

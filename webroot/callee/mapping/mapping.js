@@ -164,6 +164,7 @@ function clickID(id) {
 
 function add() {
 	// fetch free new random id
+	if(checkCookie()) return;
 
 // TODO do not add more than max (5) entries
 	let api = apiPath+"/fetchid?id="+calleeID;
@@ -205,6 +206,7 @@ let customID = "";
 let customIdMsg = "3-16 characters";
 function addCustom() {
 	console.log("addCustom customID="+customID);
+	if(checkCookie()) return;
 	let addbuttonsElement = document.getElementById("addbuttons");
 	addbuttonsElement.innerHTML = "";
 	let rect = addbuttonsElement.getBoundingClientRect();
@@ -227,6 +229,7 @@ function addCustom() {
 
 function customSubmit() {
 	let formtextElement = document.getElementById("formtext");
+	if(checkCookie()) return;
 	customID = formtextElement.value;
 	if(customID==null || customID=="") {
 		customID = "";
@@ -290,6 +293,7 @@ function remove(idx,id) {
 	console.log("remove "+idx+" "+id);
 	removeIdx = idx;
 	removeId = id;
+	if(checkCookie()) return;
 
 	let yesNoInner = "<div style='position:absolute; left:-999em; top:0px; width:160px; z-index:110; background:#45dd; color:#fff; padding:20px 30px; line-height:2.5em; border-radius:3px; cursor:pointer;'>Delete this ID ?<br>"+id+"<br><a onclick='removeDo();history.back();'>Delete!</a> &nbsp; <a onclick='history.back();'>Cancel</a></div>";
 	menuDialogOpen(dynDialog,true,yesNoInner);
@@ -298,6 +302,7 @@ function remove(idx,id) {
 function removeDo() {
 	let api = apiPath+"/deletemapping?id="+calleeID+"&delid="+removeId;
 	if(!gentle) console.log('request api',api);
+	if(checkCookie()) return;
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# /deletemapping err="+xhr.responseText);
@@ -352,10 +357,32 @@ function storeData(successFkt,failFkt) {
 	altIDs);
 }
 
+function checkCookie() {
+	if(document.cookie=="") {
+		// no cookie exists
+		alert("WebCall cookie is missing");
+		return true;
+	}
+	if(!document.cookie.startsWith("webcallid=")) {
+		// wrong cookie exists
+		alert("Wrong cookie found");
+		return true;
+	}
+	// cookie webcallid exists
+	let cookieName = document.cookie.substring(10);
+	if(cookieName!=calleeID) {
+		//alert("WebCall cookie has changed "+calleeID+" to "+cookieName);
+		alert("WebCall cookie has changed");
+		return true;
+	}
+	return false;
+}
+
 var myTableElement;
 function edit(tableElement,ev,key,assign) {
 	if(!gentle) console.log("edit key="+key+" assign="+assign);
 	// edit assign string (see below on how)
+	if(checkCookie()) return;
 	let rect = tableElement.getBoundingClientRect();
 	if(!gentle) console.log('edit',key,name,ev.pageX,ev.pageY);
 	if(formForNameOpen) {
@@ -374,6 +401,8 @@ function edit(tableElement,ev,key,assign) {
 
 function editSubmit(formElement, id, assign) {
 	if(!gentle) console.log("editSubmit id="+id+" assign="+assign);
+	if(checkCookie()) return;
+
 	let formtextElement = document.getElementById("formtext");
 	let newAssign = formtextElement.value;
 	if(!gentle) console.log('editSubmit value change',assign,newAssign);

@@ -30,7 +30,6 @@ func httpGetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 
 	errcode,altIDs := getMapping(calleeID,remoteAddr)
 	if errcode==0 && altIDs!="" {
-		// TODO here we might want to parse altIDs for plausibility
 		fmt.Fprintf(w,altIDs)
 	}
 	// if(xhr.responseText=="") there are no altIDs
@@ -221,7 +220,7 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 					// found in dbBlockedIDs
 					// TODO not blocked if dbMappedEntry.Ip == calleeID
 					if dbMappedEntry.Ip != calleeID {
-						fmt.Printf("# /setmapping (%s) mappedID=(%s) currently blocked (%v)\n",
+						fmt.Printf("! /setmapping (%s) mappedID=(%s) currently blocked (%v)\n",
 							calleeID, mappedID, dbMappedEntry)
 						time.Sleep(1000 * time.Millisecond)
 						fmt.Fprintf(w,"errorCurrentlyBlocked")
