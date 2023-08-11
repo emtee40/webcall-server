@@ -244,7 +244,7 @@ function prepareSettings(xhrresponse) {
 	if(typeof Android !== "undefined" && Android !== null) {
 		displayVersion += "WebCall for Android v"+Android.getVersionName()+"<br>";
 		if(calleeVersion!=clientVersion) {
-			let clearcache = function {
+			let clearcache = function() {
 				if(typeof Android !== "undefined" && Android !== null) {
 					if(typeof Android.reload !== "undefined" && Android.reload !== null) {
 						let wasConnected = wsConn!=null;
