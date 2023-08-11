@@ -132,6 +132,7 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 
 	// verify each element in data before writing over dbUser.AltIDs
 	if data!="" {
+		var acceptedIDs []string
 		toks := strings.Split(data, "|")
 		if len(toks)>5 {
 			fmt.Printf("# /setmapping (%s) data=(%s) count=%d error\n",calleeID, data, len(toks))
@@ -156,6 +157,16 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 					time.Sleep(1000 * time.Millisecond)
 					fmt.Fprintf(w,"errorLength")
 					return
+				}
+
+				// check for duplicates
+				for _, v := range acceptedIDs {
+					if(v==mappedID) {
+						fmt.Printf("! /setmapping (%s) mappedID=(%s) is duplicate\n", calleeID, mappedID)
+						time.Sleep(1000 * time.Millisecond)
+						fmt.Fprintf(w,"errorDuplicate")
+						return
+					}
 				}
 
 				// verify assignedName: max len 10
@@ -227,7 +238,9 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 						return
 					}
 				}
-				//fmt.Printf("/setmapping (%s) mappedID=(%s) is available\n",calleeID, mappedID)
+
+				//fmt.Printf("/setmapping (%s) mappedID=(%s) is available/valid\n",calleeID, mappedID)
+				acceptedIDs = append(acceptedIDs,mappedID)
 			}
 		}
 	}

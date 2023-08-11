@@ -215,7 +215,7 @@ function add() {
 }
 
 let customID = "";
-let customIdMsg = "3-16 characters";
+let customIdMsg = "3-16 lowercase letters + numbers";
 function addCustom() {
 	console.log("addCustom customID="+customID);
 	if(checkCookie()) return;
