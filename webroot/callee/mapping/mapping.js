@@ -10,6 +10,12 @@ var formForCustomIDOpen = false;
 var formElement = null;
 
 window.onload = function() {
+	let urlId = "";
+	let id = getUrlParams("id");
+	if(typeof id!=="undefined" && id!="") {
+		urlId = id;
+		console.log('onload urlId='+urlId);
+	}
 	if(document.cookie!="" && document.cookie.startsWith("webcallid=")) {
 		// cookie webcallid exists
 		let cookieName = document.cookie.substring(10);
@@ -17,14 +23,19 @@ window.onload = function() {
 		if(idxAmpasent>0) {
 			cookieName = cookieName.substring(0,idxAmpasent);
 		}
-		gLog('onload cookieName='+cookieName);
+		console.log('onload cookieName='+cookieName);
 		if(cookieName!="") {
 			calleeID = cookieName
 		}
 	}
 	if(calleeID=="") {
-		// no access without cookie
-		// TODO show err msg (or not)
+		console.log('onload no calleeID');
+		alert("Error: WebCall cookie missing");
+		return;
+	}
+	if(calleeID!=urlId) {
+		console.log('onload wrong cookie '+calleeID+' not '+urlId);
+		alert("Error: wrong cookie");
 		return;
 	}
 
@@ -86,9 +97,6 @@ function requestData() {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# requestData error("+xhr.responseText+")");
 			alert("Error: "+xhr.responseText);
-//		} else if(xhr.responseText=="") {
-//			console.log("# requestData empty response");
-//			alert("Error: empty response");
 		} else {
 			altIDs = xhr.responseText;
 			displayMapping();

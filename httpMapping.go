@@ -14,17 +14,21 @@ import (
 
 
 func httpGetMapping(w http.ResponseWriter, r *http.Request, urlID string, calleeID string, cookie *http.Cookie, remoteAddr string) {
+	fmt.Printf("/getmapping (%s) urlID=%s %s\n", calleeID, urlID, remoteAddr)
 	if calleeID=="" {
 		fmt.Printf("# /getmapping calleeID empty urlID=%s %s\n",urlID, remoteAddr)
+		fmt.Fprintf(w,"errorNoCalleeID")
 		return
 	}
 	if cookie==nil {
 		fmt.Printf("# /getmapping (%s) fail no cookie %s\n", calleeID, remoteAddr)
+		fmt.Fprintf(w,"errorNoCookie")
 		return
 	}
 	// if calleeID!=urlID, that's likely someone trying to run more than one callee in the same browser
 	if urlID!="" && urlID!=calleeID {
 		fmt.Printf("# /getmapping urlID=%s != calleeID=%s %s\n",urlID,calleeID, remoteAddr)
+		fmt.Fprintf(w,"errorWrongCookie")
 		return
 	}
 
