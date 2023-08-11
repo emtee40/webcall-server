@@ -244,16 +244,6 @@ function prepareSettings(xhrresponse) {
 	if(typeof Android !== "undefined" && Android !== null) {
 		displayVersion += "WebCall for Android v"+Android.getVersionName()+"<br>";
 		if(calleeVersion!=clientVersion) {
-			var clearcache = function() {
-				if(typeof Android.reload !== "undefined" && Android.reload !== null) {
-					let wasConnected = wsConn!=null;
-					Android.wsClose();
-					console.log("clearcache android wsClearCache(true,"+wasConnected+")");
-					Android.wsClearCache(true, wasConnected); // autoreload, autoreconnect
-				} else {
-					console.log("clearcache android reload undefined");
-				}
-			}
 			displayVersion += "WebCall Core current v"+calleeVersion+"<br>"+
 				              "WebCall Core online v"+clientVersion+"<br>"+
 				              "To update: <a href='' onclick='clearcache()'>Clear cache</a>";
@@ -276,6 +266,19 @@ function prepareSettings(xhrresponse) {
 		formPw.focus();
 	},400);
 	// data will be stored in submitForm()
+}
+
+function clearcache() {
+	if(typeof Android !== "undefined" && Android !== null) {
+		if(typeof Android.reload !== "undefined" && Android.reload !== null) {
+			let wasConnected = wsConn!=null;
+			Android.wsClose();
+			console.log("clearcache android wsClearCache(true,"+wasConnected+")");
+			Android.wsClearCache(true, wasConnected); // autoreload, autoreconnect
+		} else {
+			console.log("clearcache android reload undefined");
+		}
+	}
 }
 
 /*
