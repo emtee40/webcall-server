@@ -86,9 +86,9 @@ function requestData() {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# requestData error("+xhr.responseText+")");
 			alert("Error: "+xhr.responseText);
-		} else if(xhr.responseText=="") {
-			console.log("# requestData empty response");
-			alert("Error: empty response");
+//		} else if(xhr.responseText=="") {
+//			console.log("# requestData empty response");
+//			alert("Error: empty response");
 		} else {
 			altIDs = xhr.responseText;
 			displayMapping();
