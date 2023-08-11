@@ -5,7 +5,8 @@ const calleeMode = false;
 
 var calleeID = "";
 var callerName = "";
-var formForNameOpen = false;
+var formForNameOpen = false; // label name
+var formForCustomIDOpen = false;
 var formElement = null;
 
 window.onload = function() {
@@ -46,6 +47,9 @@ window.onload = function() {
 				parentElement.removeChild(formElement);
 				formElement = null;
 				formForNameOpen = false;
+			} else if(formForCustomIDOpen) {
+				if(!gentle) console.log('mapping.js esc key (formForCustomIDOpen)');
+				displayMapping();
 			} else {
 				if(!gentle) console.log('mapping.js esc key -> exit');
 				exitPage();
@@ -95,6 +99,7 @@ function requestData() {
 var dataBoxContent="";
 function displayMapping() {
 	if(!gentle) console.log("displayMapping("+altIDs+")");
+	formForCustomIDOpen = false;
 	let mainLink = window.location.href;
 	let idx = mainLink.indexOf("/callee/");
 	if(idx>0) {
@@ -153,13 +158,12 @@ function displayMapping() {
 	dataBoxContent += "<br>";
 	dataBoxContent += "<div style='margin-top:18px; font-size:0.9em;'>";
 	if(count<5) {
-		// no more than 10 tmpID's per callee
 		dataBoxContent += "<span id='addbuttons'>";
 		dataBoxContent += "<button onclick='add()'>+ Random</button> &nbsp;";
 		dataBoxContent += "<button onclick='addCustom()'>+ Custom</button> &nbsp; ";
+		dataBoxContent += "<button style='float:right;' onclick='exitPage()'>Close</button>";
 		dataBoxContent += "</span>";
 	}
-	dataBoxContent += "<button style='float:right;' onclick='exitPage()'>Close</button>";
 	dataBoxContent += "</div>";
 
 	databoxElement.innerHTML = dataBoxContent;
@@ -216,13 +220,18 @@ function addCustom() {
 	console.log("addCustom customID="+customID);
 	if(checkCookie()) return;
 	let addbuttonsElement = document.getElementById("addbuttons");
-	addbuttonsElement.innerHTML = "";
+	addbuttonsElement.innerHTML = ""; // remove add-buttons
 	let rect = addbuttonsElement.getBoundingClientRect();
 
 	formElement = document.createElement("div");
 	formElement.style = "position:absolute; left:"+rect.x+"px; top:"+(rect.y+window.scrollY)+"px; font-size:1.2em; z-index:100;";
-	formElement.innerHTML = "<form action='javascript:;' onsubmit='customSubmit(this,\""+customID+"\")' id='customID'> <input type='text' id='formtext' class='formtext' pattern='\\w{3,16}' value='"+customID+"' size='16' maxlength='16' autofocus> <input type='submit' id='submit' value='Store'> </form> <label for='customID' id='customIdLabel' style='display:inline-block;font-size:0.7em;'>"+customIdMsg+"</label>";
+	let formfield = "<table style='_width:100%; _border-collapse:separate;'>"+
+		"<tr><td><form action='javascript:;' onsubmit='customSubmit(event)' id='customID'> <input type='text' id='formtext' class='formtext' pattern='\\w{3,16}' value='"+customID+"' size='16' maxlength='16' autofocus> <input type='submit' id='submit' value='Store'></form></td> <td align='right'><a onclick='displayMapping()' style='font-weight:600;margin-left:6px;'>X</a></td></tr>"+
+		"<tr><td><label for='customID' id='customIdLabel' style='_display:inline-block;font-size:0.7em;'>"+customIdMsg+"</label></td></tr"+
+		"></table>";
+	formElement.innerHTML = formfield;
 	addbuttonsElement.appendChild(formElement);
+	formForCustomIDOpen = true;
 
 	// set focus
 	setTimeout(function() {
@@ -235,12 +244,16 @@ function addCustom() {
 	return;
 }
 
-function customSubmit() {
+function customSubmit(e) {
+	console.log("customSubmit");
 	let formtextElement = document.getElementById("formtext");
 	if(checkCookie()) return;
 	customID = formtextElement.value;
 	if(customID==null || customID=="") {
+		console.log("customSubmit cancel: no customID");
 		customID = "";
+		// prevent "Form submission canceled because the form is not connected"
+		e.preventDefault();
 		displayMapping();
 		return;
 	}
@@ -253,15 +266,15 @@ function customSubmit() {
 	// customID must be lowercase, only containing a-z + 0-9 (may never contain @ or apostrophe)
 	// TODO what about these: - . _ [ ] ( )
 	if(customID != customID.match(/([0-9a-z])/g).join("")) {
-		console.log("# customSubmit fail format");
+		console.log("customSubmit fail format");
 		addCustom();
 		return;
 	}
 
-	// TODO? must start with alphanumeric char (really?)
+	// TODO? must start with alphanumeric char (really?) otherwise collision with randomIDs possible
 	//       if customID.charAt(0) != a-z -> abort
 
-	// must be at least 3 and no longer than 16 chars
+	// at least 3 and no longer than 16 chars
 	let len = customID.length;
 	if(len<3 || len>16) {
 		console.log("customSubmit fail len="+len);
@@ -288,10 +301,7 @@ function customSubmit() {
 		console.log("# customSubmit storeData fail "+err);
 		customIdMsg = "Fail: "+err;
 		altIDs=oldAltIDs;
-		// keep the input form open
-		//setTimeout(function() {
-			addCustom();
-		//},1000);
+		addCustom();
 	});
 }
 
