@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"bytes"
-	"unicode"
+	//"unicode"
 	"encoding/gob"
 	"errors"
 	"sort"
@@ -52,9 +52,9 @@ func ticker3hours() {
 				if strings.HasPrefix(userID,"answie") || strings.HasPrefix(userID,"talkback") {
 					continue
 				}
-				if !isOnlyNumericString(userID) {
-					continue
-				}
+//				if !isOnlyNumericString(userID) {
+//					continue
+//				}
 				var dbEntry DbEntry // DbEntry{unixTime, remoteAddr, urlPw}
 				d := gob.NewDecoder(bytes.NewReader(v))
 				d.Decode(&dbEntry)
@@ -307,11 +307,11 @@ func dbHashedPwLoop(w http.ResponseWriter) {
 						count, userID, hashedPwDisp, timeNowUnix - pwIdCombo.Expiration)
 				}
 
-				// do NOT delete none-numeric
-				// NOTE userID ("19308086837&39426508334") is seen as OnlyNumeric
-				if !isOnlyNumericString(userID) {
-					continue
-				}
+//				// do NOT delete none-numeric
+//				// NOTE userID ("19308086837&39426508334") is seen as OnlyNumeric
+//				if !isOnlyNumericString(userID) {
+//					continue
+//				}
 				if timeNowUnix - pwIdCombo.Expiration >= 0 || pwIdCombo.Pw=="" {
 					fmt.Printf("dbHashedPwLoop del %s %-20s %ds\n",
 						userID, pwIdCombo.Pw, timeNowUnix - pwIdCombo.Expiration)
@@ -418,7 +418,7 @@ func dbHashedPwSearch(name string) (PwIdCombo,error) {
 	return pwIdComboNewest,nil
 }
 
-
+/*
 func isOnlyNumericString(s string) bool {
     for _, r := range s {
         if unicode.IsLetter(r) {
@@ -427,6 +427,7 @@ func isOnlyNumericString(s string) bool {
     }
     return true
 }
+*/
 
 func ticker20min() {
 	readConfigLock.RLock()

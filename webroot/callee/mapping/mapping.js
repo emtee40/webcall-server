@@ -79,8 +79,16 @@ function requestData() {
 	let api = apiPath+"/getmapping?id="+calleeID;
 	if(!gentle) console.log('request getmapping api',api);
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
-		altIDs = xhr.responseText;
-		displayMapping();
+		if(xhr.responseText.startsWith("error")) {
+			console.log("# requestData error("+xhr.responseText+")");
+			alert("Error: "+xhr.responseText);
+		} else if(xhr.responseText=="") {
+			console.log("# requestData empty response");
+			alert("Error: empty response");
+		} else {
+			altIDs = xhr.responseText;
+			displayMapping();
+		}
 	}, errorAction);
 }
 
@@ -306,8 +314,10 @@ function removeDo() {
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# /deletemapping err="+xhr.responseText);
+			alert("Error: "+xhr.responseText);
 		} else if(xhr.responseText!="ok") {
 			console.log("/deletemapping response not 'ok' (%s)",xhr.responseText);
+			alert("Error: fail");
 		} else {
 			// xhr.responseText == "ok"
 			let oldAltIDs = altIDs;
@@ -370,6 +380,10 @@ function checkCookie() {
 	}
 	// cookie webcallid exists
 	let cookieName = document.cookie.substring(10);
+	let idxAmpasent = cookieName.indexOf("&");
+	if(idxAmpasent>0) {
+		cookieName = cookieName.substring(0,idxAmpasent);
+	}
 	if(cookieName!=calleeID) {
 		//alert("WebCall cookie has changed "+calleeID+" to "+cookieName);
 		alert("WebCall cookie has changed");
@@ -425,8 +439,10 @@ function editSubmit(formElement, id, assign) {
 		ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 			if(xhr.responseText.startsWith("error")) {
 				console.log('# /setassign err='+xhr.responseText);
+				alert("Error: "+xhr.responseText);
 			} else if(xhr.responseText!="ok") {
 				console.log('# /setassign response not ok (%s)',xhr.responseText);
+				alert("Error: fail "+xhr.responseTexts);
 			} else {
 				// all is well
 				//myTableElement.innerHTML = newAssign;
