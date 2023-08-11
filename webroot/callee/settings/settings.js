@@ -258,7 +258,7 @@ function prepareSettings(xhrresponse) {
 			}
 			displayVersion += "WebCall Core current v"+calleeVersion+"<br>"+
 				              "WebCall Core online v"+clientVersion+"<br>"+
-				              "To update: <a href='' onclick='clearchache()'>Clear cache</a>";
+				              "To update: <a href='' onclick='clearcache()'>Clear cache</a>";
 		} else {
 			displayVersion += "WebCall Core v"+clientVersion;
 		}
