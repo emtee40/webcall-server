@@ -832,39 +832,46 @@ function getSettings() {
 		api = apiPath+"/getmapping?id="+calleeID;
 		if(!gentle) console.log('request getmapping api',api);
 		ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
-			let altIDs = xhr.responseText;
-			console.log("getsettings /getmapping altIDs="+altIDs);
 			altIdArray = [];
 			altIdActive = [];
 			altLabel = [];
-
-			// parse altIDs, format: id,true,assign|id,true,assign|...
-			let tok = altIDs.split("|");
-			let count = tok.length;
-			for(var i=0; i<tok.length; i++) {
-				////console.log("tok["+i+"]="+tok[i]);
-				if(tok[i]!="") {
-					let tok2 = tok[i].split(",");
-					let id = tok2[0].trim();
-					if(id.indexOf(" ")>=0) {
-						id = id.replace(" ","");
+			if(xhr.responseText.startsWith("error")) {
+				console.log("# /getmapping error("+xhr.responseText+")");
+				alert("Error: "+xhr.responseText);
+			if(xhr.responseText=="wrongcookie") {
+				console.log("# /getmapping 'wrongcookie'");
+				alert("Error: "+xhr.responseText);
+			} else {
+				let altIDs = xhr.responseText;
+				console.log("getsettings /getmapping altIDs="+altIDs);
+				// parse altIDs, format: id,true,assign|id,true,assign|...
+				let tok = altIDs.split("|");
+				let count = tok.length;
+				for(var i=0; i<tok.length; i++) {
+					////console.log("tok["+i+"]="+tok[i]);
+					if(tok[i]!="") {
+						let tok2 = tok[i].split(",");
+						let id = tok2[0].trim();
+						if(id.indexOf(" ")>=0) {
+							id = id.replace(" ","");
+						}
+						if(id.length>11) {
+							id = id.substring(0,11);
+						}
+						let active = false;
+						if(typeof tok2[1] !== "undefined" && tok2[1] !== null) {
+							active = tok2[1].trim();
+						}
+						let label = "";
+						if(typeof tok2[2] !== "undefined" && tok2[2] !== null) {
+							label = tok2[2].trim();
+						}
+						//console.log("tok2 id="+id+" active="+active);
+						altIdArray.push(id);
+						altIdActive.push(active);
+						altLabel.push(label);
+						//console.log("getsettings altIdArray.length="+altIdArray.length);
 					}
-					if(id.length>11) {
-						id = id.substring(0,11);
-					}
-					let active = false;
-					if(typeof tok2[1] !== "undefined" && tok2[1] !== null) {
-						active = tok2[1].trim();
-					}
-					let label = "";
-					if(typeof tok2[2] !== "undefined" && tok2[2] !== null) {
-						label = tok2[2].trim();
-					}
-					//console.log("tok2 id="+id+" active="+active);
-					altIdArray.push(id);
-					altIdActive.push(active);
-					altLabel.push(label);
-					//console.log("getsettings altIdArray.length="+altIdArray.length);
 				}
 			}
 			getSettingDone();
