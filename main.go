@@ -346,8 +346,8 @@ func main() {
 					if len(tmpStr)>40 {
 						tmpStr = tmpStr[0:40]
 					}
-					fmt.Printf("initloop dbUser.AltIDs contains garbage (name=%s -> %s) [%s]\n",
-						dbUser.Name, dbUser.Ip1, tmpStr)
+					fmt.Printf("initloop contains garbage %s (name=%s %s) %d=[%s]\n",
+						calleeID, dbUser.Name, dbUser.Ip1, len(dbUser.AltIDs), tmpStr)
 					continue
 				}
 				if len(dbUser.AltIDs)>=200 {
@@ -366,8 +366,7 @@ func main() {
 							//fmt.Printf("initloop set mapping from AltIDs %s -> %s (%s)\n",
 							//	toks2[0], calleeID, toks2[2])
 						} else {
-							fmt.Printf("initloop set ringMuted from AltIDs %s -> %s (%s) AltIDs=%d[%s]\n",
-								toks2[0], calleeID, toks2[2], len(dbUser.AltIDs), dbUser.AltIDs)
+							fmt.Printf("initloop ringMuted %s <- %s\n", calleeID, toks2[0])
 							ringMuted[toks2[0]] = struct{}{}
 						}
 					}

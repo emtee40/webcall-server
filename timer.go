@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 	"bytes"
-	//"unicode"
 	"encoding/gob"
 	"errors"
 	"sort"
@@ -313,11 +312,11 @@ func dbHashedPwLoop(w http.ResponseWriter) {
 //					continue
 //				}
 				if timeNowUnix - pwIdCombo.Expiration >= 0 || pwIdCombo.Pw=="" {
-					fmt.Printf("dbHashedPwLoop del %s %-20s %ds\n",
-						userID, pwIdCombo.Pw, timeNowUnix - pwIdCombo.Expiration)
+					fmt.Printf("dbHashedPwLoop del %s secsRemain=%ds\n",
+						userID, pwIdCombo.Expiration - timeNowUnix)
 					if w!=nil {
-						fmt.Fprintf(w,"dbHashedPwLoop del %s %-20s %ds\n",
-							userID, pwIdCombo.Pw, timeNowUnix - pwIdCombo.Expiration)
+						fmt.Fprintf(w,"dbHashedPwLoop del %s secsRemain=%ds\n",
+							userID, pwIdCombo.Expiration - timeNowUnix)
 					}
 					deleteKeyArray = append(deleteKeyArray,userID)
 				}

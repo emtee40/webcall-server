@@ -390,7 +390,7 @@ func httpApiHandler(w http.ResponseWriter, r *http.Request) {
 				fmt.Printf("httpApi rip=%s %d>=%d requests/30m (%s)\n",
 					remoteAddr, clientRequestCount, maxClientRequestsPer30minTmp, urlPath)
 			}
-			fmt.Fprintf(w,"Too many requests in short order. Please take a pause.")
+			fmt.Fprintf(w,"error Too many requests in short order. Please take a pause.")
 			return
 		}
 	}
@@ -532,7 +532,7 @@ func httpApiHandler(w http.ResponseWriter, r *http.Request) {
 				// THE OTHER CALLEE IS STOPPED AND IT'S COOKIE CLEARED BEFORE THIS ONE CAN LOGIN
 				// RETURNING "ERROR" BRINGS UP THE PW FORM
 				// but when /mode is used, the user is told that the other session needs to be stopped first
-				fmt.Fprintf(w,"wrongcookie")
+				fmt.Fprintf(w,"errorWrongCookie")
 				return
 			}
 

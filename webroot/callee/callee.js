@@ -695,6 +695,10 @@ function login(retryFlag) {
 		} else if(parts[0]=="busy") {
 			showStatus("User is busy",-1);
 			form.style.display = "none";
+		} else if(parts[0]=="errorWrongCookie") {
+			// TODO is this correct ???
+			alert("Error: "+parts[0].substring(5));
+			window.location.reload();
 		} else if(parts[0]=="error") {
 			// parts[0] "error" = "wrong pw", "pw has less than 6 chars" or "empty pw"
 			// offer pw entry again
@@ -705,8 +709,6 @@ function login(retryFlag) {
 			showStatus("No response from server",-1);
 			goOfflineButton.disabled = true;
 			form.style.display = "none";
-		} else if(parts[0]=="wrongcookie") {
-			window.location.reload();
 		} else if(parts[0]=="fatal") {
 			// loginStatus "fatal" = "already logged in" or "db.GetX err"
 			// no use offering pw entry again at this point
@@ -789,14 +791,16 @@ function getSettings() {
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# /getsettings error("+xhr.responseText+")");
-			alert("Error: "+xhr.responseText);
+			alert("Error: "+xhr.responseText.substring(5));
 			return;
 		}
+/*
 		if(xhr.responseText=="wrongcookie") {
 			console.log("# /getsettings 'wrongcookie'");
 			alert("Error: "+xhr.responseText);
 			return;
 		}
+*/
 		if(xhr.responseText!="") {
 			let serverSettings = "";
 			try {
@@ -843,14 +847,16 @@ function getSettings() {
 			altLabel = [];
 			if(xhr.responseText.startsWith("error")) {
 				console.log("# /getmapping error("+xhr.responseText+")");
-				alert("Error: "+xhr.responseText);
+				alert("Error: "+xhr.responseText.substring(5));
 				return;
 			}
+/*
 			if(xhr.responseText=="wrongcookie") {
 				console.log("# /getmapping 'wrongcookie'");
 				alert("Error: "+xhr.responseText);
 				return;
 			}
+*/
 			let altIDs = xhr.responseText;
 			console.log("getsettings /getmapping altIDs="+altIDs);
 			if(altIDs!="") {
