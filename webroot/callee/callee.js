@@ -787,44 +787,50 @@ function getSettings() {
 	let api = apiPath+"/getsettings?id="+calleeID;
 	gLog('getsettings api '+api);
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
+		if(xhr.responseText.startsWith("error")) {
+			console.log("# /getsettings error("+xhr.responseText+")");
+			alert("Error: "+xhr.responseText);
+			return;
+		}
+		if(xhr.responseText=="wrongcookie") {
+			console.log("# /getsettings 'wrongcookie'");
+			alert("Error: "+xhr.responseText);
+			return;
+		}
 		if(xhr.responseText!="") {
-			if(xhr.responseText=="wrongcookie") {
-			} else {
-				let serverSettings = "";
-				try {
-					serverSettings = JSON.parse(xhr.responseText);
-				} catch(ex) {
-					console.log("# getSettings JSON.parse err "+ex);
-					return;
-				}
-				if(typeof serverSettings.nickname!=="undefined") {
-					calleeName = serverSettings.nickname;
-					gLog("getsettings calleeName "+calleeName);
-				}
+			let serverSettings = "";
+			try {
+				serverSettings = JSON.parse(xhr.responseText);
+			} catch(ex) {
+				console.log("# getSettings JSON.parse err "+ex);
+				return;
+			}
+			if(typeof serverSettings.nickname!=="undefined") {
+				calleeName = serverSettings.nickname;
+				gLog("getsettings calleeName "+calleeName);
+			}
 
-				if(typeof serverSettings.mastodonID!=="undefined") {
-					mastodonID = serverSettings.mastodonID;
-					gLog("getsettings mastodonID "+mastodonID);
-				}
+			if(typeof serverSettings.mastodonID!=="undefined") {
+				mastodonID = serverSettings.mastodonID;
+				gLog("getsettings mastodonID "+mastodonID);
+			}
 
-				if(typeof serverSettings.mainLinkDeactive!=="undefined") {
-					console.log('serverSettings.mainLinkDeactive',serverSettings.mainLinkDeactive);
-					if(serverSettings.mainLinkDeactive=="true") {
-						mainLinkDeactive = true;
-					} else {
-						mainLinkDeactive = false;
-					}
+			if(typeof serverSettings.mainLinkDeactive!=="undefined") {
+				console.log('serverSettings.mainLinkDeactive',serverSettings.mainLinkDeactive);
+				if(serverSettings.mainLinkDeactive=="true") {
+					mainLinkDeactive = true;
+				} else {
+					mainLinkDeactive = false;
 				}
+			}
 
-				if(typeof serverSettings.mastodonLinkDeactive!=="undefined") {
-					console.log('serverSettings.mastodonLinkDeactive',serverSettings.mastodonLinkDeactive);
-					if(serverSettings.mastodonLinkDeactive=="true") {
-						mastodonLinkDeactive = true;
-					} else {
-						mastodonLinkDeactive = false;
-					}
+			if(typeof serverSettings.mastodonLinkDeactive!=="undefined") {
+				console.log('serverSettings.mastodonLinkDeactive',serverSettings.mastodonLinkDeactive);
+				if(serverSettings.mastodonLinkDeactive=="true") {
+					mastodonLinkDeactive = true;
+				} else {
+					mastodonLinkDeactive = false;
 				}
-
 			}
 		}
 
@@ -838,12 +844,16 @@ function getSettings() {
 			if(xhr.responseText.startsWith("error")) {
 				console.log("# /getmapping error("+xhr.responseText+")");
 				alert("Error: "+xhr.responseText);
+				return;
+			}
 			if(xhr.responseText=="wrongcookie") {
 				console.log("# /getmapping 'wrongcookie'");
 				alert("Error: "+xhr.responseText);
-			} else {
-				let altIDs = xhr.responseText;
-				console.log("getsettings /getmapping altIDs="+altIDs);
+				return;
+			}
+			let altIDs = xhr.responseText;
+			console.log("getsettings /getmapping altIDs="+altIDs);
+			if(altIDs!="") {
 				// parse altIDs, format: id,true,assign|id,true,assign|...
 				let tok = altIDs.split("|");
 				let count = tok.length;
