@@ -52,8 +52,8 @@ function requestSettings() {
 			let container = document.getElementById("container");
 			if(container) {
 				var aDivElement = document.createElement("div");
-				aDivElement.innerHTML = "Failed to access settings. "+
-					"This could be a cookie issue, or due to access of multiple users.";
+				aDivElement.innerHTML = "Failed to load settings. "+
+					"This could be a cookie issue, access by multiple users, etc.";
 				container.appendChild(aDivElement);
 			}
 			return;

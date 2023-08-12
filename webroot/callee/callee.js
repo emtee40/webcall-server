@@ -99,7 +99,7 @@ window.onload = function() {
 		console.warn("navigator.mediaDevices not available");
 		goOnlineButton.disabled = true;
 		goOfflineButton.disabled = true;
-		alert("navigator.mediaDevices not available");
+		alert("mediaDevices not available");
 		return;
 	}
 
@@ -791,16 +791,10 @@ function getSettings() {
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# /getsettings error("+xhr.responseText+")");
-			alert("Error: "+xhr.responseText.substring(5));
+			//alert("Error: "+xhr.responseText.substring(5));
+			showStatus("Error: "+xhr.responseText.substring(5),-1);
 			return;
 		}
-/*
-		if(xhr.responseText=="wrongcookie") {
-			console.log("# /getsettings 'wrongcookie'");
-			alert("Error: "+xhr.responseText);
-			return;
-		}
-*/
 		if(xhr.responseText!="") {
 			let serverSettings = "";
 			try {
@@ -847,16 +841,10 @@ function getSettings() {
 			altLabel = [];
 			if(xhr.responseText.startsWith("error")) {
 				console.log("# /getmapping error("+xhr.responseText+")");
-				alert("Error: "+xhr.responseText.substring(5));
+				//alert("Error: "+xhr.responseText.substring(5));
+				showStatus("Error: "+xhr.responseText.substring(5),-1);
 				return;
 			}
-/*
-			if(xhr.responseText=="wrongcookie") {
-				console.log("# /getmapping 'wrongcookie'");
-				alert("Error: "+xhr.responseText);
-				return;
-			}
-*/
 			let altIDs = xhr.responseText;
 			console.log("getsettings /getmapping altIDs="+altIDs);
 			if(altIDs!="") {
