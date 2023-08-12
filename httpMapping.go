@@ -290,6 +290,9 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 					mappingMutex.Lock()
 					mapping[mappedID] = MappingDataType{calleeID,assignedName}
 					mappingMutex.Unlock()
+
+					// remove mappedID from dbBlockedIDs
+					kvMain.Delete(dbBlockedIDs, mappedID)
 				}
 			}
 		}
