@@ -2,6 +2,7 @@
 'use strict';
 const form = document.querySelector('form#settings');
 const formPw = document.querySelector('input#nickname');
+const databoxElement = document.getElementById('databox');
 //const webpush1button = document.getElementById("webpush1but");
 //const webpush2button = document.getElementById("webpush2but");
 //const webpush1subscrElement = document.getElementById("webpush1subscr");
@@ -15,6 +16,7 @@ var xhrTwidActive = false;
 var calleeVersion = "";
 
 window.onload = function() {
+/*
 	let id = getUrlParams("id");
 	if(typeof id!=="undefined" && id!="") {
 		calleeID = id;
@@ -23,6 +25,51 @@ window.onload = function() {
 	if(typeof ver!=="undefined" && ver!="") {
 		calleeVersion = ver;
 	}
+*/
+
+	let urlId = "";
+	let id = getUrlParams("id");
+	if(typeof id!=="undefined" && id!="") {
+		urlId = id;
+		console.log('onload urlId='+urlId);
+	}
+	if(document.cookie!="" && document.cookie.startsWith("webcallid=")) {
+		// cookie webcallid exists
+		let cookieName = document.cookie.substring(10);
+		let idxAmpasent = cookieName.indexOf("&");
+		if(idxAmpasent>0) {
+			cookieName = cookieName.substring(0,idxAmpasent);
+		}
+		console.log('onload cookieName='+cookieName);
+		if(cookieName!="") {
+			calleeID = cookieName
+		}
+	}
+	if(calleeID=="") {
+		console.log('onload no calleeID');
+		//abortOnError("Error: WebCall cookie missing");
+		databoxElement.innerHTML = "Error: WebCall cookie missing";
+		return;
+	}
+	if(urlId=="") {
+		console.log('onload no urlId');
+		//abortOnError("Error: no ID");
+		databoxElement.innerHTML = "Error: no ID";
+		return;
+	}
+	if(calleeID!=urlId) {
+		// urlId is our 'real' calleeID, but an external cookie change brought a new calleeID
+		console.log('onload wrong cookie '+calleeID+' not '+urlId);
+		//abortOnError("Error: wrong cookie");
+		databoxElement.innerHTML = "Error: wrong cookie";
+		return;
+	}
+
+	let ver = getUrlParams("ver");
+	if(typeof ver!=="undefined" && ver!="") {
+		calleeVersion = ver;
+	}
+
 	if(!gentle) console.log("calleeID="+calleeID);
 	// XHR to get current settings; server will use the cookie to authenticate us
 	requestSettings();
