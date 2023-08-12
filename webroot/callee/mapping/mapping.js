@@ -31,17 +31,13 @@ window.onload = function() {
 	}
 	if(calleeID=="") {
 		console.log('onload no calleeID');
-		dataBoxContent = "Error: WebCall cookie missing<br>";
-		dataBoxContent += "<button style='float:right;' onclick='exitPage()'>Close</button>";
-		databoxElement.innerHTML = dataBoxContent;
+		abortOnError("Error: WebCall cookie missing");
 		return;
 	}
 	if(calleeID!=urlId) {
 		// urlId is our 'real' calleeID, but an external cookie change brought a new calleeID
 		console.log('onload wrong cookie '+calleeID+' not '+urlId);
-		dataBoxContent = "Error: wrong cookie<br>";
-		dataBoxContent += "<button style='float:right;' onclick='exitPage()'>Close</button>";
-		databoxElement.innerHTML = dataBoxContent;
+		abortOnError("Error: wrong cookie");
 		return;
 	}
 
@@ -102,14 +98,15 @@ function requestData() {
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# requestData error("+xhr.responseText+")");
-			alert("Error: "+xhr.responseText.substring(5));
+			abortOnError("Error: "+xhr.responseText.substring(5));
+			return;
 		} else {
 			altIDs = xhr.responseText;
 			displayMapping();
 		}
 	}, function(errString,err) {
 		console.log("# requestData xhr error "+errString+" "+err);
-		alert("Error xhr "+errString+" "+err);
+		abortOnError("Error xhr "+errString+" "+err);
 	});
 }
 
@@ -200,10 +197,10 @@ function add() {
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# add error("+xhr.responseText+")");
-			alert("Error: "+xhr.responseText.substring(5));
+			abortOnError("Error: "+xhr.responseText.substring(5));
 		} else if(xhr.responseText=="") {
 			console.log("# add empty response");
-			alert("Error: empty response");
+			abortOnError("Error: xhr empty response");
 		} else {
 			let newID = xhr.responseText;
 			console.log("add new random ID="+newID);
@@ -221,8 +218,8 @@ function add() {
 			}, function(err) {
 				// fail: stay in the form
 				console.log("# add storeData fail "+err);
-				alert("Error: "+err);
 				altIDs = oldAltIDs;
+				abortOnError("Error: "+err);
 			});
 		}
 	}, errorAction); // will show an alert
@@ -338,10 +335,10 @@ function removeDo() {
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# /deletemapping err="+xhr.responseText);
-			alert("Error: "+xhr.responseText.substring(5));
+			abortOnError("Error: "+xhr.responseText.substring(5));
 		} else if(xhr.responseText!="ok") {
 			console.log("/deletemapping response not 'ok' (%s)",xhr.responseText);
-			alert("Error: "+xhr.responseText);
+			abortOnError("Error: "+xhr.responseText);
 		} else {
 			// xhr.responseText == "ok"
 			let oldAltIDs = altIDs;
@@ -368,7 +365,7 @@ function removeDo() {
 			}, function(err) {
 				// fail:
 				console.log("# removeDo storeData fail "+err);
-				alert("Error: "+err);
+				abortOnError("Error: "+err);
 			});
 		}
 	}, errorAction);
@@ -394,13 +391,11 @@ function storeData(successFkt,failFkt) {
 function checkCookie() {
 	// if in trouble: returns true
 	if(document.cookie=="") {
-		// no cookie exists
-		alert("Error: WebCall cookie missing");
+		abortOnError("Error: WebCall cookie missing");
 		return true;
 	}
 	if(!document.cookie.startsWith("webcallid=")) {
-		// wrong cookie exists
-		alert("Error: Wrong cookie");
+		abortOnError("Error: Wrong cookie");
 		return true;
 	}
 	// cookie webcallid exists
@@ -410,8 +405,7 @@ function checkCookie() {
 		cookieName = cookieName.substring(0,idxAmpasent);
 	}
 	if(cookieName!=calleeID) {
-		//alert("WebCall cookie has changed "+calleeID+" to "+cookieName);
-		alert("Error: wrong cookie");
+		abortOnError("Error: Wrong cookie");
 		return true;
 	}
 	return false;
@@ -464,10 +458,10 @@ function editSubmit(formElement, id, assign) {
 		ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 			if(xhr.responseText.startsWith("error")) {
 				console.log('# /setassign err='+xhr.responseText);
-				alert("Error: "+xhr.responseText.substring(5));
+				abortOnError("Error: "+xhr.responseText.substring(5));
 			} else if(xhr.responseText!="ok") {
 				console.log('# /setassign response not ok (%s)',xhr.responseText);
-				alert("Error: "+xhr.responseTexts);
+				abortOnError("Error: "+xhr.responseText);
 			} else {
 				// all is well
 				//myTableElement.innerHTML = newAssign;
@@ -502,7 +496,7 @@ function editSubmit(formElement, id, assign) {
 				}, function(err) {
 					// fail:
 					console.log("# editSubmit storeData fail "+err);
-					alert("Error: "+err);
+					abortOnError("Error: "+err);
 				});
 			}
 		}, errorAction);
@@ -543,15 +537,21 @@ function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {
 
 function errorAction(errString,err) {
 	console.log("# xhr error "+errString);
-	alert("xhr error "+errString);
+	abortOnError("xhr error "+errString+" "+err);
+}
+
+function abortOnError(errmsg) {
+	dataBoxContent = errmsg+"<br>";
+	dataBoxContent += "<button style='float:right;' onclick='exitPage()'>Close</button>";
+	databoxElement.innerHTML = dataBoxContent;
 }
 
 function exitPage() {
-	if(!gentle) console.log('mapping exitPage');
+	gLog('mapping exitPage');
 	if(parent!=null && parent.iframeWindowClose) {
-		if(!gentle) console.log('mapping parent.iframeWindowClose()');
+		gLog('mapping parent.iframeWindowClose()');
 		history.back();
 	}
-	if(!gentle) console.log('mapping exitPage stop onkeydown handler');
+	gLog('mapping exitPage stop onkeydown handler');
 }
 
