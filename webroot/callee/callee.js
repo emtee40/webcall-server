@@ -99,7 +99,7 @@ window.onload = function() {
 		console.warn("navigator.mediaDevices not available");
 		goOnlineButton.disabled = true;
 		goOfflineButton.disabled = true;
-		alert("mediaDevices not available");
+		showStatus("mediaDevices not found",-1);
 		return;
 	}
 
@@ -696,9 +696,9 @@ function login(retryFlag) {
 			showStatus("User is busy",-1);
 			form.style.display = "none";
 		} else if(parts[0]=="errorWrongCookie") {
-			// TODO is this correct ???
-			alert("Error: "+parts[0].substring(5));
-			window.location.reload();
+			showStatus("Error: "+parts[0].substring(5),-1);
+			// TODO is this correct ??? No.
+			//window.location.reload();
 		} else if(parts[0]=="error") {
 			// parts[0] "error" = "wrong pw", "pw has less than 6 chars" or "empty pw"
 			// offer pw entry again
@@ -791,7 +791,6 @@ function getSettings() {
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# /getsettings error("+xhr.responseText+")");
-			//alert("Error: "+xhr.responseText.substring(5));
 			showStatus("Error: "+xhr.responseText.substring(5),-1);
 			return;
 		}
@@ -841,7 +840,6 @@ function getSettings() {
 			altLabel = [];
 			if(xhr.responseText.startsWith("error")) {
 				console.log("# /getmapping error("+xhr.responseText+")");
-				//alert("Error: "+xhr.responseText.substring(5));
 				showStatus("Error: "+xhr.responseText.substring(5),-1);
 				return;
 			}
@@ -915,7 +913,7 @@ function getSettingDone() {
 		if(typeof Android !== "undefined" && Android !== null) {
 			links += "<div><span class='callListTitle'>Your Webcall ID's:</span> <span style='font-size:0.9em;'>(long-tap to share)</span></div>";
 		} else {
-			links += "<div><span class='callListTitle'>Your Webcall ID's:</span> <span style='font-size:0.9em;'>(right-click to copy as link)</span></div>";
+			links += "<div><span class='callListTitle'>Your Webcall ID's:</span> <span style='font-size:0.9em;'>(right-click to copy link)</span></div>";
 		}
 
 		if(mainLinkDeactive) {
