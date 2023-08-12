@@ -2940,7 +2940,7 @@ function openNews(newsUrl) {
 
 var counter=0;
 function openContacts() {
-	let url = "/callee/contacts/?ds="+playDialSounds;
+	let url = "/callee/contacts/?id="+calleeID+"&ds="+playDialSounds;
 	gLog("openContacts "+url);
 	iframeWindowOpen(url,false,"height:95vh;",true);
 }

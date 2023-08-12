@@ -9,6 +9,12 @@ var formForNameOpen = false;
 var formElement = null;
 
 window.onload = function() {
+	let urlId = "";
+	let id = getUrlParams("id");
+	if(typeof id!=="undefined" && id!="") {
+		urlId = id;
+		console.log('onload urlId='+urlId);
+	}
 	if(document.cookie!="" && document.cookie.startsWith("webcallid=")) {
 		// cookie webcallid exists
 		let cookieName = document.cookie.substring(10);
@@ -23,7 +29,18 @@ window.onload = function() {
 	}
 	if(calleeID=="") {
 		// no access without cookie
-		databoxElement.innerHTML = "no cookie";
+		databoxElement.innerHTML = "Error: no cookie";
+		return;
+	}
+	if(urlId=="") {
+		databoxElement.innerHTML = "Error: no ID";
+		return;
+	}
+	if(calleeID!=urlId) {
+		// urlId is our 'real' calleeID, but an external cookie change brought a new calleeID
+		console.log('onload wrong cookie '+calleeID+' not '+urlId);
+		//abortOnError("Error: wrong cookie");
+		databoxElement.innerHTML = "Error: wrong cookie";
 		return;
 	}
 

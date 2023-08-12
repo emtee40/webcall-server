@@ -34,6 +34,11 @@ window.onload = function() {
 		abortOnError("Error: WebCall cookie missing");
 		return;
 	}
+	if(urlId=="") {
+		console.log('onload no urlId');
+		abortOnError("Error: no ID");
+		return;
+	}
 	if(calleeID!=urlId) {
 		// urlId is our 'real' calleeID, but an external cookie change brought a new calleeID
 		console.log('onload wrong cookie '+calleeID+' not '+urlId);
