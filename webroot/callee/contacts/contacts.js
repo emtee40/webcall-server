@@ -272,12 +272,12 @@ function edit(tableElement,ev,key,name) {
 //TODO alternatively we could open a new dialog to edit: name|prefCallbackId|ourNickname
 	formElement = document.createElement("div");
 	formElement.style = "position:absolute; left:"+rect.x+"px; top:"+(rect.y+window.scrollY)+"px; z-index:100;";
-	formElement.innerHTML = "<form action='javascript:;' onsubmit='editSubmit(this,\""+key+"\")' id='user-comment'> <input type='text' id='formtext' value='"+name+"' size='14' maxlength='14' autofocus> <input type='submit' id='submit' value='Store'> </form>";
+	formElement.innerHTML = "<form action='javascript:;' onsubmit='editSubmit(event,this,\""+key+"\")' id='user-comment'> <input type='text' id='formtext' value='"+name+"' size='14' maxlength='14' autofocus> <input type='submit' id='submit' value='Store'> </form>";
 	databox.appendChild(formElement);
 	formForNameOpen = true;
 }
 
-function editSubmit(formElement,id) {
+function editSubmit(e,formElement,id) {
 	// store the edited contact name via /setcontact - or delete this contact via /deletecontact
 	//gLog('editSubmit',id);
 	if(id=="") return;
@@ -294,6 +294,7 @@ function editSubmit(formElement,id) {
 	let formtextElement = document.getElementById("formtext");
 	let newName = formtextElement.value;
 	gLog('editSubmit value',oldName,newName,id);
+	e.preventDefault();
 
 	if(newName=="") {
 		//prevent nameless element by aborting edit form
