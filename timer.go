@@ -203,7 +203,7 @@ func ticker3hours() {
 		err = db.Update(func(tx *bolt.Tx) error {
 			b := tx.Bucket([]byte(dbBlockedIDs))
 			c := b.Cursor()
-			for k, v := c.First(); k != nil; k, _ = c.Next() {
+			for k, v := c.First(); k != nil; k, v = c.Next() {
 				dbUserKey := string(k)
 				// dbUserKey format: 'calleeID_unixtime'
 				counter2++
