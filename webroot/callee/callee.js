@@ -3003,7 +3003,7 @@ function openIdMapping() {
 	let url = "/callee/mapping/?id="+calleeID;
 	console.log('openIdMapping',url);
 	// id manager needs 500px height
-	iframeWindowOpen(url,false,"height:500px;max-width:500px;",true);
+	iframeWindowOpen(url,false,"height:460px;max-width:500px;",true);
 }
 
 function openSettings() {
