@@ -2353,6 +2353,7 @@ function peerConCreateOffer() {
 }
 */
 
+var startWaitConnect;
 function peerConnected2() {
 	// called when peerCon.connectionState=="connected"
 	if(rtcConnect) {
@@ -2438,86 +2439,86 @@ function peerConnected2() {
 		blinkButtonFunc();
 	}
 
-	setTimeout(function() {
-		if(dataChannel==null) {
-			console.log("peerConnected2 400ms: NO DATACHANNEL - ABORT RING ");
-		} else {
-			console.log("peerConnected2 400ms: have DATACHANNEL");
-		}
-	},400);
+	// peerConnected3() will wait for a DATACHANNEL before enabling answerButton
+	startWaitConnect = Date.now();
+	peerConnected3();
+}
 
-	setTimeout(function() {
-		if(dataChannel==null) {
-			console.log("peerConnected2 600ms: NO DATACHANNEL - ABORT RING ");
-		} else {
-			console.log("peerConnected2 600ms: have DATACHANNEL");
-		}
-	},600);
+function peerConnected3() {
+	let sinceStartWaitConnect = Date.now() - startWaitConnect;
+	console.log("peerConnected3..."+sinceStartWaitConnect);
 
-	setTimeout(function() {
-		if(!peerCon || peerCon.iceConnectionState=="closed") {
-			// caller early abort
-			console.log('peerConnected2 caller early abort');
-			// TODO showStatus()
-			//hangup(true,true,"caller early abort");
-			stopAllAudioEffects();
-			endWebRtcSession(true,true,"caller early abort"); // -> peerConCloseFunc
+	if(!peerCon || peerCon.iceConnectionState=="closed") {
+		// caller early abort
+		console.log('peerConnected2 caller early abort');
+		// TODO showStatus()
+		//hangup(true,true,"caller early abort");
+		stopAllAudioEffects();
+		endWebRtcSession(true,true,"caller early abort"); // -> peerConCloseFunc
+		return;
+	}
+
+	if(dataChannel==null) {
+		// before we can continue enabling answerButton, we need to wait for datachannel
+		if(sinceStartWaitConnect < 1000) {
+			console.log("peerConnected3: waiting for datachannel... "+sinceStartWaitConnect);
+			setTimeout(function() {
+				peerConnected3();
+			},100);
 			return;
 		}
 
-		if(dataChannel==null) {
-			// this should never happen
-			console.log("peerConnected2 800ms: NO DATACHANNEL - ABORT RING");
-			// TODO showStatus()
-			stopAllAudioEffects();
-			endWebRtcSession(true,true,"caller early abort"); // -> peerConCloseFunc
-			return;
-		}
+		// this should never happen
+		console.log("peerConnected3: NO DATACHANNEL - ABORT RING");
+		// TODO showStatus()
+		stopAllAudioEffects();
+		endWebRtcSession(true,true,"caller early abort"); // -> peerConCloseFunc
+		return;
+	}
 
-		// instead of listOfClientIps
-		gLog('peerConnected2 accept incoming call?',listOfClientIps,dataChannel);
-		peerCon.getStats(null)
-		.then((results) => getStatsCandidateTypes(results,"Incoming", ""),
-			err => console.log(err.message)); // -> wsSend("log|callee Incoming p2p/p2p")
+	// instead of listOfClientIps
+	gLog('peerConnected3 accept incoming call?',listOfClientIps,dataChannel);
+	peerCon.getStats(null)
+	.then((results) => getStatsCandidateTypes(results,"Incoming", ""),
+		err => console.log(err.message)); // -> wsSend("log|callee Incoming p2p/p2p")
 
-		answerButton.disabled = false;
-		// only show msgbox if not empty
-		if(msgbox.value!="" && !calleeID.startsWith("answie")) {
-			msgbox.style.display = "block";
-		}
+	answerButton.disabled = false;
+	// only show msgbox if not empty
+	if(msgbox.value!="" && !calleeID.startsWith("answie")) {
+		msgbox.style.display = "block";
+	}
 
-		goOnlineButton.style.display = "none";
-		goOfflineButton.style.display = "none";
-		answerButton.style.display = "inline-block";
-		rejectButton.style.display = "inline-block";
-		if(autoanswerCheckbox.checked) {
-			var pickupFunc = function() {
-				// may have received "onmessage disconnect (caller)" and/or "cmd cancel (server)" in the meantime
-				if(!buttonBlinking) {
-					return;
-				}
-				// only auto-pickup if iframeWindow (caller widget) is NOT active
-				if(iframeWindowOpenFlag) {
-					setTimeout(pickupFunc,1000);
-					return;
-				}
-				console.log("peerConnected2 auto-answer call");
-				pickup();
+	goOnlineButton.style.display = "none";
+	goOfflineButton.style.display = "none";
+	answerButton.style.display = "inline-block";
+	rejectButton.style.display = "inline-block";
+	if(autoanswerCheckbox.checked) {
+		var pickupFunc = function() {
+			// may have received "onmessage disconnect (caller)" and/or "cmd cancel (server)" in the meantime
+			if(!buttonBlinking) {
+				return;
 			}
-			setTimeout(pickupFunc,1000);
-		}
-
-		answerButton.onclick = function(ev) {
-			ev.stopPropagation();
-			console.log("peerConnected2 answer button");
+			// only auto-pickup if iframeWindow (caller widget) is NOT active
+			if(iframeWindowOpenFlag) {
+				setTimeout(pickupFunc,1000);
+				return;
+			}
+			console.log("peerConnected3 auto-answer call");
 			pickup();
 		}
-		rejectButton.onclick = function(ev) {
-			ev.stopPropagation();
-			console.log("peerConnected2 hangup button");
-			hangup(true,true,"rejectButton");
-		}
-	},800);
+		setTimeout(pickupFunc,1000);
+	}
+
+	answerButton.onclick = function(ev) {
+		ev.stopPropagation();
+		console.log("peerConnected3 answer button");
+		pickup();
+	}
+	rejectButton.onclick = function(ev) {
+		ev.stopPropagation();
+		console.log("peerConnected3 hangup button");
+		hangup(true,true,"rejectButton");
+	}
 }
 
 function getStatsCandidateTypes(results,eventString1,eventString2) {
