@@ -2318,9 +2318,9 @@ function newPeerCon() {
 	dataChannel = null;
 	peerCon.ondatachannel = event => {
 		dataChannel = event.channel;
-		gLog('createDataChannel got channel...');
+		console.log('createDataChannel got channel...');
 		dataChannel.onopen = event => {
-			gLog("dataChannel.onopen");
+			console.log("dataChannel.onopen");
 			// tell other side that we support textchat
 			textchatOKfromOtherSide = false;
 			dataChannel.send("textchatOK");
@@ -2405,7 +2405,7 @@ function peerConnected2() {
 				if(ringtoneSound.paused && !ringtoneIsPlaying) {
 					gLog('peerConnected2 ringtone play...');
 					ringtoneSound.play().catch(error => {
-						console.log('# ringtone play',error.message);
+						console.log('# peerConnected2 ringtone play',error.message);
 					});
 				} else {
 					gLog('peerConnected2 ringtone play NOT started',
@@ -2439,6 +2439,22 @@ function peerConnected2() {
 	}
 
 	setTimeout(function() {
+		if(dataChannel==null) {
+			console.log("peerConnected2 400ms: NO DATACHANNEL - ABORT RING ");
+		} else {
+			console.log("peerConnected2 400ms: have DATACHANNEL");
+		}
+	},400);
+
+	setTimeout(function() {
+		if(dataChannel==null) {
+			console.log("peerConnected2 600ms: NO DATACHANNEL - ABORT RING ");
+		} else {
+			console.log("peerConnected2 600ms: have DATACHANNEL");
+		}
+	},600);
+
+	setTimeout(function() {
 		if(!peerCon || peerCon.iceConnectionState=="closed") {
 			// caller early abort
 			console.log('peerConnected2 caller early abort');
@@ -2451,7 +2467,7 @@ function peerConnected2() {
 
 		if(dataChannel==null) {
 			// this should never happen
-			console.log("NO DATACHANNEL - ABORT RING");
+			console.log("peerConnected2 800ms: NO DATACHANNEL - ABORT RING");
 			// TODO showStatus()
 			stopAllAudioEffects();
 			endWebRtcSession(true,true,"caller early abort"); // -> peerConCloseFunc
@@ -2485,7 +2501,7 @@ function peerConnected2() {
 					setTimeout(pickupFunc,1000);
 					return;
 				}
-				console.log("auto-answer call");
+				console.log("peerConnected2 auto-answer call");
 				pickup();
 			}
 			setTimeout(pickupFunc,1000);
@@ -2493,15 +2509,15 @@ function peerConnected2() {
 
 		answerButton.onclick = function(ev) {
 			ev.stopPropagation();
-			gLog("peerConnected2 answer button");
+			console.log("peerConnected2 answer button");
 			pickup();
 		}
 		rejectButton.onclick = function(ev) {
 			ev.stopPropagation();
-			gLog("peerConnected2 hangup button");
+			console.log("peerConnected2 hangup button");
 			hangup(true,true,"rejectButton");
 		}
-	},400);
+	},800);
 }
 
 function getStatsCandidateTypes(results,eventString1,eventString2) {
