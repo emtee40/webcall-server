@@ -14,7 +14,6 @@ import (
 
 
 func httpGetMapping(w http.ResponseWriter, r *http.Request, urlID string, calleeID string, cookie *http.Cookie, remoteAddr string) {
-	fmt.Printf("/getmapping (%s) urlID=%s %s\n", calleeID, urlID, remoteAddr)
 	if calleeID=="" {
 		fmt.Printf("# /getmapping calleeID empty urlID=%s %s\n",urlID, remoteAddr)
 		fmt.Fprintf(w,"errorNoCalleeID")
@@ -27,16 +26,20 @@ func httpGetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 	}
 	// if calleeID!=urlID, that's likely someone trying to run more than one callee in the same browser
 	if urlID!="" && urlID!=calleeID {
-		fmt.Printf("# /getmapping urlID=%s != calleeID=%s %s\n",urlID,calleeID, remoteAddr)
+		fmt.Printf("# /getmapping calleeID=%s not urlID=%s %s\n",calleeID, urlID, remoteAddr)
 		fmt.Fprintf(w,"errorWrongCookie")
 		return
 	}
 
+	//fmt.Printf("/getmapping (%s) urlID=%s %s\n", calleeID, urlID, remoteAddr)
 	errcode,altIDs := getMapping(calleeID,remoteAddr)
-	if errcode==0 && altIDs!="" {
+	if errcode!=0 {
+		//fmt.Printf("# /getmapping (%s) urlID=%s err=%d\n", calleeID, urlID, errcode)
+	} else if altIDs=="" {
+		//fmt.Printf("# /getmapping (%s) urlID=%s altIDs empty\n", calleeID, urlID)
+	} else {
 		fmt.Fprintf(w,altIDs)
 	}
-	// if(xhr.responseText=="") there are no altIDs
 }
 
 func getMapping(calleeID string, remoteAddr string) (int,string) {
