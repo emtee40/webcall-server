@@ -879,10 +879,11 @@ function getSettings() {
 			getSettingDone();
 
 		}, function(errString,errcode) {
-			console.log("# getsettings xhr error "+errString);
+			console.log("# getsettings xhr err "+errString);
 			getSettingDone();
 		});
 	}, function(errString,errcode) {
+		// NOTE: errString=='timeout' may occur if the devive wakes from sleep
 		console.log("# getsettings xhr error "+errString);
 		getSettingDone();
 	});
@@ -2446,11 +2447,11 @@ function peerConnected2() {
 
 function peerConnected3() {
 	let sinceStartWaitConnect = Date.now() - startWaitConnect;
-	console.log("peerConnected3..."+sinceStartWaitConnect);
+	//console.log("peerConnected3..."+sinceStartWaitConnect);
 
 	if(!peerCon || peerCon.iceConnectionState=="closed") {
 		// caller early abort
-		console.log('peerConnected2 caller early abort');
+		console.log('peerConnected3: caller early abort');
 		// TODO showStatus()
 		//hangup(true,true,"caller early abort");
 		stopAllAudioEffects();
@@ -2460,7 +2461,7 @@ function peerConnected3() {
 
 	if(dataChannel==null) {
 		// before we can continue enabling answerButton, we need to wait for datachannel
-		if(sinceStartWaitConnect < 1000) {
+		if(sinceStartWaitConnect < 1500) {
 			console.log("peerConnected3: waiting for datachannel... "+sinceStartWaitConnect);
 			setTimeout(function() {
 				peerConnected3();
