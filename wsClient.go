@@ -1574,8 +1574,8 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 		// forward cmd/payload to other client
 		if c.hub!=nil {
 			if logWantedFor("wsreceive") {
-				fmt.Printf("%s recv/fw %s|%s iscallee=%v %s\n",
-					c.connType, cmd, payload, c.isCallee, c.RemoteAddr)
+				fmt.Printf("%s (%s) recv/fw %s|%s iscallee=%v %s\n",
+					c.connType, c.calleeID, cmd, payload, c.isCallee, c.RemoteAddr)
 			} else {
 				//fmt.Printf("%s recv/fw %s iscallee=%v %s\n",
 				//	c.connType, cmd, c.isCallee, c.RemoteAddr)
