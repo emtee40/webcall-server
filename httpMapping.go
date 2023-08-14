@@ -72,8 +72,21 @@ func getMapping(calleeID string, remoteAddr string) (int,string) {
 	return 0,dbUser.AltIDs
 }
 
+func isLetter(c rune) bool {
+	return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || c=='_'
+}
+
+func isWord(s string) bool {
+	for _, c := range s {
+	    if !isLetter(c) {
+	        return false
+	    }
+	}
+	return true
+}
+
 func isLowecaseLetter(c rune) bool {
-	return ('a' <= c && c <= 'z') || ('0' <= c && c <= '9')
+	return ('a' <= c && c <= 'z') || ('0' <= c && c <= '9') || c=='_'
 }
 
 func isLowercaseWord(s string) bool {
@@ -178,15 +191,14 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 
 				// verify assignedName: max len 10
 				assignedName := toks2[2]
-/* TODO allow uppercase assignedName
-				if(!isLowercaseWord(assignedName)) {
+				if(!isWord(assignedName)) {
 					// found forbidden char
 					fmt.Printf("# /setmapping (%s) assignedName=(%s) special char error\n",calleeID, assignedName)
 					time.Sleep(1000 * time.Millisecond)
 					fmt.Fprintf(w,"errorFormat")
 					return
 				}
-*/
+
 				if len(assignedName)>10 {
 					fmt.Printf("# /setmapping (%s) assignedName=(%s) length error\n",calleeID, assignedName)
 					time.Sleep(1000 * time.Millisecond)

@@ -241,9 +241,10 @@ function addCustom() {
 
 	formElement = document.createElement("div");
 	formElement.style = "position:absolute; left:"+rect.x+"px; top:"+(rect.y+window.scrollY)+"px; font-size:1.2em; z-index:100;";
+	// pattern regex: \w matches any alphanumeric char from basic Latin alphabet, incl underscore; same as [A-Za-z0-9_]
 	let formfield = "<table style='_width:100%; _border-collapse:separate;'>"+
 		"<tr><td><form action='javascript:;' onsubmit='customSubmit(event)' id='customID'> <input type='text' id='formtext' class='formtext' pattern='\\w{3,16}' value='"+customID+"' size='16' maxlength='16' autofocus> <input type='submit' id='submit' value='Store'></form></td> <td align='right'><a onclick='displayMapping()' style='font-weight:600;margin-left:6px;'>X</a></td></tr>"+
-		"<tr><td><label for='customID' id='customIdLabel' style='_display:inline-block;font-size:0.7em;'>"+customIdMsg+"</label></td></tr"+
+		"<tr><td><label for='customID' id='customIdLabel' style='font-size:0.7em;'>"+customIdMsg+"</label></td></tr"+
 		"></table>";
 	formElement.innerHTML = formfield;
 	addbuttonsElement.appendChild(formElement);
@@ -279,8 +280,8 @@ function customSubmit(e) {
 
 	let formLabelElement = document.getElementById("customIdLabel");
 
-	// customID must be lowercase, only containing a-z + 0-9 (may never contain @ or apostrophe)
-	// TODO what about these: - . _ [ ] ( )
+	// customID regex: must be lowercase, only containing a-z + 0-9 + _ (may never contain @ or apostrophe)
+	// TODO what about these: - . [ ] ( )
 	if(customID != customID.match(/([0-9a-z])/g).join("")) {
 		console.log("customSubmit fail format");
 		addCustom();
