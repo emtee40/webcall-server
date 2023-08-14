@@ -282,8 +282,10 @@ function customSubmit(e) {
 
 	// customID regex: must be lowercase, only containing a-z + 0-9 + _ (may never contain @ or apostrophe)
 	// TODO what about these: - . [ ] ( )
-	if(customID != customID.match(/([0-9a-z])/g).join("")) {
+	if(customID != customID.match(/([0-9a-z_])/g).join("")) {
 		console.log("customSubmit fail format");
+		customIdMsg = "Fail: format"
+		e.preventDefault();
 		addCustom();
 		return;
 	}
