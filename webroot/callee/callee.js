@@ -879,7 +879,7 @@ function getSettings() {
 			getSettingDone();
 
 		}, function(errString,errcode) {
-			console.log("# getsettings xhr err "+errString);
+			console.log("# getsettings xhr err "+errString+" "+errcode);
 			getSettingDone();
 		});
 	}, function(errString,errcode) {
