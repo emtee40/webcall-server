@@ -1050,7 +1050,6 @@ function dialButtonClick2() {
 	}
 
 	// disable nicknameElement input form
-	//let nicknameElement = document.getElementById("nickname");
 	if(nicknameElement) {
 		nicknameElement.disabled = true;
 	}
@@ -2152,7 +2151,9 @@ function signalingCommand(message) {
 			},1000);
 		} else if(chatButton) {
 			muteMic(false);
-			chatButton.style.display = "block";
+			if(!calleeID.startsWith("answie"))  {
+				chatButton.style.display = "block";
+			}
 		}
 
 		// mute mode handler
