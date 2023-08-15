@@ -575,7 +575,7 @@ function clearForm(idx) {
 
 function errorAction(errString,err) {
 	console.log('xhr error',errString);
-	alert("xhr error\n"+errString);
+	alert("xhr error\n"+errString+"\n"+err);
 }
 
 function exitPage() {
