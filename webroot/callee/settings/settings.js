@@ -512,7 +512,7 @@ function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {
 		errorFkt("timeout",0);
 	}
 	xhr.onerror= function(e) {
-		errorFkt("fetching",xhr.status);
+		errorFkt("fetching",xhr.status); // -> errorAction()
 	};
 	// cross-browser compatible approach to bypassing the cache
 	if(apiPath.indexOf("?")>=0) {

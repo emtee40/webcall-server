@@ -884,7 +884,7 @@ function getSettings() {
 		});
 	}, function(errString,errcode) {
 		// NOTE: errString=='timeout' may occur if the devive wakes from sleep
-		console.log("# getsettings xhr error "+errString);
+		console.log("# getsettings xhr error "+errString+" "+errcode);
 		getSettingDone();
 	});
 }
