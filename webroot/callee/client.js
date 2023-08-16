@@ -783,7 +783,7 @@ function onIceCandidate(event,myCandidateName) {
 function checkNetwork() {
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.isNetwork !== "undefined" && Android.isNetwork !== null) {
-			if(Android.isNetwork()<1) {
+			if(!Android.isNetwork()) {
 				Android.toast("No network");
 				return false;
 			}
