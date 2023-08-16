@@ -293,6 +293,15 @@ input[type=submit]:focus {
 	transform: scale(-1, 1);
 	-webkit-transform: scale(-1, 1);
 }
+.iconbutton {
+	position:relative; float:right; width:30px; margin-left:12px; margin-right:12px; 
+	z-index:100; user-select:none; cursor:pointer; 
+	transition:all 300ms ease-out;
+	opacity:0.8; 
+}
+.iconbutton:hover, .iconbutton:active {
+	opacity:1; 
+}
 </style>
 </head>
 
@@ -358,8 +367,8 @@ input[type=submit]:focus {
 <div id="dynDialog" style="position:relative; user-select:none; display:none; font-size:1.1em;"></div>
 
 <div id="container">
-	<img id="menu" onclick="menuDialogOpen(menuDialogElement,1)" src="menu.svg" style="position:relative; float:right; width:25px; margin-top:6px; margin-right:10px; margin-left:22px; z-index:100; user-select:none; cursor:pointer;">
-	<img id="camera" src="camera.svg" style="position:relative; float:right; width:30px; margin-top:5.5px; margin-left:22px; z-index:100; user-select:none; cursor:pointer; transition:opacity 500ms;" onclick="videoSwitch(false)">
+	<img id="menu" onclick="menuDialogOpen(menuDialogElement,1)" class="iconbutton"src="menu.svg" _style="position:relative; float:right; width:25px; margin-top:6px; margin-right:10px; margin-left:22px; z-index:100; user-select:none; cursor:pointer;">
+	<img id="camera" class="iconbutton" src="camera.svg" _style="position:relative; float:right; width:30px; margin-top:5.5px; margin-left:22px; z-index:100; user-select:none; cursor:pointer; transition:opacity 500ms;" onclick="videoSwitch(false)">
 
 	<h1 id="title">WebCall</h1>
 	<div id="calleeOnline" style="display:none">

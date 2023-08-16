@@ -286,6 +286,15 @@ input[type=submit]:focus {
 	transform: scale(-1, 1);
 	-webkit-transform: scale(-1, 1);
 }
+.iconbutton {
+	position:relative; float:right; width:30px; margin-left:12px; margin-right:12px; 
+	z-index:100; user-select:none; cursor:pointer; 
+	transition:all 300ms ease-out;
+	opacity:0.8; 
+}
+.iconbutton:hover, .iconbutton:active {
+	opacity:1; 
+}
 </style>
 </head>
 
@@ -364,19 +373,16 @@ input[type=submit]:focus {
 <div id="dynDialog" style="position:relative; user-select:none; display:none;"></div>
 
 <div id="container">
-	<img id="menu" onclick="menuDialogOpen(menuDialogElement,1)" src="menu.svg" style="position:relative; float:right; width:25px; margin-top:5px; margin-left:22px; margin-right:10px; z-index:100; user-select:none; cursor:pointer;">
-
-	<img id="dialpad" src="dialpad.svg" style="position:relative; float:right; width:30px; margin-top:4px; margin-left:22px; z-index:100; user-select:none; cursor:pointer; transition:opacity 500ms;" onclick="openDialId('')">
-
-	<img id="iconContacts" src="contacts.svg" style="position:relative; float:right; width:23px; margin-top:0; margin-left:22px; z-index:100; user-select:none; cursor:pointer; transition:opacity 500ms; display:none;" onclick="openContacts()">
-
-	<img id="camera" src="camera.svg" style="position:relative; float:right; width:30px; margin-top:4px; margin-left:22px; z-index:100; user-select:none; cursor:pointer; transition:opacity 500ms;" onclick="videoSwitch(false)">
-
-	<img id="exclamation" src="exclamation.svg" style="position:relative; float:right; width:21px; margin-top:5.5px; margin-left:22px; z-index:100; user-select:none; cursor:pointer; transition:opacity 1000ms; opacity:0; display:none;" onclick="">
+	<img id="menu"         onclick="menuDialogOpen(menuDialogElement,1)" src="menu.svg" class="iconbutton">
+	<img id="dialpad"      onclick="openDialId('')"     src="dialpad.svg"     class="iconbutton">
+	<img id="iconContacts" onclick="openContacts()"     src="contacts.svg"    class="iconbutton">
+	<img id="camera"       onclick="videoSwitch(false)" src="camera.svg"      class="iconbutton">
+	<img id="exclamation"  onclick=""                   src="exclamation.svg" class="iconbutton" style="display:none;">
 
     <h1 id="title">WebCall</h1>
-    <div style="clear:all;margin-top:8px;"></div>
-	<img id="checkboxes" src="checkboxes.svg" style="position:relative; float:right; width:25px; margin-top:12px; margin-left:22px; margin-right:10px; z-index:100; user-select:none; cursor:pointer; display:none;" onclick="openSlide()">
+    <div style="clear:all;_margin-top:8px;"></div>
+	<img id="checkboxes" onclick="openSlide()" src="checkboxes.svg" class="iconbutton"
+		 style="margin-top:18px;display:none;">
 
 	<div id="buttons" style="display:grid; grid-template-columns: 1fr 1fr 28px; list-style-type:none; max-width:360px; margin-top:10px;">
         <button id="onlineButton" disabled>Go Online</button>
