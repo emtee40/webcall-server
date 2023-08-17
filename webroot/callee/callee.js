@@ -883,8 +883,9 @@ function getSettings() {
 			getSettingDone();
 		});
 	}, function(errString,errcode) {
-		// NOTE: errString=='timeout' may occur if the devive wakes from sleep
-		console.log("# getsettings xhr error "+errString+" "+errcode);
+		// NOTE: errString=='timeout' may occur when the devive wakes from sleep
+		// this is why it uses gLog() instead of console.log()
+		gLog("# getsettings xhr error "+errString+" "+errcode);
 		getSettingDone();
 	});
 }
@@ -1295,7 +1296,7 @@ function wsOnClose(evt) {
 
 function wsOnClose2() {
 	// called by wsOnClose() or from android service
-	gLog("wsOnClose2 "+calleeID);
+	console.log("wsOnClose2 "+calleeID);
 	wsConn=null;
 	iconContactsElement.style.display = "none";
 	checkboxesElement.style.display = "none";

@@ -1621,27 +1621,23 @@ function showStatus(msg,timeoutMs) {
 	}
 	//console.log("showStatus msg="+msg,timeoutMs);
 	if(showStatusTimeout!=null) {
-		gLog("showStatus clearTimeout of prev");
+		console.log("showStatus clearTimeout of prev");
 		clearTimeout(showStatusTimeout);
 		showStatusTimeout = null;
 	} else {
-		gLog("showStatus no clearTimeout of prev");
+		//gLog("showStatus no clearTimeout of prev");
 	}
 
 	let sleepMs = 2500;
 	if(typeof timeoutMs!=="undefined") {
 		sleepMs = timeoutMs;
 	}
-	if(msg!="") {
-		// msg may contain html, which we don't want to log
-		let idx = msg.indexOf("<");
-		if(idx>=0) {
-			console.log("status: "+msg.substring(0,idx)+"...");
-		} else {
-			console.log("status: "+msg);
-		}
+	// msg may contain html, which we don't want to log
+	let idx = msg.indexOf("<");
+	if(idx>=0) {
+		console.log("showStatus("+msg.substring(0,idx)+")");
 	} else {
-		gLog("showStatus empty msg");
+		console.log("showStatus("+msg+")");
 	}
 
 	showStatusMsg = msg;

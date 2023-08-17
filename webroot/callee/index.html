@@ -137,10 +137,9 @@ label {
 	padding-left:2px;
 	width:98%;
 	max-width:570px;
-	font-size:1.1em;
 	line-height:1.3em;
 	transition:opacity 600ms;
-    color:#ddd;
+    color:#fff;
 }
 .callListTitle {
 	font-size:0.9em;
@@ -287,7 +286,7 @@ input[type=submit]:focus {
 	-webkit-transform: scale(-1, 1);
 }
 .iconbutton {
-	position:relative; float:right; width:30px; margin-left:12px; margin-right:12px; 
+	position:relative; float:right; width:30px; margin-left:13px; margin-right:13px;
 	z-index:100; user-select:none; cursor:pointer; 
 	transition:all 300ms ease-out;
 	opacity:0.8; 
@@ -373,14 +372,17 @@ input[type=submit]:focus {
 <div id="dynDialog" style="position:relative; user-select:none; display:none;"></div>
 
 <div id="container">
+	<span style="padding-bottom:30px;">
 	<img id="menu"         onclick="menuDialogOpen(menuDialogElement,1)" src="menu.svg" class="iconbutton">
 	<img id="dialpad"      onclick="openDialId('')"     src="dialpad.svg"     class="iconbutton">
 	<img id="iconContacts" onclick="openContacts()"     src="contacts.svg"    class="iconbutton">
 	<img id="camera"       onclick="videoSwitch(false)" src="camera.svg"      class="iconbutton">
 	<img id="exclamation"  onclick=""                   src="exclamation.svg" class="iconbutton" style="display:none;">
+	<span class="iconbutton" style="width:0px;height:34px;"></span>
+	</span>
 
-    <h1 id="title">WebCall</h1>
-    <div style="clear:all;margin-top:8px;"></div>
+    <h1 id="title" style="line-height:1.3em;">WebCall</h1>
+    <div style="clear:all;margin-top:0px;"></div>
 	<img id="checkboxes" onclick="openSlide()" src="checkboxes.svg" class="iconbutton"
 		 style="margin-top:16px;display:none;">
 
