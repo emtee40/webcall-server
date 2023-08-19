@@ -1317,7 +1317,7 @@ function wsOnMessage(evt) {
 
 function wsOnMessage2(str, comment) {
 	// WebCall Android service calls this to push msgs from WebCall server
-	//console.log("wsOnMessage2( "+str+" comment="+comment);
+	console.log("wsOnMessage2( "+str+" comment="+comment);
 	signalingCommand(str, comment);
 }
 
@@ -1550,7 +1550,7 @@ function signalingCommand(message, comment) {
 	} else if(cmd=="sessionId") {
 		// callee has checked in
 		// payload is server version
-		gLog("cmd=='sessionId' -> showOnlineReadyMsg()");
+		console.log("cmd=='sessionId' -> showOnlineReadyMsg()");
 		showOnlineReadyMsg();
 
 	} else if(cmd=="sessionDuration") { // in call
