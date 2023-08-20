@@ -1334,23 +1334,24 @@ function calleeOnlineAction(comment) {
 			} else {
 				gLog('callee is online dialAfterLocalStream');
 				dialAfterLocalStream = true;
-
+				/*
 				if(typeof Android !== "undefined" && Android !== null) {
 					// remote audio will be played back on earpiece (if available) instead of speakerphone
 					// not sure this is still needed
 					Android.prepareDial();
 				}
-
+				*/
 				getStream().then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 				// and bc of dialAfterLocalStream also: -> gotStream -> gotStream2 -> connectSignaling
 			}
 		} else {
 			// no autodial after we detected callee is online
-
+			/*
 			if(typeof Android !== "undefined" && Android !== null) {
 				// remote audio will be played back on earpiece (if available) instead of speakerphone
 				Android.prepareDial();
 			}
+			*/
 
 			getStream().then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 
