@@ -2246,11 +2246,11 @@ function newPeerCon() {
 	}
 	peerCon.onnegotiationneeded = async () => {
 		if(!peerCon || peerCon.iceConnectionState=="closed") {
-			console.log('# peerCon onnegotiationneeded deny: no peerCon');
+			console.log('! peerCon onnegotiationneeded deny: no peerCon');
 			return;
 		}
 		if(!rtcConnect) {
-			console.log('# peerCon onnegotiationneeded deny: no rtcConnect');
+			console.log('! peerCon onnegotiationneeded deny: no rtcConnect');
 			return;
 		}
 		try {
