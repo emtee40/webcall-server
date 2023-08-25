@@ -162,8 +162,8 @@ window.onload = function() {
 
 	if(!navigator.mediaDevices) {
 		console.warn("navigator.mediaDevices not available");
-		goOnlineButton.disabled = true;
-		goOfflineButton.disabled = true;
+		//goOnlineButton.disabled = true;
+		//goOfflineButton.disabled = true;
 		alert("navigator.mediaDevices not available");
 		return;
 	}

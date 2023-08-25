@@ -97,7 +97,7 @@ window.onload = function() {
 	
 	if(!navigator.mediaDevices) {
 		console.warn("navigator.mediaDevices not available");
-///		goOnlineButton.disabled = true;
+		goOnlineSwitch.checked = false;
 		showStatus("mediaDevices not found",-1);
 		return;
 	}
@@ -1083,8 +1083,8 @@ function gotStream2() {
 		} else {
 			console.log("gotStream2 standby");
 
-			console.log("gotStream2 onlineButton "+(wsConn!=null));
-			onlineButton.checked = (wsConn!=null);
+			console.log("gotStream2 set goOnlineSwitch "+(wsConn!=null));
+			goOnlineSwitch.checked = (wsConn!=null);
 			if(wsConn==null) {
 				// we are offline
 			} else {
@@ -1221,9 +1221,8 @@ function wsOnOpen() {
 	if(!mediaConnect) {
 ///		onlineIndicator.src="green-gradient.svg";
 	}
-///	goOnlineButton.innerHTML = "Go Offline";
-	console.log("wsOnOpen onlineButton "+(wsConn!=null));
-	onlineButton.checked = wsConn!=null;
+	console.log("wsOnOpen goOnlineSwitch "+(wsConn!=null));
+	goOnlineSwitch.checked = wsConn!=null;
 
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 	/*
@@ -1319,9 +1318,8 @@ function wsOnClose2() {
 	iconContactsElement.style.display = "none";
 	checkboxesElement.style.display = "none";
 
-///	goOnlineButton.innerHTML = "Go Online";
-	console.log("wsOnClose2 onlineButton "+(wsConn!=null));
-	onlineButton.checked = wsConn!=null;
+	console.log("wsOnClose2 set goOnlineSwitch false");
+	goOnlineSwitch.checked = false;
 
 
 	// clear "You will receive calls made by this link"
@@ -2894,8 +2892,8 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		vsendButton.style.display = "none";
 	}
 
-	console.log("endWebRtcSession onlineButton "+(wsConn!=null));
-	onlineButton.checked = wsConn!=null;
+	console.log("endWebRtcSession set goOnlineSwitch "+(wsConn!=null));
+	goOnlineSwitch.checked = wsConn!=null;
 
 	fileselectLabel.style.display = "none";
 	progressSendElement.style.display = "none";
@@ -2915,7 +2913,6 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 			gLog('endWebRtcSession auto goOnline()');
 			goOnlinePending = false;
 			//console.log("callee endWebRtcSession auto goOnline(): enable goonline");
-///			goOnlineButton.disabled = false;
 			// get peerCon ready for the next incoming call
 			// bc we are most likely still connected, goOnline() will just send "init"
 			goOnline(true,"endWebRtcSession");
@@ -2974,24 +2971,16 @@ function goOffline(comment) {
 			wsConn.close();
 		}
 		wsConn=null;
-		if(!mediaConnect) {
-			onlineIndicator.src="";
-		}
-///		goOnlineButton.disabled = false;
-		console.log("goOffline onlineButton "+(wsConn!=null));
-		onlineButton.checked = wsConn!=null;
 	} else {
 		if(typeof Android !== "undefined" && Android !== null) {
 			Android.wsClose();
 		}
-
-		if(!mediaConnect) {
-			onlineIndicator.src="";
-		}
-///		goOnlineButton.disabled = false;
-		console.log("goOffline onlineButton "+(wsConn!=null));
-		onlineButton.checked = wsConn!=null;
 	}
+	if(!mediaConnect) {
+		onlineIndicator.src="";
+	}
+	console.log("goOffline set goOnlineSwitch false");
+	goOnlineSwitch.checked = false;
 
 	iconContactsElement.style.display = "none";
 	checkboxesElement.style.display = "none";
