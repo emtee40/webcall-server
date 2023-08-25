@@ -1,8 +1,6 @@
 // WebCall Copyright 2023 timur.mobi. All rights reserved.
 'use strict';
-//const goOnlineButton = document.querySelector('button#onlineButton');
-const goOnlineButton = document.querySelector('input#onlineButton');
-//const goOfflineButton = document.querySelector('button#offlineButton');
+const goOnlineSwitch = document.querySelector('input#onlineSwitch');
 const answerButton = document.querySelector('button#answerButton');
 const rejectButton = document.querySelector('button#rejectButton');
 const onlineIndicator = document.querySelector('img#onlineIndicator');
@@ -100,7 +98,6 @@ window.onload = function() {
 	if(!navigator.mediaDevices) {
 		console.warn("navigator.mediaDevices not available");
 ///		goOnlineButton.disabled = true;
-//		goOfflineButton.disabled = true;
 		showStatus("mediaDevices not found",-1);
 		return;
 	}
@@ -143,7 +140,6 @@ window.onload = function() {
 
 		showStatus("CalleeID missing in URL",-1);
 ///		goOnlineButton.disabled = true;
-//		goOfflineButton.disabled = true;
 		return;
 	}
 
@@ -277,7 +273,7 @@ window.onload = function() {
 				onGotStreamGoOnline = false;
 
 				if(!wsConn) {
-//					goOfflineButton.disabled = true; // can't go offline if not connected
+					goOnlineSwitch.checked = false;
 				}
 				if(auto) {
 					// if loaded by android callee, set onGotStreamGoOnline=true to cause goOnline()
@@ -291,9 +287,8 @@ window.onload = function() {
 			gLog('onload pw-entry is needed '+mode);
 			if(divspinnerframe) divspinnerframe.style.display = "none";
 
-//			onGotStreamGoOnline = true;			// ???
-///			goOnlineButton.disabled = true;
-//			goOfflineButton.disabled = true;
+			onGotStreamGoOnline = true;	        // ???
+			//goOnlineSwitch.checked = false;   // ???
 			enablePasswordForm();
 			return;
 		}
@@ -487,7 +482,6 @@ function enablePasswordForm() {
 	form.style.display = "block";
 	document.getElementById("username").focus();
 	//gLog("form username "+document.getElementById("username").value);
-//	goOfflineButton.disabled = true;
 	missedCallsTitleElement.style.display = "none";
 	missedCallsElement.style.display = "none";
 	setTimeout(function() {
@@ -545,33 +539,27 @@ function start() {
 	// setup buttons, get audio input stream, then login
 	console.log("start calleeID="+calleeID+" conn="+(wsConn!=null));
 
-	goOnlineButton.onclick = function(ev) {
-		console.log('goOnlineButton.onclick state='+this.checked);
+	goOnlineSwitch.onclick = function(ev) {
+		console.log('goOnlineSwitch.onclick state='+this.checked);
 		ev.stopPropagation();
 		lastUserActionDate = Date.now();
 		if(this.checked) {
 			if(wsConn==null) {
-				console.log('goOnlineButton.onclick ->on (wsConn==null)');
+				console.log('goOnlineSwitch.onclick ->on (wsConn==null)');
 				goOnline(true,"user button");
 			} else {
-				console.log('! goOnlineButton.onclick ->on but wsConn!=null');
+				console.log('! goOnlineSwitch.onclick ->on but wsConn!=null');
 			}
 		} else {
 			if(wsConn!=null) {
-				console.log('goOnlineButton.onclick ->off (wsConn==null)');
+				console.log('goOnlineSwitch.onclick ->off (wsConn==null)');
 				goOffline("user button");
 			} else {
-				console.log('! goOnlineButton.onclick ->off but wsConn==null');
+				console.log('! goOnlineSwitch.onclick ->off but wsConn==null');
 			}
 		}
 	}
-/*
-	goOfflineButton.onclick = function(ev) {
-		ev.stopPropagation();
-		lastUserActionDate = Date.now();
-		goOffline();
-	};
-*/
+
 	try {
 		getStream().then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 		//getStream() -> getUserMedia(constraints) -> gotStream() -> goOnline() -> login()
@@ -734,7 +722,7 @@ function login(retryFlag) {
 			enablePasswordForm();
 		} else if(parts[0]=="") {
 			showStatus("No response from server",-1);
-//			goOfflineButton.disabled = true;
+			// switch goOnlineSwitch off?
 			form.style.display = "none";
 		} else if(parts[0]=="fatal") {
 			// loginStatus "fatal" = "already logged in" or "db.GetX err"
@@ -1055,11 +1043,7 @@ function mainlinkCheckboxClick(cb) {
 function offlineAction() {
 	// make buttons reflect offline state
 	gLog('offlineAction');
-///	goOnlineButton.disabled = false;
-//	goOfflineButton.disabled = true;
-
-	goOnlineButton.checked = false;
-
+	goOnlineSwitch.checked = false;
 	onlineIndicator.src="";
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 }
@@ -1095,9 +1079,6 @@ function gotStream2() {
 		if(onGotStreamGoOnline && !rtcConnect) {
 			console.log('gotStream2 onGotStreamGoOnline goOnline');
 			onGotStreamGoOnline = false;
-
-			// goOnline() will not start if goOnlineButton is disabled
-//			offlineAction(); // enable goOnlineButton, disable goOfflineButton
 			goOnline(true,"gotStream2");
 		} else {
 			console.log("gotStream2 standby");
@@ -1106,13 +1087,8 @@ function gotStream2() {
 			onlineButton.checked = (wsConn!=null);
 			if(wsConn==null) {
 				// we are offline
-///				goOnlineButton.disabled = false;
-//				goOfflineButton.disabled = true;
 			} else {
 				// we are online
-//				goOnlineButton.disabled = true;
-//				goOfflineButton.disabled = false;
-
 				// send init to request list of missedCalls
 				sendInit("gotStream2 standby");
 			}
@@ -1270,7 +1246,6 @@ function wsOnOpen() {
 	menuSettingsElement.style.display = "block";
 	iconContactsElement.style.display = "block";
 	idMappingElement.style.display = "block";
-//	goOfflineButton.disabled = false;
 }
 
 function wsOnError(evt) {
@@ -2221,18 +2196,6 @@ function hangup(mustDisconnect,dummy2,message) {
 
 function goOnline(sendInitFlag,comment) {
 	console.log('goOnline '+calleeID);
-	//showStatus("");
-/*
-	if(goOnlineButton.disabled) {
-		console.log('goOnline() goOnlineButton.disabled');
-		return;
-	}
-
-
-	goOnlineButton.disabled = true;
-*/
-//	goOfflineButton.disabled = false;
-
 	if(comment=="user button" || comment=="service") {
 		goOnlineWanted = true;
 
@@ -2464,7 +2427,6 @@ function peerConnected2() {
 	}
 
 	console.log("peerConnected2 rtcConnect");
-//	goOfflineButton.disabled = true;
 	rtcConnectStartDate = Date.now();
 	mediaConnectStartDate = 0;
 	rtcConnect = true;
@@ -2590,8 +2552,7 @@ function peerConnected3() {
 		msgbox.style.display = "block";
 	}
 
-///	goOnlineButton.style.display = "none";
-//	goOfflineButton.style.display = "none";
+	// TODO disable goOnlineSwitch while peerconnected ?
 	answerButton.style.display = "inline-block";
 	rejectButton.style.display = "inline-block";
 	if(autoanswerCheckbox.checked) {
@@ -2933,9 +2894,6 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		vsendButton.style.display = "none";
 	}
 
-//	goOfflineButton.disabled = false;
-///	goOnlineButton.style.display = "inline-block";
-//	goOfflineButton.style.display = "inline-block";
 	console.log("endWebRtcSession onlineButton "+(wsConn!=null));
 	onlineButton.checked = wsConn!=null;
 
@@ -3192,7 +3150,6 @@ function wakeGoOnline() {
 	console.log("wakeGoOnline start");
 	connectSignaling('','wakeGoOnline'); // only get wsConn from service (from Android.wsOpen())
 	wsOnOpen(); // green led
-///	goOnlineButton.disabled = false; // prevent goOnline() abort
 	goOnline(true,"wakeGoOnline");   // newPeerCon() + wsSend("init|!")
 	gLog("wakeGoOnline done");
 }
@@ -3202,7 +3159,6 @@ function wakeGoOnlineNoInit() {
 	console.log("wakeGoOnlineNoInit start");
 	connectSignaling('','wakeGoOnlineNoInit'); // only get wsConn from service (from Android.wsOpen())
 	wsOnOpen(); // green led
-///	goOnlineButton.disabled = false; // prevent goOnline() abort
 	goOnline(false,"wakeGoOnline");  // newPeerCon() but do NOT wsSend("init|!")
 	gLog("wakeGoOnlineNoInit done");
 }
