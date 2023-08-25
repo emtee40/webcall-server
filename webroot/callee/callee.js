@@ -1223,14 +1223,14 @@ function connectSignaling(message,comment) {
 
 function wsOnOpen() {
 	// called by service connectHost(wsUrl) -> onOpen() -> runJS("wsOnOpen()",null)
-	gLog("wsOnOpen calleeID="+calleeID);
+	gLog("wsOnOpen calleeID="+calleeID+" connected="+(wsConn!=null));
 	tryingToOpenWebSocket = false;
 	wsAutoReconnecting = false;
 	if(!mediaConnect) {
-///		onlineIndicator.src="green-gradient.svg";
+///		onlineIndicator.src="green-gradient.svg";	// TODO
 	}
-	console.log("wsOnOpen goOnlineSwitch "+(wsConn!=null));
-	goOnlineSwitch.checked = wsConn!=null;
+	//console.log("wsOnOpen goOnlineSwitch=true");
+	goOnlineSwitch.checked = true;
 
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 	/*
@@ -1243,7 +1243,7 @@ function wsOnOpen() {
 		// then both buttons are enabled - not good
 	});
 	*/
-	if(wsSendMessage!="") {
+	if(wsSendMessage!="" && wsConn!=null) {
 		gLog("wsOnOpen wsSend("+wsSendMessage+")");
 		wsSend(wsSendMessage);
 		wsSendMessage = "";
@@ -1992,6 +1992,7 @@ function wsSend(message) {
 	}
 	if(wsConn==null || wsConn.readyState!=1) {
 		// currently not connected to webcall server
+// TODO hier stimmt was nicht
 		if(wsConn) {
 			if(wsConn.readyState==0) {
 				gLog('wsSend (state 0 = connecting) '+message);
