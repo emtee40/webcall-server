@@ -1772,21 +1772,41 @@ function pickupWaitingCaller(addrPort) {
 var showCallsWhileInAbsenceCallingItself = false;
 function showMissedCalls() {
 	let nextDrawDelay = 30000;
-// TODO if activity paused, jump to setTimeout (but how?)
+	let skipRender = false;
+
 	if(wsConn==null) {
 		// don't execute if client is disconnected
-		//console.log('! showMissedCalls skip wsConn==null');
 		if(!goOnlineWanted) {
 			console.log('showMissedCalls abort !goOnlineWanted');
 			return;
 		}
+		console.log('! showMissedCalls skip: wsConn==null');
 		nextDrawDelay = 10000;
-	} else if(missedCallsSlice==null || missedCallsSlice.length<=0) {
-		console.log("! showMissedCalls skip missedCallsSlice==null");
+		skipRender = true;
+	}
+	if(missedCallsSlice==null || missedCallsSlice.length<=0) {
+		console.log("! showMissedCalls skip: missedCallsSlice==null");
 		missedCallsTitleElement.style.display = "none";
 		missedCallsElement.style.display = "none";
 		missedCallsElement.innerHTML = "";
-	} else {
+		skipRender = true;
+	}
+
+	// if activity is paused, skip to setTimeout
+	if(typeof Android !== "undefined" && Android !== null) {
+		if(typeof Android.isActivityInteractive !== "undefined" && Android.isActivityInteractive !== null) {
+			if(Android.isActivityInteractive()) {
+				//console.log("showMissedCalls activity is interactive");
+			} else {
+				skipRender = true;
+				//console.log("! showMissedCalls skip: activity not interactive");
+			}
+		} else {
+			//console.log("showMissedCalls activity isActivityInteractive unavailable");
+		}
+	}
+
+	if(!skipRender) {
 		console.log("showMissedCalls missedCallsSlice.length="+missedCallsSlice.length);
 		// make remoteCallerIdMaxChar depend on window.innerWidth
 		// for window.innerWidth = 360, remoteCallerIdMaxChar=21 is perfect
