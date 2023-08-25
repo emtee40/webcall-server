@@ -309,7 +309,7 @@ window.onload = function() {
 	callerIdArg = callerId;
 	// callerId may change by cookieName and idSelect
 
-	// showMissedCalls() hands over the default webcall nickname with this
+	// showMissedCalls hands over the default webcall nickname with this
 	callerName = "";
 	str = getUrlParams("callerName");
 	if(typeof str!=="undefined" && str!==null && str!=="" && str!="undefined" && str!=="null") {

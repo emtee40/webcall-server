@@ -1,6 +1,6 @@
 // WebCall Copyright 2023 timur.mobi. All rights reserved.
 'use strict';
-const clientVersion = '4.0.0-beta6';
+const clientVersion = '4.0.0-beta10';
 
 const avSelect = document.querySelector("select#avSelect");
 const vresDialogElement = document.getElementById('vresDialog');
@@ -1812,9 +1812,13 @@ function clearcookie() {
 	console.log("clearcookie id=("+calleeID+")");
 	document.cookie = "webcallid=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
 	setTimeout(function() {
-		if(typeof Android !== "undefined" && Android !== null &&
-				typeof Android.gotoBasepage !== "undefined" && Android.gotoBasepage !== null) {
-			Android.gotoBasepage();
+		if(typeof Android !== "undefined" && Android !== null) {
+			if(typeof Android.wsClearCookies !== "undefined" && Android.wsClearCookies !== null) {
+				Android.wsClearCookies();
+			}
+			if(typeof Android.gotoBasepage !== "undefined" && Android.gotoBasepage !== null) {
+				Android.gotoBasepage();
+			}
 		} else {
 			window.location.reload();
 		}

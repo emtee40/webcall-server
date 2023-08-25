@@ -1,7 +1,8 @@
 // WebCall Copyright 2023 timur.mobi. All rights reserved.
 'use strict';
-const goOnlineButton = document.querySelector('button#onlineButton');
-const goOfflineButton = document.querySelector('button#offlineButton');
+//const goOnlineButton = document.querySelector('button#onlineButton');
+const goOnlineButton = document.querySelector('input#onlineButton');
+//const goOfflineButton = document.querySelector('button#offlineButton');
 const answerButton = document.querySelector('button#answerButton');
 const rejectButton = document.querySelector('button#rejectButton');
 const onlineIndicator = document.querySelector('img#onlineIndicator');
@@ -44,6 +45,7 @@ var remainingTalkSecs = 0;
 var remainingServiceSecs = 0;
 var wsConn = null;
 var lastWsConn = null;
+var goOnlineWanted = false;
 var localDescription = null;
 var callerDescription = null;
 var peerCon = null;
@@ -97,8 +99,8 @@ window.onload = function() {
 	
 	if(!navigator.mediaDevices) {
 		console.warn("navigator.mediaDevices not available");
-		goOnlineButton.disabled = true;
-		goOfflineButton.disabled = true;
+///		goOnlineButton.disabled = true;
+//		goOfflineButton.disabled = true;
 		showStatus("mediaDevices not found",-1);
 		return;
 	}
@@ -140,8 +142,8 @@ window.onload = function() {
 		}
 
 		showStatus("CalleeID missing in URL",-1);
-		goOnlineButton.disabled = true;
-		goOfflineButton.disabled = true;
+///		goOnlineButton.disabled = true;
+//		goOfflineButton.disabled = true;
 		return;
 	}
 
@@ -155,7 +157,7 @@ window.onload = function() {
 	// if set will auto-login as callee
 	let auto = cleanStringParameter(getUrlParams("auto"),true,"auto");
 	if(auto) {
-		gLog("onload auto is set ("+auto+")");
+		console.log("onload auto is set ("+auto+")");
 		if(divspinnerframe) divspinnerframe.style.display = "block";
 		// auto will cause onGotStreamGoOnline to be set below
 	} else {
@@ -275,10 +277,11 @@ window.onload = function() {
 				onGotStreamGoOnline = false;
 
 				if(!wsConn) {
-					goOfflineButton.disabled = true; // can't go offline if not connected
+//					goOfflineButton.disabled = true; // can't go offline if not connected
 				}
 				if(auto) {
 					// if loaded by android callee, set onGotStreamGoOnline=true to cause goOnline()
+					console.log("checkServerMode auto onGotStreamGoOnline=true");
 					onGotStreamGoOnline=true;
 				}
 				start();
@@ -288,9 +291,9 @@ window.onload = function() {
 			gLog('onload pw-entry is needed '+mode);
 			if(divspinnerframe) divspinnerframe.style.display = "none";
 
-			onGotStreamGoOnline = true;
-			goOnlineButton.disabled = true;
-			goOfflineButton.disabled = true;
+//			onGotStreamGoOnline = true;			// ???
+///			goOnlineButton.disabled = true;
+//			goOfflineButton.disabled = true;
 			enablePasswordForm();
 			return;
 		}
@@ -476,15 +479,15 @@ function showPw() {
 
 function enablePasswordForm() {
 	gLog('enter password for calleeID='+calleeID);
-	if(muteMicDiv) {
-		muteMicDiv.style.display = "none";
-	}
+//	if(muteMicDiv) {	// TODO ???
+//		muteMicDiv.style.display = "none";
+//	}
 	showStatus("Login calleeID: "+calleeID,-1);
 	document.getElementById("current-password").value = "";
 	form.style.display = "block";
 	document.getElementById("username").focus();
 	//gLog("form username "+document.getElementById("username").value);
-	goOfflineButton.disabled = true;
+//	goOfflineButton.disabled = true;
 	missedCallsTitleElement.style.display = "none";
 	missedCallsElement.style.display = "none";
 	setTimeout(function() {
@@ -511,12 +514,12 @@ function submitFormDone(idx) {
 			return;
 		}
 		wsSecret = valuePw;
-		onGotStreamGoOnline = true;
+//		onGotStreamGoOnline = true;			// TODO ???
 		//console.log("callee submitFormDone: enable goonline");
-		goOnlineButton.disabled = false;
-		if(muteMicDiv) {
-			muteMicDiv.style.display = "block";
-		}
+///		goOnlineButton.disabled = false;
+//		if(muteMicDiv) {
+//			muteMicDiv.style.display = "block";
+//		}
 		start();
 		// -> getStream() -> getUserMedia(constraints) -> gotStream() -> goOnline() -> login()
 	} else if(idx==2) {
@@ -540,18 +543,35 @@ function submitFormDone(idx) {
 
 function start() {
 	// setup buttons, get audio input stream, then login
-	gLog('start callee with ID='+calleeID);
+	console.log("start calleeID="+calleeID+" conn="+(wsConn!=null));
 
 	goOnlineButton.onclick = function(ev) {
+		console.log('goOnlineButton.onclick state='+this.checked);
 		ev.stopPropagation();
 		lastUserActionDate = Date.now();
-		goOnline(true,"user button");
+		if(this.checked) {
+			if(wsConn==null) {
+				console.log('goOnlineButton.onclick ->on (wsConn==null)');
+				goOnline(true,"user button");
+			} else {
+				console.log('! goOnlineButton.onclick ->on but wsConn!=null');
+			}
+		} else {
+			if(wsConn!=null) {
+				console.log('goOnlineButton.onclick ->off (wsConn==null)');
+				goOffline("user button");
+			} else {
+				console.log('! goOnlineButton.onclick ->off but wsConn==null');
+			}
+		}
 	}
+/*
 	goOfflineButton.onclick = function(ev) {
 		ev.stopPropagation();
 		lastUserActionDate = Date.now();
 		goOffline();
 	};
+*/
 	try {
 		getStream().then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 		//getStream() -> getUserMedia(constraints) -> gotStream() -> goOnline() -> login()
@@ -593,9 +613,9 @@ function login(retryFlag) {
 			form.style.display = "none";
 
 			// show muteMic checkbox
-			if(muteMicDiv) {
-				muteMicDiv.style.display = "block";
-			}
+//			if(muteMicDiv) {
+//				muteMicDiv.style.display = "block";
+//			}
 
 			menuClearCookieElement.style.display = "block";
 
@@ -608,7 +628,7 @@ function login(retryFlag) {
 			if(parts.length>=4) {
 				serviceSecs = parseInt(parts[3], 10);
 			}
-			gLog('login outboundIP '+outboundIP);
+			console.log('login outboundIP '+outboundIP);
 
 			getSettings();
 			/*
@@ -652,6 +672,13 @@ function login(retryFlag) {
 			return;
 		}
 
+		// if running on android bring activity to front
+		if(typeof Android !== "undefined" && Android !== null) {
+			if(typeof Android.activityToFront !== "undefined" && Android.activityToFront !== null) {
+				Android.activityToFront();
+			}
+		}
+
 		if(divspinnerframe) divspinnerframe.style.display = "none";
 
 		let mainLink = window.location.href;
@@ -675,8 +702,8 @@ function login(retryFlag) {
 			ownlinkElement.innerHTML = "";
 
 			form.style.display = "none";
-			offlineAction();
-			goOnlineButton.disabled = true;
+//			offlineAction();		// TODO ???
+///			goOnlineButton.disabled = true;
 
 			// clear cookie
 			console.log('clear cookie');
@@ -702,12 +729,12 @@ function login(retryFlag) {
 		} else if(parts[0]=="error") {
 			// parts[0] "error" = "wrong pw", "pw has less than 6 chars" or "empty pw"
 			// offer pw entry again
-			gLog('login error - try again');
-			goOnlineButton.disabled = true;
+			console.log('login error - try again');
+///			goOnlineButton.disabled = true;
 			enablePasswordForm();
 		} else if(parts[0]=="") {
 			showStatus("No response from server",-1);
-			goOfflineButton.disabled = true;
+//			goOfflineButton.disabled = true;
 			form.style.display = "none";
 		} else if(parts[0]=="fatal") {
 			// loginStatus "fatal" = "already logged in" or "db.GetX err"
@@ -787,7 +814,7 @@ function getSettings() {
 
 	// TODO why do we add arg id?
 	let api = apiPath+"/getsettings?id="+calleeID;
-	gLog('getsettings api '+api);
+	console.log('getsettings api '+api);
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# /getsettings error("+xhr.responseText+")");
@@ -1024,14 +1051,19 @@ function mainlinkCheckboxClick(cb) {
 	}, newSettings);
 }
 
+
 function offlineAction() {
 	// make buttons reflect offline state
 	gLog('offlineAction');
-	goOnlineButton.disabled = false;
-	goOfflineButton.disabled = true;
+///	goOnlineButton.disabled = false;
+//	goOfflineButton.disabled = true;
+
+	goOnlineButton.checked = false;
+
 	onlineIndicator.src="";
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 }
+
 
 function gotStream2() {
 	if(typeof Android !== "undefined" && Android !== null) {
@@ -1065,19 +1097,21 @@ function gotStream2() {
 			onGotStreamGoOnline = false;
 
 			// goOnline() will not start if goOnlineButton is disabled
-			offlineAction(); // enable goOnlineButton, disable goOfflineButton
+//			offlineAction(); // enable goOnlineButton, disable goOfflineButton
 			goOnline(true,"gotStream2");
 		} else {
 			console.log("gotStream2 standby");
 
+			console.log("gotStream2 onlineButton "+(wsConn!=null));
+			onlineButton.checked = (wsConn!=null);
 			if(wsConn==null) {
 				// we are offline
-				goOnlineButton.disabled = false;
-				goOfflineButton.disabled = true;
+///				goOnlineButton.disabled = false;
+//				goOfflineButton.disabled = true;
 			} else {
 				// we are online
-				goOnlineButton.disabled = true;
-				goOfflineButton.disabled = false;
+//				goOnlineButton.disabled = true;
+//				goOfflineButton.disabled = false;
 
 				// send init to request list of missedCalls
 				sendInit("gotStream2 standby");
@@ -1091,7 +1125,7 @@ function delayedWsAutoReconnect(reconPauseSecs) {
 	// delayedWsAutoReconnect can only succeed if a previous login attemt was successful
 	console.log("delayedWsAutoReconnect "+reconPauseSecs);
 	if((remainingTalkSecs<0 || remainingServiceSecs<0) && !calleeID.startsWith("answie")) {
-		offlineAction();
+//		offlineAction();	// TODO
 		wsAutoReconnecting = false;
 		console.log("# give up reconnecting "+remainingTalkSecs+" "+remainingServiceSecs);
 		let mainLink = window.location.href;
@@ -1116,20 +1150,20 @@ function delayedWsAutoReconnect(reconPauseSecs) {
 			if(!wsConn) {
 				gLog('delayedWsAutoReconnect aborted on user action '+
 					startPauseDate+' '+lastUserActionDate);
-				offlineAction();
+//				offlineAction();	// TODO
 			}
 		} else if(!wsAutoReconnecting) {
 			gLog('delayedWsAutoReconnect aborted on !wsAutoReconnecting');
 			wsAutoReconnecting = false;
-			//offlineAction();
+			//offlineAction();		// TODO
 		} else if(remainingTalkSecs<0 && !calleeID.startsWith("answie")) {
 			gLog('delayedWsAutoReconnect aborted on no talk time');
 			wsAutoReconnecting = false;
-			offlineAction();
+//			offlineAction();		// TODO
 		} else if(remainingServiceSecs<0 && !calleeID.startsWith("answie")) {
 			gLog('delayedWsAutoReconnect aborted on no service time');
 			wsAutoReconnecting = false;
-			offlineAction();
+//			offlineAction();		// TODO
 		} else {
 			gLog('delayedWsAutoReconnect login...');
 			login(true); // -> connectSignaling("init|")
@@ -1209,8 +1243,11 @@ function wsOnOpen() {
 	tryingToOpenWebSocket = false;
 	wsAutoReconnecting = false;
 	if(!mediaConnect) {
-		onlineIndicator.src="green-gradient.svg";
+///		onlineIndicator.src="green-gradient.svg";
 	}
+///	goOnlineButton.innerHTML = "Go Offline";
+	console.log("wsOnOpen onlineButton "+(wsConn!=null));
+	onlineButton.checked = wsConn!=null;
 
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 	/*
@@ -1233,7 +1270,7 @@ function wsOnOpen() {
 	menuSettingsElement.style.display = "block";
 	iconContactsElement.style.display = "block";
 	idMappingElement.style.display = "block";
-	goOfflineButton.disabled = false;
+//	goOfflineButton.disabled = false;
 }
 
 function wsOnError(evt) {
@@ -1278,7 +1315,7 @@ function wsOnClose(evt) {
 		gLog('wsOnClose while connected');
 	}
 
-	if(goOnlineButton.disabled && errCode==1006 && !tryingToOpenWebSocket) {
+	if(goOnlineWanted && errCode==1006 && !tryingToOpenWebSocket) {
 		// callee on chrome needs this for reconnect after wake-from-sleep
 		// this is not a user-intended offline; we should be online
 		let delay = autoReconnectDelay + Math.floor(Math.random() * 10) - 5;
@@ -1298,12 +1335,20 @@ function wsOnClose2() {
 	// called by wsOnClose() or from android service
 	console.log("wsOnClose2 "+calleeID);
 	wsConn=null;
-	iconContactsElement.style.display = "none";
-	checkboxesElement.style.display = "none";
 	buttonBlinking=false; // will abort blinkButtonFunc()
 	stopAllAudioEffects("wsOnClose");
-
 	onlineIndicator.src="";
+
+/* reconnect bleibt aktiv!
+*/
+	iconContactsElement.style.display = "none";
+	checkboxesElement.style.display = "none";
+
+///	goOnlineButton.innerHTML = "Go Online";
+	console.log("wsOnClose2 onlineButton "+(wsConn!=null));
+	onlineButton.checked = wsConn!=null;
+
+
 	// clear "You will receive calls made by this link"
 	ownlinkElement.innerHTML = "";
 	// hide missedCalls
@@ -1316,8 +1361,9 @@ function wsOnMessage(evt) {
 }
 
 function wsOnMessage2(str, comment) {
-	// WebCall Android service calls this to push msgs from WebCall server
-	console.log("wsOnMessage2( "+str+" comment="+comment);
+	// Webcall service calls this to push msgs from WebCall server to signalingCommand()
+	// either live msgs (onMessage()) or queued msgs (processWebRtcMessages())
+	//console.log("wsOnMessage2( "+str+" comment="+comment);
 	signalingCommand(str, comment);
 }
 
@@ -1592,6 +1638,7 @@ function signalingCommand(message, comment) {
 		missedCallsSlice = null;
 		if(payload.length>0) {
 			missedCallsSlice = JSON.parse(payload);
+			console.log('cmd missedCallsSlice len='+missedCallsSlice.length);
 			// TODO only when list changes: beep?
 		}
 		showMissedCalls();
@@ -1724,173 +1771,179 @@ function pickupWaitingCaller(addrPort) {
 
 var showCallsWhileInAbsenceCallingItself = false;
 function showMissedCalls() {
+	let nextDrawDelay = 30000;
+// TODO if activity paused, jump to setTimeout (but how?)
 	if(wsConn==null) {
 		// don't execute if client is disconnected
-		return;
-	}
-	if(missedCallsSlice==null || missedCallsSlice.length<=0) {
-		gLog('showMissedCalls fkt missedCallsSlice == null');
+		//console.log('! showMissedCalls skip wsConn==null');
+		if(!goOnlineWanted) {
+			console.log('showMissedCalls abort !goOnlineWanted');
+			return;
+		}
+		nextDrawDelay = 10000;
+	} else if(missedCallsSlice==null || missedCallsSlice.length<=0) {
+		console.log("! showMissedCalls skip missedCallsSlice==null");
 		missedCallsTitleElement.style.display = "none";
 		missedCallsElement.style.display = "none";
 		missedCallsElement.innerHTML = "";
-		return;
-	}
+	} else {
+		console.log("showMissedCalls missedCallsSlice.length="+missedCallsSlice.length);
+		// make remoteCallerIdMaxChar depend on window.innerWidth
+		// for window.innerWidth = 360, remoteCallerIdMaxChar=21 is perfect
+		let remoteCallerIdMaxChar = 13;
+		if(window.innerWidth>360) {
+			remoteCallerIdMaxChar += Math.floor((window.innerWidth-360)/22);
+		}
+		//console.log("window.innerWidth="+window.innerWidth+" remoteCallerIdMaxChar="+remoteCallerIdMaxChar);
 
-	// make remoteCallerIdMaxChar depend on window.innerWidth
-	// for window.innerWidth = 360, remoteCallerIdMaxChar=21 is perfect
-	let remoteCallerIdMaxChar = 13;
-	if(window.innerWidth>360) {
-		remoteCallerIdMaxChar += Math.floor((window.innerWidth-360)/22);
-	}
-	//console.log("window.innerWidth="+window.innerWidth+" remoteCallerIdMaxChar="+remoteCallerIdMaxChar);
+		let timeNowSecs = Math.floor((Date.now()+500)/1000);
+		let mainLink = window.location.href;
+		let idx = mainLink.indexOf("/callee");
+		if(idx>0) {
+			mainLink = mainLink.substring(0,idx) + "/user/";
+		}
+		let str = "<table style='width:100%; border-collapse:separate; line-height:1.4em; margin-left:-4px;'>"
+		for(var i=0; i<missedCallsSlice.length; i++) {
+			str += "<tr>"
+			let waitingSecs = timeNowSecs - missedCallsSlice[i].CallTime;
 
-	let timeNowSecs = Math.floor((Date.now()+500)/1000);
-	let mainLink = window.location.href;
-	let idx = mainLink.indexOf("/callee");
-	if(idx>0) {
-		mainLink = mainLink.substring(0,idx) + "/user/";
-	}
-	let str = "<table style='width:100%; border-collapse:separate; line-height:1.4em; margin-left:-4px;'>"
-	for(var i=0; i<missedCallsSlice.length; i++) {
-		str += "<tr>"
-		let waitingSecs = timeNowSecs - missedCallsSlice[i].CallTime;
-
-		// split waitingTimeString by days, hours, min
-		let waitingTimeString = ""+waitingSecs+"s";
-		if(waitingSecs>50) {
-			let waitingMins = Math.floor((waitingSecs+10)/60);
-			if(waitingMins>=60) {
-				let waitingHours = Math.floor(waitingMins/60);
-				waitingMins -= waitingHours*60;
-				if(waitingHours>=24) {
-					let waitingDays = Math.floor(waitingHours/24);
-					waitingHours -= waitingDays*24;
-					waitingTimeString = ""+waitingDays+"d";
+			// split waitingTimeString by days, hours, min
+			let waitingTimeString = ""+waitingSecs+"s";
+			if(waitingSecs>50) {
+				let waitingMins = Math.floor((waitingSecs+10)/60);
+				if(waitingMins>=60) {
+					let waitingHours = Math.floor(waitingMins/60);
+					waitingMins -= waitingHours*60;
+					if(waitingHours>=24) {
+						let waitingDays = Math.floor(waitingHours/24);
+						waitingHours -= waitingDays*24;
+						waitingTimeString = ""+waitingDays+"d";
+					} else {
+						waitingTimeString = ""+waitingHours+"h";
+					}
 				} else {
-					waitingTimeString = ""+waitingHours+"h";
+					waitingTimeString = ""+waitingMins+"m";
 				}
-			} else {
-				waitingTimeString = ""+waitingMins+"m";
 			}
-		}
-		let callerIp = missedCallsSlice[i].AddrPort;
-		let callerIpIdxPort = callerIp.indexOf(":");
-		if(callerIpIdxPort>0) {
-			callerIp = callerIp.substring(0,callerIpIdxPort);
-		}
-		let callerID = missedCallsSlice[i].CallerID;
-
-		let callerName = missedCallsSlice[i].CallerName;
-		if(callerName=="null") {
-			callerName="";
-		}
-		if(callerName=="") {
-			if(callerID==calleeID) {
-				callerName="self";
-			} else {
-				callerName="unknown";
+			let callerIp = missedCallsSlice[i].AddrPort;
+			let callerIpIdxPort = callerIp.indexOf(":");
+			if(callerIpIdxPort>0) {
+				callerIp = callerIp.substring(0,callerIpIdxPort);
 			}
-		}
-		// TODO if callerName=="" || callerName=="unknown" -> check contacts?
+			let callerID = missedCallsSlice[i].CallerID;
 
-		let callerNameMarkup = callerName;
-		let callerMsg = missedCallsSlice[i].Msg;
-		if(callerMsg!="") {
-			//gLog('### callerMsg='+callerMsg+' '+waitingTimeString+' '+
-			//	timeNowSecs+' '+missedCallsSlice[i].CallTime);
-			callerNameMarkup = "<a onclick='showMsg(\""+callerMsg+"\");return false;'>"+callerName+"</a>";
-			//console.log("callerNameMarkup("+callerNameMarkup+")");
-		}
-
-		let remoteCaller = false;
-		let remoteAddr = "";
-		let callerIdNoHost = callerID;
-		var parts = callerID.split("@");
-		if(parts.length>=3) {
-			remoteCaller = true;
-			callerIdNoHost = parts[0];
-			if(parts[1]!="") {
-				callerIdNoHost += "@"+parts[1];
+			let callerName = missedCallsSlice[i].CallerName;
+			if(callerName=="null") {
+				callerName="";
 			}
-			remoteAddr = parts[2];
-			if(remoteAddr==location.host) {
-				remoteCaller = false;
+			if(callerName=="") {
+				if(callerID==calleeID) {
+					callerName="self";
+				} else {
+					callerName="unknown";
+				}
+			}
+			// TODO if callerName=="" || callerName=="unknown" -> check contacts?
+
+			let callerNameMarkup = callerName;
+			let callerMsg = missedCallsSlice[i].Msg;
+			if(callerMsg!="") {
+				//gLog('### callerMsg='+callerMsg+' '+waitingTimeString+' '+
+				//	timeNowSecs+' '+missedCallsSlice[i].CallTime);
+				callerNameMarkup = "<a onclick='showMsg(\""+callerMsg+"\");return false;'>"+callerName+"</a>";
+				//console.log("callerNameMarkup("+callerNameMarkup+")");
+			}
+
+			let remoteCaller = false;
+			let remoteAddr = "";
+			let callerIdNoHost = callerID;
+			var parts = callerID.split("@");
+			if(parts.length>=3) {
+				remoteCaller = true;
+				callerIdNoHost = parts[0];
+				if(parts[1]!="") {
+					callerIdNoHost += "@"+parts[1];
+				}
+				remoteAddr = parts[2];
+				if(remoteAddr==location.host) {
+					remoteCaller = false;
+					callerID = callerIdNoHost;
+				}
+			}
+
+			// TODO here we could check if callerID is (still) a valid calleeID (but better do this on server)
+
+			let noLink = false;
+			if(callerID=="") {
+				// local user without ID (cannot be called back)
+				noLink = true;
+				if(callerIp=="")
+					callerIdNoHost = "unknown";
+				else
+					callerIdNoHost = halfShowIpAddr(callerIp);
 				callerID = callerIdNoHost;
+			} else if(callerIdNoHost=="") {
+				// remote user without ID (cannot be called back)
+				noLink = true;
+				if(callerIp=="")
+					callerIdNoHost = "unknown";
+				else
+					callerIdNoHost = halfShowIpAddr(callerIp);
+				callerID = callerIdNoHost + callerID;
 			}
-		}
 
-		// TODO here we could check if callerID is (still) a valid calleeID (but better do this on server)
+			let callerLink = "";
+			if(!remoteCaller) {
+				// the original caller is hosted on THIS server
+				callerLink += mainLink + callerIdNoHost;
+				// do NOT send callerId + callerName to callee on local server
+				//callerLink += "?callerId="+calleeID + "&callerName="+calleeName;
+				//if(!playDialSounds) callerLink += "&ds=false";
+				//if(!playDialSounds) callerLink += "?ds=false";
+				//console.log("local ("+callerIdNoHost+") ("+callerLink+")");
 
-		let noLink = false;
-		if(callerID=="") {
-			// local user without ID (cannot be called back)
-			noLink = true;
-			if(callerIp=="")
-				callerIdNoHost = "unknown";
-			else
-				callerIdNoHost = halfShowIpAddr(callerIp);
-			callerID = callerIdNoHost;
-		} else if(callerIdNoHost=="") {
-			// remote user without ID (cannot be called back)
-			noLink = true;
-			if(callerIp=="")
-				callerIdNoHost = "unknown";
-			else
-				callerIdNoHost = halfShowIpAddr(callerIp);
-			callerID = callerIdNoHost + callerID;
-		}
+				if(noLink) {
+					callerLink = callerIdNoHost;
+				} else {
+					callerLink = "<a onclick='openDialUrl(\""+callerLink+"\")'>"+callerIdNoHost+"</a>";
+				}
 
-		let callerLink = "";
-		if(!remoteCaller) {
-			// the original caller is hosted on THIS server
-			callerLink += mainLink + callerIdNoHost;
-			// do NOT send callerId + callerName to callee on local server
-			//callerLink += "?callerId="+calleeID + "&callerName="+calleeName;
-			//if(!playDialSounds) callerLink += "&ds=false";
-			//if(!playDialSounds) callerLink += "?ds=false";
-			//console.log("local ("+callerIdNoHost+") ("+callerLink+")");
-
-			if(noLink) {
-				callerLink = callerIdNoHost;
 			} else {
-				callerLink = "<a onclick='openDialUrl(\""+callerLink+"\")'>"+callerIdNoHost+"</a>";
+				// the original caller is hosted on a REMOTE server
+				callerLink += mainLink + callerIdNoHost + "?callerId=select&targetHost="+remoteAddr +
+					"&callerName="+calleeName + "&callerHost="+location.host;
+				if(!playDialSounds) callerLink += "&ds=false";
+				//console.log("remote ("+callerID+") ("+callerLink+")");
+
+				let callerIdDisplay = callerID;
+				//gLog("id="+id+" callerIdDisplay="+callerIdDisplay+" callerHost="+callerHost+
+				//	" location.host="+location.host);
+				if(callerIdDisplay.length > remoteCallerIdMaxChar+2) {
+					callerIdDisplay = callerIdDisplay.substring(0,remoteCallerIdMaxChar)+"..";
+					//gLog("callerIdDisplay="+callerIdDisplay+" "+callerIdDisplay.length);
+				}
+
+				if(noLink) {
+					callerLink = callerIdDisplay;
+				} else {
+					callerLink = "<a onclick='openDialRemote(\""+callerLink+"\")'>"+callerIdDisplay+"</a>";
+				}
 			}
 
-		} else {
-			// the original caller is hosted on a REMOTE server
-			callerLink += mainLink + callerIdNoHost + "?callerId=select&targetHost="+remoteAddr +
-				"&callerName="+calleeName + "&callerHost="+location.host;
-			if(!playDialSounds) callerLink += "&ds=false";
-			//console.log("remote ("+callerID+") ("+callerLink+")");
-
-			let callerIdDisplay = callerID;
-			//gLog("id="+id+" callerIdDisplay="+callerIdDisplay+" callerHost="+callerHost+
-			//	" location.host="+location.host);
-			if(callerIdDisplay.length > remoteCallerIdMaxChar+2) {
-				callerIdDisplay = callerIdDisplay.substring(0,remoteCallerIdMaxChar)+"..";
-				//gLog("callerIdDisplay="+callerIdDisplay+" "+callerIdDisplay.length);
-			}
-
-			if(noLink) {
-				callerLink = callerIdDisplay;
-			} else {
-				callerLink = "<a onclick='openDialRemote(\""+callerLink+"\")'>"+callerIdDisplay+"</a>";
-			}
+			str += "<td>" + callerNameMarkup + "</td>"+
+				"<td>"+	callerLink + "</td>"+
+				"<td align='right'>"+
+				"<a onclick='deleteMissedCall(\""+
+					missedCallsSlice[i].AddrPort+"_"+missedCallsSlice[i].CallTime+"\","+
+					"\""+callerName+"\","+
+					"\""+callerID+"\")'>"+
+				waitingTimeString + "</a></td>";
 		}
-
-		str += "<td>" + callerNameMarkup + "</td>"+
-			"<td>"+	callerLink + "</td>"+
-			"<td align='right'>"+
-			"<a onclick='deleteMissedCall(\""+
-				missedCallsSlice[i].AddrPort+"_"+missedCallsSlice[i].CallTime+"\","+
-				"\""+callerName+"\","+
-				"\""+callerID+"\")'>"+
-			waitingTimeString + "</a></td>";
+		str += "</table>"
+		missedCallsTitleElement.style.display = "block";
+		missedCallsElement.innerHTML = str;
+		missedCallsElement.style.display = "block";
 	}
-	str += "</table>"
-	missedCallsTitleElement.style.display = "block";
-	missedCallsElement.innerHTML = str;
-	missedCallsElement.style.display = "block";
 
 	if(showCallsWhileInAbsenceCallingItself) {
 		// already updating itself
@@ -1900,7 +1953,7 @@ function showMissedCalls() {
 		setTimeout(function() {
 			showCallsWhileInAbsenceCallingItself = false;
 			showMissedCalls();
-		},30000);
+		},nextDrawDelay);
 	}
 }
 
@@ -1956,15 +2009,15 @@ function wsSend(message) {
 				gLog('wsSend (state 0 = connecting) '+message);
 				wsConn.close();
 				wsConn=null;
-				offlineAction();
+//				offlineAction();		// TODO
 			} else if(wsConn.readyState==2) {
 				gLog('wsSend (state 2 = closing)');
 				wsConn=null;
-				offlineAction();
+//				offlineAction();		// TODO
 			} else if(wsConn.readyState==3) {
 				gLog('wsSend (state 3 = closed)');
 				wsConn=null;
-				offlineAction();
+//				offlineAction();		// TODO
 			} else {
 				gLog('wsSend ws state',wsConn.readyState);
 			}
@@ -2017,7 +2070,9 @@ function pickup2() {
 		gLog('pickup2: after short delay send pickup to caller');
 		wsSend("pickup|!"); // make caller unmute our mic on their side
 
-		onlineIndicator.src="red-gradient.svg";
+///		onlineIndicator.src="red-gradient.svg";
+// TODO make the switch red?
+
 		mediaConnect = true;
 		if(vsendButton) {
 			vsendButton.style.display = "inline-block";
@@ -2145,26 +2200,40 @@ function hangup(mustDisconnect,dummy2,message) {
 }
 
 function goOnline(sendInitFlag,comment) {
-	showStatus("");
+	console.log('goOnline '+calleeID);
+	//showStatus("");
+/*
 	if(goOnlineButton.disabled) {
 		console.log('goOnline() goOnlineButton.disabled');
 		return;
 	}
 
+
 	goOnlineButton.disabled = true;
-	goOfflineButton.disabled = false;
+*/
+//	goOfflineButton.disabled = false;
+
+	if(comment=="user button" || comment=="service") {
+		goOnlineWanted = true;
+
+		// we need to add to window.location: "?auto=1"
+		let mySearch = window.location.search;
+		if(mySearch.indexOf("auto=1")<0) {
+			// add auto=1 to mySearch
+			if(mySearch.indexOf("?")<0) {
+				mySearch = mySearch + "?auto=1";
+			} else {
+				mySearch = mySearch + "&auto=1";
+			}
+		}
+		console.log('goOnline()='+window.location.pathname + mySearch);
+		history.replaceState("", document.title, window.location.pathname + mySearch);
+	}
+
 	rtcConnectStartDate = 0;
 	mediaConnectStartDate = 0;
-	console.log('goOnline '+calleeID);
 	addedAudioTrack = null;
 	addedVideoTrack = null;
-
-	if(typeof Android !== "undefined" && Android !== null && Android.isConnected()>0) {
-		// if already connected do NOT show spinner (we are most likely called by wakeGoOnline())
-	} else {
-		gLog('goOnline spinner on');
-		if(divspinnerframe) divspinnerframe.style.display = "block";
-	}
 
 	if(!ringtoneSound) {
 		console.log('goOnline lazy load ringtoneSound');
@@ -2189,23 +2258,34 @@ function goOnline(sendInitFlag,comment) {
 		notificationSound = new Audio("notification.mp3");
 	}
 
-	// going online also means we need to be ready to receive peer connections
-	newPeerCon();
-
-	if(wsConn==null /*|| wsConn.readyState!=1*/) {
-		console.log('goOnline no wsConn -> login()');
-		login(false);
-	} else {
-		console.log('goOnline have wsConn');
-		if(divspinnerframe) divspinnerframe.style.display = "none";
-		menuClearCookieElement.style.display = "block";
-		muteMicDiv.style.display = "block";
-		//nonesense: fileselectLabel.style.display = "block";
-		if(sendInitFlag) {
-			gLog('goOnline have wsConn -> send init');
-			sendInit("goOnline <- "+comment);
+	if(typeof Android !== "undefined" && Android !== null /*&& Android.isConnected()>0*/) {
+		// if already connected do NOT show spinner (we are most likely called by wakeGoOnline())
+//		webCallServiceBinder.goOnline();
+		if(Android.isConnected()<=0) {
+			Android.jsGoOnline();
 		}
 		getSettings(); // display ID-links
+	} else {
+		gLog('goOnline spinner on');
+		if(divspinnerframe) divspinnerframe.style.display = "block";
+
+		// going online means we need to be ready to receive peer connections
+		newPeerCon();
+		if(wsConn==null /*|| wsConn.readyState!=1*/) {
+			console.log('goOnline no wsConn -> login()');
+			login(false);
+		} else {
+			console.log('goOnline have wsConn');
+			if(divspinnerframe) divspinnerframe.style.display = "none";
+			menuClearCookieElement.style.display = "block";
+//			muteMicDiv.style.display = "block";
+			//nonesense: fileselectLabel.style.display = "block";
+			if(sendInitFlag) {
+				gLog('goOnline have wsConn -> send init');
+				sendInit("goOnline <- "+comment);
+			}
+			getSettings(); // display ID-links
+		}
 	}
 }
 
@@ -2225,7 +2305,7 @@ function newPeerCon() {
 		gLog('goOnline spinner off');
 		if(divspinnerframe) divspinnerframe.style.display = "none";
 
-		offlineAction();
+//		offlineAction();
 		return;
 	};
 
@@ -2360,7 +2440,7 @@ function peerConnected2() {
 	}
 
 	console.log("peerConnected2 rtcConnect");
-	goOfflineButton.disabled = true;
+//	goOfflineButton.disabled = true;
 	rtcConnectStartDate = Date.now();
 	mediaConnectStartDate = 0;
 	rtcConnect = true;
@@ -2486,8 +2566,8 @@ function peerConnected3() {
 		msgbox.style.display = "block";
 	}
 
-	goOnlineButton.style.display = "none";
-	goOfflineButton.style.display = "none";
+///	goOnlineButton.style.display = "none";
+//	goOfflineButton.style.display = "none";
 	answerButton.style.display = "inline-block";
 	rejectButton.style.display = "inline-block";
 	if(autoanswerCheckbox.checked) {
@@ -2815,7 +2895,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	}
 
 	if(wsConn) {
-		onlineIndicator.src="green-gradient.svg";
+///		onlineIndicator.src="green-gradient.svg";
 	} else {
 		onlineIndicator.src="";
 	}
@@ -2829,9 +2909,12 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		vsendButton.style.display = "none";
 	}
 
-	goOfflineButton.disabled = false;
-	goOnlineButton.style.display = "inline-block";
-	goOfflineButton.style.display = "inline-block";
+//	goOfflineButton.disabled = false;
+///	goOnlineButton.style.display = "inline-block";
+//	goOfflineButton.style.display = "inline-block";
+	console.log("endWebRtcSession onlineButton "+(wsConn!=null));
+	onlineButton.checked = wsConn!=null;
+
 	fileselectLabel.style.display = "none";
 	progressSendElement.style.display = "none";
 	progressRcvElement.style.display = "none";
@@ -2850,7 +2933,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 			gLog('endWebRtcSession auto goOnline()');
 			goOnlinePending = false;
 			//console.log("callee endWebRtcSession auto goOnline(): enable goonline");
-			goOnlineButton.disabled = false;
+///			goOnlineButton.disabled = false;
 			// get peerCon ready for the next incoming call
 			// bc we are most likely still connected, goOnline() will just send "init"
 			goOnline(true,"endWebRtcSession");
@@ -2860,11 +2943,24 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	}
 }
 
-function goOffline() {
+function goOffline(comment) {
+	console.log('goOffline '+calleeID);
 	wsAutoReconnecting = false;
 	offlineAction();
 	gLog("goOffline "+calleeID);
 	showStatus("");
+	if(comment=="user button" || comment=="service") {
+		goOnlineWanted = false;
+		// we need to remove from window.location: "?auto=1"
+		let mySearch = window.location.search;
+		if(mySearch.indexOf("auto=1")>=0) {
+			// remove auto=1 from mySearch
+			mySearch = mySearch.replace('auto=1','').trim();
+		}
+		console.log('goOffline()='+window.location.pathname + mySearch);
+		history.replaceState("", document.title, window.location.pathname + mySearch);
+	}
+
 	if(slideOpen) {
 		// close the slide-menu
 		openSlide();
@@ -2872,7 +2968,7 @@ function goOffline() {
 	ownlinkElement.innerHTML = "";
 	stopAllAudioEffects("goOffline");
 	waitingCallerSlice = null;
-	muteMicDiv.style.display = "none";
+//	muteMicDiv.style.display = "none";
 
 	isHiddenlabel.style.display = "none";
 	autoanswerlabel.style.display = "none";
@@ -2899,7 +2995,9 @@ function goOffline() {
 		if(!mediaConnect) {
 			onlineIndicator.src="";
 		}
-		goOnlineButton.disabled = false;
+///		goOnlineButton.disabled = false;
+		console.log("goOffline onlineButton "+(wsConn!=null));
+		onlineButton.checked = wsConn!=null;
 	} else {
 		if(typeof Android !== "undefined" && Android !== null) {
 			Android.wsClose();
@@ -2908,7 +3006,9 @@ function goOffline() {
 		if(!mediaConnect) {
 			onlineIndicator.src="";
 		}
-		goOnlineButton.disabled = false;
+///		goOnlineButton.disabled = false;
+		console.log("goOffline onlineButton "+(wsConn!=null));
+		onlineButton.checked = wsConn!=null;
 	}
 
 	iconContactsElement.style.display = "none";
@@ -2955,12 +3055,13 @@ function openContacts() {
 
 var slideOpen = false;
 function slideTransitioned() {
-	//console.log('slideTransitioned='+slideRevealElement.style.height);
+	console.log("slideTransitioned="+slideRevealElement.style.height);
 	if(slideRevealElement.style.height != "0px") {
 		slideRevealElement.style.height = "auto";
 		slideOpen = true;
 	} else {
 		slideOpen = false;
+		//slideRevealElement.style.visibility = "none";
 	}
 	slideRevealElement.removeEventListener('transitionend',slideTransitioned);
 }
@@ -2968,11 +3069,18 @@ function slideTransitioned() {
 var slideRevealDivHeight = 97;
 function openSlide() {
 	if(!slideOpen) {
-		if(wsConn) {
+		// close-to-open
+		console.log("openSlide close-to-open, wsConn="+(wsConn!=null)+" "+slideRevealDivHeight);
+//		if(wsConn) {
 			slideRevealElement.style.height = ""+slideRevealDivHeight+"px";
 			slideRevealElement.addEventListener('transitionend', slideTransitioned) // when done: set height=auto
-		}
+			//slideRevealElement.style.visibility = "visible";
+//		} else {
+//			console.log("! openSlide close-to-open, wsConn="+(wsConn!=null)+" not");
+//		}
 	} else {
+		// open-to-close
+		console.log("openSlide open-to-close, wsConn="+(wsConn!=null));
 		slideRevealDivHeight = parseFloat(getComputedStyle(slideRevealElement).height);
 		slideRevealElement.style.height = ""+slideRevealDivHeight+"px"; // from auto to fixed height
 		slideRevealElement.addEventListener('transitionend', slideTransitioned)
@@ -3026,9 +3134,12 @@ function clearcache() {
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.reload !== "undefined" && Android.reload !== null) {
 			let wasConnected = wsConn!=null;
+// TODO tmtmtm we must prevent disconnectHost() from doing removeNotification() and long async processing
 			Android.wsClose();
-			console.log("clearcache android wsClearCache(true,"+wasConnected+")");
-			Android.wsClearCache(true, wasConnected); // autoreload, autoreconnect
+			setTimeout(function() {
+				console.log("clearcache android wsClearCache(true,"+wasConnected+")");
+				Android.wsClearCache(true, wasConnected); // autoreload, autoreconnect
+			},250);
 		} else {
 			console.log("clearcache android reload undefined");
 		}
@@ -3057,7 +3168,7 @@ function wakeGoOnline() {
 	console.log("wakeGoOnline start");
 	connectSignaling('','wakeGoOnline'); // only get wsConn from service (from Android.wsOpen())
 	wsOnOpen(); // green led
-	goOnlineButton.disabled = false; // prevent goOnline() abort
+///	goOnlineButton.disabled = false; // prevent goOnline() abort
 	goOnline(true,"wakeGoOnline");   // newPeerCon() + wsSend("init|!")
 	gLog("wakeGoOnline done");
 }
@@ -3067,7 +3178,7 @@ function wakeGoOnlineNoInit() {
 	console.log("wakeGoOnlineNoInit start");
 	connectSignaling('','wakeGoOnlineNoInit'); // only get wsConn from service (from Android.wsOpen())
 	wsOnOpen(); // green led
-	goOnlineButton.disabled = false; // prevent goOnline() abort
+///	goOnlineButton.disabled = false; // prevent goOnline() abort
 	goOnline(false,"wakeGoOnline");  // newPeerCon() but do NOT wsSend("init|!")
 	gLog("wakeGoOnlineNoInit done");
 }

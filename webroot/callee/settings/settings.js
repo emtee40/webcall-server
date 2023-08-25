@@ -320,8 +320,10 @@ function clearcache() {
 		if(typeof Android.reload !== "undefined" && Android.reload !== null) {
 			let wasConnected = true; //wsConn!=null;
 			Android.wsClose();
-			console.log("clearcache android wsClearCache(true,"+wasConnected+")");
-			Android.wsClearCache(true, wasConnected); // autoreload, autoreconnect
+			setTimeout(function() {
+				console.log("clearcache android wsClearCache(true,"+wasConnected+")");
+				Android.wsClearCache(true, wasConnected); // autoreload, autoreconnect
+			},250);
 		} else {
 			console.log("clearcache android reload undefined");
 		}

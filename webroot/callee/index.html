@@ -30,12 +30,12 @@ button, button:focus {
 	font-size: 1.0em;
 	margin: 0 0.8em 0.8em 0;
 	padding: 0.7em 0.5em 0.6em 0.5em;
-	min-width: 60px;
+	_min-width: 60px;
 	outline:none;
 	user-select:none;
 }
 button:focus {
-	background-color: #6c6;
+	_background-color: #6c6;
 }
 button:active {
 	background-color: #02a;
@@ -94,6 +94,7 @@ h1 {
 	user-select:none;
 	margin-block-start:0;
 	margin-block-end:0;
+	margin-top:6px;
 	margin-bottom:6px;
 	line-height:1.3em;
 }
@@ -286,13 +287,94 @@ input[type=submit]:focus {
 	-webkit-transform: scale(-1, 1);
 }
 .iconbutton {
-	position:relative; float:right; width:30px; margin-left:13px; margin-right:13px;
+	position:relative; float:right; width:34px; margin-left:13px; margin-right:13px; margin-top:4px;
 	z-index:100; user-select:none; cursor:pointer; 
 	transition:all 300ms ease-out;
 	opacity:0.8; 
 }
 .iconbutton:hover, .iconbutton:active {
 	opacity:1; 
+}
+
+
+
+.switch input {
+  display: none;
+}
+
+.switch {
+  display: inline-block;
+  width: 60px; /*=w*/
+  height: 30px; /*=h*/
+  margin: 4px;
+  _transform: translateY(50%);
+  position: relative;
+}
+
+.slider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-radius: 30px;
+  box-shadow: 0 0 0 2px #ccc, 0 0 4px #ccc;
+  cursor: pointer;
+  border: 4px solid transparent;
+  overflow: hidden;
+  transition: 0.2s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  width: 100%;
+  height: 100%;
+  background-color: #ccc;
+  border-radius: 30px;
+  transform: translateX(-30px); /*translateX(-(w-h))*/
+  transition: 0.2s;
+}
+
+input:checked + .slider:before {
+  transform: translateX(30px); /*translateX(w-h)*/
+  _background-color: limeGreen;
+  background-color: #7af;
+}
+
+input:checked + .slider {
+  _box-shadow: 0 0 0 2px limeGreen, 0 0 8px limeGreen;
+  box-shadow: 0 0 0 2px #ddd, 0 0 8px #ddd;
+}
+
+.switch200 .slider:before
+{
+  width: 200%;
+  transform: translateX(-82px); /*translateX(-(w-h))*/
+}
+
+.switch200 input:checked + .slider:before
+{
+  background-color: red;
+}
+
+.switch200 input:checked + .slider
+{
+  box-shadow: 0 0 0 2px red, 0 0 8px red;
+}
+
+.buttonRow {
+	display:grid;
+	grid-template-columns: 1fr 2fr 6fr;
+	list-style-type:none;
+	max-height:40px;"
+}
+
+@media only screen and (max-width: 530px) {
+	.buttonRow {
+		grid-template-columns: 1fr 6fr;
+	}
+	div#appname { display:none; }
 }
 </style>
 </head>
@@ -372,34 +454,55 @@ input[type=submit]:focus {
 <div id="dynDialog" style="position:relative; user-select:none; display:none;"></div>
 
 <div id="container">
-	<span style="padding-bottom:30px;">
-	<img id="menu"         onclick="menuDialogOpen(menuDialogElement,1)" src="menu.svg" class="iconbutton">
-	<img id="dialpad"      onclick="openDialId('')"     src="dialpad.svg"     class="iconbutton">
-	<img id="iconContacts" onclick="openContacts()"     src="contacts.svg"    class="iconbutton">
-	<img id="camera"       onclick="videoSwitch(false)" src="camera.svg"      class="iconbutton">
-	<img id="exclamation"  onclick=""                   src="exclamation.svg" class="iconbutton" style="display:none;">
-	<span class="iconbutton" style="width:0px;height:34px;"></span>
-	</span>
+    <div style="height:8px; _background:#666;"></div>
 
-    <h1 id="title" style="line-height:1.3em;">WebCall</h1>
-    <div style="clear:all;margin-top:0px;"></div>
-	<img id="checkboxes" onclick="openSlide()" src="checkboxes.svg" class="iconbutton"
-		 style="margin-top:16px;display:none;">
+	<div class="buttonRow">
+		<label class="switch" style="margin-top:8px;">
+			<input type="checkbox" id="onlineButton">
+			<span class="slider"></span>
+		</label>
 
-	<div id="buttons" style="display:grid; grid-template-columns: 1fr 1fr 28px; list-style-type:none; max-width:360px; margin-top:14px;">
-        <button id="onlineButton" disabled>Go Online</button>
-        <button id="offlineButton" disabled>Go Offline</button>
-        <button id="answerButton" style="display:none" disabled>Answer</button>
-        <button id="rejectButton" style="display:none">Hang Up</button>
+		<div id="appname" style="font-size:1.3em; font-weight:600; color:#ddd; text-align:center; vertical-align:top; padding-left:8px; padding-top:9px;">WebCall</div>
+
+		<div>
+		<img id="menu"         onclick="menuDialogOpen(menuDialogElement,1)" src="menu.svg" class="iconbutton">
+		<img id="checkboxes"   onclick="openSlide()"        src="checkboxes.svg"  class="iconbutton">
+		<img id="dialpad"      onclick="openDialId('')"     src="dialpad.svg"     class="iconbutton">
+		<img id="iconContacts" onclick="openContacts()"     src="contacts.svg"    class="iconbutton">
+		<img id="camera"       onclick="videoSwitch(false)" src="camera.svg"      class="iconbutton">
+		<img id="exclamation"  onclick=""                   src="exclamation.svg" class="iconbutton" style="display:none;">
+		<!--span class="iconbutton" style="width:0px;height:34px;"></span-->
+		</div>
+	</div>
+
+    <div style="clear:all;height:18px; _background:#666;"></div>
+
+    <h1 id="title"></h1>
+
+	<div id="buttons" style="display:grid; grid-template-columns: 1fr 1fr 28px; list-style-type:none; max-width:360px; display:none;">
+		<button id="answerButton" style="min-width:60px;display:none" disabled>Answer</button>
+		<button id="rejectButton" style="min-width:60px;display:none">Hang Up</button>
 		<img id="onlineIndicator" src="" style="width:28px; margin:0.6em 0.2em 0.6em 0; user-select:none;">
 	</div>
 
-	<div id="slideReveal" style="height:0px; transition:height 300ms; overflow:hidden; cursor:pointer; _background:#222;">
+	<div id="status" class="status"></div>
+
+	<form action="javascript:;" onsubmit="submitFormDone(1)" style="max-width:420px;display:none;" id="password">
+		<input type="text" autocomplete="username" id="username" style="display:none;" required>
+		<label for="current-password" style="display:inline-block;">Password:</label>
+		<span onclick="showPw()" style="font-size:0.95em;float:right;margin-right:16%;margin-top:2px;opacity:0.9;user-select:none;cursor:pointer;">show</span>
+		<br>
+		<input autocomplete="current-password" id="current-password" type="password" class="formtext" autofocus required>
+		<span onclick="clearForm()" style="margin-left:5px; user-select:none; cursor:pointer;">X</span><br>
+		<input type="submit" name="Submit" id="submit" value="OK" style="width:120px; margin-top:12px;">
+	</form>
+
+	<div id="slideReveal" style="height:0px; transition:height 300ms; overflow:hidden; cursor:pointer;">
 		<select id="avSelect" class="select" onchange="getStream(this)"></select>
 		<div style="margin-top:5px;"></div>
 
 		<div style="columns:7rem auto;white-space:nowrap;max-width:340px;">
-			<div id="muteMicDiv" style="display:none;">
+			<div id="muteMicDiv" _style="display:none;">
 				<input type="checkbox" id="muteMic" class="checkbox" />
 				<label class="menulabel2" id="muteMiclabel" for="muteMic">Mic muted</label>
 			</div>
@@ -414,18 +517,6 @@ input[type=submit]:focus {
 		</div>
 		<!-- div id="ownlink" style="opacity:0.9;margin-top:4px;"></div -->
 	</div>
-
-	<form action="javascript:;" onsubmit="submitFormDone(1)" style="max-width:420px;display:none;" id="password">
-		<input type="text" autocomplete="username" id="username" style="display:none;" required>
-		<label for="current-password" style="display:inline-block;">Password:</label>
-		<span onclick="showPw()" style="font-size:0.95em;float:right;margin-right:16%;margin-top:2px;opacity:0.9;user-select:none;cursor:pointer;">show</span>
-		<br>
-		<input autocomplete="current-password" id="current-password" type="password" class="formtext" autofocus required>
-		<span onclick="clearForm()" style="margin-left:5px; user-select:none; cursor:pointer;">X</span><br>
-		<input type="submit" name="Submit" id="submit" value="OK" style="width:120px; margin-top:12px;">
-	</form>
-
-	<div id="status" class="status"></div>
 
 	<textarea id="msgbox" class="msgbox" spellcheck="false" style="display:none"></textarea>
 	<button id="chatButton" style="display:none; margin-top:4px; padding-top:4px; padding-bottom:3px;">TextChat</button>
