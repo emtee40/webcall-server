@@ -97,7 +97,7 @@ window.onload = function() {
 	
 	if(!navigator.mediaDevices) {
 		console.warn("navigator.mediaDevices not available");
-		goOnlineSwitch.checked = false;
+		offlineAction();
 		showStatus("mediaDevices not found",-1);
 		return;
 	}
@@ -273,7 +273,7 @@ window.onload = function() {
 				onGotStreamGoOnline = false;
 
 				if(!wsConn) {
-					goOnlineSwitch.checked = false;
+					offlineAction();
 				}
 				if(auto) {
 					// if loaded by android callee, set onGotStreamGoOnline=true to cause goOnline()
@@ -288,7 +288,6 @@ window.onload = function() {
 			if(divspinnerframe) divspinnerframe.style.display = "none";
 
 			onGotStreamGoOnline = true;	        // ???
-			//goOnlineSwitch.checked = false;   // ???
 			enablePasswordForm();
 			return;
 		}
@@ -690,8 +689,7 @@ function login(retryFlag) {
 			ownlinkElement.innerHTML = "";
 
 			form.style.display = "none";
-//			offlineAction();		// TODO ???
-///			goOnlineButton.disabled = true;
+			offlineAction();
 
 			// clear cookie
 			console.log('clear cookie');
@@ -1042,10 +1040,21 @@ function mainlinkCheckboxClick(cb) {
 
 function offlineAction() {
 	// make buttons reflect offline state
-	gLog('offlineAction');
+	console.log('offlineAction');
 	goOnlineSwitch.checked = false;
 	onlineIndicator.src="";
 	if(divspinnerframe) divspinnerframe.style.display = "none";
+
+	iconContactsElement.style.display = "none";
+	checkboxesElement.style.display = "none";
+// TODO close checkboxes slide window? Or don't hide the button above
+
+	// hide "You will receive calls made by this link"
+	ownlinkElement.innerHTML = "";
+
+	// hide missedCalls
+	missedCallsTitleElement.style.display = "none";
+	missedCallsElement.style.display = "none";
 }
 
 
@@ -1101,7 +1110,6 @@ function delayedWsAutoReconnect(reconPauseSecs) {
 	// delayedWsAutoReconnect can only succeed if a previous login attemt was successful
 	console.log("delayedWsAutoReconnect "+reconPauseSecs);
 	if((remainingTalkSecs<0 || remainingServiceSecs<0) && !calleeID.startsWith("answie")) {
-//		offlineAction();	// TODO
 		wsAutoReconnecting = false;
 		console.log("# give up reconnecting "+remainingTalkSecs+" "+remainingServiceSecs);
 		let mainLink = window.location.href;
@@ -1296,7 +1304,7 @@ function wsOnClose(evt) {
 		gLog('reconnecting to signaling server in sec '+delay);
 		showStatus("Reconnecting to signaling server...",-1);
 
-		// TODO is this necessary? wsOnClose2() did this already
+		// TODO is this necessary? wsOnClose2() does this already
 		//missedCallsTitleElement.style.display = "none";
 		//missedCallsElement.style.display = "none";
 
@@ -1307,26 +1315,13 @@ function wsOnClose(evt) {
 
 function wsOnClose2() {
 	// called by wsOnClose() or from android service
+	// wsConn=null, reconnect stays aktiv
+	// do not turn off online-switch, do not clear connectToServerIsWanted
 	console.log("wsOnClose2 "+calleeID);
 	wsConn=null;
 	buttonBlinking=false; // will abort blinkButtonFunc()
 	stopAllAudioEffects("wsOnClose");
 	onlineIndicator.src="";
-
-/* reconnect bleibt aktiv!
-*/
-	iconContactsElement.style.display = "none";
-	checkboxesElement.style.display = "none";
-
-	console.log("wsOnClose2 set goOnlineSwitch false");
-	goOnlineSwitch.checked = false;
-
-
-	// clear "You will receive calls made by this link"
-	ownlinkElement.innerHTML = "";
-	// hide missedCalls
-	missedCallsTitleElement.style.display = "none";
-	missedCallsElement.style.display = "none";
 }
 
 function wsOnMessage(evt) {
@@ -2287,10 +2282,10 @@ function newPeerCon() {
 		}
 		showStatus(statusMsg);
 
-		gLog('goOnline spinner off');
+		gLog('newPeerCon spinner off');
 		if(divspinnerframe) divspinnerframe.style.display = "none";
 
-//		offlineAction();
+		offlineAction();
 		return;
 	};
 
@@ -2926,8 +2921,7 @@ function goOffline(comment) {
 	console.log('goOffline '+calleeID);
 	wsAutoReconnecting = false;
 	offlineAction();
-	gLog("goOffline "+calleeID);
-	showStatus("");
+	showStatus("Offline");
 	if(comment=="user button" || comment=="service") {
 		goOnlineWanted = false;
 		// we need to remove from window.location: "?auto=1"
@@ -2947,7 +2941,7 @@ function goOffline(comment) {
 	ownlinkElement.innerHTML = "";
 	stopAllAudioEffects("goOffline");
 	waitingCallerSlice = null;
-//	muteMicDiv.style.display = "none";
+//	muteMicDiv.style.display = "none";		// TODO ???
 
 	isHiddenlabel.style.display = "none";
 	autoanswerlabel.style.display = "none";
@@ -2979,8 +2973,6 @@ function goOffline(comment) {
 	if(!mediaConnect) {
 		onlineIndicator.src="";
 	}
-	console.log("goOffline set goOnlineSwitch false");
-	goOnlineSwitch.checked = false;
 
 	iconContactsElement.style.display = "none";
 	checkboxesElement.style.display = "none";
