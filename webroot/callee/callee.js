@@ -2261,33 +2261,35 @@ function goOnline(sendInitFlag,comment) {
 	if(typeof Android !== "undefined" && Android !== null /*&& Android.isConnected()>0*/) {
 		// if already connected do NOT show spinner (we are most likely called by wakeGoOnline())
 //		webCallServiceBinder.goOnline();
-		if(Android.isConnected()<=0) {
-			if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
+		if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
+			// this is the beta10 way
+			if(Android.isConnected()<=0) {
 				Android.jsGoOnline();
 			}
+			getSettings(); // display ID-links
+			return;
 		}
-		getSettings(); // display ID-links
 	} else {
 		gLog('goOnline spinner on');
 		if(divspinnerframe) divspinnerframe.style.display = "block";
+	}
 
-		// going online means we need to be ready to receive peer connections
-		newPeerCon();
-		if(wsConn==null /*|| wsConn.readyState!=1*/) {
-			console.log('goOnline no wsConn -> login()');
-			login(false);
-		} else {
-			console.log('goOnline have wsConn');
-			if(divspinnerframe) divspinnerframe.style.display = "none";
-			menuClearCookieElement.style.display = "block";
-//			muteMicDiv.style.display = "block";
-			//nonesense: fileselectLabel.style.display = "block";
-			if(sendInitFlag) {
-				gLog('goOnline have wsConn -> send init');
-				sendInit("goOnline <- "+comment);
-			}
-			getSettings(); // display ID-links
+	// going online means we need to be ready to receive peer connections
+	newPeerCon();
+	if(wsConn==null /*|| wsConn.readyState!=1*/) {
+		console.log('goOnline no wsConn -> login()');
+		login(false);
+	} else {
+		console.log('goOnline have wsConn');
+		if(divspinnerframe) divspinnerframe.style.display = "none";
+		menuClearCookieElement.style.display = "block";
+//		muteMicDiv.style.display = "block";
+		//nonesense: fileselectLabel.style.display = "block";
+		if(sendInitFlag) {
+			gLog('goOnline have wsConn -> send init');
+			sendInit("goOnline <- "+comment);
 		}
+		getSettings(); // display ID-links
 	}
 }
 
