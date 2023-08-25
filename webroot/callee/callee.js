@@ -2262,7 +2262,9 @@ function goOnline(sendInitFlag,comment) {
 		// if already connected do NOT show spinner (we are most likely called by wakeGoOnline())
 //		webCallServiceBinder.goOnline();
 		if(Android.isConnected()<=0) {
-			Android.jsGoOnline();
+			if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
+				Android.jsGoOnline();
+			}
 		}
 		getSettings(); // display ID-links
 	} else {
