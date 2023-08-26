@@ -98,7 +98,7 @@ window.onload = function() {
 	
 	if(!navigator.mediaDevices) {
 		console.warn("navigator.mediaDevices not available");
-		offlineAction();
+		offlineAction("onload mediaDevices not found");
 		showStatus("mediaDevices not found",-1);
 		return;
 	}
@@ -274,7 +274,7 @@ window.onload = function() {
 				onGotStreamGoOnline = false;
 
 				if(!wsConn) {
-					offlineAction();
+					offlineAction("checkServerMode no wsConn");
 				}
 				if(auto) {
 					// if loaded by android callee, set onGotStreamGoOnline=true to cause goOnline()
@@ -691,7 +691,7 @@ function login(retryFlag,comment) {
 			ownlinkElement.innerHTML = "";
 
 			form.style.display = "none";
-			offlineAction();
+			offlineAction("login notregistered");
 
 			// clear cookie
 			console.log('clear cookie');
@@ -784,7 +784,7 @@ function login(retryFlag,comment) {
 			serviceSecs=0;
 			remainingTalkSecs=0;
 			remainingServiceSecs=0;
-			offlineAction();
+			offlineAction("login error");
 		}
 	}, "pw="+wsSecret);
 }
@@ -1040,9 +1040,9 @@ function mainlinkCheckboxClick(cb) {
 }
 
 
-function offlineAction() {
+function offlineAction(comment) {
 	// make buttons reflect offline state
-	console.log('offlineAction');
+	console.log("offlineAction "+comment);
 	goOnlineSwitch.checked = false;
 	onlineIndicator.src="";
 	if(divspinnerframe) divspinnerframe.style.display = "none";
@@ -1137,20 +1137,20 @@ function delayedWsAutoReconnect(reconPauseSecs) {
 			if(!wsConn) {
 				gLog('delayedWsAutoReconnect aborted on user action '+
 					startPauseDate+' '+lastUserActionDate);
-//				offlineAction();	// TODO
+//				offlineAction("delayedWsAutoReconnect no wsConn");	// TODO
 			}
 		} else if(!wsAutoReconnecting) {
 			gLog('delayedWsAutoReconnect aborted on !wsAutoReconnecting');
 			wsAutoReconnecting = false;
-			//offlineAction();		// TODO
+			//offlineAction("delayedWsAutoReconnect 1");		// TODO
 		} else if(remainingTalkSecs<0 && !calleeID.startsWith("answie")) {
 			gLog('delayedWsAutoReconnect aborted on no talk time');
 			wsAutoReconnecting = false;
-//			offlineAction();		// TODO
+//			offlineAction("delayedWsAutoReconnect 2");		// TODO
 		} else if(remainingServiceSecs<0 && !calleeID.startsWith("answie")) {
 			gLog('delayedWsAutoReconnect aborted on no service time');
 			wsAutoReconnecting = false;
-//			offlineAction();		// TODO
+//			offlineAction("delayedWsAutoReconnect 3");		// TODO
 		} else {
 			gLog('delayedWsAutoReconnect login...');
 			login(true,"delayedWsAutoReconnect"); // -> connectSignaling("init|")
@@ -1337,6 +1337,10 @@ function wsOnClose2() {
 	buttonBlinking=false; // will abort blinkButtonFunc()
 	stopAllAudioEffects("wsOnClose");
 	onlineIndicator.src="";
+
+	console.log("wsOnClose2 hide answerButtons");
+	answerButtons.style.display = "none";
+	goOnlineSwitch.disabled = false;
 }
 
 function wsOnMessage(evt) {
@@ -2019,15 +2023,15 @@ function wsSend(message) {
 				gLog('wsSend (state 0 = connecting) '+message);
 				wsConn.close();
 				wsConn=null;
-//				offlineAction();		// TODO
+//				offlineAction("wsSend readyState==0");		// TODO
 			} else if(wsConn.readyState==2) {
 				gLog('wsSend (state 2 = closing)');
 				wsConn=null;
-//				offlineAction();		// TODO
+//				offlineAction("wsSend readyState==2");		// TODO
 			} else if(wsConn.readyState==3) {
 				gLog('wsSend (state 3 = closed)');
 				wsConn=null;
-//				offlineAction();		// TODO
+//				offlineAction("wsSend readyState==3");		// TODO
 			} else {
 				gLog('wsSend ws state',wsConn.readyState);
 			}
@@ -2039,7 +2043,7 @@ function wsSend(message) {
 			if(!gentle) console.warn('wsSend no connectSignaling',
 				message,calleeID,remainingServiceSecs,remainingTalkSecs);
 			wsAutoReconnecting = false;
-			offlineAction();
+			offlineAction("wsSend no connectSignaling");
 		}
 	} else {
 		wsConn.send(message);
@@ -2332,7 +2336,7 @@ function newPeerCon() {
 		}
 		showStatus(statusMsg);
 		if(divspinnerframe) divspinnerframe.style.display = "none";
-		offlineAction();
+		offlineAction("newPeerCon()");
 		return;
 	};
 
@@ -2962,14 +2966,14 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		},500);
 
 	} else {
-		offlineAction();
+		offlineAction("endWebRtcSession no goOnlineAfter");
 	}
 }
 
 function goOffline(comment) {
 	console.log('goOffline '+calleeID);
 	wsAutoReconnecting = false;
-	offlineAction();
+	offlineAction("goOffline");
 	showStatus("Offline");
 	if(comment=="user button" || comment=="service") {
 		goOnlineWanted = false;
