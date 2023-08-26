@@ -3026,7 +3026,7 @@ function openContacts() {
 
 var slideOpen = false;
 function slideTransitioned() {
-	console.log("slideTransitioned="+slideRevealElement.style.height);
+	//console.log("slideTransitioned="+slideRevealElement.style.height);
 	if(slideRevealElement.style.height != "0px") {
 		slideRevealElement.style.height = "auto";
 		slideOpen = true;
@@ -3041,7 +3041,7 @@ var slideRevealDivHeight = 97;
 function openSlide() {
 	if(!slideOpen) {
 		// close->-open
-		console.log("openSlide close-to-open, wsConn="+(wsConn!=null)+" "+slideRevealDivHeight);
+		//console.log("openSlide close-to-open, wsConn="+(wsConn!=null)+" "+slideRevealDivHeight);
 //		if(wsConn) {
 			slideRevealElement.style.height = ""+slideRevealDivHeight+"px";
 			slideRevealElement.addEventListener('transitionend', slideTransitioned) // when done: set height=auto
@@ -3051,7 +3051,7 @@ function openSlide() {
 //		}
 	} else {
 		// open->-close
-		console.log("openSlide open-to-close, wsConn="+(wsConn!=null));
+		//console.log("openSlide open-to-close, wsConn="+(wsConn!=null));
 		slideRevealDivHeight = parseFloat(getComputedStyle(slideRevealElement).height);
 		slideRevealElement.style.height = ""+slideRevealDivHeight+"px"; // from auto to fixed height
 		slideRevealElement.addEventListener('transitionend', slideTransitioned)
