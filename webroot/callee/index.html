@@ -85,11 +85,12 @@ button[disabled] {
 
 div#container {
 	padding: 0.7em;
+	padding-right: 0.5em;
 	max-width:600px;
 	overflow:hidden;
 }
 h1 {
-	font-size:1.3em;
+	font-size:1.2em;
 	font-weight:600;
 	user-select:none;
 	margin-block-start:0;
@@ -287,7 +288,7 @@ input[type=submit]:focus {
 	-webkit-transform: scale(-1, 1);
 }
 .iconbutton {
-	position:relative; float:right; width:34px; margin-left:13px; margin-right:13px; margin-top:4px;
+	position:relative; float:right; width:32px; margin-left:16px; margin-right:16px; margin-top:5px;
 	z-index:100; user-select:none; cursor:pointer; 
 	transition:all 300ms ease-out;
 	opacity:0.8; 
@@ -296,6 +297,17 @@ input[type=submit]:focus {
 	opacity:1; 
 }
 
+@media only screen and (max-width: 430px) {
+	.iconbutton {
+		position:relative; float:right; width:25px; margin-left:10px; margin-right:10px; margin-top:8px;
+	}
+}
+
+@media only screen and (max-width: 330px) {
+	.iconbutton {
+		position:relative; float:right; width:22px; margin-left:7px; margin-right:7px; margin-top:10px;
+	}
+}
 
 
 .switch input {
@@ -365,16 +377,9 @@ input:checked + .slider {
 
 .buttonRow {
 	display:grid;
-	grid-template-columns: 1fr 2fr 6fr;
+	grid-template-columns: 1fr 7fr;
 	list-style-type:none;
 	max-height:40px;"
-}
-
-@media only screen and (max-width: 530px) {
-	.buttonRow {
-		grid-template-columns: 1fr 6fr;
-	}
-	div#appname { display:none; }
 }
 </style>
 </head>
@@ -455,14 +460,11 @@ input:checked + .slider {
 
 <div id="container">
     <div style="height:8px; _background:#666;"></div>
-
 	<div class="buttonRow">
 		<label class="switch" style="margin-top:8px;">
 			<input type="checkbox" id="onlineSwitch">
 			<span class="slider"></span>
 		</label>
-
-		<div id="appname" style="font-size:1.3em; font-weight:600; color:#ddd; text-align:center; vertical-align:top; padding-left:8px; padding-top:9px;">WebCall</div>
 
 		<div>
 		<img id="menu"         onclick="menuDialogOpen(menuDialogElement,1)" src="menu.svg" class="iconbutton">
@@ -471,13 +473,12 @@ input:checked + .slider {
 		<img id="iconContacts" onclick="openContacts()"     src="contacts.svg"    class="iconbutton">
 		<img id="camera"       onclick="videoSwitch(false)" src="camera.svg"      class="iconbutton">
 		<img id="exclamation"  onclick=""                   src="exclamation.svg" class="iconbutton" style="display:none;">
-		<!--span class="iconbutton" style="width:0px;height:34px;"></span-->
 		</div>
 	</div>
-
     <div style="clear:all;height:18px; _background:#666;"></div>
 
-    <h1 id="title"></h1>
+
+	<h1><span>WebCall</span> <span id="title"></span></h1>
 
 	<div id="buttons" style="display:grid; grid-template-columns: 1fr 1fr 28px; list-style-type:none; max-width:360px; display:none;">
 		<button id="answerButton" style="min-width:60px;display:none" disabled>Answer</button>
