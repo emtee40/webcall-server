@@ -1975,9 +1975,16 @@ function deleteMissedCall(callerAddrPortPlusCallTime,name,id) {
 	gLog("deleteMissedCall "+callerAddrPortPlusCallTime+" "+name+" "+id);
 	myCallerAddrPortPlusCallTime = callerAddrPortPlusCallTime;
 
-	let yesNoInner = "<div style='position:absolute; z-index:110; background:#45dd; color:#fff; padding:20px 20px; line-height:1.6em; border-radius:3px; cursor:pointer;'><div style='font-weight:600'>Delete missed call?</div><br>"+
-	"Name:&nbsp;"+name+"<br>ID:&nbsp;"+id+"<br><br>"+
+	let yesNoInner = "";
+	if(wsConn!=null) {
+		yesNoInner = "<div style='position:absolute; z-index:110; background:#45dd; color:#fff; padding:20px 20px; line-height:1.6em; border-radius:3px; cursor:pointer;'><div style='font-weight:600'>Delete missed call?</div><br>"+
+		"Name:&nbsp;"+name+"<br>ID:&nbsp;"+id+"<br><br>"+
 	"<a onclick='deleteMissedCallDo();history.back();'>Delete!</a> &nbsp; &nbsp; <a onclick='history.back();'>Cancel</a></div>";
+	} else {
+		// if we have no network (no wsConn = service in reconnect mode)
+		// we need to tell the user that the entry cannot be deleted currently
+		yesNoInner = "<div style='position:absolute; z-index:110; background:#45dd; color:#fff; padding:20px 20px; line-height:1.6em; border-radius:3px; cursor:pointer;'><div style='font-weight:600'>Entries can not be deleted right now.</div><br> <a onclick='history.back();'>Cancel</a></div>";
+	}
 	menuDialogOpen(dynDialog,1,yesNoInner);
 }
 
