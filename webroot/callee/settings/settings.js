@@ -288,16 +288,20 @@ function prepareSettings(xhrresponse) {
 	if(calleeVersion=="") {
 		calleeVersion="?"
 	}
+/*
 	if(typeof Android !== "undefined" && Android !== null) {
-		displayVersion += "WebCall for Android v"+Android.getVersionName()+"<br>";
+		// running on Android
+		displayVersion += "WebCall for Android: "+Android.getVersionName()+"<br>";
 		if(calleeVersion!=clientVersion) {
-			displayVersion += "WebCall Core current v"+calleeVersion+"<br>"+
-				              "WebCall Core online v"+clientVersion+"<br>"+
+			displayVersion += "WebCall Core current: "+calleeVersion+"<br>"+
+				              "WebCall Core online: "+clientVersion+"<br>"+
 				              "To update: <a href='' onclick='clearcache()'>Clear cache</a>";
 		} else {
-			displayVersion += "WebCall Core v"+clientVersion;
+			displayVersion += "WebCall Core: "+clientVersion+"<br>"+
+			                  "WebView: "+Android.webviewVersion();
 		}
 	} else {
+		// running in browser
 		if(calleeVersion!=clientVersion) {
 			displayVersion = "Current version: "+calleeVersion+"<br>"+
 				             "Online version: "+clientVersion+"<br>"+
@@ -306,6 +310,30 @@ function prepareSettings(xhrresponse) {
 			displayVersion = "WebCall v"+clientVersion;
 		}
 	}
+*/
+	if(typeof Android !== "undefined" && Android !== null) {
+		// running on Android
+		displayVersion += "<table><tr><td style='padding: 0 20px 0 0'>WebCall for Android:</td><td>"+Android.getVersionName()+"</td></tr>";
+		if(calleeVersion!=clientVersion) {
+			displayVersion += "<tr><td>WebCall Core current:</td><td>"+calleeVersion+"</td></tr>"+
+				              "<tr><td>WebCall Core online:</td><td>"+clientVersion+"</td></tr></table>"+
+				              "To update: <a href='' onclick='clearcache()'>Clear cache</a>";
+		} else {
+			displayVersion += "<tr><td>WebCall Core:</td><td>"+clientVersion+"</td></tr>"+
+			                  "<tr><td>WebView:</td><td>"+Android.webviewVersion()+"</td></tr></table>";
+		}
+	} else {
+		// running in browser
+		if(calleeVersion!=clientVersion) {
+			displayVersion = "<table><tr><td style='padding: 0 20px 0 0'>"+
+			                 "Current version:</td><td>"+calleeVersion+"</td></tr>"+
+			                 "<tr><td>Online version:</td><td>"+clientVersion+"</td></tr></table>"+
+			                 "To update: <a href='/webcall/more/#updatecallee' target='_blank'>Clear cache + reload</a>";
+		} else {
+			displayVersion = "WebCall: "+clientVersion;
+		}
+	}
+
 	document.getElementById("verstring").innerHTML = displayVersion;
 
 	form.style.display = "block";
