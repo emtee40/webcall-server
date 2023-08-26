@@ -3040,7 +3040,7 @@ function slideTransitioned() {
 var slideRevealDivHeight = 97;
 function openSlide() {
 	if(!slideOpen) {
-		// close-to-open
+		// close->-open
 		console.log("openSlide close-to-open, wsConn="+(wsConn!=null)+" "+slideRevealDivHeight);
 //		if(wsConn) {
 			slideRevealElement.style.height = ""+slideRevealDivHeight+"px";
@@ -3050,7 +3050,7 @@ function openSlide() {
 //			console.log("! openSlide close-to-open, wsConn="+(wsConn!=null)+" not");
 //		}
 	} else {
-		// open-to-close
+		// open->-close
 		console.log("openSlide open-to-close, wsConn="+(wsConn!=null));
 		slideRevealDivHeight = parseFloat(getComputedStyle(slideRevealElement).height);
 		slideRevealElement.style.height = ""+slideRevealDivHeight+"px"; // from auto to fixed height
