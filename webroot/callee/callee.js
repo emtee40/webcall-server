@@ -569,8 +569,9 @@ function start() {
 	}
 }
 
-function login(retryFlag) {
-	console.log("login to signaling server..."+retryFlag+" "+calleeID+" "+wsSecret.length);
+function login(retryFlag,comment) {
+	// try to xhr login using wsSecret from submitFormDone() or cookie
+	console.log("login retry="+retryFlag+" ID="+calleeID+" comment="+comment+" secretLen="+wsSecret.length);
 	let api = apiPath+"/login?id="+calleeID;
 	// mid-parameter will make server send a msg to caller (mastodon user with id = tmpkeyMastodonCallerMap[mid])
 	if(mid!="") {
@@ -1152,7 +1153,7 @@ function delayedWsAutoReconnect(reconPauseSecs) {
 //			offlineAction();		// TODO
 		} else {
 			gLog('delayedWsAutoReconnect login...');
-			login(true); // -> connectSignaling("init|")
+			login(true,"delayedWsAutoReconnect"); // -> connectSignaling("init|")
 		}
 	},reconPauseSecs*1000);
 }
@@ -1163,26 +1164,30 @@ function showOnlineReadyMsg() {
 		return;
 	}
 
-	console.log("showOnlineReadyMsg");
-	if(typeof Android !== "undefined" && Android !== null) {
-		if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
-			Android.calleeConnected();
-			// calleeConnected() does 2 things:
-			// 1. Intent brintent = new Intent("webcall");
-			//    brintent.putExtra("state", "connected");
-			//    sendBroadcast(brintent);
-			// 2. statusMessage(awaitingCalls,-1,true,false);
+	// delay 'ready to receive calls' msg, so that prev msg can be read by user
+	setTimeout(function(oldWidth) {
+		console.log("showOnlineReadyMsg");
+		if(typeof Android !== "undefined" && Android !== null) {
+			if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
+				Android.calleeConnected();
+				// calleeConnected() does 2 things:
+				// 1. Intent brintent = new Intent("webcall");
+				//    brintent.putExtra("state", "connected");
+				//    sendBroadcast(brintent);
+				// 2. statusMessage(awaitingCalls,-1,true,false);
+			}
+		} else {
+			//showStatus("connected to webcall server",1200);
+			showStatus("ready to receive calls",-1);
 		}
-	} else {
-		//showStatus("connected to webcall server",1200);
-		showStatus("ready to receive calls",-1);
-	}
 
-/* isHiddenCheckbox needs a different implementation
-	if(isHiddenCheckbox.checked) {
-		showStatus("your online status is hidden",2500);
-	}
+/*
+		// TODO isHiddenCheckbox needs a different implementation
+		if(isHiddenCheckbox.checked) {
+			showStatus("your online status is hidden",2500);
+		}
 */
+	},600);
 }
 
 let tryingToOpenWebSocket = false;
@@ -2156,14 +2161,12 @@ function pickup2() {
 }
 
 function hangup(mustDisconnect,dummy2,message) {
-	console.log("hangup "+message);
-// TODO: careful: not all message strings are targeted towards the user
-	showStatus("hangup "+message,1000);
-// TODO: why is this our last status message?
-// expected next message "ready to receive calls" from showOnlineReadyMsg()
-// showOnlineReadyMsg() is called in response to us calling sendInit() and the server returning "sessionId|"
-// we call sendInit() at the end of prepareCallee()
-// we call prepareCallee() from endWebRtcSession()
+	console.log("hangup: "+message);
+	// TODO: NOTE: not all message strings are suited for users
+	showStatus(message,2000);
+	// expected followup-message "ready to receive calls" from showOnlineReadyMsg()
+	// showOnlineReadyMsg() is called in response to us calling sendInit() and the server responding with "sessionId|"
+	// hangup() -> endWebRtcSession() -> prepareCallee() -> sendInit() ... server "sessionId|" -> showOnlineReadyMsg()
 
 	msgbox.style.display = "none";
 	msgbox.value = "";
@@ -2211,7 +2214,7 @@ function hangup(mustDisconnect,dummy2,message) {
 
 function goOnline(sendInitFlag,comment) {
 // goOnline() is called when we go from offline to online (goOnlineSwitch or tile has been switched)
-// -> set goOnlineWanted=true, update url-param auto=, call prepareCallee()
+// -> set goOnlineWanted=true, update url-param auto=, call prepareCallee
 	console.log('goOnline '+calleeID);
 
 	goOnlineWanted = true;
@@ -2233,7 +2236,12 @@ function goOnline(sendInitFlag,comment) {
 }
 
 function prepareCallee(sendInitFlag,comment) {
-	// create a fresh newPeerCon() -> new RTCPeerConnection() for the next incoming call
+	// called by goOnline()            when we activate goOnlineSwitch
+	//           gotStream2()          on load with auto=
+	//           endWebRtcSession()    after a call to get ready for the next one
+	//           wakeGoOnline()        --currently not used--
+	//           wakeGoOnlineNoInit()  when service has loaded the mainpage and is already connected
+	// create a newPeerCon() -> new RTCPeerConnection() for the next incoming call
 	rtcConnectStartDate = 0;
 	mediaConnectStartDate = 0;
 	addedAudioTrack = null;
@@ -2262,39 +2270,45 @@ function prepareCallee(sendInitFlag,comment) {
 		notificationSound = new Audio("notification.mp3");
 	}
 
-	// note: Android.isConnected() returns: 0=offline, 1=reconnector busy, 2=connected (wsClient!=null)
-	if(typeof Android !== "undefined" && Android !== null && Android.isConnected()==2) {
-		// if already connected do NOT show spinner (we are most likely called by wakeGoOnline())
-/*
-//		webCallServiceBinder.goOnline();
-		if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
-			// this is the beta10 way
-			if(Android.isConnected()<=0) {
-				Android.jsGoOnline();
+	// get ready to receive a peer connections
+	newPeerCon();
+
+	// in androild mode, we want to do the same as tile does
+	//   and this is to call: webCallServiceBinder.goOnline() to start the reconnector
+	// this is what Android.jsGoOnline() allows us to do
+	// TODO not sure what happens service needs to login and fails ???
+	if(typeof Android !== "undefined" && Android !== null) {
+		// note: Android.isConnected() returns: 0=offline, 1=reconnector busy, 2=connected (wsClient!=null)
+		if(Android.isConnected()<=0) {
+			// we are offline and not connecting
+			if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
+				console.log("prepareCallee not connected/connecting -> call Android.jsGoOnline()");
+				Android.jsGoOnline();	// -> startReconnecter()
+				return;
 			}
-			getSettings(); // display ID-links
-// TODO so kriegen wir niemals einen peerCon
-			return;
+			console.log("# prepareCallee Android.jsGoOnline() not supported");
+		} else {
+			console.log("prepareCallee isConnected()="+Android.isConnected()+" >0 (connected or connection)");
 		}
-*/
+
+		// if already connected do NOT show spinner (we are most likely called by wakeGoOnline())
 	} else {
-		gLog('prepareCallee spinner on');
+		gLog("prepareCallee spinner on");
 		if(divspinnerframe) divspinnerframe.style.display = "block";
 	}
 
-	// showStatus("connecting...",-1);  // unsinn!
-	// get ready to receive a peer connections
-	newPeerCon();
 	if(wsConn==null /*|| wsConn.readyState!=1*/) {
-// TODO this is very odd
-// TODO is this always correct: wsConn==null -> login() ?
-		console.log('prepareCallee wsConn==null -> login()');
-		login(false);
+		// this basically says: if prepareCallee() is called when we are NOT connected to the server,
+		// try to login now using cookie or wsSecret (from login form)
+		showStatus("connecting...",-1);  // unsinn!?
+		console.log("prepareCallee wsConn==null -> login()");
+		login(false,"prepareCallee");
 		return;
 	}
 
 	console.log('prepareCallee have wsConn');
 	if(divspinnerframe) divspinnerframe.style.display = "none";
+
 	menuClearCookieElement.style.display = "block";
 //	muteMicDiv.style.display = "block";
 	//nonesense: fileselectLabel.style.display = "block";
@@ -2309,18 +2323,15 @@ function newPeerCon() {
 	console.log("newPeerCon()");
 	try {
 		peerCon = new RTCPeerConnection(ICE_config);
-		console.log("new RTCPeerConnection ready");
+		console.log("newPeerCon() new RTCPeerConnection ready");
 	} catch(ex) {
-		console.error("RTCPeerConnection "+ex.message);
+		console.error("# newPeerCon() RTCPeerConnection "+ex.message);
 		var statusMsg = "RTCPeerConnection "+ex.message;
 		if(typeof Android !== "undefined" && Android !== null) {
 			statusMsg += " <a href='https://timur.mobi/webcall/android/#webview'>More info</a>";
 		}
 		showStatus(statusMsg);
-
-		gLog('newPeerCon spinner off');
 		if(divspinnerframe) divspinnerframe.style.display = "none";
-
 		offlineAction();
 		return;
 	};
@@ -2379,7 +2390,7 @@ function newPeerCon() {
 		connectionstatechangeCounter++;
 		console.log("peerCon connectionstatechange "+peerCon.connectionState);
 		if(!peerCon || peerCon.iceConnectionState=="closed") {
-			hangup(true,true,"no peerconnection");
+			hangup(true,true,"no peer connection");
 			return;
 		}
 		if(peerCon.connectionState=="disconnected") {
@@ -2399,7 +2410,7 @@ function newPeerCon() {
 			newPeerCon();
 			if(wsConn==null) {
 				console.log('peerCon failed and wsConn==null -> login()');
-				login(false);
+				login(false,"onconnectionstatechange="+peerCon.iceConnectionState);
 			} else {
 				// init already sent by endWebRtcSession() above
 				//gLog('peerCon failed but have wsConn -> send init');
@@ -2550,7 +2561,7 @@ function peerConnected3() {
 		// TODO showStatus()
 		//hangup(true,true,"caller early abort");
 		stopAllAudioEffects();
-		endWebRtcSession(true,true,"caller early abort"); // -> peerConCloseFunc
+		endWebRtcSession(true,true,"caller early disconnect"); // -> peerConCloseFunc
 		return;
 	}
 
@@ -2610,7 +2621,7 @@ function peerConnected3() {
 	rejectButton.onclick = function(ev) {
 		ev.stopPropagation();
 		console.log("peerConnected3 hangup button");
-		hangup(true,true,"reject button");
+		hangup(true,true,"call rejected by hangup button");
 	}
 }
 
@@ -3182,7 +3193,7 @@ function wakeGoOnlineNoInit() {
 	console.log("wakeGoOnlineNoInit start");
 	connectSignaling('','wakeGoOnlineNoInit'); // only get wsConn from service (from Android.wsOpen())
 	wsOnOpen(); // green led
-	prepareCallee(false,"wakeGoOnline");  // newPeerCon() but do NOT wsSend("init|!")
+	prepareCallee(false,"wakeGoOnlineNoInit");  // newPeerCon() but do NOT wsSend("init|!")
 	gLog("wakeGoOnlineNoInit done");
 }
 
