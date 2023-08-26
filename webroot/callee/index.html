@@ -30,7 +30,7 @@ button, button:focus {
 	font-size: 1.0em;
 	margin: 0 0.8em 0.8em 0;
 	padding: 0.7em 0.5em 0.6em 0.5em;
-	_min-width: 60px;
+	min-width: 140px;
 	outline:none;
 	user-select:none;
 }
@@ -366,27 +366,17 @@ input:checked + .slider {
   box-shadow: 0 0 0 2px #ddd, 0 0 8px #ddd;
 }
 
-.switch200 .slider:before
-{
-  width: 200%;
-  transform: translateX(-82px); /*translateX(-(w-h))*/
-}
-
-.switch200 input:checked + .slider:before
-{
-  background-color: red;
-}
-
-.switch200 input:checked + .slider
-{
-  box-shadow: 0 0 0 2px red, 0 0 8px red;
+input:disabled + .slider {
+  _color: #f00;
+  background-color: #700;
+  box-shadow: 0 0 0 2px #333, 0 0 8px #333;
 }
 
 .buttonRow {
 	display:grid;
 	grid-template-columns: 1fr 6fr;
 	list-style-type:none;
-	max-height:40px;"
+	max-height:40px;
 }
 </style>
 </head>
@@ -466,7 +456,6 @@ input:checked + .slider {
 <div id="dynDialog" style="position:relative; user-select:none; display:none;"></div>
 
 <div id="container">
-    <!--div style="height:8px; background:#666;"></div-->
 	<div class="buttonRow">
 		<label class="switch" style="margin-top:8px;">
 			<input type="checkbox" id="onlineSwitch">
@@ -487,9 +476,9 @@ input:checked + .slider {
 
 	<h1><span>WebCall</span> <span id="title"></span></h1>
 
-	<div id="buttons" style="display:grid; grid-template-columns: 1fr 1fr 28px; list-style-type:none; max-width:360px; display:none;">
-		<button id="answerButton" style="min-width:60px;display:none" disabled>Answer</button>
-		<button id="rejectButton" style="min-width:60px;display:none">Hang Up</button>
+	<div id="answerButtons" style="_max-width:360px; display:none;">
+		<button id="answerButton">Answer</button>
+		<button id="rejectButton">Hang Up</button>
 		<img id="onlineIndicator" src="" style="width:28px; margin:0.6em 0.2em 0.6em 0; user-select:none;">
 	</div>
 

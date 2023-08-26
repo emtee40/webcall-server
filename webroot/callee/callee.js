@@ -1,6 +1,7 @@
 // WebCall Copyright 2023 timur.mobi. All rights reserved.
 'use strict';
 const goOnlineSwitch = document.querySelector('input#onlineSwitch');
+const answerButtons = document.getElementById('answerButtons');
 const answerButton = document.querySelector('button#answerButton');
 const rejectButton = document.querySelector('button#rejectButton');
 const onlineIndicator = document.querySelector('img#onlineIndicator');
@@ -569,7 +570,7 @@ function start() {
 }
 
 function login(retryFlag) {
-	gLog("login to signaling server..."+retryFlag+" "+calleeID+" "+wsSecret.length);
+	console.log("login to signaling server..."+retryFlag+" "+calleeID+" "+wsSecret.length);
 	let api = apiPath+"/login?id="+calleeID;
 	// mid-parameter will make server send a msg to caller (mastodon user with id = tmpkeyMastodonCallerMap[mid])
 	if(mid!="") {
@@ -588,7 +589,7 @@ function login(retryFlag) {
 	ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 		// processData
 		let loginStatus = xhr.responseText;
-		//console.log("login xhr loginStatus "+loginStatus);
+		console.log("login xhr loginStatus "+loginStatus);
 
 		var parts = loginStatus.split("|");
 		if(parts[0].indexOf("wsid=")>=0) {
@@ -651,7 +652,7 @@ function login(retryFlag) {
 					playDialSounds = true;
 				}
 			}
-			gLog('playDialSounds='+playDialSounds);
+			//gLog('playDialSounds='+playDialSounds);
 
 			// login success -> send "init|"
 			sendInit("xhr login success");
@@ -1088,7 +1089,8 @@ function gotStream2() {
 		if(onGotStreamGoOnline && !rtcConnect) {
 			console.log('gotStream2 onGotStreamGoOnline goOnline');
 			onGotStreamGoOnline = false;
-			goOnline(true,"gotStream2");
+//			goOnline(true,"gotStream2");
+			prepareCallee(true,"gotStream2");
 		} else {
 			console.log("gotStream2 standby");
 
@@ -1165,20 +1167,22 @@ function showOnlineReadyMsg() {
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
 			Android.calleeConnected();
-			// service should now do 2 things:
-			// 1. updateNotification("",awaitingCalls,false);
-			// 2. Intent brintent = new Intent("webcall");
+			// calleeConnected() does 2 things:
+			// 1. Intent brintent = new Intent("webcall");
 			//    brintent.putExtra("state", "connected");
 			//    sendBroadcast(brintent);
+			// 2. statusMessage(awaitingCalls,-1,true,false);
 		}
 	} else {
 		//showStatus("connected to webcall server",1200);
 		showStatus("ready to receive calls",-1);
 	}
 
+/* isHiddenCheckbox needs a different implementation
 	if(isHiddenCheckbox.checked) {
 		showStatus("your online status is hidden",2500);
 	}
+*/
 }
 
 let tryingToOpenWebSocket = false;
@@ -1198,6 +1202,7 @@ function connectSignaling(message,comment) {
 		//  service -> wsCli=connectHost(wsUrl) -> onOpen() -> runJS("wsOnOpen()",null) -> wsSendMessage("init|!")
 		// if service IS already connected:
 		//  service -> if activityWasDiscarded -> wakeGoOnlineNoInit()
+// TODO how do we get peerCon
 	} else {
 		if(!window["WebSocket"]) {
 			console.error('connectSig: no WebSocket support');
@@ -1208,8 +1213,9 @@ function connectSignaling(message,comment) {
 			return;
 		}
 	    console.log('connectSig: open ws connection... '+calleeID+' '+wsUrl);
+// odd:
 		if(peerCon==null || peerCon.signalingState=="closed") {
-		    console.log('connectSig: peercon is gone');
+		    console.log('connectSig: peercon is gone ----------------');
 			newPeerCon();
 		}
 
@@ -1449,7 +1455,7 @@ function signalingCommand(message, comment) {
 
 	} else if(cmd=="callerCandidate") {
 		if(peerCon==null) {
-			console.warn('callerCandidate but no peerCon');
+			console.warn('# callerCandidate but no peerCon');
 			return;
 		}
 		var callerCandidate = JSON.parse(payload);
@@ -1525,8 +1531,6 @@ function signalingCommand(message, comment) {
 		if(payload=="c") {
 			// this is a remote cancel
 			console.log('cmd cancel');
-			answerButton.style.display = "none";
-			rejectButton.style.display = "none";
 			stopAllAudioEffects("incoming cancel");
 			if(mediaConnect) {
 				// TODO if callerID and/or callerName are avail we would rather show them
@@ -1544,7 +1548,8 @@ function signalingCommand(message, comment) {
 			}
 			//console.log('cmd cancel -> endWebRtcSession');
 			endWebRtcSession(false,true,"incoming cancel"); // -> peerConCloseFunc
-			//console.log('cmd cancel -> clearcache()');
+			console.log('cmd cancel -> clearcache() --------------------');
+// TODO questionable
 			clearcache();
 		} else {
 			stopAllAudioEffects("ignore cmd cancel");
@@ -2144,9 +2149,14 @@ function pickup2() {
 }
 
 function hangup(mustDisconnect,dummy2,message) {
-	showStatus("hang up ("+message+")",4000);
-	answerButton.style.display = "none";
-	rejectButton.style.display = "none";
+	console.log("hangup "+message);
+// TODO: careful: not all message strings are targeted towards the user
+	showStatus("hangup "+message,1000);
+// TODO: why is this our last status message?
+// expected next message "ready to receive calls" from showOnlineReadyMsg()
+// showOnlineReadyMsg() is called in response to us calling sendInit() and the server returning "sessionId|"
+// we call sendInit() at the end of prepareCallee()
+// we call prepareCallee() from endWebRtcSession()
 
 	msgbox.style.display = "none";
 	msgbox.value = "";
@@ -2193,31 +2203,37 @@ function hangup(mustDisconnect,dummy2,message) {
 }
 
 function goOnline(sendInitFlag,comment) {
+// goOnline() is called when we go from offline to online (goOnlineSwitch or tile has been switched)
+// -> set goOnlineWanted=true, update url-param auto=, call prepareCallee()
 	console.log('goOnline '+calleeID);
-	if(comment=="user button" || comment=="service") {
-		goOnlineWanted = true;
 
-		// we need to add to window.location: "?auto=1"
-		let mySearch = window.location.search;
-		if(mySearch.indexOf("auto=1")<0) {
-			// add auto=1 to mySearch
-			if(mySearch.indexOf("?")<0) {
-				mySearch = mySearch + "?auto=1";
-			} else {
-				mySearch = mySearch + "&auto=1";
-			}
+	goOnlineWanted = true;
+
+	// we need to add to window.location: "?auto=1" if it does not yet exist
+	let mySearch = window.location.search;
+	if(mySearch.indexOf("auto=1")<0) {
+		// add auto=1 to mySearch
+		if(mySearch.indexOf("?")<0) {
+			mySearch = mySearch + "?auto=1";
+		} else {
+			mySearch = mySearch + "&auto=1";
 		}
-		console.log('goOnline()='+window.location.pathname + mySearch);
+		console.log('goOnline() set url location='+window.location.pathname + mySearch);
 		history.replaceState("", document.title, window.location.pathname + mySearch);
 	}
 
+	prepareCallee(sendInitFlag,comment);
+}
+
+function prepareCallee(sendInitFlag,comment) {
+	// create a fresh newPeerCon() -> new RTCPeerConnection() for the next incoming call
 	rtcConnectStartDate = 0;
 	mediaConnectStartDate = 0;
 	addedAudioTrack = null;
 	addedVideoTrack = null;
 
 	if(!ringtoneSound) {
-		console.log('goOnline lazy load ringtoneSound');
+		console.log('prepareCallee lazy load ringtoneSound');
 		ringtoneSound = new Audio('1980-phone-ringing.mp3');
 		if(ringtoneSound) {
 			ringtoneSound.onplaying = function() {
@@ -2230,17 +2246,19 @@ function goOnline(sendInitFlag,comment) {
 	}
 
 	if(!busySignalSound) {
-		console.log('goOnline lazy load busySignalSound');
+		console.log('prepareCallee lazy load busySignalSound');
 		busySignalSound = new Audio('busy-signal.mp3');
 	}
 
 	if(!notificationSound) {
-		console.log('goOnline lazy load notificationSound');
+		console.log('prepareCallee lazy load notificationSound');
 		notificationSound = new Audio("notification.mp3");
 	}
 
-	if(typeof Android !== "undefined" && Android !== null /*&& Android.isConnected()>0*/) {
+	// note: Android.isConnected() returns: 0=offline, 1=reconnector busy, 2=connected (wsClient!=null)
+	if(typeof Android !== "undefined" && Android !== null && Android.isConnected()==2) {
 		// if already connected do NOT show spinner (we are most likely called by wakeGoOnline())
+/*
 //		webCallServiceBinder.goOnline();
 		if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
 			// this is the beta10 way
@@ -2248,31 +2266,34 @@ function goOnline(sendInitFlag,comment) {
 				Android.jsGoOnline();
 			}
 			getSettings(); // display ID-links
+// TODO so kriegen wir niemals einen peerCon
 			return;
 		}
+*/
 	} else {
-		gLog('goOnline spinner on');
+		gLog('prepareCallee spinner on');
 		if(divspinnerframe) divspinnerframe.style.display = "block";
 	}
 
-	showStatus("connecting...",-1);
-	// going online means we need to be ready to receive peer connections
+	// showStatus("connecting...",-1);  // unsinn!
+	// get ready to receive a peer connections
 	newPeerCon();
 	if(wsConn==null /*|| wsConn.readyState!=1*/) {
+// TODO this is very odd
 // TODO is this always correct: wsConn==null -> login() ?
-		console.log('goOnline no wsConn -> login()');
+		console.log('prepareCallee wsConn==null -> login()');
 		login(false);
 		return;
 	}
 
-	console.log('goOnline have wsConn');
+	console.log('prepareCallee have wsConn');
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 	menuClearCookieElement.style.display = "block";
 //	muteMicDiv.style.display = "block";
 	//nonesense: fileselectLabel.style.display = "block";
 	if(sendInitFlag) {
-		gLog('goOnline have wsConn -> send init');
-		sendInit("goOnline <- "+comment);
+		gLog('prepareCallee have wsConn -> send init');
+		sendInit("prepareCallee <- "+comment);
 	}
 	getSettings(); // display ID-links
 }
@@ -2351,13 +2372,13 @@ function newPeerCon() {
 		connectionstatechangeCounter++;
 		console.log("peerCon connectionstatechange "+peerCon.connectionState);
 		if(!peerCon || peerCon.iceConnectionState=="closed") {
-			hangup(true,true,"onconnectionstatechange no peercon");
+			hangup(true,true,"no peerconnection");
 			return;
 		}
 		if(peerCon.connectionState=="disconnected") {
 			console.log("# peerCon disconnected "+rtcConnect+" "+mediaConnect);
 			stopAllAudioEffects();
-			endWebRtcSession(true,true,"peerCon disconnected"); // -> peerConCloseFunc
+			endWebRtcSession(true,true,"disconnected by peer"); // -> peerConCloseFunc
 
 		} else if(peerCon.connectionState=="failed") {
 			// "failed" could be an early caller hangup
@@ -2366,11 +2387,11 @@ function newPeerCon() {
 			// or until offline/online
 			console.log("# peerCon failed "+rtcConnect+" "+mediaConnect);
 			stopAllAudioEffects();
-			endWebRtcSession(true,true,"peerCon failed"); // -> peerConCloseFunc
+			endWebRtcSession(true,true,"peer connection failed"); // -> peerConCloseFunc
 
 			newPeerCon();
 			if(wsConn==null) {
-				console.log('peerCon failed and have no wsConn -> login()');
+				console.log('peerCon failed and wsConn==null -> login()');
 				login(false);
 			} else {
 				// init already sent by endWebRtcSession() above
@@ -2435,6 +2456,9 @@ function peerConnected2() {
 
 	// scroll to top
 	window.scrollTo({ top: 0, behavior: 'smooth' });
+
+	answerButtons.style.display = "block";
+	goOnlineSwitch.disabled = true;
 
 	let skipRinging = false;
 	if(typeof Android !== "undefined" && Android !== null) {
@@ -2554,8 +2578,6 @@ function peerConnected3() {
 	}
 
 	// TODO disable goOnlineSwitch while peerconnected ?
-	answerButton.style.display = "inline-block";
-	rejectButton.style.display = "inline-block";
 	if(autoanswerCheckbox.checked) {
 		var pickupFunc = function() {
 			// may have received "onmessage disconnect (caller)" and/or "cmd cancel (server)" in the meantime
@@ -2581,7 +2603,7 @@ function peerConnected3() {
 	rejectButton.onclick = function(ev) {
 		ev.stopPropagation();
 		console.log("peerConnected3 hangup button");
-		hangup(true,true,"rejectButton");
+		hangup(true,true,"reject button");
 	}
 }
 
@@ -2630,7 +2652,7 @@ function dataChannelOnmessage(event) {
 					dataChannel.close();
 					dataChannel = null;
 				}
-				hangupWithBusySound(true,"disconnect via dataChannel");
+				hangupWithBusySound(true,"disconnected by peer");
 			} else if(event.data.startsWith("textchatOK")) {
 				textchatOKfromOtherSide = true;
 			} else if(event.data.startsWith("msg|")) {
@@ -2791,6 +2813,8 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		remoteStream = null;
 	}
 	buttonBlinking = false;
+	answerButtons.style.display = "none";
+	goOnlineSwitch.disabled = false;
 
 	msgbox.style.display = "none";
 	msgbox.value = "";
@@ -2877,6 +2901,9 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	}
 
 	if(typeof Android !== "undefined" && Android !== null) {
+		// if a peerConnection existed, this will do: statusMessage("peer disconnect")
+		// if no peerConnection existed, this will do: updateNotification(awaitingCalls) ('ready to receive calls')
+		// TODO: unfortunately this will NOT display our comment string ('hangup disconnected by peer')
 		Android.peerDisConnect();
 	}
 
@@ -2885,9 +2912,6 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	} else {
 		onlineIndicator.src="";
 	}
-
-	answerButton.style.display = "none";
-	rejectButton.style.display = "none";
 
 	mediaConnect = false;
 	rtcConnect = false;
@@ -2903,12 +2927,10 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	progressRcvElement.style.display = "none";
 
 	if(goOnlineAfter && !goOnlinePending) {
-		// "goOnline()" is not the best fkt-name in this context
-		// main thing here is that we call goOnline() to create a fresh newPeerCon() -> new RTCPeerConnection()
-		// for the next incoming call
-		// but bc we keep our wsConn alive, no new login is needed
+		// bc we keep our wsConn alive, no new login is needed
 		// (no new ws-hub will be created on the server side)
 		// goOnlinePending flag prevents secondary calls to goOnline
+
 		goOnlinePending = true;
 		gLog('endWebRtcSession delayed auto goOnline()...');
 		// TODO why exactly is this delay needed in goOnlineAfter?
@@ -2918,8 +2940,9 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 			//console.log("callee endWebRtcSession auto goOnline(): enable goonline");
 			// get peerCon ready for the next incoming call
 			// bc we are most likely still connected, goOnline() will just send "init"
-			goOnline(true,"endWebRtcSession");
+			prepareCallee(true,"endWebRtcSession");
 		},500);
+
 	} else {
 		offlineAction();
 	}
@@ -2942,10 +2965,12 @@ function goOffline(comment) {
 		history.replaceState("", document.title, window.location.pathname + mySearch);
 	}
 
+/* TODO questionable
 	if(slideOpen) {
 		// close the slide-menu
 		openSlide();
 	}
+*/
 	ownlinkElement.innerHTML = "";
 	stopAllAudioEffects("goOffline");
 	waitingCallerSlice = null;
@@ -2966,15 +2991,17 @@ function goOffline(comment) {
 
 	if(wsConn) {
 		// callee going offline
-		gLog('wsClose');
 		if(typeof Android !== "undefined" && Android !== null) {
+			console.log("goOffline wsClose");
 			Android.wsClose(); // -> disconnectHost(true) -> statusMessage("Offline")
 		} else {
+			console.log("goOffline wsConn.close()");
 			wsConn.close();
 		}
 		wsConn=null;
 	} else {
 		if(typeof Android !== "undefined" && Android !== null) {
+			console.log("goOffline wsClose()");
 			Android.wsClose();
 		}
 	}
@@ -3102,10 +3129,10 @@ function openSettings() {
 
 function clearcache() {
 	// will only be enabled if Android.getVersionName() >= "1.0.8"
+	console.log("clearcache");
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.reload !== "undefined" && Android.reload !== null) {
 			let wasConnected = wsConn!=null;
-// TODO tmtmtm we must prevent disconnectHost() from doing removeNotification() and long async processing
 			Android.wsClose();
 			setTimeout(function() {
 				console.log("clearcache android wsClearCache(true,"+wasConnected+")");
@@ -3139,7 +3166,7 @@ function wakeGoOnline() {
 	console.log("wakeGoOnline start");
 	connectSignaling('','wakeGoOnline'); // only get wsConn from service (from Android.wsOpen())
 	wsOnOpen(); // green led
-	goOnline(true,"wakeGoOnline");   // newPeerCon() + wsSend("init|!")
+	prepareCallee(true,"wakeGoOnline");   // newPeerCon() + wsSend("init|!")
 	gLog("wakeGoOnline done");
 }
 
@@ -3148,7 +3175,7 @@ function wakeGoOnlineNoInit() {
 	console.log("wakeGoOnlineNoInit start");
 	connectSignaling('','wakeGoOnlineNoInit'); // only get wsConn from service (from Android.wsOpen())
 	wsOnOpen(); // green led
-	goOnline(false,"wakeGoOnline");  // newPeerCon() but do NOT wsSend("init|!")
+	prepareCallee(false,"wakeGoOnline");  // newPeerCon() but do NOT wsSend("init|!")
 	gLog("wakeGoOnlineNoInit done");
 }
 
