@@ -28,7 +28,7 @@ button, button:focus {
 	border-radius:3px;
 	color:white;
 	font-size: 1.0em;
-	margin: 0 0.8em 0.8em 0;
+	margin: 0.8em 0.8em 0.8em 0;
 	padding: 0.7em 0.5em 0.6em 0.5em;
 	min-width: 140px;
 	outline:none;
@@ -476,13 +476,13 @@ input:disabled + .slider {
 
 	<h1><span>WebCall</span> <span id="title"></span></h1>
 
+	<div id="status" class="status"></div>
+
 	<div id="answerButtons" style="_max-width:360px; display:none;">
 		<button id="answerButton">Answer</button>
 		<button id="rejectButton">Hang Up</button>
 		<img id="onlineIndicator" src="" style="width:28px; margin:0.6em 0.2em 0.6em 0; user-select:none;">
 	</div>
-
-	<div id="status" class="status"></div>
 
 	<form action="javascript:;" onsubmit="submitFormDone(1)" style="max-width:420px;display:none;" id="password">
 		<input type="text" autocomplete="username" id="username" style="display:none;" required>
