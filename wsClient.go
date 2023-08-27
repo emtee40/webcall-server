@@ -1428,13 +1428,13 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 					c.connType, c.calleeID, tok[0], constateShort, tok[2], c.hub.CalleeClient.RemoteAddrNoPort,
 					c.hub.CallerIpNoPort, c.hub.CallerID)
 			} else {
-				fmt.Printf("%s (%s) PEER %s %s☎️ %s %s <- %s (%s)\n",
+				fmt.Printf("%s (%s) PEER %s %s☎️  %s %s <- %s (%s)\n",
 					c.connType, c.calleeID, tok[0], constateShort, tok[2], c.hub.CalleeClient.RemoteAddrNoPort,
 					c.hub.CallerIpNoPort, c.hub.CallerID)
 			}
 		} else {
 			if strings.HasPrefix(constate,"Con") && !c.isConnectedToPeer.Load() {
-				fmt.Printf("%s (%s) PEER %s %s☎️ %s %s <- %s (%s)\n",
+				fmt.Printf("%s (%s) PEER %s %s☎️  %s %s <- %s (%s)\n",
 					c.connType, c.calleeID, tok[0], constateShort, tok[2], c.hub.CalleeClient.RemoteAddrNoPort,
 					c.hub.CallerIpNoPort, c.hub.CallerID)
 			} else {
