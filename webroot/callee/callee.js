@@ -792,7 +792,7 @@ function login(retryFlag,comment) {
 function sendInit(comment) {
 	console.log("sendInit() from: "+comment);
 	wsSend("init|"+comment); // -> connectSignaling()
-	// server will respond to this with "sessionId|(serverCodetag)"
+	// server will respond to this with "sessionId|(serverVersion)"
 	// when we receive "sessionId|", we call showOnlineReadyMsg() -> Android.calleeConnected()
 }
 
@@ -1793,7 +1793,7 @@ function showMissedCalls() {
 	}
 
 	if(!skipRender) {
-		console.log("showMissedCalls missedCallsSlice.length="+missedCallsSlice.length);
+		console.log("showMissedCalls len="+missedCallsSlice.length);
 		// make remoteCallerIdMaxChar depend on window.innerWidth
 		// for window.innerWidth = 360, remoteCallerIdMaxChar=21 is perfect
 		let remoteCallerIdMaxChar = 13;
