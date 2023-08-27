@@ -1559,7 +1559,7 @@ function signalingCommand(message, comment) {
 			endWebRtcSession(false,true,"incoming cancel"); // -> peerConCloseFunc
 			console.log('cmd cancel -> clearcache() --------------------');
 // TODO questionable
-			clearcache();
+//			clearcache();
 		} else {
 			stopAllAudioEffects("ignore cmd cancel");
 			// TODO no endWebRtcSession ? android service will not know that ringing has ended
