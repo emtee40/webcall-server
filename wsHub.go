@@ -214,10 +214,10 @@ func (h *Hub) peerConHasEnded(cause string) {
 			h.CallerClient.isMediaConnectedToPeer.Store(false)
 		}
 
-		title := "PEER DISCON";
-		if h.CallDurationSecs > 0 {
-			title = "PEER DISCON📴"
-		}
+		title := "PEER DISCON❌";
+//		if h.CallDurationSecs > 0 {
+//			title = "PEER DISCON📴"
+//		}
 		fmt.Printf("%s (%s) %s %ds %s/%s %s <- %s (%s) %s\n",
 			h.CalleeClient.connType, h.CalleeClient.calleeID, title,
 			h.CallDurationSecs, localPeerCon, remotePeerCon,
