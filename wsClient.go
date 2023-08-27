@@ -953,7 +953,8 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 		c.hub.CalleeClient.Write([]byte("textmode|"+c.textMode))
 
 		// send callerInfo to callee (see callee.js if(cmd=="callerInfo"))
-		if c.callerID!="" || c.callerName!="" {
+		// 'callerInfo' is so important for the Android client we want to always send it, so remove the condition
+		//if c.callerID!="" || c.callerName!="" {
 			// this data is used to display caller-info in the callee-client
 			// NOTE: c.callerID and c.callerHost must not contain colons
 			sendCmd := "callerInfo|"+c.callerID+"\t"+c.callerName
@@ -961,7 +962,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 			if c.hub.CalleeClient.callerTextMsg!="" {
 				sendCmd += "\t"+c.hub.CalleeClient.callerTextMsg
 			}
-			//fmt.Printf("%s (%s) CALL sendCmd=%s\n", c.connType, c.calleeID, sendCmd)
+			fmt.Printf("%s (%s) CALL sendCmd=%s\n", c.connType, c.calleeID, sendCmd)
 			err = c.hub.CalleeClient.Write([]byte(sendCmd))
 			if err != nil {
 				// callee is gone
@@ -971,7 +972,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 				c.hub.closeCallee("send callerInfo to callee: "+err.Error())
 				return
 			}
-		}
+		//}
 
 		// send calleeInfo (with dbUser.Name) to caller (see caller.js if(cmd=="calleeInfo"))
 		if c.dialID == "" {
