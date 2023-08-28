@@ -140,7 +140,6 @@ window.onload = function() {
 		}
 
 		showStatus("calleeID missing in URL",-1);
-///		goOnlineButton.disabled = true;
 		return;
 	}
 
@@ -510,7 +509,7 @@ function submitFormDone(idx) {
 		wsSecret = valuePw;
 //		onGotStreamGoOnline = true;			// TODO ???
 		//console.log("callee submitFormDone: enable goonline");
-///		goOnlineButton.disabled = false;
+
 //		if(muteMicDiv) {
 //			muteMicDiv.style.display = "block";
 //		}
@@ -718,7 +717,7 @@ function login(retryFlag,comment) {
 			// parts[0] "error" = "wrong pw", "pw has less than 6 chars" or "empty pw"
 			// offer pw entry again
 			console.log('login error - try again');
-///			goOnlineButton.disabled = true;
+			//goOnlineButton.disabled = true;	// TODO
 			enablePasswordForm();
 		} else if(parts[0]=="") {
 			showStatus("No response from server",-1);
@@ -1260,7 +1259,6 @@ function wsOnOpen() {
 		// prevent "try reconnect in..." after "wsConn close" on unload
 		// by turning our online-indication off
 		console.log("callee beforeunload: enable goonline");
-		goOnlineButton.disabled = false;
 		// NOTE: this occurs when callee starts dialing a remote user from missedcalls
 		// then both buttons are enabled - not good
 	});
