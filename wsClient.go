@@ -1088,21 +1088,22 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 			//fmt.Printf("%s (%s) cmd=cancel CalleeClient.isConnectedToPeer c.isCallee=%v\n",
 			//	c.connType,c.calleeID,c.isCallee)
 			if c.isCallee && payload!="disconnectByCaller" {
-				// callee client disconnected
+				// callee client is disconnecting the caller
 				fmt.Printf("%s (%s) REQ PEER DISCON %s by callee cancel='%s'\n",
 					c.connType, c.calleeID, c.RemoteAddr, payload)
 				// end the peer-connection
+				// we need to fw "cancel|" to the caller so it stops waiting for pickup
 				c.hub.CallerClient.Write([]byte("cancel|"+payload))
 				c.hub.HubMutex.RUnlock()
 				c.hub.closePeerCon("callee "+payload)
 				return
 			}
-			// caller client disconnected
+			// caller client is disconnecting the callee
 			// c.RemoteAddr is callee-ip (c.hub.CallerClient may be nil already)
 			fmt.Printf("%s (%s) REQ PEER DISCON %s <- by caller cancel='%s'\n",
 				c.connType, c.calleeID, c.RemoteAddr, payload)
 			// end the peer-connection
-			// we need to send "cancel|" to the callee so it stops ringing
+			// we need to fw "cancel|" to the callee so it stops ringing
 			c.hub.CalleeClient.Write([]byte("cancel|"+payload))
 			c.hub.HubMutex.RUnlock()
 			c.hub.closePeerCon("caller "+payload)
