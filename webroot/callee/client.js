@@ -1645,7 +1645,15 @@ function showStatus(msg,timeoutMs) {
 	statusLine.style.opacity = 0;
 	statusLine.innerHTML = msg;
 	statusLine.style.opacity = 1;
+	// make msg visible
 	statusLine.style.display = "block";
+
+	// clear lastStatusMessage in service
+	if(typeof Android !== "undefined" && Android !== null) {
+		if(typeof Android.clearLastStatus !== "undefined" && Android.clearLastStatus !== null) {
+			Android.clearLastStatus();
+		}
+	}
 
 	if(msg!="" && sleepMs>=0) {
 		// msg bleibt für sleepMs stehen
