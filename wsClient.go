@@ -1088,15 +1088,16 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 			//fmt.Printf("%s (%s) cmd=cancel CalleeClient.isConnectedToPeer c.isCallee=%v\n",
 			//	c.connType,c.calleeID,c.isCallee)
 			if c.isCallee && payload!="disconnectByCaller" {
-				// NOTE: the actual discon request may also come from the caller
-				// but the caller is likely ws-disconnected, so it comes via the callee client
+				// callee client disconnected
 				fmt.Printf("%s (%s) REQ PEER DISCON %s by callee cancel='%s'\n",
 					c.connType, c.calleeID, c.RemoteAddr, payload)
 				// end the peer-connection
+				c.hub.CallerClient.Write([]byte("cancel|"+payload))
 				c.hub.HubMutex.RUnlock()
 				c.hub.closePeerCon("callee "+payload)
 				return
 			}
+			// caller client disconnected
 			// c.RemoteAddr is callee-ip (c.hub.CallerClient may be nil already)
 			fmt.Printf("%s (%s) REQ PEER DISCON %s <- by caller cancel='%s'\n",
 				c.connType, c.calleeID, c.RemoteAddr, payload)
