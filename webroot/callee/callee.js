@@ -3176,7 +3176,7 @@ function clearcache() {
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.reload !== "undefined" && Android.reload !== null) {
 			let wasConnected = wsConn!=null;
-			Android.wsClose();
+			Android.wsClosex();
 			setTimeout(function() {
 				console.log("clearcache android wsClearCache(true,"+wasConnected+")");
 				Android.wsClearCache(true, wasConnected); // autoreload, autoreconnect
