@@ -32,6 +32,7 @@ var peerCon = null;
 var localDescription = null;
 var rtcConnect = false;
 var rtcConnectStartDate = 0;
+var earlyRing = false;
 var mediaConnectStartDate = 0;
 var dataChannel = null;
 var dialAfterLocalStream = false;
@@ -2280,6 +2281,9 @@ function signalingCommand(message) {
 			console.log("ignore cancel "+payload);
 		}
 
+	} else if(cmd=="ring") {
+		earlyRing = true;
+		showStatus(lg("ringingText"),-1); // Ringing...
 	} else if(cmd=="sessionDuration") {
 		// longest possible call duration
 		sessionDuration = parseInt(payload);
@@ -2330,6 +2334,7 @@ function wsSend(message) {
 
 let dialDate;
 function dial() {
+	// start dialing: playDialSound and prepare to stop sound on mediaConnect
 	if(!localStream) {
 		console.warn('dial abort no localStream');
 		showStatus("Dialup canceled");
@@ -2340,6 +2345,8 @@ function dial() {
 	gLog('dial');
 	otherUA = "";
 	dialing = true;
+	rtcConnect = false;
+	earlyRing = false;
 
 	if(playDialSounds) {
 		// postpone dialing, so we can start dialsound before
@@ -2385,6 +2392,7 @@ function dial() {
 }
 
 function dial2() {
+	// start dialing part 2: create new RTCPeerConnection, setting up peerCon
 	if(fileselectLabel) {
 		fileselectLabel.style.display = "none";
 		progressSendElement.style.display = "none";
@@ -2399,15 +2407,17 @@ function dial2() {
 	dialDate = Date.now();
 	gLog('dial2 dialDate='+dialDate);
 
+
 	// show connectingText with additional dots - in case we don't get a quick peerConnect
 	// when this msg shows up, either peerCon is really slow, or there is a webrtc problem
 	// if peerConnect is quick (as in most cases), we will see "ringing..." instead (with rtcConnect set)
 	setTimeout(function(lastDialDate) {
-		if(dialDate==lastDialDate && !doneHangup && !rtcConnect) { // still the same call after 3s?
-//			showStatus(connectingText+"...",-1); // "Connecting P2P......"
-			showStatus(lg("ringingText"),-1); // Ringing...
+		if(dialDate==lastDialDate && !doneHangup && !rtcConnect && !earlyRing) { // still the same call after 3s?
+			showStatus(connectingText+"...",-1); // "Connecting P2P......"
+//			showStatus(lg("ringingText"),-1); // Ringing...
 		}
-	},1500,dialDate);
+	},3000,dialDate);
+
 
 	addedAudioTrack = null;
 	addedVideoTrack = null;

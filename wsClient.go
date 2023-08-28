@@ -1424,30 +1424,39 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 		// note: "callee Connected p2p/p2p" can happen multiple times
 		constate := ""
 		constateShort := "-"
+		p2pRelayedInfo := ""
 		if len(tok)>=2 {
 			constate = strings.TrimSpace(tok[1])
 			if constate=="Incoming"  { constateShort = "RING" }
 			if constate=="Connected" { constateShort = "CONN" }
 			if constate=="ConForce"  { constateShort = "CONF" }
+			if len(tok)>=3 {
+				p2pRelayedInfo = tok[2]
+			}
 		}
 		if tok[0]=="callee" {
 			if(constateShort=="RING") {
 				fmt.Printf("%s (%s) PEER %s %s🔔 %s %s <- %s (%s)\n",
-					c.connType, c.calleeID, tok[0], constateShort, tok[2], c.hub.CalleeClient.RemoteAddrNoPort,
+					c.connType, c.calleeID, tok[0], constateShort, p2pRelayedInfo, c.hub.CalleeClient.RemoteAddrNoPort,
 					c.hub.CallerIpNoPort, c.hub.CallerID)
+
+				// forward special ring indicator to caller
+				if c.hub.CallerClient!=nil {
+					c.hub.CallerClient.Write([]byte("ring|"))
+				}
 			} else {
 				fmt.Printf("%s (%s) PEER %s %s☎️  %s %s <- %s (%s)\n",
-					c.connType, c.calleeID, tok[0], constateShort, tok[2], c.hub.CalleeClient.RemoteAddrNoPort,
+					c.connType, c.calleeID, tok[0], constateShort, p2pRelayedInfo, c.hub.CalleeClient.RemoteAddrNoPort,
 					c.hub.CallerIpNoPort, c.hub.CallerID)
 			}
 		} else {
 			if strings.HasPrefix(constate,"Con") && !c.isConnectedToPeer.Load() {
 				fmt.Printf("%s (%s) PEER %s %s☎️  %s %s <- %s (%s)\n",
-					c.connType, c.calleeID, tok[0], constateShort, tok[2], c.hub.CalleeClient.RemoteAddrNoPort,
+					c.connType, c.calleeID, tok[0], constateShort, p2pRelayedInfo, c.hub.CalleeClient.RemoteAddrNoPort,
 					c.hub.CallerIpNoPort, c.hub.CallerID)
 			} else {
 				fmt.Printf("%s (%s) PEER %s %s %s %s <- %s (%s)\n",
-					c.connType, c.calleeID, tok[0], constateShort, tok[2], c.hub.CalleeClient.RemoteAddrNoPort,
+					c.connType, c.calleeID, tok[0], constateShort, p2pRelayedInfo, c.hub.CalleeClient.RemoteAddrNoPort,
 					c.hub.CallerIpNoPort, c.hub.CallerID)
 			}
 		}
@@ -1471,8 +1480,8 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 
 			c.hub.LocalP2p = false
 			c.hub.RemoteP2p = false
-			if len(tok)>=3 {
-				tok2string := strings.TrimSpace(tok[2])
+			if p2pRelayedInfo!="" {
+				tok2string := strings.TrimSpace(p2pRelayedInfo)
 				tok2 := strings.Split(tok2string, "/")
 				if len(tok2)>=2 {
 					//fmt.Printf("%s tok2[0]=%s tok2[1]=%s\n", c.connType, tok2[0], tok2[1])
