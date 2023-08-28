@@ -436,6 +436,7 @@ func serve(w http.ResponseWriter, r *http.Request, tls bool) {
 				if !client.reached14s.Load() {
 					// a caller disconnect before reached14s is definitely a manual discon by the caller
 					// -> force closePeerCon
+					client.hub.CalleeClient.Write([]byte("cancel|OnCloseCaller"))  // TODO move to peerConHasEnded() ?
 					if err!=nil {
 						client.hub.closePeerCon("OnCloseCaller "+err.Error())
 					} else {
@@ -1093,7 +1094,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 					c.connType, c.calleeID, c.RemoteAddr, payload)
 				// end the peer-connection
 				// we need to fw "cancel|" to the caller so it stops waiting for pickup
-				c.hub.CallerClient.Write([]byte("cancel|"+payload))
+				c.hub.CallerClient.Write([]byte("cancel|"+payload)) // TODO better move to peerConHasEnded() ?
 				c.hub.HubMutex.RUnlock()
 				c.hub.closePeerCon("callee "+payload)
 				return
@@ -1104,7 +1105,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 				c.connType, c.calleeID, c.RemoteAddr, payload)
 			// end the peer-connection
 			// we need to fw "cancel|" to the callee so it stops ringing
-			c.hub.CalleeClient.Write([]byte("cancel|"+payload))
+			c.hub.CalleeClient.Write([]byte("cancel|"+payload)) // TODO better move to peerConHasEnded() ?
 			c.hub.HubMutex.RUnlock()
 			c.hub.closePeerCon("caller "+payload)
 			return
