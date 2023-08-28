@@ -99,7 +99,7 @@ window.onload = function() {
 	if(!navigator.mediaDevices) {
 		console.warn("navigator.mediaDevices not available");
 		offlineAction("onload mediaDevices not found");
-		showStatus("mediaDevices not found",-1);
+		showStatus("MediaDevices not found",-1);
 		return;
 	}
 
@@ -477,7 +477,7 @@ function enablePasswordForm() {
 //	if(muteMicDiv) {	// TODO ???
 //		muteMicDiv.style.display = "none";
 //	}
-	showStatus("login calleeID: "+calleeID,-1);
+	showStatus("Login "+calleeID+" ...",-1);
 	document.getElementById("current-password").value = "";
 	form.style.display = "block";
 	document.getElementById("username").focus();
@@ -504,7 +504,7 @@ function submitFormDone(idx) {
 		var valuePw = cleanStringParameter(document.getElementById("current-password").value,true,"pw");
 		if(valuePw.length < 6) {
 			formPw.focus();
-			showStatus("password must be six or more characters long",-1);
+			showStatus("Password must be six or more characters long",-1);
 			return;
 		}
 		wsSecret = valuePw;
@@ -684,7 +684,7 @@ function login(retryFlag,comment) {
 		*/
 		if(parts[0]=="notregistered") {
 			wsSecret = "";
-			showStatus( "unknown callee ID "+calleeID+"<br>"+
+			showStatus( "Unknown callee ID "+calleeID+"<br>"+
 						"<a href='/callee/register'>Register a new ID</a>",-1);
 
 			// clear "You will receive calls made by this link"
@@ -708,10 +708,10 @@ function login(retryFlag,comment) {
 				}
 			}
 		} else if(parts[0]=="busy") {
-			showStatus("user is busy",-1);
+			showStatus("User is busy",-1);
 			form.style.display = "none";
 		} else if(parts[0]=="errorWrongCookie") {
-			showStatus("error: "+parts[0].substring(5),-1);
+			showStatus("Error: "+parts[0].substring(5),-1);
 			// TODO is this correct ??? No.
 			//window.location.reload();
 		} else if(parts[0]=="error") {
@@ -721,7 +721,7 @@ function login(retryFlag,comment) {
 ///			goOnlineButton.disabled = true;
 			enablePasswordForm();
 		} else if(parts[0]=="") {
-			showStatus("no response from server",-1);
+			showStatus("No response from server",-1);
 			// switch goOnlineSwitch off?
 			form.style.display = "none";
 		} else if(parts[0]=="fatal") {
@@ -731,9 +731,9 @@ function login(retryFlag,comment) {
 			// make sure our showStatus() comes after the one ("offline") from disconnectHost()
 			setTimeout(function() {
 				if(parts.length>=2) {
-					showStatus("login "+parts[1]+" fail. Logged in from another device?",-1);
+					showStatus("Login "+parts[1]+" fail. Logged in from another device?",-1);
 				} else {
-					showStatus("login fail, logged in from another device?",-1);
+					showStatus("Login fail, logged in from another device?",-1);
 				}
 			},300);
 			form.style.display = "none";
@@ -743,7 +743,7 @@ function login(retryFlag,comment) {
 			if(loginStatus!="") {
 				// make sure our showStatus() comes after the one ("offline") from disconnectHost()
 				setTimeout(function() {
-					showStatus("status: "+loginStatus,-1);
+					showStatus("Status: "+loginStatus,-1);
 				},300);
 			}
 			form.style.display = "none";
@@ -753,7 +753,7 @@ function login(retryFlag,comment) {
 		// errorFkt
 		console.log("# xhr error "+errString+" "+err);
 		if(err==502 || errString.startsWith("fetch")) {
-			showStatus("no response from server",-1);
+			showStatus("No response from server",-1);
 		} else {
 			showStatus("xhr error "+err,3000);
 		}
@@ -774,7 +774,7 @@ function login(retryFlag,comment) {
 			setTimeout(function() {
 				let delay = autoReconnectDelay + Math.floor(Math.random() * 10) - 5;
 				gLog('reconnecting in '+delay);
-				showStatus("reconnecting...",-1);
+				showStatus("Reconnecting...",-1);
 				missedCallsTitleElement.style.display = "none";
 				missedCallsElement.style.display = "none";
 				delayedWsAutoReconnect(delay);
@@ -806,7 +806,7 @@ function getSettings() {
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# /getsettings error("+xhr.responseText+")");
-			showStatus("error: "+xhr.responseText.substring(5),-1);
+			showStatus("Error: "+xhr.responseText.substring(5),-1);
 			return;
 		}
 		if(xhr.responseText!="") {
@@ -855,7 +855,7 @@ function getSettings() {
 			altLabel = [];
 			if(xhr.responseText.startsWith("error")) {
 				console.log("# /getmapping error("+xhr.responseText+")");
-				showStatus("error: "+xhr.responseText.substring(5),-1);
+				showStatus("Error: "+xhr.responseText.substring(5),-1);
 				return;
 			}
 			let altIDs = xhr.responseText;
@@ -1128,7 +1128,7 @@ function delayedWsAutoReconnect(reconPauseSecs) {
 		if(idx>0) {
 			mainLink = mainLink.substring(0,idx);
 		}
-		showStatus("login failed<br><a href='"+mainLink+"'>Main page</a>",-1);
+		showStatus("Login failed<br><a href='"+mainLink+"'>Main page</a>",-1);
 		return;
 	}
 	wsAutoReconnecting = true;
@@ -1186,13 +1186,13 @@ function showOnlineReadyMsg() {
 			}
 		} else {
 			//showStatus("connected to webcall server",1200);
-			showStatus("ready to receive calls",-1);
+			showStatus("Ready to receive calls",-1);
 		}
 
 /*
 		// TODO isHiddenCheckbox needs a different implementation
 		if(isHiddenCheckbox.checked) {
-			showStatus("your online status is hidden",2500);
+			showStatus("Your online status is hidden",2500);
 		}
 */
 	},600);
@@ -1219,7 +1219,7 @@ function connectSignaling(message,comment) {
 	} else {
 		if(!window["WebSocket"]) {
 			console.error('connectSig: no WebSocket support');
-			showStatus("no websocket support");
+			showStatus("No websocket support");
 			if(!mediaConnect) {
 				onlineIndicator.src="";
 			}
@@ -1309,8 +1309,7 @@ function wsOnClose(evt) {
 		errCode = evt.code;
 	}
 	console.log("wsOnClose ID="+calleeID+" code="+errCode,evt);
-	//showStatus("disconnected from webcall server",1200);
-	showStatus("offline",-1);
+	showStatus("Offline",-1);
 	wsOnClose2();
 	if(tryingToOpenWebSocket) {
 		// onclose occured while trying to establish a ws-connection (before this could be finished)
@@ -1325,7 +1324,7 @@ function wsOnClose(evt) {
 		// this is not a user-intended offline; we should be online
 		let delay = autoReconnectDelay + Math.floor(Math.random() * 10) - 5;
 		gLog('reconnecting to signaling server in sec '+delay);
-		showStatus("reconnecting to signaling server...",-1);
+		showStatus("Reconnecting...",-1);
 
 		// TODO is this necessary? wsOnClose2() does this already
 		//missedCallsTitleElement.style.display = "none";
@@ -1418,11 +1417,11 @@ function signalingCommand(message, comment) {
 				}, err => console.error(`# Failed to set local descr: ${err.toString()}`));
 			}, err => {
 				console.warn("# failed to createAnswer "+err.message)
-				showStatus("failed to create answer",8000);
+				showStatus("Failed to create answer",8000);
 			});
 		}, err => {
 			console.warn('callerOffer failed to set RemoteDescription',err.message,callerDescription)
-			showStatus("failed to set remoteDescription",8000);
+			showStatus("Failed to set remoteDescription",8000);
 		});
 
 	} else if(cmd=="callerAnswer") {
@@ -1439,11 +1438,11 @@ function signalingCommand(message, comment) {
 				gLog('callerAnswer setRemoteDescription done');
 			}, err => {
 				console.warn(`callerAnswer Failed to set RemoteDescription`,err.message)
-				showStatus("cannot set remoteDescr "+err.message);
+				showStatus("Cannot set remoteDescr "+err.message);
 			});
 		}, err => {
 			console.warn("callerAnswer setLocalDescription fail",err.message)
-			showStatus("cannot set localDescr"+err.message);
+			showStatus("Cannot set localDescr"+err.message);
 		});
 
 	} else if(cmd=="callerInfo") {
@@ -1539,7 +1538,7 @@ function signalingCommand(message, comment) {
 			}
 			peerCon.addIceCandidate(callerCandidate).catch(e => {
 				console.error("addIce callerCandidate",e.message,payload);
-				showStatus("RTC error "+e.message);
+				showStatus("rtc error "+e.message);
 			});
 		}
 		addIceCallerCandidate(callerCandidate);
@@ -2165,7 +2164,7 @@ function pickup2() {
 							enableTextchat();
 						} else {
 							//chatButton.style.display = "none";
-							showStatus("peer does not support textchat",4000);
+							showStatus("Peer does not support textchat",4000);
 						}
 					}
 				}
@@ -2314,7 +2313,7 @@ function prepareCallee(sendInitFlag,comment) {
 	if(wsConn==null /*|| wsConn.readyState!=1*/) {
 		// this basically says: if prepareCallee() is called when we are NOT connected to the server,
 		// try to login now using cookie or wsSecret (from login form)
-		showStatus("connecting...",-1);  // unsinn!?
+		showStatus("Connecting...",-1);  // unsinn!?
 		console.log("prepareCallee wsConn==null -> login()");
 		login(false,"prepareCallee");
 		return;
@@ -2720,7 +2719,7 @@ function dataChannelOnmessage(event) {
 					gLog("file transmit aborted by sender");
 					progressRcvElement.style.display = "none";
 					if(fileReceivedSize < fileSize) {
-						showStatus("file transmit aborted by sender");
+						showStatus("File transmit aborted by sender");
 					}
 					fileReceivedSize = 0;
 					fileReceiveBuffer = [];
@@ -2728,7 +2727,7 @@ function dataChannelOnmessage(event) {
 				}
 				if(fileDescr=="end-rcv") {
 					gLog("file send aborted by receiver");
-					showStatus("file send aborted by receiver");
+					showStatus("File send aborted by receiver");
 					fileSendAbort = true;
 					progressSendElement.style.display = "none";
 					if(fileselectLabel && mediaConnect && isDataChlOpen() && isP2pCon()) {
