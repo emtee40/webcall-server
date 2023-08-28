@@ -217,17 +217,18 @@ window.onload = function() {
 	if(remoteVideoFrame)
 		remoteVideoFrame.onresize = showVideoResolutionRemote;
 
+	let fullscreenDiv = document.getElementById('fullscreenDiv');
 	if(typeof Android !== "undefined" && Android !== null) {
-		fullscreenLabel.style.display = "none";
+		fullscreenDiv.style.display = "none";
 	}
 
 	// requestFullscreen and exitFullscreen are not supported in iOS (will abort JS without err-msg)
 	let ua = navigator.userAgent;
 	if(ua.indexOf("iPhone")>=0 || ua.indexOf("iPad")>=0) {
-		fullscreenLabel.style.display = "none";
+		fullscreenDiv.style.display = "none";
 	}
 
-	if(fullscreenCheckbox && fullscreenLabel.style.display!="none") {
+	if(fullscreenCheckbox && fullscreenDiv.style.display!="none") {
 		fullscreenCheckbox.addEventListener('change', function() {
 			if(this.checked) {
 				// user is requesting fullscreen mode
