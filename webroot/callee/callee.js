@@ -504,7 +504,7 @@ function submitFormDone(idx) {
 		var valuePw = cleanStringParameter(document.getElementById("current-password").value,true,"pw");
 		if(valuePw.length < 6) {
 			formPw.focus();
-			showStatus("password needs to be at least six characters long",-1);
+			showStatus("password must be six or more characters long",-1);
 			return;
 		}
 		wsSecret = valuePw;
@@ -733,7 +733,7 @@ function login(retryFlag,comment) {
 				if(parts.length>=2) {
 					showStatus("login "+parts[1]+" fail. Logged in from another device?",-1);
 				} else {
-					showStatus("login fail. Logged in from another device?",-1);
+					showStatus("login fail, logged in from another device?",-1);
 				}
 			},300);
 			form.style.display = "none";
@@ -908,7 +908,7 @@ function getSettings() {
 function getSettingDone() {
 	//console.log("getSettingDone",wsConn);
 	if(wsConn) {
-		// "You receive calls made by this link"
+		// show "Your Webcall ID's"
 		let calleeLink = window.location.href;
 		let userLink = "";
 		//console.log("getSettingDone calleeLink="+calleeLink);
@@ -938,12 +938,14 @@ function getSettingDone() {
 		} else {
 			links += "<input type='checkbox' id='mainlink' class='checkbox' style='margin-top:8px;margin-left:2px;margin-right:10px;' onclick='mainlinkCheckboxClick(this);' checked />";
 		}
+
 		let showUserLink = userLink;
 		let idx = showUserLink.indexOf("/user/");
 		if(idx>=0) {
 			showUserLink = showUserLink.substring(idx+6);
 		}
-		links += "<a target='_blank' href='"+userLink+"'>"+showUserLink+"</a><br>";
+		//links += "<a target='_blank' href='"+userLink+"'>"+showUserLink+"</a><br>";
+		links += "<a href='"+userLink+"' onclick='openDialUrlx(\""+userLink+"\",event)'>"+showUserLink+"</a><br>";
 
 
 		if(mastodonID!="" && mastodonID!=calleeID) {
@@ -954,7 +956,9 @@ function getSettingDone() {
 			}
 			let userLinkAlt = userLink.replace("/user/"+calleeID,"/user/"+mastodonID);
 			let showUserLinkAlt = mastodonID;
-			links += "<a target='_blank' href='"+userLinkAlt+"'>"+showUserLinkAlt+"</a><br>";
+			//links += "<a target='_blank' href='"+userLinkAlt+"'>"+showUserLinkAlt+"</a><br>";
+			links += "<a href='"+userLinkAlt+"' onclick='openDialUrlx(\""+userLinkAlt+"\",event)'>"+
+					 showUserLinkAlt+"</a><br>";
 		}
 
 
@@ -974,9 +978,13 @@ function getSettingDone() {
 				let userLinkMap = userLink.replace("/user/"+calleeID,"/user/"+altIdArray[i]);
 				let showUserLinkMap = altIdArray[i];
 				if(altLabel[i]=="") {
-					links += "<a target='_blank' href='"+userLinkMap+"'>"+showUserLinkMap+"</a><br>";
+					//links += "<a target='_blank' href='"+userLinkMap+"'>"+showUserLinkMap+"</a><br>";
+					links += "<a href='"+userLinkMap+"' onclick='openDialUrlx(\""+userLinkMap+"\",event)'>"+
+							 showUserLinkMap+"</a><br>";
 				} else {
-					links += "<a target='_blank' href='"+userLinkMap+"'>"+showUserLinkMap+"</a> ("+altLabel[i]+")<br>";
+					//links += "<a target='_blank' href='"+userLinkMap+"'>"+showUserLinkMap+"</a> ("+altLabel[i]+")<br>";
+					links += "<a href='"+userLinkMap+"' onclick='openDialUrlx(\""+userLinkMap+"\",event)'>"+
+							 showUserLinkMap+"</a> ("+altLabel[i]+")<br>";
 				}
 			}
 		}
@@ -1911,7 +1919,8 @@ function showMissedCalls() {
 				if(noLink) {
 					callerLink = callerIdNoHost;
 				} else {
-					callerLink = "<a onclick='openDialUrl(\""+callerLink+"\")'>"+callerIdNoHost+"</a>";
+					callerLink = "<a href='"+callerLink+"' onclick='openDialUrlx(\""+callerLink+"\",event)'>"+
+								 callerIdNoHost+"</a>";
 				}
 
 			} else {
@@ -1932,7 +1941,8 @@ function showMissedCalls() {
 				if(noLink) {
 					callerLink = callerIdDisplay;
 				} else {
-					callerLink = "<a onclick='openDialRemote(\""+callerLink+"\")'>"+callerIdDisplay+"</a>";
+					callerLink = "<a href='"+callerLink+"' onclick='openDialRemotex(\""+callerLink+"\",event)'>"+
+								 callerIdDisplay+"</a>";
 				}
 			}
 
@@ -3126,6 +3136,13 @@ function openDialRemote(url) {
 	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
 	iframeWindowOpen(url,false,"height:460px;max-width:480px;",true);
 }
+function openDialRemotex(url,evt) {
+	gLog('openDialUrl',url);
+	evt.preventDefault();
+	// 4th parameter 'dontIframeOnload':
+	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
+	iframeWindowOpen(url,false,"height:460px;max-width:480px;",true);
+}
 
 function openDialUrl(url) {
 	gLog('openDialUrl',url);
@@ -3133,6 +3150,14 @@ function openDialUrl(url) {
 	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
 	iframeWindowOpen(url,false);
 }
+function openDialUrlx(url,evt) {
+	gLog('openDialUrl',url);
+	evt.preventDefault();
+	// 4th parameter 'dontIframeOnload':
+	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
+	iframeWindowOpen(url,false);
+}
+
 
 function openIdMapping() {
 	let url = "/callee/mapping/?id="+calleeID;

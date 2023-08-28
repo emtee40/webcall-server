@@ -1648,7 +1648,7 @@ function showStatus(msg,timeoutMs) {
 	// make msg visible
 	statusLine.style.display = "block";
 
-	// clear lastStatusMessage in service
+	// clear lastStatusMessage in service (so service will not overwrite our new msg)
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.clearLastStatus !== "undefined" && Android.clearLastStatus !== null) {
 			Android.clearLastStatus();
