@@ -3171,18 +3171,21 @@ function openSettings() {
 }
 
 function clearcache() {
-	// will only be enabled if Android.getVersionName() >= "1.0.8"
-	console.log("clearcache");
 	if(typeof Android !== "undefined" && Android !== null) {
-		if(typeof Android.reload !== "undefined" && Android.reload !== null) {
-			let wasConnected = wsConn!=null;
+		let wasConnected = true; //wsConn!=null;
+		if(typeof Android.wsClosex !== "undefined" && Android.wsClosex !== null) {
 			Android.wsClosex();
+		} else if(typeof Android.wsClose !== "undefined" && Android.wsClose !== null) {
+			Android.wsClose();
+		} else {
+			console.log("clearcache android wsClosex + wsClose undefined");
+		}
+		if(typeof Android.wsClearCache !== "undefined" && Android.wsClearCache !== null) {
 			setTimeout(function() {
-				console.log("clearcache android wsClearCache(true,"+wasConnected+")");
 				Android.wsClearCache(true, wasConnected); // autoreload, autoreconnect
 			},250);
 		} else {
-			console.log("clearcache android reload undefined");
+			console.log("clearcache android wsClearCache undefined");
 		}
 	}
 }
