@@ -1012,7 +1012,7 @@ function dialButtonClick2() {
 
 	console.log("dialButtonClick calleeID="+calleeID+" callerId="+callerId+" callerName="+callerName);
 
-	showStatus(connectingText,-1);
+	showStatus(connectingText,-1); // "Connecting P2P..."
 	doneHangup = false;
 	onIceCandidates = 0;
 	rtcConnectStartDate = 0;
@@ -2403,9 +2403,10 @@ function dial2() {
 	// if peerConnect is quick (as in most cases), we will see "ringing..." instead (with rtcConnect set)
 	setTimeout(function(lastDialDate) {
 		if(dialDate==lastDialDate && !doneHangup && !rtcConnect) { // still the same call after 3s?
-			showStatus(connectingText+"...",-1);
+//			showStatus(connectingText+"...",-1); // "Connecting P2P......"
+			showStatus(lg("ringingText"),-1); // Ringing...
 		}
-	},3000,dialDate);
+	},1500,dialDate);
 
 	addedAudioTrack = null;
 	addedVideoTrack = null;
@@ -2544,7 +2545,7 @@ function dial2() {
 					goodbyTextMsg = cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen)
 					gLog('set goodbyTextMsg='+goodbyTextMsg);
 
-					showStatus(lg("ringingText"),-1);
+					showStatus(lg("ringingText"),-1); // Ringing...
 					onlineIndicator.src="green-gradient.svg";
 				}
 				dialing = false;

@@ -2804,8 +2804,10 @@ function stopAllAudioEffects(comment) {
 	allAudioEffectsStopped = true;
 	if(typeof Android !== "undefined" && Android !== null &&
 	   typeof Android.ringStop !== "undefined" && Android.ringStop !== null) {
-		if(Android.ringStop())
-			return;
+		if(Android.ringStop()) {
+			// returns true if Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+			//return;
+		}
 	}
 	try {
 		if(ringtoneSound!=null && !ringtoneSound.paused && ringtoneIsPlaying) {
