@@ -1046,7 +1046,6 @@ function mainlinkCheckboxClick(cb) {
 	}, newSettings);
 }
 
-
 function offlineAction(comment) {
 	// make buttons reflect offline state
 	console.log("offlineAction "+comment);
@@ -1311,25 +1310,24 @@ function wsOnClose(evt) {
 	wsOnClose2();
 	if(tryingToOpenWebSocket) {
 		// onclose occured while trying to establish a ws-connection (before this could be finished)
-		gLog('wsOnClose failed to open');
+		console.log('wsOnClose failed to open');
 	} else {
 		// onclose occured while being ws-connected
-		gLog('wsOnClose while connected');
+		console.log('wsOnClose while connected');
 	}
 
 	if(goOnlineWanted && errCode==1006 && !tryingToOpenWebSocket) {
 		// callee on chrome needs this for reconnect after wake-from-sleep
 		// this is not a user-intended offline; we should be online
 		let delay = autoReconnectDelay + Math.floor(Math.random() * 10) - 5;
-		gLog('reconnecting to signaling server in sec '+delay);
+		console.log('wsOnClose reconnecting to signaling server in sec '+delay);
 		showStatus("Reconnecting...",-1);
-
-		// TODO is this necessary? wsOnClose2() does this already
-		//missedCallsTitleElement.style.display = "none";
-		//missedCallsElement.style.display = "none";
 
 		// if conditions are right after delay secs this will call login()
 		delayedWsAutoReconnect(delay);
+	} else {
+		console.log("! wsOnClose not reconnecting "+goOnlineWanted+" "+errCode+" "+tryingToOpenWebSocket);
+		offlineAction("wsOnClose");
 	}
 }
 
