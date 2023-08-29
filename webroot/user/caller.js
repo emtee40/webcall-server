@@ -1259,7 +1259,7 @@ function calleeOnlineStatus(onlineStatus,waitForCallee) {
 		gLog('calleeOnlineStatus abort',rtcConnect,dialing);
 		return;
 	}
-	gLog('calleeOnlineStatus '+onlineStatus);
+	console.log("calleeOnlineStatus "+onlineStatus+" "+waitForCallee);
 	// onlineStatus should be something like "127.0.0.1:8071?wsid=4054932942" (aka wsAddr)
 	if(onlineStatus!="" && onlineStatus.indexOf("wsid=")>=0) {
 		// callee is available/online
@@ -1273,10 +1273,13 @@ function calleeOnlineStatus(onlineStatus,waitForCallee) {
 	}
 
 	// callee is not available
+	console.log("! calleeOnlineStatus no wsid");
 	// TODO here we could act on "busy" and "notavail"
 
 	dialButton.disabled = false;
 	hangupButton.disabled = true;
+
+// TODO ???
 	if(!localStream) {
 		// we need to call mediaDevices.enumerateDevices() anyway
 		loadJS("adapter-latest.js",function() {
@@ -1290,8 +1293,9 @@ function calleeOnlineStatus(onlineStatus,waitForCallee) {
 		});
 	}
 
+// TODO ???
 	if(onlineStatus=="error") {
-		showStatus("ID not found",-1)
+		showStatus("Error: ID not found",-1)
 		waitForCallee = false;
 	}
 	// switch to offline mode and (if waitForCallee is set) check if calleeID can be notified
@@ -1299,7 +1303,7 @@ function calleeOnlineStatus(onlineStatus,waitForCallee) {
 }
 
 function calleeOnlineAction(comment) {
-	gLog('calleeOnlineAction='+comment+' dialAfterCalleeOnline='+dialAfterCalleeOnline);
+	console.log('calleeOnlineAction='+comment+' dialAfterCalleeOnline='+dialAfterCalleeOnline);
 	if(haveBeenWaitingForCalleeOnline) {
 		haveBeenWaitingForCalleeOnline = false;
 		if(notificationSound) {
@@ -1314,8 +1318,8 @@ function calleeOnlineAction(comment) {
 	calleeOfflineElement.style.display = "none";
 
 	// now that we know callee is online, we load adapter-latest.js
+	console.log("load adapter...");
 	loadJS("adapter-latest.js",function(){
-		gLog('adapter loaded');
 		if(!navigator.mediaDevices) {
 			console.warn("navigator.mediaDevices not available");
 			if(calleeOnlineElement) {
@@ -1326,6 +1330,7 @@ function calleeOnlineAction(comment) {
 			return;
 		}
 
+		console.log("adapter loaded "+dialAfterCalleeOnline);
 		if(dialAfterCalleeOnline) {
 			// autodial after detected callee is online
 			// normally set by gotStream, if dialAfterLocalStream was set (by dialButton.onclick)
@@ -1429,7 +1434,7 @@ function loadJS(jsFile,callback) {
 
 function calleeOfflineAction(onlineStatus,waitForCallee) {
 	// switch to callee-is-offline layout
-	gLog('calleeOfflineAction callee is not avail '+waitForCallee);
+	console.log("calleeOfflineAction "+onlineStatus+" "+waitForCallee);
 	calleeOnlineElement.style.display = "none";
 	calleeOfflineElement.style.display = "block";
 
@@ -1541,6 +1546,10 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 		}
 
 		calleeNotificationAction();
+
+	} else {
+		console.log('calleeOfflineAction no waitForCallee');
+		window.location.reload();
 	}
 
 	gLog('calleeOfflineAction done');
@@ -1816,12 +1825,12 @@ function errorAction(errString,errcode) {
 function gotStream2() {
 	if(dialAfterLocalStream) {
 		// dialAfterLocalStream was set by calleeOnlineAction() -> dialAfterCalleeOnline
-		gLog("gotStream2 dialAfter connectSignaling()");
+		console.log("gotStream2 dialAfter connectSignaling()");
 		dialAfterLocalStream=false;
 		connectSignaling("",dial); // when ws-connected to server, call dial() to call peer
 	} else {
 		// in caller we land here after audio/video was initialzed
-		gLog("gotStream2 !dialAfter");
+		console.log("gotStream2 !dialAfter");
 
 		if(videoEnabled) {
 			gLog("gotStream2 videoEnabled: no mute mic until dial");

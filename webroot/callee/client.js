@@ -47,7 +47,7 @@ var hashcounter=0;
 var dialing = false;
 var doneHangup = false;
 var onIceCandidates = 0;
-var mediaConnect = false;
+var mediaConnect = false;	// really: peerConnectionEstablished
 var connectionstatechangeCounter = 0;
 var playDialSounds = true;
 var pickupAfterLocalStream = false; // not used in caller
@@ -1635,9 +1635,9 @@ function showStatus(msg,timeoutMs) {
 	// msg may contain html, which we don't want to log
 	let idx = msg.indexOf("<");
 	if(idx>=0) {
-		console.log("showStatus("+msg.substring(0,idx)+")");
+		console.log("showStatus("+msg.substring(0,idx)+") "+sleepMs);
 	} else {
-		console.log("showStatus("+msg+")");
+		console.log("showStatus("+msg+") "+sleepMs);
 	}
 
 	showStatusMsg = msg;

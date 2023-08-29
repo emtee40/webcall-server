@@ -23,6 +23,7 @@ const menuClearCookieElement = document.getElementById('menuClearcookie');
 const menuClearCacheElement = document.getElementById('menuClearCache');
 const menuExitElement = document.getElementById('menuExit');
 const iconContactsElement = document.getElementById('iconContacts');
+const dialpadElement = document.getElementById('dialpad');
 const idMappingElement = document.getElementById('idMapping');
 const exclamationElement = document.getElementById('exclamation');
 const ownlinkElement = document.getElementById('ownlink');
@@ -539,10 +540,11 @@ function start() {
 	console.log("start calleeID="+calleeID+" conn="+(wsConn!=null));
 
 	goOnlineSwitch.onclick = function(ev) {
-		console.log('goOnlineSwitch.onclick state='+this.checked);
+		//console.log('goOnlineSwitch.onclick state='+this.checked);
 		ev.stopPropagation();
 		lastUserActionDate = Date.now();
 		if(this.checked) {
+			// going online
 			if(wsConn==null) {
 				console.log('goOnlineSwitch.onclick ->on (wsConn==null)');
 				goOnline(true,"user button");
@@ -550,9 +552,23 @@ function start() {
 				console.log('! goOnlineSwitch.onclick ->on but wsConn!=null');
 			}
 		} else {
+			// going offline
 			if(wsConn!=null) {
-				console.log('goOnlineSwitch.onclick ->off (wsConn==null)');
-				goOffline("user button");
+				console.log('goOnlineSwitch.onclick ->off (wsConn!=null)');
+				// TODO if peerCon popup yes/no dialog
+				if(peerCon!=null && mediaConnect) {
+					// keep switch in connected-state for until yes/no
+					goOnlineSwitch.checked = true;
+					console.log("! goOnlineSwitch.onclick mediaConnect");
+
+					let yesNoInner = "<div style='position:absolute; z-index:110; background:#45dd; color:#fff; padding:20px 20px; line-height:1.6em; border-radius:3px; cursor:pointer; min-width:300px; top:40px; left:50%; transform:translate(-50%,0%);'><!--div style='font-weight:600;'>Disconnect WebCall?</div><br-->"+
+			"Disconnecting WebCall server while in call, will prevent Trickle-ICE from gradually improving your P2P connection.<br>"+
+			"<a style='line-height:2.8em' onclick='history.back();'>Stay connected</a> &nbsp; &nbsp; "+
+			"<a onclick='goOffline(\"user button\");history.back();'>Disconnect</a></div>";
+					menuDialogOpen(dynDialog,0,yesNoInner);
+				} else {
+					goOffline("user button");
+				}
 			} else {
 				console.log('! goOnlineSwitch.onclick ->off but wsConn==null');
 			}
@@ -605,7 +621,7 @@ function login(retryFlag,comment) {
 //				muteMicDiv.style.display = "block";
 //			}
 
-			menuClearCookieElement.style.display = "block";
+//			menuClearCookieElement.style.display = "block";
 
 			if(parts.length>=2) {
 				talkSecs = parseInt(parts[1], 10);
@@ -717,11 +733,11 @@ function login(retryFlag,comment) {
 			// parts[0] "error" = "wrong pw", "pw has less than 6 chars" or "empty pw"
 			// offer pw entry again
 			console.log('login error - try again');
-			//goOnlineButton.disabled = true;	// TODO
+			//goOnlineButton.disabled = true;	// TODO or offlineAction(comment)
 			enablePasswordForm();
 		} else if(parts[0]=="") {
 			showStatus("No response from server",-1);
-			// switch goOnlineSwitch off?
+			// TODO switch goOnlineSwitch off? or offlineAction(comment)
 			form.style.display = "none";
 		} else if(parts[0]=="fatal") {
 			// loginStatus "fatal" = "already logged in" or "db.GetX err"
@@ -1214,6 +1230,7 @@ function connectSignaling(message,comment) {
 		// if service IS already connected:
 		//  service -> if activityWasDiscarded -> wakeGoOnlineNoInit()
 // TODO how do we get peerCon
+
 	} else {
 		if(!window["WebSocket"]) {
 			console.error('connectSig: no WebSocket support');
@@ -1224,12 +1241,18 @@ function connectSignaling(message,comment) {
 			return;
 		}
 	    console.log('connectSig: open ws connection... '+calleeID+' '+wsUrl);
+/*
 // odd:
 		if(peerCon==null || peerCon.signalingState=="closed") {
 		    console.log('connectSig: peercon is gone ----------------');
 			newPeerCon();
 		}
+*/
 
+		// get ready for a new peerConnection
+		newPeerCon();
+
+		// get ready for a new websocket connection with webcall server
 		wsConn = new WebSocket(wsUrl);
 		wsConn.onopen = wsOnOpen;
 		wsConn.onerror = wsOnError;
@@ -1300,50 +1323,54 @@ function wsOnError2(str,code) {
 function wsOnClose(evt) {
 	// called by wsConn.onclose
 	// evt.code = 1001 (manual reload)
+	// evt.code = 1005 (No Status Received)
 	// evt.code = 1006 (unusual clientside error)
 	let errCode = 0;
 	if(typeof evt!=="undefined" && evt!=null && evt!="undefined") {
 		errCode = evt.code;
 	}
-	console.log("wsOnClose ID="+calleeID+" code="+errCode,evt);
-	showStatus("Offline",-1);
-	wsOnClose2();
-	if(tryingToOpenWebSocket) {
-		// onclose occured while trying to establish a ws-connection (before this could be finished)
-		console.log('wsOnClose failed to open');
-	} else {
-		// onclose occured while being ws-connected
-		console.log('wsOnClose while connected');
-	}
+	console.log("wsOnClose ID="+calleeID+" code="+errCode, evt);
+	if(errCode!=1001) {
+		if(!mediaConnect) {
+			showStatus("Offline",-1);
+		}
+		wsOnClose2();
+		if(tryingToOpenWebSocket) {
+			// onclose occured while trying to establish a ws-connection (before this could be finished)
+			console.log('wsOnClose failed to open');
+		} else {
+			// onclose occured while being ws-connected
+			console.log('wsOnClose while connected');
+		}
 
-	if(goOnlineWanted && errCode==1006 && !tryingToOpenWebSocket) {
-		// callee on chrome needs this for reconnect after wake-from-sleep
-		// this is not a user-intended offline; we should be online
-		let delay = autoReconnectDelay + Math.floor(Math.random() * 10) - 5;
-		console.log('wsOnClose reconnecting to signaling server in sec '+delay);
-		showStatus("Reconnecting...",-1);
+		if(goOnlineWanted && errCode==1006 && !tryingToOpenWebSocket) {
+			// callee on chrome needs this for reconnect after wake-from-sleep
+			// this is not a user-intended offline; we should be online
+			let delay = autoReconnectDelay + Math.floor(Math.random() * 10) - 5;
+			console.log('wsOnClose reconnecting to signaling server in sec '+delay);
+			showStatus("Reconnecting...",-1);
 
-		// if conditions are right after delay secs this will call login()
-		delayedWsAutoReconnect(delay);
-	} else {
-		console.log("! wsOnClose not reconnecting "+goOnlineWanted+" "+errCode+" "+tryingToOpenWebSocket);
-		offlineAction("wsOnClose");
+			// if conditions are right after delay secs this will call login()
+			delayedWsAutoReconnect(delay);
+		} else {
+			console.log("wsOnClose not reconnecting "+goOnlineWanted+" "+errCode+" "+tryingToOpenWebSocket);
+			offlineAction("wsOnClose");
+			// TODO also turn auto=0 ?
+		}
 	}
 }
 
 function wsOnClose2() {
+	// webcall server connection lost
 	// called by wsOnClose() or from android service
-	// wsConn=null, reconnect stays aktiv
-	// do not turn off online-switch, do not clear connectToServerIsWanted
+	// do not disable goOnlineSwitch, do not clear connectToServerIsWanted
 	console.log("wsOnClose2 "+calleeID);
 	wsConn=null;
-	buttonBlinking=false; // will abort blinkButtonFunc()
+	buttonBlinking=false; // abort blinkButtonFunc()
 	stopAllAudioEffects("wsOnClose");
-	onlineIndicator.src="";
-
-	console.log("wsOnClose2 hide answerButtons");
-	answerButtons.style.display = "none";
 	goOnlineSwitch.disabled = false;
+// TODO check:
+	onlineIndicator.src="";
 }
 
 function wsOnMessage(evt) {
@@ -1374,7 +1401,7 @@ function signalingCommand(message, comment) {
 		gLog('dummy '+payload);
 
 	} else if(cmd=="callerOffer" || cmd=="callerOfferUpd") {
-		if(peerCon==null) {
+		if(peerCon==null || peerCon.signalingState=="closed") {
 			console.warn('callerOffer but no peerCon');
 			return;
 		}
@@ -1466,7 +1493,7 @@ function signalingCommand(message, comment) {
 		}
 
 	} else if(cmd=="callerCandidate") {
-		if(peerCon==null) {
+		if(peerCon==null || peerCon.signalingState=="closed") {
 			console.warn('# callerCandidate but no peerCon');
 			return;
 		}
@@ -1796,7 +1823,7 @@ function showMissedCalls() {
 	}
 
 	if(!skipRender) {
-		console.log("showMissedCalls len="+missedCallsSlice.length);
+		//console.log("showMissedCalls len="+missedCallsSlice.length);
 		// make remoteCallerIdMaxChar depend on window.innerWidth
 		// for window.innerWidth = 360, remoteCallerIdMaxChar=21 is perfect
 		let remoteCallerIdMaxChar = 13;
@@ -2064,7 +2091,7 @@ function pickup() {
 
 function pickup2() {
 	gLog('pickup2');
-	showStatus("");
+//	showStatus("");
 	stopAllAudioEffects("pickup2");
 
 	if(!localStream) {
@@ -2125,7 +2152,7 @@ function pickup2() {
 				setTimeout(function() { vsendButton.classList.remove('blink_me') },10000);
 			}
 
-			if(peerCon) {
+			if(peerCon && mediaConnect) {
 				// send "log|connected" to server
 				peerCon.getStats(null)
 				.then((results) => getStatsCandidateTypes(results,"Connected","e2ee"),
@@ -2164,6 +2191,8 @@ function pickup2() {
 						}
 					}
 				}
+			} else {
+s				// TODO BAD
 			}
 		},200);
 	},400);
@@ -2217,7 +2246,8 @@ function hangup(mustDisconnect,dummy2,message) {
 	}
 
 	connectLocalVideo(true); // force disconnect
-	endWebRtcSession(mustDisconnect,true,"hangup "+message);
+	let mustReconnectServer = goOnlineSwitch.checked;
+	endWebRtcSession(mustDisconnect,mustReconnectServer,"hangup "+message);
 	vsendButton.classList.remove('blink_me')
 }
 
@@ -2318,8 +2348,9 @@ function prepareCallee(sendInitFlag,comment) {
 	console.log('prepareCallee have wsConn');
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 
+//	dialpadElement.style.display = "block";	// only needed if goOffline turns if off
 	menuClearCookieElement.style.display = "block";
-//	muteMicDiv.style.display = "block";
+//	muteMicDiv.style.display = "block";		// TODO
 	//nonesense: fileselectLabel.style.display = "block";
 	if(sendInitFlag) {
 		gLog('prepareCallee have wsConn -> send init');
@@ -2399,7 +2430,7 @@ function newPeerCon() {
 		connectionstatechangeCounter++;
 		console.log("peerCon connectionstatechange "+peerCon.connectionState);
 		if(!peerCon || peerCon.iceConnectionState=="closed") {
-			hangup(true,true,"no peer connection");
+			hangup(true,true,"No peer connection");
 			return;
 		}
 		if(peerCon.connectionState=="disconnected") {
@@ -2485,7 +2516,8 @@ function peerConnected2() {
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 
 	answerButtons.style.display = "block";
-	goOnlineSwitch.disabled = true;
+// TODO tmtmtm
+//	goOnlineSwitch.disabled = true;
 
 	let skipRinging = false;
 	if(typeof Android !== "undefined" && Android !== null) {
@@ -2568,7 +2600,7 @@ function peerConnected3() {
 		// caller early abort
 		console.log('peerConnected3: caller early abort');
 		// TODO showStatus()
-		//hangup(true,true,"caller early abort");
+		//hangup(true,true,"Caller early abort");
 		stopAllAudioEffects();
 		endWebRtcSession(true,true,"caller early disconnect"); // -> peerConCloseFunc
 		return;
@@ -2630,13 +2662,17 @@ function peerConnected3() {
 	rejectButton.onclick = function(ev) {
 		ev.stopPropagation();
 		console.log("peerConnected3 hangup button");
-		hangup(true,true,"call rejected by hangup button");
+		if(mediaConnect) {
+			hangup(true,true,"Call ended by hangup button");
+		} else {
+			hangup(true,true,"Call rejected by hangup button");
+		}
 	}
 }
 
 function getStatsCandidateTypes(results,eventString1,eventString2) {
 	let msg = getStatsCandidateTypesEx(results,eventString1)
-	//console.log("msg=("+msg+") callerName=("+callerName+") callerID=("+callerID+") callerMsg=("+callerMsg+")");
+	console.log("getStats msg=("+msg+") callerName=("+callerName+") callerID=("+callerID+") callerMsg=("+callerMsg+")");
 	wsSend("log|callee "+msg); // shows up in server log as: serveWss peer callee Incoming p2p/p2p
 
 	if(textmode=="true") {
@@ -2934,7 +2970,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	}
 
 	if(wsConn) {
-///		onlineIndicator.src="green-gradient.svg";
+///		onlineIndicator.src="green-gradient.svg";	// TODO
 	} else {
 		onlineIndicator.src="";
 	}
@@ -2945,12 +2981,13 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		vsendButton.style.display = "none";
 	}
 
-	console.log("endWebRtcSession set goOnlineSwitch "+(wsConn!=null));
-	goOnlineSwitch.checked = wsConn!=null;
-
+	console.log("endWebRtcSession set goOnlineSwitch, wsConn="+(wsConn!=null));
 	fileselectLabel.style.display = "none";
 	progressSendElement.style.display = "none";
 	progressRcvElement.style.display = "none";
+	chatButton.style.display = "none";
+	msgbox.style.display = "none";
+	msgbox.innerHTML = "";
 
 	if(goOnlineAfter && !goOnlinePending) {
 		// bc we keep our wsConn alive, no new login is needed
@@ -2975,10 +3012,18 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 }
 
 function goOffline(comment) {
-	console.log('goOffline '+calleeID);
-	wsAutoReconnecting = false;
+	console.log("goOffline "+calleeID+" "+comment);
+	wsAutoReconnecting = false;		// TODO what is this vs goOnlineWanted
 	offlineAction("goOffline");
-	showStatus("Offline");
+
+//	if(peerCon && peerCon.iceConnectionState!="closed") {
+	if(mediaConnect) {
+  		// do not overwrites caller-info in status area
+		console.log("goOffline skip showStatus()");
+	} else {
+		showStatus("Offline");
+	}
+
 	if(comment=="user button" || comment=="service") {
 		goOnlineWanted = false;
 		// we need to remove from window.location: "?auto=1"
@@ -2988,15 +3033,12 @@ function goOffline(comment) {
 			mySearch = mySearch.replace('auto=1','').trim();
 		}
 		console.log('goOffline()='+window.location.pathname + mySearch);
+		// NOTE: doing this removes #
+		let givenHash = location.hash;
 		history.replaceState("", document.title, window.location.pathname + mySearch);
+		location.hash = givenHash;
 	}
 
-/* TODO questionable
-	if(slideOpen) {
-		// close the slide-menu
-		openSlide();
-	}
-*/
 	ownlinkElement.innerHTML = "";
 	stopAllAudioEffects("goOffline");
 	waitingCallerSlice = null;
@@ -3037,6 +3079,8 @@ function goOffline(comment) {
 
 	iconContactsElement.style.display = "none";
 	checkboxesElement.style.display = "none";
+//	dialpadElement.style.display = "none";
+	menuClearCookieElement.style.display = "none";
 
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 }

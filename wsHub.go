@@ -103,7 +103,7 @@ func (h *Hub) setDeadline(secs int, comment string) {
 					}
 					h.HubMutex.RUnlock()
 
-					// NOTE: peerConHasEnded may call us back / this is why we have set h.timer = nil first
+					// NOTE: peerConHasEnded may call us back / this is why we have set h.timer=nil first (above)
 					h.HubMutex.Lock()
 					h.peerConHasEnded(fmt.Sprintf("deadline%d",secs)) // will set h.CallerClient=nil
 					h.HubMutex.Unlock()
@@ -294,7 +294,10 @@ func (h *Hub) closeCallee(cause string) {
 		}
 
 		if h.CalleeClient.isConnectedToPeer.Load() {
-			h.peerConHasEnded(comment) // will set h.CallerClient=nil
+			// when callee's ws-connection ends, we do NOT want to close callee's p2p connection
+			//fmt.Printf("! %s (%s) closeCallee skip peerConHasEnded()\n",
+			//	h.CalleeClient.connType, h.CalleeClient.calleeID)
+			// h.peerConHasEnded(comment) // will set h.CallerClient=nil
 		}
 		h.LocalP2p = false
 		h.RemoteP2p = false
