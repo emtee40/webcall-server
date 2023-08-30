@@ -295,8 +295,17 @@ func (h *Hub) closeCallee(cause string) {
 
 		if h.CalleeClient.isConnectedToPeer.Load() {
 			// when callee's ws-connection ends, we do NOT want to close callee's p2p connection
-			//fmt.Printf("! %s (%s) closeCallee skip peerConHasEnded()\n",
-			//	h.CalleeClient.connType, h.CalleeClient.calleeID)
+			localPeerCon := "?"
+			remotePeerCon := "?"
+			localPeerCon = "p2p"
+			if !h.LocalP2p { localPeerCon = "relay" }
+			remotePeerCon = "p2p"
+			if !h.RemoteP2p { remotePeerCon = "relay" }
+			fmt.Printf("%s (%s) CALLEEGONE⭕ PEERCONT %s/%s %s <- %s\n",
+				h.CalleeClient.connType, h.CalleeClient.calleeID,
+				localPeerCon, remotePeerCon,
+				h.CalleeClient.RemoteAddrNoPort, h.CallerIpNoPort)
+
 			// h.peerConHasEnded(comment) // will set h.CallerClient=nil
 		}
 		h.LocalP2p = false
