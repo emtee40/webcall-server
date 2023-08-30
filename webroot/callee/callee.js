@@ -2931,7 +2931,6 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	msgbox.value = "";
 	textbox.style.display = "none";
 	textbox.value = "";
-//	chatButton.style.display = "none";
 
 	stopTimer();
 	if(autoPlaybackAudioSource) {
@@ -3021,6 +3020,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	if(vsendButton) {
 		vsendButton.style.display = "none";
 	}
+	missedCallAffectingUserActionMs = (new Date()).getTime();
 
 	console.log("endWebRtcSession set goOnlineSwitch, wsConn="+(wsConn!=null));
 	fileselectLabel.style.display = "none";
