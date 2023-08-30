@@ -941,7 +941,7 @@ function getSettingDone() {
 		}
 
 		let links = "";
-		links += "<div style='line-height:1.6em;white-space:nowrap;'>";
+		links += "<div style='line-height:1.6em;white-space:nowrap;margin-top:6px;'>";
 		if(typeof Android !== "undefined" && Android !== null) {
 			links += "<div><span class='callListTitle'>Your Webcall ID's:</span> <span style='font-size:0.9em;'>(long-tap to share)</span></div>";
 		} else {
@@ -1074,7 +1074,7 @@ function offlineAction(comment) {
 // TODO close checkboxes slide window? Or don't hide the button above
 
 	// hide "You will receive calls made by this link"
-	ownlinkElement.innerHTML = "";
+//	ownlinkElement.innerHTML = "";
 
 	// hide missedCalls
 	missedCallsTitleElement.style.display = "none";
@@ -1200,7 +1200,9 @@ function showOnlineReadyMsg() {
 			}
 		} else {
 			//showStatus("connected to webcall server",1200);
-			showStatus("Ready to receive calls",-1);
+			if(!mediaConnect) {
+				showStatus("Ready to receive calls",-1);
+			}
 		}
 
 /*
@@ -2339,7 +2341,9 @@ function prepareCallee(sendInitFlag,comment) {
 	if(wsConn==null /*|| wsConn.readyState!=1*/) {
 		// this basically says: if prepareCallee() is called when we are NOT connected to the server,
 		// try to login now using cookie or wsSecret (from login form)
-		showStatus("Connecting...",-1);  // unsinn!?
+		if(!mediaConnect) {
+			showStatus("Connecting...",-1);  // unsinn!?
+		}
 		console.log("prepareCallee wsConn==null -> login()");
 		login(false,"prepareCallee");
 		return;
@@ -3039,7 +3043,7 @@ function goOffline(comment) {
 		location.hash = givenHash;
 	}
 
-	ownlinkElement.innerHTML = "";
+//	ownlinkElement.innerHTML = "";
 	stopAllAudioEffects("goOffline");
 	waitingCallerSlice = null;
 //	muteMicDiv.style.display = "none";		// TODO ???
