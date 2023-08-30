@@ -92,6 +92,7 @@ var newline = String.fromCharCode(13, 10);
 var textmode="";
 var	muteMicModified = false;
 var textchatOKfromOtherSide = false;
+var missedCallAffectingUserActionMs = 0;
 
 window.onload = function() {
 	console.log("callee.js onload...");
@@ -1297,6 +1298,7 @@ function wsOnOpen() {
 	menuSettingsElement.style.display = "block";
 	iconContactsElement.style.display = "block";
 	idMappingElement.style.display = "block";
+	missedCallAffectingUserActionMs = (new Date()).getTime();
 }
 
 function wsOnError(evt) {
@@ -1650,11 +1652,25 @@ function signalingCommand(message, comment) {
 
 	} else if(cmd=="missedCalls") {
 		console.log('cmd missedCalls len='+payload.length);
+		let oldMissedCallsSlice = missedCallsSlice;
 		missedCallsSlice = null;
 		if(payload.length>0) {
 			missedCallsSlice = JSON.parse(payload);
 			console.log('cmd missedCallsSlice len='+missedCallsSlice.length);
-			// TODO only when list changes: beep?
+			// beep when list changes
+			if(oldMissedCallsSlice!=null && missedCallsSlice != oldMissedCallsSlice) {
+				let curSecs = (new Date()).getTime()
+				let secsSinceLastdeleteMissedCallAction = curSecs - missedCallAffectingUserActionMs;
+				console.log("cmd missedCallsSlice curSecs="+curSecs+" - "+missedCallAffectingUserActionMs+" = ms="+
+					secsSinceLastdeleteMissedCallAction);
+				if(secsSinceLastdeleteMissedCallAction <= 750) {
+					// a deleteMissedCallAction took place in the last 750ms, skip beep
+					console.log("skip beep due to recent deleteMissedCallAction "+secsSinceLastdeleteMissedCallAction);
+				} else {
+					console.log("beep, secsSinceLastdeleteMissedCallAction="+secsSinceLastdeleteMissedCallAction);
+					soundBeep();
+				}
+			}
 		}
 		showMissedCalls();
 
@@ -2035,6 +2051,7 @@ function deleteMissedCall(callerAddrPortPlusCallTime,name,id) {
 function deleteMissedCallDo() {
 	// will be called by deleteMissedCall()
 	gLog('deleteMissedCallDo '+myCallerAddrPortPlusCallTime);
+	missedCallAffectingUserActionMs = (new Date()).getTime();
 	wsSend("deleteMissedCall|"+myCallerAddrPortPlusCallTime);
 }
 

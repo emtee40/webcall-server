@@ -644,8 +644,6 @@ function menuDialogOpen(menuDialog,position,inner) {
 		return;
 	}
 
-	//soundKeyboard(); // only for testing
-
 	//console.log('menuDialogOpen');
 	menuDialogOpenElement = menuDialog;
 	if(typeof inner!="undefined" && inner!=null) {
@@ -1605,7 +1603,7 @@ function hashchange() {
 	} else {
 		newhashcounter = 0;
 	}
-	console.log("hashchange hashcounter",hashcounter,newhashcounter);
+	//console.log("hashchange hashcounter",hashcounter,newhashcounter);
 	if(hashcounter>0 && newhashcounter<hashcounter) {
 		if(iframeWindowOpenFlag) {
 			iframeWindowClose();
@@ -1631,7 +1629,7 @@ function showStatus(msg,timeoutMs) {
 	}
 	//console.log("showStatus msg="+msg,timeoutMs);
 	if(showStatusTimeout!=null) {
-		console.log("showStatus clearTimeout of prev");
+		//console.log("showStatus clearTimeout of prev");
 		clearTimeout(showStatusTimeout);
 		showStatusTimeout = null;
 	} else {
