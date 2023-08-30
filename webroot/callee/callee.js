@@ -178,6 +178,19 @@ window.onload = function() {
 		element = document.getElementById("webcallhome");
 		if(element) element.href = "https://timur.mobi/webcall/update/";
 		// TODO ideally open 'webcallhome' url in an iframe
+	} else {
+		// pure browser mode (not in android mode)
+		if(auto) {
+			// to prevent this error when we try to play the ringtone in pure browser mode
+			//    "peerConnected2 ringtone error
+			//    play() failed because the user didn't interact with the document first"
+			// we must make the user interact with the app (click the switch to go online)
+			// this is why we clear auto
+			console.log("onload clear auto in browser mode");
+			let mySearch = window.location.search.replace('auto=1','').trim();
+			history.replaceState("", document.title, window.location.pathname + mySearch);
+			auto = false;
+		}
 	}
 
 	let ua = navigator.userAgent;
@@ -2291,6 +2304,8 @@ function prepareCallee(sendInitFlag,comment) {
 			ringtoneSound.onpause = function() {
 				ringtoneIsPlaying = false;
 			};
+		} else {
+			console.warn("# prepareCallee problem with ringtoneSound");
 		}
 	}
 
@@ -2532,16 +2547,16 @@ function peerConnected2() {
 
 		if(!doneRing && ringtoneSound) {
 			// browser must play ringtone
-			console.log('peerConnected2 playRingtoneSound '+ringtoneSound.volume);
+			console.log("peerConnected2 playRingtoneSound vol="+ringtoneSound.volume);
 			allAudioEffectsStopped = false;
 			var playRingtoneSound = function() {
 				if(allAudioEffectsStopped) {
 					if(!ringtoneSound.paused && ringtoneIsPlaying) {
-						gLog('peerConnected2 playRingtoneSound ringtoneSound.pause');
+						console.log('peerConnected2 playRingtoneSound paused');
 						ringtoneSound.pause();
 						ringtoneSound.currentTime = 0;
 					} else {
-						gLog('peerConnected2 playRingtoneSound NO ringtoneSound.pause',
+						console.log("peerConnected2 playRingtoneSound not paused",
 							ringtoneSound.paused, ringtoneIsPlaying);
 					}
 					return;
@@ -2551,10 +2566,10 @@ function peerConnected2() {
 				if(ringtoneSound.paused && !ringtoneIsPlaying) {
 					gLog('peerConnected2 ringtone play...');
 					ringtoneSound.play().catch(error => {
-						console.log('# peerConnected2 ringtone play',error.message);
+						console.warn("# peerConnected2 ringtone play error",error.message);
 					});
 				} else {
-					gLog('peerConnected2 ringtone play NOT started',
+					console.warn("# peerConnected2 ringtone play NOT started",
 						ringtoneSound.paused,ringtoneIsPlaying);
 				}
 			}
@@ -2576,12 +2591,12 @@ function peerConnected2() {
 			} else {
 				// blink off
 				//answerButton.style.background = "#04c";
-				answerButton.style.background = "#0000";
+				answerButton.style.background = "#0000"; // .mainbutton background-color
 				answerButton.style.border = "1.2px solid #ccc";
 				buttonBgHighlighted = false;
 				if(!buttonBlinking || wsConn==null) {
 					//gLog("peerConnected2 buttonBlinking stop");
-//					answerButton.style.background = "#04c";
+					//answerButton.style.background = "#04c";
 					return;
 				}
 				gLog("peerConnected2 buttonBlinking...",dataChannel);
@@ -3041,7 +3056,7 @@ function goOffline(comment) {
 			mySearch = mySearch.replace('auto=1','').trim();
 		}
 		console.log('goOffline()='+window.location.pathname + mySearch);
-		// NOTE: doing this removes #
+		// NOTE: doing replaceState() removes #, so we remeber it first
 		let givenHash = location.hash;
 		history.replaceState("", document.title, window.location.pathname + mySearch);
 		location.hash = givenHash;
