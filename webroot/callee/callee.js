@@ -2,6 +2,7 @@
 'use strict';
 const goOnlineSwitch = document.querySelector('input#onlineSwitch');
 const answerButtons = document.getElementById('answerButtons');
+const p2pButtons = document.getElementById('p2pButtons');
 const answerButton = document.querySelector('button#answerButton');
 const rejectButton = document.querySelector('button#rejectButton');
 const onlineIndicator = document.querySelector('img#onlineIndicator');
@@ -2078,6 +2079,7 @@ function pickup() {
 	// user has picked up incoming call
 	console.log('pickup -> open mic');
 	answerButton.disabled = true;
+	p2pButtons.style.display = "grid";
 	buttonBlinking = false;
 	pickupAfterLocalStream = true;
 	getStream(); // -> pickup2()
@@ -2153,7 +2155,7 @@ function pickup2() {
 				let enableTextchat = function() {
 					console.log("enable textchat");
 					// hide chat-button
-					chatButton.style.display = "none";
+//					chatButton.style.display = "none";
 					// msgbox NOT editable
 					msgbox.readOnly = true;
 					// msgbox no placeholder
@@ -2202,7 +2204,7 @@ function hangup(mustDisconnect,dummy2,message) {
 	msgbox.value = "";
 	textbox.style.display = "none";
 	textbox.value = "";
-	chatButton.style.display = "none";
+//	chatButton.style.display = "none";
 
 	buttonBlinking = false;
 	if(textmode!="") {
@@ -2659,6 +2661,7 @@ function peerConnected3() {
 		} else {
 			hangup(true,true,"Hangup button rejected call");
 		}
+		p2pButtons.style.display = "none";
 	}
 }
 
@@ -2718,7 +2721,7 @@ function dataChannelOnmessage(event) {
 				if(cleanString!="") {
 					//gLog("dataChannel.onmessage msg",cleanString);
 					if(msgbox) {
-						chatButton.style.display = "none";
+//						chatButton.style.display = "none";
 						msgbox.style.display = "block";
 						msgbox.readOnly = true;
 						msgbox.placeholder = "";
@@ -2873,11 +2876,15 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	answerButtons.style.display = "none";
 	goOnlineSwitch.disabled = false;
 
+	if(!wsConn) {
+		showStatus("Offline",-1);
+	}
+
 	msgbox.style.display = "none";
 	msgbox.value = "";
 	textbox.style.display = "none";
 	textbox.value = "";
-	chatButton.style.display = "none";
+//	chatButton.style.display = "none";
 
 	stopTimer();
 	if(autoPlaybackAudioSource) {
@@ -2972,7 +2979,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	fileselectLabel.style.display = "none";
 	progressSendElement.style.display = "none";
 	progressRcvElement.style.display = "none";
-	chatButton.style.display = "none";
+//	chatButton.style.display = "none";
 	msgbox.style.display = "none";
 	msgbox.innerHTML = "";
 

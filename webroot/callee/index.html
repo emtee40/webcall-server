@@ -29,7 +29,7 @@ button, button:focus {
 	color:white;
 	font-size: 1.0em;
 	margin: 0.3em 0.8em 0.4em 0;
-	padding: 0.7em 0.5em 0.6em 0.5em;
+	padding: 0.5em 0.5em 0.4em 0.5em;
 	min-width: 110px;
 	outline:none;
 	user-select:none;
@@ -482,6 +482,10 @@ input:disabled + .slider {
 		<button id="rejectButton">Hang Up</button>
 		<img id="onlineIndicator" src="green-gradient.svg" style="width:30px; margin-top:12px; user-select:none;">
 	</div>
+	<div id="p2pButtons" style="display:none; grid-template-columns: 5fr 5fr 1fr; max-width:400px; margin-right:30px;">
+		<button id="chatButton">TextChat</button>
+		<button id="filetransferButton">FileTransfer</button>
+	</div>
 
 	<div id="status" class="status" style="margin-top:10px;"></div>
 
@@ -526,7 +530,9 @@ input:disabled + .slider {
 	</div>
 
 	<textarea id="msgbox" class="msgbox" spellcheck="false" style="display:none"></textarea>
+<!--
 	<button id="chatButton" style="display:none; margin-top:4px; padding-top:4px; padding-bottom:3px;">TextChat</button>
+-->
 	<div id="textbox" style="display:none;">
 		<form action="javascript:;" onsubmit="submitFormDone(2)" style="margin-top:4px;">
 			<input name="enterText" id="enterText" type="text" class="formtext" style="width:98%; max-width:550px; font-size:1.1em;">
