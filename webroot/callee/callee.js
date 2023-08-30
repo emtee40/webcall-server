@@ -1063,18 +1063,18 @@ function mainlinkCheckboxClick(cb) {
 }
 
 function offlineAction(comment) {
-	// make buttons reflect offline state
+	// we got disconnected from the server, make OnlineSwitch reflect offline state
 	console.log("offlineAction "+comment);
 	goOnlineSwitch.checked = false;
-	onlineIndicator.src="";
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 
 	iconContactsElement.style.display = "none";
 	checkboxesElement.style.display = "none";
-// TODO close checkboxes slide window? Or don't hide the button above
 
-	// hide "You will receive calls made by this link"
-//	ownlinkElement.innerHTML = "";
+	// hide ownlink, but only if p2p connection is also gone
+	if(!mediaConnect) {
+		ownlinkElement.innerHTML = "";
+	}
 
 	// hide missedCalls
 	missedCallsTitleElement.style.display = "none";
@@ -1237,9 +1237,6 @@ function connectSignaling(message,comment) {
 		if(!window["WebSocket"]) {
 			console.error('connectSig: no WebSocket support');
 			showStatus("No websocket support");
-			if(!mediaConnect) {
-				onlineIndicator.src="";
-			}
 			return;
 		}
 	    console.log('connectSig: open ws connection... '+calleeID+' '+wsUrl);
@@ -1250,7 +1247,6 @@ function connectSignaling(message,comment) {
 			newPeerCon();
 		}
 */
-
 		// get ready for a new peerConnection
 		newPeerCon();
 
@@ -1271,9 +1267,6 @@ function wsOnOpen() {
 	gLog("wsOnOpen calleeID="+calleeID+" connected="+(wsConn!=null));
 	tryingToOpenWebSocket = false;
 	wsAutoReconnecting = false;
-	if(!mediaConnect) {
-///		onlineIndicator.src="green-gradient.svg";	// TODO
-	}
 	//console.log("wsOnOpen goOnlineSwitch=true");
 	goOnlineSwitch.checked = true;
 
@@ -1315,8 +1308,7 @@ function wsOnError2(str,code) {
 	}
 
 	// for ff wake-from-sleep error (wss interrupted), code is not given here (but in wsOnClose())
-	// TODO explain why the following is needed (and whether it is always true to assume wsConn=null on wsOnError()
-	onlineIndicator.src="";
+// TODO explain why the following is needed (and whether it is always true to assume wsConn=null on wsOnError()
 	wsConn=null;
 	iconContactsElement.style.display = "none";
 	checkboxesElement.style.display = "none";
@@ -1371,8 +1363,6 @@ function wsOnClose2() {
 	buttonBlinking=false; // abort blinkButtonFunc()
 	stopAllAudioEffects("wsOnClose");
 	goOnlineSwitch.disabled = false;
-// TODO check:
-	onlineIndicator.src="";
 }
 
 function wsOnMessage(evt) {
@@ -2085,23 +2075,23 @@ function wsSend(message) {
 }
 
 function pickup() {
+	// user has picked up incoming call
 	console.log('pickup -> open mic');
+	answerButton.disabled = true;
 	buttonBlinking = false;
 	pickupAfterLocalStream = true;
 	getStream(); // -> pickup2()
 }
 
 function pickup2() {
+	// user has picked up incoming call and now we got the stream
 	gLog('pickup2');
-//	showStatus("");
 	stopAllAudioEffects("pickup2");
 
 	if(!localStream) {
 		console.warn('pickup2 no localStream');
 		return;
 	}
-
-	answerButton.disabled = true;
 
 	if(typeof Android !== "undefined" && Android !== null) {
 		Android.callPickedUp();
@@ -2118,10 +2108,10 @@ function pickup2() {
 		gLog('pickup2: after short delay send pickup to caller');
 		wsSend("pickup|!"); // make caller unmute our mic on their side
 
-///		onlineIndicator.src="red-gradient.svg";
-// TODO make the switch red?
-
 		mediaConnect = true;
+		//onlineIndicator.src="green-gradient.svg";
+		onlineIndicator.src="red-gradient.svg";
+
 		if(vsendButton) {
 			vsendButton.style.display = "inline-block";
 		}
@@ -2194,7 +2184,7 @@ function pickup2() {
 					}
 				}
 			} else {
-s				// TODO BAD
+				// TODO BAD
 			}
 		},200);
 	},400);
@@ -2519,9 +2509,7 @@ function peerConnected2() {
 	// scroll to top
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 
-	answerButtons.style.display = "block";
-// TODO tmtmtm
-//	goOnlineSwitch.disabled = true;
+	answerButtons.style.display = "grid";
 
 	let skipRinging = false;
 	if(typeof Android !== "undefined" && Android !== null) {
@@ -2667,9 +2655,9 @@ function peerConnected3() {
 		ev.stopPropagation();
 		console.log("peerConnected3 hangup button");
 		if(mediaConnect) {
-			hangup(true,true,"Call ended by hangup button");
+			hangup(true,true,"Hangup button ended call");
 		} else {
-			hangup(true,true,"Call rejected by hangup button");
+			hangup(true,true,"Hangup button rejected call");
 		}
 	}
 }
@@ -2973,14 +2961,9 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		Android.peerDisConnect();
 	}
 
-	if(wsConn) {
-///		onlineIndicator.src="green-gradient.svg";	// TODO
-	} else {
-		onlineIndicator.src="";
-	}
-
-	mediaConnect = false;
 	rtcConnect = false;
+	mediaConnect = false;
+	onlineIndicator.src="";
 	if(vsendButton) {
 		vsendButton.style.display = "none";
 	}
@@ -3043,7 +3026,9 @@ function goOffline(comment) {
 		location.hash = givenHash;
 	}
 
-//	ownlinkElement.innerHTML = "";
+	if(!mediaConnect) {
+		ownlinkElement.innerHTML = "";
+	}
 	stopAllAudioEffects("goOffline");
 	waitingCallerSlice = null;
 //	muteMicDiv.style.display = "none";		// TODO ???
@@ -3077,13 +3062,10 @@ function goOffline(comment) {
 			Android.wsClose();
 		}
 	}
-	if(!mediaConnect) {
-		onlineIndicator.src="";
-	}
 
 	iconContactsElement.style.display = "none";
 	checkboxesElement.style.display = "none";
-//	dialpadElement.style.display = "none";
+	//dialpadElement.style.display = "none";
 	menuClearCookieElement.style.display = "none";
 
 	if(divspinnerframe) divspinnerframe.style.display = "none";
