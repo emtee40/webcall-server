@@ -21,40 +21,70 @@ body {
 	font-weight:300;
 	margin:0;
 }
-button, button:focus {
-	background-color:#04c;
-	transition: background-color 200ms;
-	border:none;
-	border-radius:3px;
-	color:white;
+
+/* Answer, Hang Up, TextChat, Send File */
+.answerButtons {
+	padding-top:10px;
+	padding-bottom:10px;
+	display:none; /* grid */
+	grid-template-columns: 5fr 5fr 44px;
+	max-width:340px;
+	padding-right:20px;
+}
+@media only screen and (min-width: 540px) {
+	.answerButtons {
+		display:none; /* grid */
+		grid-template-columns: 5fr 5fr 44px 5fr 5fr;
+		max-width:736px;
+		padding-right:0px;
+	}
+}
+
+.mainbutton, .mainbutton:focus {
+	background-color:#0000;
+	transition: all 200ms ease-in-out;
+	border: 1.2px solid #ccc;
+	border-radius:5px;
+	color:#eee;
 	font-size: 1.0em;
 	margin: 0.3em 0.8em 0.4em 0;
-	padding: 0.5em 0.5em 0.4em 0.5em;
-	min-width: 110px;
+	padding: 0.3em 0.1em 0.3em 0.1em;
+	min-width: 100px;
 	outline:none;
+	text-align:center;
 	user-select:none;
+	cursor:pointer;
 }
-button:focus {
+/*
+.mainbutton:focus {
 	_background-color: #6c6;
 }
-button:active {
+*/
+.mainbutton:active {
 	background-color: #02a;
 	outline:none;
 }
-button[disabled] {
+.mainbutton[disabled] {
 	color:#aaa;
 }
 
 @media (hover: hover) {
-	button:hover {
-		background-color: #b82a68;
+	.mainbutton:hover {
+		_background-color: #b82a68;
+		_background-color: #b03;
+		background-color: #69f;
 		outline:none;
+		color:#fff;
 	}
-	button[disabled]:hover {
+	.mainbutton[disabled]:hover {
+		color:#aaa;
+	}
+	.mainbutton[disabled]:hover {
 		background-color:#04c;
 	}
 }
 
+/* hamburger menu buttons */
 .menuButton, menuButton:focus {
 	color:white;
 	padding: 0 20px 0 20px; /* 20px = margin-left (16px) +4 of labels (see: fullscreenlabel) */
@@ -85,22 +115,14 @@ button[disabled] {
 }
 
 div#container {
-	padding: 0.7em;
+	padding-top:5px;
+	padding-bottom:5px;
 	padding-right: 0.4em;
 	padding-left: 2.5%;
 	max-width:600px;
 	overflow:hidden;
 }
-h1 {
-	font-size:1.1em;
-	font-weight:600;
-	user-select:none;
-	margin-block-start:0;
-	margin-block-end:0;
-	margin-top:16px;
-	margin-bottom:10px;
-	line-height:1.3em;
-}
+
 a, a:link, a:visited, a:active {
     color:#ddd;
 	font-weight:600;
@@ -136,35 +158,34 @@ label {
 }
 
 .status {
-	_margin-top:8px;
-	_margin-bottom:8px;
-	_padding-left:2px;
+	padding-top:12px;
+	padding-bottom:12px;
 	width:98%;
 	max-width:570px;
-	line-height:1.3em;
-	transition:opacity 400ms ease-out;
+	transition:opacity 400ms ease-in-out;
     color:#ccc;
 }
 .callListTitle {
+	padding-top:14px;
 	font-size:0.9em;
+	font-weight:600;
 	color:#ff2;
 	font-weight:500;
 }
 .callList {
-	margin-top:4px;
-	margin-bottom:18px;
+	padding-bottom:12px;
 	font-size:1.0em;
 	line-height:1.2em;
 	transition:opacity 400ms;
     color:#ddd;
 }
 .msgbox {
+	padding-top:10px;
+	padding-bottom:10px;
 	font-size:1.2em;
-	margin-top:6px;
 	width:95%;
 	max-width:550px;
 	height:4em;
-	padding:10px;
 	background-image: linear-gradient(#12b,#25f);
 	border:none;
 	border-radius:3px;
@@ -211,13 +232,16 @@ form {
 	font-size:1.2em;
 }
 .formtext {
+	padding-top:2px;
+	padding-bottom:12px;
 	border-radius:4px;
 	border:none;
 	width:86%;
 	max-width:360px;
 	font-size:1.2em;
 	color:#000;
-	padding:4px 4px; box-sizing:border-box;
+	_padding:4px 4px;
+	box-sizing:border-box;
 	outline:none;
 	background:#0de;
 	box-shadow:none; /* removes red border in FF */
@@ -269,7 +293,7 @@ input[type=submit]:focus {
 	position:absolute;
 }
 .spinner {
-	margin: 0 auto;
+	_margin: 0 auto;
 	border: 8px solid #f3f3f3;
 	border-radius: 50%;
 	border-top: 8px solid #3468ab;
@@ -290,6 +314,8 @@ input[type=submit]:focus {
 	transform: scale(-1, 1);
 	-webkit-transform: scale(-1, 1);
 }
+
+/* SVG top screen icon buttons */
 .iconbutton {
 	position:relative; float:right; width:30px; margin-left:17px; margin-right:17px; margin-top:6px;
 	z-index:100; user-select:none; cursor:pointer; 
@@ -319,7 +345,7 @@ input[type=submit]:focus {
 }
 
 
-/* css switch by Marcus Burnette https://codepen.io/mburnette/ */
+/* online switch top left, css by Marcus Burnette https://codepen.io/mburnette/ */
 .switch input {
   display: none;
 }
@@ -376,6 +402,8 @@ input:disabled + .slider {
 	display:grid;
 	grid-template-columns: 1fr 6fr;
 	list-style-type:none;
+	padding-top:10px;
+	padding-bottom:10px;
 	max-height:40px;
 }
 </style>
@@ -403,11 +431,6 @@ input:disabled + .slider {
 		<div id="menuSettings" class="menuButton" style="display:none" onclick="openSettings()">Settings</div>
 		<div id="idMapping" class="menuButton" style="display:none" onclick="openIdMapping()">ID Manager</div>
 		<div class="menuButton" onclick="openPostCallStats()">Call Stats</div>
-		<label class="menuButton" id="fileselectlabel" for="fileselect" 
-			style="cursor:pointer; display:none;">
-			Send File
-			<input id="fileselect" type="file" style="display:none"></input>
-		</label>
 		<div class="menuButton" id="nativeMenu" style="display:none"
 			onclick="history.back(); Android.menu()">Device options</div>
 		<!-- enabled by android client -->
@@ -471,23 +494,23 @@ input:disabled + .slider {
 		<img id="exclamation"  onclick=""                   src="exclamation.svg" class="iconbutton" style="display:none;">
 		</div>
 	</div>
-    <div style="clear:all;height:2px; _background:#666;"></div>
+    <div style="clear:all;height:8px; _background:#666;"></div>
 
+	<!-- turn on with "display:grid" -->
+	<div id="answerButtons" class="answerButtons">
+		<button id="answerButton" class="mainbutton">Answer</button>
+		<button id="rejectButton" class="mainbutton">Hang Up</button>
+		                     <!-- src="red-gradient.svg" for testing -->
+		<img id="onlineIndicator" src="" style="width:30px; margin-top:9px; user-select:none;">
 
-	<h1><span>WebCall</span> <span id="title"></span></h1>
-
-	<!-- turn not with "display:grid" -->
-	<div id="answerButtons" style="display:none; grid-template-columns: 5fr 5fr 1fr; max-width:400px; margin-right:30px;">
-		<button id="answerButton">Answer</button>
-		<button id="rejectButton">Hang Up</button>
-		<img id="onlineIndicator" src="green-gradient.svg" style="width:30px; margin-top:12px; user-select:none;">
+		<button id="chatButton" class="mainbutton">TextChat</button>
+		<label id="fileselectlabel" class="mainbutton" for="fileselect">
+			Send File
+			<input id="fileselect" type="file" style="display:none"></input>
+		</label>
 	</div>
-	<div id="p2pButtons" style="display:none; grid-template-columns: 5fr 5fr 1fr; max-width:400px; margin-right:30px;">
-		<button id="chatButton">TextChat</button>
-		<button id="filetransferButton">FileTransfer</button>
-	</div>
 
-	<div id="status" class="status" style="margin-top:10px;"></div>
+	<div id="status" class="status"></div>
 
 	<form action="javascript:;" onsubmit="submitFormDone(1)" style="max-width:420px;display:none;" id="password">
 		<input type="text" autocomplete="username" id="username" style="display:none;" required>
@@ -499,11 +522,12 @@ input:disabled + .slider {
 		<input type="submit" name="Submit" id="submit" value="OK" style="width:120px; margin-top:12px;">
 	</form>
 
-	<div id="slideReveal" style="height:0px; transition:height 300ms; overflow:hidden; cursor:pointer;">
-		<select id="avSelect" class="select" onchange="getStream(this)" style="margin-top:10px"></select>
+	<div id="slideReveal" style="height:0px; transition:height 300ms; overflow:hidden; cursor:pointer; _padding-top:10px;">
+	    <div style="clear:all;height:10px; _background:#666;"></div>
+		<select id="avSelect" class="select" onchange="getStream(this)" style="_margin-top:10px"></select>
 		<div style="margin-top:5px;"></div>
 
-		<div style="columns:7rem auto;white-space:nowrap;max-width:340px;">
+		<div style="columns:7rem auto;white-space:nowrap;max-width:340px; padding-bottom:10px;">
 			<div id="muteMicDiv" _style="display:none;">
 				<input type="checkbox" id="muteMic" class="checkbox" />
 				<label class="menulabel2" id="muteMiclabel" for="muteMic">Mic muted</label>
@@ -519,20 +543,18 @@ input:disabled + .slider {
 		</div>
 	</div>
 
-	<div id="progressSend" style="width:100%;max-width:360px;margin-top:10px;display:none;">
+	<div id="progressSend" style="width:100%;max-width:460px;padding-top:10px;display:none;">
 		<div id="progressSendLabel">sending:</div>
 		<progress id="fileProgressSend" max="0" value="0" style="width:100%" onclick="stopProgressSend()"></progress>
 	</div>
-	<div id="download" style="margin-top:10px; margin-bottom:10px;"></div>
-	<div id="progressRcv" style="width:100%;max-width:360px;display:none;">
+	<div id="download" style="padding-top:10px; padding-bottom:10px; display:none;"></div>
+	<div id="progressRcv" style="width:100%;max-width:460px;display:none;">
 		<div id="progressRcvLabel">receiving:</div>
 		<progress id="fileProgressRcv" max="0" value="0" style="width:100%" onclick="stopProgressRcv()"></progress>
 	</div>
 
 	<textarea id="msgbox" class="msgbox" spellcheck="false" style="display:none"></textarea>
-<!--
-	<button id="chatButton" style="display:none; margin-top:4px; padding-top:4px; padding-bottom:3px;">TextChat</button>
--->
+
 	<div id="textbox" style="display:none;">
 		<form action="javascript:;" onsubmit="submitFormDone(2)" style="margin-top:4px;">
 			<input name="enterText" id="enterText" type="text" class="formtext" style="width:98%; max-width:550px; font-size:1.1em;">
@@ -540,16 +562,16 @@ input:disabled + .slider {
 		</form>
 	</div>
 
-	<div id="ownlink" style="opacity:0.9;_margin-top:4px;"></div>
-
 	<div id="waitingCallersTitle" class="callListTitle" style="color:#f46; display:none;">Waiting calls:</div>
-	<div id="waitingCallers" class="callList"></div>
+	<div id="waitingCallers" class="callList" style="display:none;"></div>
+
+	<div id="ownlink" style="opacity:0.9; padding-top:10px; padding-bottom:10px;;"></div>
 
 	<div id="missedCallsTitle" class="callListTitle" style="display:none;">Missed calls:</div>
 	<div id="missedCalls" class="callList"></div>
 
 	<div id="timer" class="timer">4:32</div>
-	<div style="opacity:0.7;margin-top:15px;user-select:none;">WebCall by <a id="webcallhome" href="https://timur.mobi/webcall">timur.mobi</a> <span id="version"></span></div>
+	<div style="opacity:0.7;padding-top:8px;user-select:none;">WebCall by <a id="webcallhome" href="https://timur.mobi/webcall">timur.mobi</a> <span id="version"></span></div>
 </div>
 </body>
 

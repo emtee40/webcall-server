@@ -208,8 +208,12 @@ function fileSelectInit() {
 			gLog("fileSelectInit addEventListener");
 			fileSelectElement.addEventListener('change', (event) => {
 				// user has selected a file to send
-				gLog("fileSelect event");
-				history.back();
+				console.log("fileSelect event",event);
+				// history.back() needed only if fileSelectInit() executed from hamburger menu
+				if(location.hash.length > 0) {
+					history.back();
+				}
+
 				const files = fileSelectElement.files;
 				const file = files.item(0);
 				if(file==null) {
@@ -254,10 +258,10 @@ function sendFile(file) {
 	if(idxLastSlash>=0) {
 		fileName = fileName.substring(idxLastSlash+1);
 	}
-	console.log("fileSelect: "+file.name, file.size, file.type, file.lastModified);
+	console.log("sendFile "+file.name, file.size, file.type, file.lastModified);
 	dataChannel.send("file|"+fileName+","+file.size+","+file.type+","+file.lastModified);
 	fileselectLabel.style.display = "none";
-	showStatus("",-1);
+	//showStatus("",-1);
 
 	const chunkSize = 16*1024;
 	let fileReader = new FileReader();
@@ -272,18 +276,18 @@ function sendFile(file) {
 	fileReader.addEventListener('abort', event => console.log("# File reading aborted:", event));
 	fileReader.addEventListener('load', e => {
 		if(fileSendAbort) {
-			gLog("file send user abort");
+			console.log("! sendFile user abort");
 			fileReader.abort();
 			return;
 		}
 		if(!isDataChlOpen()) {
-			console.log("# file send no dataChannel");
+			console.log("# sendFile no dataChannel");
 			fileReader.abort();
 			return;
 		}
 		dataChannel.send(e.target.result);
 		offset += e.target.result.byteLength;
-		//gLog('file send', offset, file.size, dataChannel.bufferedAmount);
+		//console.log('sendFile', offset, file.size, dataChannel.bufferedAmount);
 		progressSendBar.value = offset;
 		let sinceStartSecs = Math.floor((Date.now() - fileSendStartDate + 500)/1000);
 		if(sinceStartSecs!=fileSendLastSinceStartSecs && sinceStartSecs!=0) {
@@ -292,16 +296,17 @@ function sendFile(file) {
 			//console.log("sending: "+fileName +" "+ file.size);
 			fileSendLastSinceStartSecs = sinceStartSecs;
 		}
-		if (offset < file.size) {
+		if(offset < file.size) {
 			readSlice(offset);
 		} else {
 			let sendComplete = function() {
+				//console.log('sendFile sendComplete...');
 				if(dataChannel && dataChannel.bufferedAmount > 0) {
-					gLog('file send flushing buffered...');
+					console.log('sendFile flushing buffered...'+dataChannel.bufferedAmount);
 					setTimeout(sendComplete,200);
 					return;
 				}
-				gLog("file send complete", file.size);
+				console.log("sendFile complete", file.size);
 				offset = 0;
 				progressSendElement.style.display = "none";
 				showStatus("sent "+fileName.substring(0,28)+" "+Math.floor(file.size/1000)+" KB",-1);
@@ -316,16 +321,16 @@ function sendFile(file) {
 	});
 	const readSlice = o => {
 		if(fileSendAbort) {
-			console.log("file send user abort");
+			console.log("! sendFile user abort");
 			fileReader.abort();
 			return;
 		}
 		if(!isDataChlOpen()) {
-			console.log("file send abort on dataChannel");
+			console.log("# sendFile abort on dataChannel");
 			return;
 		}
 		if(dataChannel.bufferedAmount > 10*chunkSize) {
-			// file send delay
+			// sendFile delay
 			setTimeout(function() {
 				readSlice(o);
 			},50);
@@ -526,8 +531,8 @@ function openPostCallStats() {
 }
 
 function stopProgressSend() {
-	gLog("stopProgressSend");
-	showStatus("file send aborted");
+	console.log("stopProgressSend");
+	showStatus("sendFile aborted");
 	fileSendAbort = true;
 	progressSendElement.style.display = "none";
 	if(isDataChlOpen()) {
@@ -541,8 +546,8 @@ function stopProgressSend() {
 }
 
 function stopProgressRcv() {
-	gLog("stopProgressRcv");
-	showStatus("file receive aborted");
+	console.log("stopProgressRcv");
+	showStatus("receiveFile aborted");
 	fileReceiveAbort = true;
 	progressRcvElement.style.display = "none";
 	if(isDataChlOpen()) {
@@ -653,7 +658,7 @@ function menuDialogOpen(menuDialog,position,inner) {
 
 	fullScreenOverlayElement.style.display = "block";
 	fullScreenOverlayElement.onclick = function() {
-		//console.log('fullScreenOverlayElement.onclick');
+		console.log('fullScreenOverlayElement.onclick');
 		history.back();
 	}
 
@@ -822,7 +827,7 @@ function iframeWindowOpen(url, horiCenterBound, addStyleString, dontIframeOnload
 		if(connect==true) {
 			//gLog('onclick fullScreenOverlayElement ignored (no history.back)');
 		} else {
-			//gLog('onclick fullScreenOverlayElement no mediaConnect -> history.back');
+			console.log('onclick fullScreenOverlayElement no mediaConnect -> history.back');
 			history.back();
 		}
 	}
@@ -1600,7 +1605,7 @@ function hashchange() {
 	} else {
 		newhashcounter = 0;
 	}
-	//gLog("hashchange hashcounter",hashcounter,newhashcounter);
+	console.log("hashchange hashcounter",hashcounter,newhashcounter);
 	if(hashcounter>0 && newhashcounter<hashcounter) {
 		if(iframeWindowOpenFlag) {
 			iframeWindowClose();
@@ -1615,8 +1620,13 @@ function hashchange() {
 var showStatusTimeout = null;
 var showStatusMsg = "";
 function showStatus(msg,timeoutMs) {
+	statusLine.style.display = "none";
 	if(typeof msg=="undefined" || msg==null) {
 		console.log("status: msg undefined");
+		return;
+	}
+	if(msg=="") {
+		console.log("status: msg empty");
 		return;
 	}
 	//console.log("showStatus msg="+msg,timeoutMs);
@@ -1641,7 +1651,6 @@ function showStatus(msg,timeoutMs) {
 	}
 
 	showStatusMsg = msg;
-	statusLine.style.display = "none";
 	statusLine.style.opacity = 0;
 	statusLine.innerHTML = msg;
 	statusLine.style.opacity = 1;
@@ -1671,7 +1680,7 @@ function showStatus(msg,timeoutMs) {
 					if(msg==showStatusMsg) {
 						// still showing the old msg: clear it
 						// NOTE: if we assign an empty string, status line will collaps vertically
-						statusLine.innerHTML = "&nbsp;";
+						//statusLine.innerHTML = "&nbsp;";
 						console.log("showStatus opacityTransitioned ended");
 					} else {
 						// we are already showing a newer status msg: don't clear it
@@ -1713,8 +1722,8 @@ function dataChannelOnclose(event) {
 
 function dataChannelOnerror(event) {
 	console.log("# dataChannel.onerror",event.error);
+	showStatus("dataChannel error "+event.error,-1);
 	if(rtcConnect) {
-		showStatus("# dataChannel error "+event.error,-1);
 		hangup(true,true,"dataChannelOnerror");
 	}
 	progressSendElement.style.display = "none";
@@ -1725,7 +1734,7 @@ function dataChannelOnerror(event) {
 
 function hangupWithBusySound(mustDisconnectCallee,message) {
 	dialing = false;
-	gLog("hangupWithBusySound stopAllAudioEffects "+message);
+	console.log("hangupWithBusySound stopAllAudioEffects "+message);
 	stopAllAudioEffects();
 	if(peerCon && peerCon.iceConnectionState!="closed") {
 		if(playDialSounds && busySignalSound!=null) {
@@ -1752,7 +1761,7 @@ function onkeydownFunc(evt) {
 	//console.log("onkeydownFunc %d %s isEscape=%d", evt.keyCode, evt.key, isEscape);
 	if(isEscape) {
 		if(iframeWindowOpenFlag || menuDialogOpenElement) {
-			gLog("client.js: esc key -> back");
+			console.log("client.js: esc key -> back");
 			history.back();
 		} else {
 			//console.log('client.js: esc key (ignore)');
@@ -1819,7 +1828,7 @@ function cleanStringParameter(str, eliminateSpaces, comment) {
 }
 
 function clearcookie() {
-	console.log("clearcookie id=("+calleeID+")");
+	console.log("! clearcookie id=("+calleeID+")");
 	document.cookie = "webcallid=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
 	setTimeout(function() {
 		if(typeof Android !== "undefined" && Android !== null) {

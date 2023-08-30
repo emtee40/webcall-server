@@ -2,7 +2,6 @@
 'use strict';
 const goOnlineSwitch = document.querySelector('input#onlineSwitch');
 const answerButtons = document.getElementById('answerButtons');
-const p2pButtons = document.getElementById('p2pButtons');
 const answerButton = document.querySelector('button#answerButton');
 const rejectButton = document.querySelector('button#rejectButton');
 const onlineIndicator = document.querySelector('img#onlineIndicator');
@@ -10,7 +9,6 @@ const isHiddenCheckbox = document.querySelector('input#isHidden');
 const isHiddenlabel = document.querySelector('label#isHiddenlabel');
 const autoanswerCheckbox = document.querySelector('input#autoanswer');
 const autoanswerlabel = document.querySelector('label#autoanswerlabel');
-const titleElement = document.getElementById('title');
 const statusLine = document.getElementById('status');
 const msgbox = document.querySelector('textarea#msgbox');
 const divspinnerframe = document.querySelector('div#spinnerframe');
@@ -135,7 +133,7 @@ window.onload = function() {
 			}
 			cookieName = cleanStringParameter(cookieName,true);
 			if(cookieName!="") {
-				console.log("callee.js redirect to cookieName");
+				console.log("! callee.js redirect to cookieName");
 				window.location.replace("/callee/"+cookieName);
 				return;
 			}
@@ -144,10 +142,11 @@ window.onload = function() {
 		showStatus("calleeID missing in URL",-1);
 		return;
 	}
+	document.title = "Callee "+calleeID;
 
 	// remote on start fragment/hash ('#') in URL
 	if(location.hash.length > 0) {
-		gLog("location.hash.length="+location.hash.length);
+		console.log("! location.hash.length="+location.hash.length);
 		window.location.replace("/callee/"+calleeID);
 		return;
 	}
@@ -259,12 +258,6 @@ window.onload = function() {
 		if(mode==0 || mode==1) {
 			// normal mode
 			gLog("onload load audio files more="+mode);
-			var calleeIdTitle = calleeID;
-			var calleeTitle = "Callee "+calleeIdTitle;
-			document.title = calleeTitle;
-			if(titleElement) {
-				titleElement.innerHTML = calleeTitle;
-			}
 
 			calleeID = calleeID.toLowerCase();
 			gLog('onload calleeID lowercase '+calleeID);
@@ -942,7 +935,7 @@ function getSettingDone() {
 		}
 
 		let links = "";
-		links += "<div style='line-height:1.6em;white-space:nowrap;margin-top:6px;'>";
+		links += "<div style='line-height:1.6em;white-space:nowrap;'>";
 		if(typeof Android !== "undefined" && Android !== null) {
 			links += "<div><span class='callListTitle'>Your Webcall ID's:</span> <span style='font-size:0.9em;'>(long-tap to share)</span></div>";
 		} else {
@@ -1730,6 +1723,8 @@ function showWaitingCallers() {
 	if(waitingCallersElement) {
 		let waitingCallersTitleElement = document.getElementById('waitingCallersTitle');
 		if(waitingCallerSlice==null || waitingCallerSlice.length<=0) {
+			waitingCallersTitleElement.style,display = "none";
+			waitingCallersElement.style,display = "none";
 			waitingCallersElement.innerHTML = "";
 			if(waitingCallersTitleElement) {
 				waitingCallersTitleElement.style.display = "none";
@@ -1737,6 +1732,8 @@ function showWaitingCallers() {
 			return;
 		}
 
+		waitingCallersTitleElement.style,display = "block";
+		waitingCallersElement.style,display = "block";
 		gLog('showWaitingCallers fkt waitingCallerSlice.length',waitingCallerSlice.length);
 		let timeNowSecs = Math.floor((Date.now()+500)/1000);
 		let str = "<table style='width:100%; border-collapse:separate; border-spacing:6px 2px; line-height:1.5em;'>"
@@ -2079,7 +2076,6 @@ function pickup() {
 	// user has picked up incoming call
 	console.log('pickup -> open mic');
 	answerButton.disabled = true;
-	p2pButtons.style.display = "grid";
 	buttonBlinking = false;
 	pickupAfterLocalStream = true;
 	getStream(); // -> pickup2()
@@ -2111,8 +2107,9 @@ function pickup2() {
 		wsSend("pickup|!"); // make caller unmute our mic on their side
 
 		mediaConnect = true;
-		//onlineIndicator.src="green-gradient.svg";
 		onlineIndicator.src="red-gradient.svg";
+		chatButton.style.display = "block";
+		fileselectLabel.style.display = "block"
 
 		if(vsendButton) {
 			vsendButton.style.display = "inline-block";
@@ -2153,9 +2150,13 @@ function pickup2() {
 					err => console.log(err.message));
 
 				let enableTextchat = function() {
+					if(msgbox.style.display=="block") {
+						msgbox.style.display = "none";
+						textbox.style.display = "none";
+						return;
+					}
 					console.log("enable textchat");
 					// hide chat-button
-//					chatButton.style.display = "none";
 					// msgbox NOT editable
 					msgbox.readOnly = true;
 					// msgbox no placeholder
@@ -2511,6 +2512,8 @@ function peerConnected2() {
 	// scroll to top
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 
+	chatButton.style.display = "none";
+	fileselectLabel.style.display = "none"
 	answerButtons.style.display = "grid";
 
 	let skipRinging = false;
@@ -2563,15 +2566,22 @@ function peerConnected2() {
 		let buttonBgHighlighted = false;
 		let blinkButtonFunc = function() {
 			if(!buttonBgHighlighted) {
-				answerButton.style.background = "#b82a68";
+				// blink on
+				//answerButton.style.background = "#b82a68";
+				answerButton.style.background = "#b03";
+				answerButton.style.border = "1.2px solid #b03";
+
 				buttonBgHighlighted = true;
 				setTimeout(blinkButtonFunc, 500);
 			} else {
-				answerButton.style.background = "#04c";
+				// blink off
+				//answerButton.style.background = "#04c";
+				answerButton.style.background = "#0000";
+				answerButton.style.border = "1.2px solid #ccc";
 				buttonBgHighlighted = false;
 				if(!buttonBlinking || wsConn==null) {
 					//gLog("peerConnected2 buttonBlinking stop");
-					answerButton.style.background = "#04c";
+//					answerButton.style.background = "#04c";
 					return;
 				}
 				gLog("peerConnected2 buttonBlinking...",dataChannel);
@@ -2661,7 +2671,8 @@ function peerConnected3() {
 		} else {
 			hangup(true,true,"Hangup button rejected call");
 		}
-		p2pButtons.style.display = "none";
+		chatButton.style.display = "none";
+		fileselectLabel.style.display = "none"
 	}
 }
 
@@ -2812,6 +2823,7 @@ function dataChannelOnmessage(event) {
 			var aDivElement = document.createElement("div");
 			aDivElement.id = randId;
 			downloadList.appendChild(aDivElement);
+			downloadList.style.display = "block";
 
 			var aElement = document.createElement("a");
 			aElement.href = URL.createObjectURL(receivedBlob);
@@ -2825,6 +2837,9 @@ function dataChannelOnmessage(event) {
 			aDeleteElement.onclick = function(ev){
 				ev.stopPropagation();
 				downloadList.removeChild(aDivElement);
+				if(downloadList.innerHTML=="") {
+					downloadList.style.display = "none";
+				}
 			}
 			aDeleteElement.textContent = `[x]`;
 			aDivElement.appendChild(aDeleteElement);
@@ -2979,7 +2994,6 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	fileselectLabel.style.display = "none";
 	progressSendElement.style.display = "none";
 	progressRcvElement.style.display = "none";
-//	chatButton.style.display = "none";
 	msgbox.style.display = "none";
 	msgbox.innerHTML = "";
 
@@ -3127,11 +3141,11 @@ function slideTransitioned() {
 	slideRevealElement.removeEventListener('transitionend',slideTransitioned);
 }
 
-var slideRevealDivHeight = 97;
+var slideRevealDivHeight = 123;
 function openSlide() {
 	if(!slideOpen) {
 		// close->-open
-		//console.log("openSlide close-to-open, wsConn="+(wsConn!=null)+" "+slideRevealDivHeight);
+		console.log("openSlide close-to-open, wsConn="+(wsConn!=null)+" "+slideRevealDivHeight);
 //		if(wsConn) {
 			slideRevealElement.style.height = ""+slideRevealDivHeight+"px";
 			slideRevealElement.addEventListener('transitionend', slideTransitioned) // when done: set height=auto
@@ -3226,7 +3240,7 @@ function clearcache() {
 }
 
 function exit() {
-	gLog("exit");
+	console.log("exit");
 	if(typeof Android !== "undefined" && Android !== null) {
 		history.back();
 		// wait for pulldown menu to close
@@ -3265,7 +3279,7 @@ function clearcookie2() {
 	containerElement.style.filter = "blur(0.8px) brightness(60%)";
 	goOffline();
 	if(iframeWindowOpenFlag) {
-		gLog("clearcookie2 history.back");
+		console.log("clearcookie2 history.back");
 		history.back();
 	}
 	clearcookie();
