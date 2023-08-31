@@ -29,7 +29,7 @@ const autoReconnectDelay = 15;
 const calleeMode = true;
 const enterTextElement = document.getElementById('enterText');
 const slideRevealElement = document.getElementById("slideReveal");
-const checkboxesElement = document.getElementById("checkboxes");
+//const checkboxesElement = document.getElementById("checkboxes");
 
 var ringtoneSound = null;
 var ringtoneIsPlaying = false;
@@ -1069,7 +1069,7 @@ function offlineAction(comment) {
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 
 	iconContactsElement.style.display = "none";
-	checkboxesElement.style.display = "none";
+//	checkboxesElement.style.display = "none";
 
 	// hide ownlink, but only if p2p connection is also gone
 	if(!mediaConnect) {
@@ -1259,7 +1259,7 @@ function connectSignaling(message,comment) {
 	}
 
 	iconContactsElement.style.display = "block";
-	checkboxesElement.style.display = "block";
+//	checkboxesElement.style.display = "block";
 }
 
 function wsOnOpen() {
@@ -1312,7 +1312,7 @@ function wsOnError2(str,code) {
 // TODO explain why the following is needed (and whether it is always true to assume wsConn=null on wsOnError()
 	wsConn=null;
 	iconContactsElement.style.display = "none";
-	checkboxesElement.style.display = "none";
+//	checkboxesElement.style.display = "none";
 }
 
 function wsOnClose(evt) {
@@ -3085,7 +3085,7 @@ function goOffline(comment) {
 	}
 
 	iconContactsElement.style.display = "none";
-	checkboxesElement.style.display = "none";
+//	checkboxesElement.style.display = "none";
 	//dialpadElement.style.display = "none";
 	menuClearCookieElement.style.display = "none";
 
