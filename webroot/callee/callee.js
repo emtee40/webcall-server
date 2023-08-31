@@ -412,6 +412,9 @@ function videoOff() {
 		}
 	}
 
+	// getStream() triggers a new cmd=='missedCalls' but we don't want a beep
+	missedCallAffectingUserActionMs = (new Date()).getTime();
+
 	// switch to the 1st audio option
 	let optionElements = Array.from(avSelect);
 	if(optionElements.length>0) {
