@@ -511,8 +511,6 @@ function submitFormDone(idx) {
 		wsSecret = valuePw;
 //		onGotStreamGoOnline = true;			// TODO ???
 		//console.log("callee submitFormDone: enable goonline");
-
-//		muteMicDiv.style.display = "block";
 		start();
 		// -> getStream() -> getUserMedia(constraints) -> gotStream() -> goOnline() -> login()
 	} else if(idx==2) {
@@ -1641,13 +1639,13 @@ function signalingCommand(message, comment) {
 
 	} else if(cmd=="missedCalls") {
 		console.log('cmd missedCalls len='+payload.length);
-		let oldMissedCallsSlice = missedCallsSlice;
+		let oldMissedCallsSliceLen = missedCallsSlice.length;
 		missedCallsSlice = null;
 		if(payload.length>0) {
 			missedCallsSlice = JSON.parse(payload);
 			console.log('cmd missedCallsSlice len='+missedCallsSlice.length);
 			// beep when list changes
-			if(oldMissedCallsSlice!=null && missedCallsSlice != oldMissedCallsSlice) {
+			if(missedCallsSlice.length != oldMissedCallsSliceLen) {
 				let curSecs = (new Date()).getTime()
 				let secsSinceLastdeleteMissedCallAction = curSecs - missedCallAffectingUserActionMs;
 				console.log("cmd missedCallsSlice curSecs="+curSecs+" - "+missedCallAffectingUserActionMs+" = ms="+
