@@ -552,18 +552,20 @@ function start() {
 			// going offline
 			if(wsConn!=null) {
 				console.log('goOnlineSwitch.onclick ->off (wsConn!=null)');
-				// TODO if peerCon popup yes/no dialog
+				/*
+				// if mediaConnect: popup yes/no dialog
 				if(peerCon!=null && mediaConnect) {
 					// keep switch in connected-state for until yes/no
 					goOnlineSwitch.checked = true;
 					console.log("! goOnlineSwitch.onclick mediaConnect");
-
 					let yesNoInner = "<div style='position:absolute; z-index:110; background:#45dd; color:#fff; padding:25px 25px; line-height:1.6em; border-radius:3px; cursor:pointer; min-width:300px; max-width:350px; top:40px; left:50%; transform:translate(-50%,0%);'><div style='font-weight:600;'>WARNING</div><br>"+
 			"Disconnecting WebCall server while in call, will prevent Trickle-ICE from gradually improving your P2P connection.<br><br>"+
 			"<a style='line-height:2.8em' onclick='history.back();'>Stay connected</a> &nbsp; &nbsp; "+
 			"<a onclick='goOffline(\"user button\");history.back();'>Disconnect</a></div>";
 					menuDialogOpen(dynDialog,0,yesNoInner);
-				} else {
+				} else
+				*/
+				{
 					goOffline("user button");
 				}
 			} else {
