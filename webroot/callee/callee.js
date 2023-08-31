@@ -1188,19 +1188,19 @@ function showOnlineReadyMsg() {
 
 	// delay 'ready to receive calls' msg, so that prev msg can be read by user
 	setTimeout(function(oldWidth) {
-		console.log("showOnlineReadyMsg");
-		if(typeof Android !== "undefined" && Android !== null) {
-			if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
-				Android.calleeConnected();
-				// calleeConnected() does 2 things:
-				// 1. Intent brintent = new Intent("webcall");
-				//    brintent.putExtra("state", "connected");
-				//    sendBroadcast(brintent);
-				// 2. statusMessage(awaitingCalls,-1,true,false);
-			}
-		} else {
-			//showStatus("connected to webcall server",1200);
-			if(!mediaConnect) {
+		if(!mediaConnect) {
+			console.log("showOnlineReadyMsg");
+			if(typeof Android !== "undefined" && Android !== null) {
+				if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
+					Android.calleeConnected();
+					// calleeConnected() does 2 things:
+					// 1. Intent brintent = new Intent("webcall");
+					//    brintent.putExtra("state", "connected");
+					//    sendBroadcast(brintent);
+					// 2. statusMessage(awaitingCalls,-1,true,false);
+				}
+			} else {
+				//showStatus("connected to webcall server",1200);
 				showStatus("Ready to receive calls",-1);
 			}
 		}
@@ -2208,7 +2208,6 @@ function hangup(mustDisconnect,dummy2,message) {
 	msgbox.value = "";
 	textbox.style.display = "none";
 	textbox.value = "";
-//	chatButton.style.display = "none";
 
 	buttonBlinking = false;
 	if(textmode!="") {
