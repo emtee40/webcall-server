@@ -1647,7 +1647,7 @@ function signalingCommand(message, comment) {
 			missedCallsSlice = JSON.parse(payload);
 			console.log('cmd missedCallsSlice len='+missedCallsSlice.length);
 			// beep when list changes
-			if(missedCallsSlice.length != oldMissedCallsSliceLen) {
+			if(missedCallsSlice!=null && missedCallsSlice.length != oldMissedCallsSliceLen) {
 				let curSecs = (new Date()).getTime()
 				let secsSinceLastdeleteMissedCallAction = curSecs - missedCallAffectingUserActionMs;
 				console.log("cmd missedCallsSlice curSecs="+curSecs+" - "+missedCallAffectingUserActionMs+" = ms="+
