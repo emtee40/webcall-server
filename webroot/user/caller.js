@@ -2037,38 +2037,40 @@ function signalingCommand(message) {
 	} else if(cmd=="calleeOffer") {
 		// calleeOffer is being used when callee wants to deliver a config change
 		let hostDescription = JSON.parse(payload);
-		gLog('calleeOffer setRemoteDescription');
+		console.log('calleeOffer setRemoteDescription');
 
 		peerCon.setRemoteDescription(hostDescription).then(() => {
-			gLog('calleeOffer setRemoteDescription done');
+			console.log('calleeOffer setRemoteDescription done');
 
 			if(hostDescription.type == "offer") {
-				gLog('calleeOffer received offer createAnswer');
+				console.log('calleeOffer received offer createAnswer');
 				peerCon.createAnswer().then((desc) => {
 					localDescription = desc;
-					gLog('calleeOffer got localDescription');
+					console.log('calleeOffer got localDescription');
 					localDescription.sdp =
 						maybePreferCodec(localDescription.sdp, 'audio', 'send', "opus");
 					localDescription.sdp = localDescription.sdp.replace('useinbandfec=1',
 						'useinbandfec=1;usedtx=1;stereo=1;maxaveragebitrate='+bitrate+';');
 					peerCon.setLocalDescription(localDescription).then(() => {
-						gLog('calleeOffer localDescription set -> signal');
+						console.log('calleeOffer localDescription set -> signal');
 						if(isDataChlOpen()) {
+							console.log('calleeOffer callerAnswer -> signal (dataChl)');
 							dataChannel.send("cmd|callerAnswer|"+JSON.stringify(localDescription));
 						} else {
+							console.log('calleeOffer callerAnswer -> signal');
 							wsSend("callerAnswer|"+JSON.stringify(localDescription));
 						}
-					}, err => console.error(`Failed to set local descr: ${err.toString()}`));
+					}, err => console.error(`# Failed to set local descr: ${err.toString()}`));
 				}, err => {
-					console.warn("calleeOffer failed to createAnswer",err)
+					console.warn("# calleeOffer failed to createAnswer",err)
 					showStatus("Failed to createAnswer",8000);
 				});
 			} else {
-				gLog("calleeOffer received no offer:",hostDescription.type);
+				console.log("# calleeOffer received no offer:",hostDescription.type);
 			}
 
 		}, err => {
-			console.warn("calleeOffer setRemoteDescription fail",err)
+			console.warn("# calleeOffer setRemoteDescription fail",err)
 			showStatus("Cannot set remoteDescr "+err);
 		});
 
@@ -2480,14 +2482,14 @@ function dial2() {
 
 			peerCon.setLocalDescription(localDescription).then(() => {
 				if(doneHangup) {
-					gLog('peerCon onnegotiationneeded deny send: doneHangup');
+					console.log('# peerCon onnegotiationneeded deny send: doneHangup');
 				} else if(!rtcConnect && !dialing) {
 					console.log('# onnegotiationneeded deny send: !rtcConnect && !dialing');
 				} else if(isDataChlOpen()) {
-					gLog('peerCon onnegotiationneeded send callerOfferUpd via dc');
+					console.log('peerCon onnegotiationneeded send callerOfferUpd via dc');
 					dataChannel.send("cmd|callerOfferUpd|"+JSON.stringify(localDescription));
 				} else {
-					gLog('peerCon onnegotiationneeded send callerOffer via ws');
+					console.log('peerCon onnegotiationneeded send callerOffer via ws');
 					// when server receives our callerOffer, it sends 'callerInfo|' to the callee
 					// if msgboxText exists, send it before callerOffer
 
@@ -2502,18 +2504,18 @@ function dial2() {
 				}
 			}, err => console.error(`Failed to set local descr: ${err.toString()}`));
 		} catch(err) {
-			console.error("peerCon onnegotiationneeded err",err);
+			console.error("# peerCon onnegotiationneeded err",err);
 		}
 	};
 	peerCon.onicegatheringstatechange = event => {
 		let connection = event.target;
-		gLog("peerCon onicegatheringstatechange "+connection.iceGatheringState);
+		console.log("peerCon onicegatheringstatechange "+connection.iceGatheringState);
 		if(connection.iceGatheringState=="complete") {
-			gLog("peerCon onIceCandidates="+onIceCandidates);
+			console.log("peerCon onIceCandidates="+onIceCandidates);
 		}
 	}
 	peerCon.onsignalingstatechange = event => {
-		gLog("peerCon onsignalingstate "+peerCon.signalingState);
+		console.log("peerCon onsignalingstate "+peerCon.signalingState);
 	}
 	peerCon.oniceconnectionstatechange = event => {
 		gLog("peerCon oniceconnectionstate "+peerCon.iceConnectionState);
@@ -2634,7 +2636,7 @@ function dataChannelOnmessage(event) {
 		return;
 	}
 	if(typeof event.data === "string") {
-		//gLog("dataChannel.onmessage "+event.data);
+		console.log("dataChannel.onmessage "+event.data);
 		if(event.data) {
 			if(event.data.startsWith("disconnect")) {
 				gLog("disconnect via dataChannel");

@@ -1393,7 +1393,7 @@ function wsOnMessage2(str, comment) {
 
 var startIncomingCall;
 function signalingCommand(message, comment) {
-	gLog("signalingCommand "+message+" comment="+comment);
+	console.log("signalingCommand "+message+" comment="+comment);
 	let tok = message.split("|");
 	let cmd = tok[0];
 	let payload = "";
@@ -1463,17 +1463,18 @@ function signalingCommand(message, comment) {
 		}
 		callerDescription = JSON.parse(payload);
 
-		gLog("callerAnswer setLocalDescription");
+		console.log("callerAnswer setLocalDescription");
 		peerCon.setLocalDescription(localDescription).then(() => {
-			gLog('callerAnswer setRemoteDescription');
+			console.log('callerAnswer setRemoteDescription');
 			peerCon.setRemoteDescription(callerDescription).then(() => {
-				gLog('callerAnswer setRemoteDescription done');
+				console.log('callerAnswer setRemoteDescription done');
+				pickup4();
 			}, err => {
-				console.warn(`callerAnswer Failed to set RemoteDescription`,err.message)
+				console.warn(`# callerAnswer Failed to set RemoteDescription`,err.message)
 				showStatus("Cannot set remoteDescr "+err.message);
 			});
 		}, err => {
-			console.warn("callerAnswer setLocalDescription fail",err.message)
+			console.warn("# callerAnswer setLocalDescription fail",err.message)
 			showStatus("Cannot set localDescr"+err.message);
 		});
 
@@ -2327,13 +2328,13 @@ function newPeerCon() {
 			localDescription.sdp = localDescription.sdp.replace('useinbandfec=1',
 				'useinbandfec=1;usedtx=1;stereo=1;maxaveragebitrate='+bitrate+';');
 			peerCon.setLocalDescription(localDescription).then(() => {
-//				if(isDataChlOpen()) {
-//					console.log('peerCon onnegotiationneeded localDescription -> signal (dataChl)');
-//					dataChannel.send("cmd|calleeOffer|"+JSON.stringify(localDescription));
-//				} else {
+				if(isDataChlOpen()) {
+					console.log('peerCon onnegotiationneeded localDescription -> signal (dataChl)');
+					dataChannel.send("cmd|calleeOffer|"+JSON.stringify(localDescription));
+				} else {
 					console.log('peerCon onnegotiationneeded localDescription -> signal');
 					wsSend("calleeOffer|"+JSON.stringify(localDescription));
-//				}
+				}
 			}, err => console.error(`Failed to set local descr: ${err.toString()}`));
 		} catch(err) {
 			console.error("peerCon onnegotiationneeded err",err.message);
@@ -2378,13 +2379,13 @@ function newPeerCon() {
 				//sendInit("after peerCon failed");
 			}
 		} else if(peerCon.connectionState=="connected") {
-			// this occurs twice !!
 			if(!rtcConnect) {
 				console.log("peerCon connectionState connected -> peerConnected()");
 				peerConnected();
 			} else {
-				console.log("peerCon connectionState connected -> pickup4()");
-				pickup4();
+				// only ff calls this twice?
+				console.log("peerCon connectionState connected -> // pickup4()");
+				//pickup4();
 			}
 		}
 	}
@@ -2641,6 +2642,11 @@ function pickup2() {
 }
 
 function pickup4() {
+	if(mediaConnect) {
+		console.log("# pickup4 called when mediaConnect was already set");
+		return;
+	}
+
 	// full connect
 	console.log("pickup4 - mediaConnect ------------------ "+(Date.now() - startPickup));
 
@@ -2772,7 +2778,7 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 
 function dataChannelOnmessage(event) {
 	if(typeof event.data === "string") {
-		//console.log("dataChannel.onmessage "+event.data);
+		console.log("dataChannel.onmessage "+event.data);
 		if(event.data) {
 			if(event.data.startsWith("disconnect")) {
 				console.log("dataChannel.onmessage '"+event.data+"'");
@@ -2803,6 +2809,7 @@ function dataChannelOnmessage(event) {
 				}
 			} else if(event.data.startsWith("cmd|")) {
 				let subCmd = event.data.substring(4);
+				console.log("dataChannel.onmessage fw to signalingCommand() "+subCmd);
 				signalingCommand(subCmd,"dataChl");
 			} else if(event.data.startsWith("file|")) {
 				var fileDescr = event.data.substring(5);
