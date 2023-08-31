@@ -1641,7 +1641,10 @@ function signalingCommand(message, comment) {
 
 	} else if(cmd=="missedCalls") {
 		console.log('cmd missedCalls len='+payload.length);
-		let oldMissedCallsSliceLen = missedCallsSlice.length;
+		let oldMissedCallsSliceLen = 0;
+		if(missedCallsSlice!=null) {
+			oldMissedCallsSliceLen = missedCallsSlice.length;
+		}
 		missedCallsSlice = null;
 		if(payload.length>0) {
 			missedCallsSlice = JSON.parse(payload);
