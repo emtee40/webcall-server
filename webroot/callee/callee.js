@@ -1066,6 +1066,8 @@ function offlineAction(comment) {
 	// we got disconnected from the server, make OnlineSwitch reflect offline state
 	console.log("offlineAction "+comment);
 	goOnlineSwitch.checked = false;
+	// TODO also remove auto=1 ?
+
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 
 	iconContactsElement.style.display = "none";
@@ -1083,6 +1085,7 @@ function offlineAction(comment) {
 
 
 function gotStream2() {
+	// we got the mic
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.calleeReady !== "undefined" && Android.calleeReady !== null) {
 			// service v1.1.5
@@ -1117,8 +1120,9 @@ function gotStream2() {
 		} else {
 			console.log("gotStream2 standby");
 
-			console.log("gotStream2 set goOnlineSwitch "+(wsConn!=null));
-			goOnlineSwitch.checked = (wsConn!=null);
+// questionable
+//			console.log("gotStream2 set goOnlineSwitch "+(wsConn!=null));
+//			goOnlineSwitch.checked = (wsConn!=null);
 			if(wsConn==null) {
 				// we are offline
 			} else {
@@ -1350,7 +1354,6 @@ function wsOnClose(evt) {
 		} else {
 			console.log("wsOnClose not reconnecting "+goOnlineWanted+" "+errCode+" "+tryingToOpenWebSocket);
 			offlineAction("wsOnClose");
-			// TODO also turn auto=0 ?
 		}
 	}
 }
@@ -1502,6 +1505,7 @@ function signalingCommand(message, comment) {
 				console.log("# cmd callerCandidate abort no peerCon");
 				stopAllAudioEffects();
 				// TODO do we really need this?
+				// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 				endWebRtcSession(true,true,"callerCandidate no peercon / ice closed"); // -> peerConCloseFunc
 				return;
 			}
@@ -1579,10 +1583,8 @@ function signalingCommand(message, comment) {
 				//showStatus("canceled");
 			}
 			//console.log('cmd cancel -> endWebRtcSession');
+			// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 			endWebRtcSession(false,true,"incoming cancel"); // -> peerConCloseFunc
-			console.log('cmd cancel -> clearcache() --------------------');
-// TODO questionable
-//			clearcache();
 		} else {
 			stopAllAudioEffects("ignore cmd cancel");
 			// TODO no endWebRtcSession ? android service will not know that ringing has ended
@@ -2373,7 +2375,7 @@ function newPeerCon() {
 		}
 		showStatus(statusMsg);
 		if(divspinnerframe) divspinnerframe.style.display = "none";
-		offlineAction("newPeerCon()");
+		offlineAction("err on newPeerCon() "+ex.message);
 		return;
 	};
 
@@ -2437,6 +2439,7 @@ function newPeerCon() {
 		if(peerCon.connectionState=="disconnected") {
 			console.log("# peerCon disconnected "+rtcConnect+" "+mediaConnect);
 			stopAllAudioEffects();
+			// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 			endWebRtcSession(true,true,"disconnected by peer"); // -> peerConCloseFunc
 
 		} else if(peerCon.connectionState=="failed") {
@@ -2446,6 +2449,7 @@ function newPeerCon() {
 			// or until offline/online
 			console.log("# peerCon failed "+rtcConnect+" "+mediaConnect);
 			stopAllAudioEffects();
+			// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 			endWebRtcSession(true,true,"peer connection failed"); // -> peerConCloseFunc
 
 			newPeerCon();
@@ -2610,6 +2614,7 @@ function peerConnected3() {
 		// TODO showStatus()
 		//hangup(true,true,"Caller early abort");
 		stopAllAudioEffects();
+		// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 		endWebRtcSession(true,true,"caller early disconnect"); // -> peerConCloseFunc
 		return;
 	}
@@ -2628,6 +2633,7 @@ function peerConnected3() {
 		console.log("peerConnected3: NO DATACHANNEL - ABORT RING");
 		// TODO showStatus()
 		stopAllAudioEffects();
+		// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 		endWebRtcSession(true,true,"caller early abort"); // -> peerConCloseFunc
 		return;
 	}
@@ -2720,7 +2726,7 @@ function dataChannelOnmessage(event) {
 		//console.log("dataChannel.onmessage "+event.data);
 		if(event.data) {
 			if(event.data.startsWith("disconnect")) {
-				gLog("dataChannel.onmessage '"+event.data+"'");
+				console.log("dataChannel.onmessage '"+event.data+"'");
 				if(dataChannel!=null) {
 					dataChannel.close();
 					dataChannel = null;
@@ -2877,7 +2883,8 @@ function stopAllAudioEffects(comment) {
 
 var goOnlinePending = false;
 function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
-	console.log('endWebRtcSession discCaller='+disconnectCaller+" onlAfter="+goOnlineAfter+" ("+comment+")");
+	console.log("endWebRtcSession discCaller="+disconnectCaller+
+				" onlAfter="+goOnlineAfter+" switch="+goOnlineSwitch.checked+" ("+comment+")");
 	pickupAfterLocalStream = false;
 	if(remoteVideoFrame) {
 		remoteVideoFrame.pause();
@@ -2989,32 +2996,34 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	}
 	missedCallAffectingUserActionMs = (new Date()).getTime();
 
-	console.log("endWebRtcSession set goOnlineSwitch, wsConn="+(wsConn!=null));
+	console.log("endWebRtcSession wsConn="+(wsConn!=null));
 	fileselectLabel.style.display = "none";
 	progressSendElement.style.display = "none";
 	progressRcvElement.style.display = "none";
 	msgboxdiv.style.display = "none";
 	msgbox.innerHTML = "";
 
-	if(goOnlineAfter && !goOnlinePending) {
+	if(!goOnlineAfter) {
+		offlineAction("endWebRtcSession no goOnlineAfter");
+	} else if(goOnlinePending) {
+		//offlineAction("endWebRtcSession goOnlinePending");
+		console.log("endWebRtcSession goOnlinePending");
+	} else {
 		// bc we keep our wsConn alive, no new login is needed
 		// (no new ws-hub will be created on the server side)
 		// goOnlinePending flag prevents secondary calls to goOnline
 
 		goOnlinePending = true;
-		gLog('endWebRtcSession delayed auto goOnline()...');
+		console.log("endWebRtcSession auto goOnline() delayed...");
 		// TODO why exactly is this delay needed in goOnlineAfter?
 		setTimeout(function() {
-			gLog('endWebRtcSession auto goOnline()');
+			console.log('endWebRtcSession auto goOnline()');
 			goOnlinePending = false;
 			//console.log("callee endWebRtcSession auto goOnline(): enable goonline");
 			// get peerCon ready for the next incoming call
 			// bc we are most likely still connected, goOnline() will just send "init"
 			prepareCallee(true,"endWebRtcSession");
 		},500);
-
-	} else {
-		offlineAction("endWebRtcSession no goOnlineAfter");
 	}
 }
 

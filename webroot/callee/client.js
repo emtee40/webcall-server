@@ -1734,9 +1734,10 @@ function dataChannelOnerror(event) {
 
 function hangupWithBusySound(mustDisconnectCallee,message) {
 	dialing = false;
-	console.log("hangupWithBusySound stopAllAudioEffects "+message);
+	console.log("hangupWithBusySound stopAllAudioEffects "+message+" mediaConnect="+mediaConnect);
 	stopAllAudioEffects();
-	if(peerCon && peerCon.iceConnectionState!="closed") {
+//	if(peerCon && peerCon.iceConnectionState!="closed") {
+//	if(peerCon && mediaConnect) {
 		if(playDialSounds && busySignalSound!=null) {
 			gLog("hangupWithBusySound busySignalSound.play");
 			busySignalSound.play().catch(function(error) { });
@@ -1745,7 +1746,7 @@ function hangupWithBusySound(mustDisconnectCallee,message) {
 				stopAllAudioEffects();
 			},1500);
 		}
-	}
+//	}
 	hangup(mustDisconnectCallee,true,message);
 }
 
