@@ -151,6 +151,8 @@ window.onload = function() {
 		return;
 	}
 
+	menuClearCookieElement.style.display = "block";
+
 	// if set will auto-login as callee
 	let auto = cleanStringParameter(getUrlParams("auto"),true,"auto");
 	if(auto) {
@@ -291,7 +293,7 @@ window.onload = function() {
 			gLog('onload pw-entry is needed '+mode);
 			if(divspinnerframe) divspinnerframe.style.display = "none";
 
-			onGotStreamGoOnline = true;	        // ???
+			onGotStreamGoOnline = true;	        // TODO ???
 			enablePasswordForm();
 			return;
 		}
@@ -512,7 +514,8 @@ function submitFormDone(idx) {
 			return;
 		}
 		wsSecret = valuePw;
-//		onGotStreamGoOnline = true;			// TODO ???
+		// onGotStreamGoOnline will make gotStream2() call prepareCallee() -> login()
+		onGotStreamGoOnline = true;
 		//console.log("callee submitFormDone: enable goonline");
 		start();
 		// -> getStream() -> getUserMedia(constraints) -> gotStream() -> goOnline() -> login()
@@ -579,7 +582,8 @@ function start() {
 
 	try {
 		getStream().then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
-		//getStream() -> getUserMedia(constraints) -> gotStream() -> goOnline() -> login()
+		//getStream() -> getUserMedia(constraints) -> gotStream2() -> prepareCallee()
+		// if wsSecret is set in prepareCallee(), it will call login()
 	} catch(ex) {
 		console.log("# ex while searching for audio devices "+ex.message);
 		if(divspinnerframe) divspinnerframe.style.display = "none";
@@ -620,8 +624,6 @@ function login(retryFlag,comment) {
 
 			// show muteMic checkbox
 //			muteMicDiv.style.display = "block";
-
-//			menuClearCookieElement.style.display = "block";
 
 			if(parts.length>=2) {
 				talkSecs = parseInt(parts[1], 10);
@@ -1115,7 +1117,8 @@ function gotStream2() {
 		if(onGotStreamGoOnline && !rtcConnect) {
 			console.log('gotStream2 onGotStreamGoOnline goOnline');
 			onGotStreamGoOnline = false;
-//			goOnline(true,"gotStream2");
+			//goOnline(true,"gotStream2");
+			// if wsSecret is set, prepareCallee() will call login()
 			prepareCallee(true,"gotStream2");
 		} else {
 			console.log("gotStream2 standby");
@@ -2138,6 +2141,18 @@ function pickup2() {
 		chatButton.style.display = "block";
 		fileselectLabel.style.display = "block"
 
+		// hide clear cookie (while peer connected) - will be re-enabled in endWebRtcSession(
+		menuClearCookieElement.style.display = "none";
+
+		// hide clear cache on android (while peer connected) - will be re-enabled in endWebRtcSession()
+		if(typeof Android !== "undefined" && Android !== null) {
+			if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
+				if(Android.getVersionName()>="1.1.0") {
+					menuClearCacheElement.style.display = "none";
+				}
+			}
+		}
+
 		if(vsendButton) {
 			vsendButton.style.display = "inline-block";
 		}
@@ -2313,28 +2328,30 @@ function prepareCallee(sendInitFlag,comment) {
 	// get ready to receive a peer connections
 	newPeerCon();
 
-	// in androild mode, we want to do the same as tile does
-	//   and this is to call: webCallServiceBinder.goOnline() to start the reconnector
-	// this is what Android.jsGoOnline() allows us to do
-	// TODO not sure what happens service needs to login and fails ???
-	if(typeof Android !== "undefined" && Android !== null) {
-		// note: Android.isConnected() returns: 0=offline, 1=reconnector busy, 2=connected (wsClient!=null)
-		if(Android.isConnected()<=0) {
-			// we are offline and not connecting
-			if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
-				console.log("prepareCallee not connected/connecting -> call Android.jsGoOnline()");
-				Android.jsGoOnline();	// -> startReconnecter()
-				return;
+	if(wsSecret=="") {
+		// in androild mode, we want to do the same as tile does
+		//   and this is to call: webCallServiceBinder.goOnline() to start the reconnector
+		// this is what Android.jsGoOnline() allows us to do
+		// TODO not sure what happens service needs to login and fails ???
+		if(typeof Android !== "undefined" && Android !== null) {
+			// note: Android.isConnected() returns: 0=offline, 1=reconnector busy, 2=connected (wsClient!=null)
+			if(Android.isConnected()<=0) {
+				// we are offline and not connecting
+				if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
+					console.log("prepareCallee not connected/connecting -> call Android.jsGoOnline()");
+					Android.jsGoOnline();	// -> startReconnecter()
+					return;
+				}
+				console.log("# prepareCallee Android.jsGoOnline() not supported");
+			} else {
+				console.log("prepareCallee isConnected()="+Android.isConnected()+" >0 (connected or connection)");
 			}
-			console.log("# prepareCallee Android.jsGoOnline() not supported");
-		} else {
-			console.log("prepareCallee isConnected()="+Android.isConnected()+" >0 (connected or connection)");
-		}
 
-		// if already connected do NOT show spinner (we are most likely called by wakeGoOnline())
-	} else {
-		gLog("prepareCallee spinner on");
-		if(divspinnerframe) divspinnerframe.style.display = "block";
+			// if already connected do NOT show spinner (we are most likely called by wakeGoOnline())
+		} else {
+			gLog("prepareCallee spinner on");
+			if(divspinnerframe) divspinnerframe.style.display = "block";
+		}
 	}
 
 	if(wsConn==null /*|| wsConn.readyState!=1*/) {
@@ -2351,10 +2368,7 @@ function prepareCallee(sendInitFlag,comment) {
 	console.log('prepareCallee have wsConn');
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 
-//	dialpadElement.style.display = "block";	// only needed if goOffline turns if off
-	menuClearCookieElement.style.display = "block";
 //	muteMicDiv.style.display = "block";		// TODO
-	//nonesense: fileselectLabel.style.display = "block";
 	if(sendInitFlag) {
 		gLog('prepareCallee have wsConn -> send init');
 		sendInit("prepareCallee <- "+comment);
@@ -2996,6 +3010,18 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	}
 	missedCallAffectingUserActionMs = (new Date()).getTime();
 
+	// show clearCookie on android (after peer disconnect)
+	menuClearCookieElement.style.display = "block";
+
+	// show clearCache on android (after peer disconnect)
+	if(typeof Android !== "undefined" && Android !== null) {
+		if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
+			if(Android.getVersionName()>="1.1.0") {
+				menuClearCacheElement.style.display = "block";
+			}
+		}
+	}
+
 	console.log("endWebRtcSession wsConn="+(wsConn!=null));
 	fileselectLabel.style.display = "none";
 	progressSendElement.style.display = "none";
@@ -3093,9 +3119,6 @@ function goOffline(comment) {
 	}
 
 	iconContactsElement.style.display = "none";
-//	checkboxesElement.style.display = "none";
-	//dialpadElement.style.display = "none";
-	menuClearCookieElement.style.display = "none";
 
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 }
@@ -3229,20 +3252,22 @@ function openSettings() {
 
 function clearcache() {
 	if(typeof Android !== "undefined" && Android !== null) {
-		let wasConnected = true; //wsConn!=null;
-		if(typeof Android.wsClosex !== "undefined" && Android.wsClosex !== null) {
-			Android.wsClosex();
-		} else if(typeof Android.wsClose !== "undefined" && Android.wsClose !== null) {
-			Android.wsClose();
-		} else {
-			console.log("clearcache android wsClosex + wsClose undefined");
-		}
-		if(typeof Android.wsClearCache !== "undefined" && Android.wsClearCache !== null) {
-			setTimeout(function() {
-				Android.wsClearCache(true, wasConnected); // autoreload, autoreconnect
-			},250);
-		} else {
-			console.log("clearcache android wsClearCache undefined");
+		if(Android.getVersionName()>="1.1.0") {
+			let wasConnected = true; //wsConn!=null;
+			if(typeof Android.wsClosex !== "undefined" && Android.wsClosex !== null) {
+				Android.wsClosex();
+			} else if(typeof Android.wsClose !== "undefined" && Android.wsClose !== null) {
+				Android.wsClose();
+			} else {
+				console.log("clearcache android wsClosex + wsClose undefined");
+			}
+			if(typeof Android.wsClearCache !== "undefined" && Android.wsClearCache !== null) {
+				setTimeout(function() {
+					Android.wsClearCache(true, wasConnected); // autoreload, autoreconnect
+				},250);
+			} else {
+				console.log("clearcache android wsClearCache undefined");
+			}
 		}
 	}
 }
