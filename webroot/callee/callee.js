@@ -30,6 +30,8 @@ const calleeMode = true;
 const enterTextElement = document.getElementById('enterText');
 const slideRevealElement = document.getElementById("slideReveal");
 //const checkboxesElement = document.getElementById("checkboxes");
+const buttonRowElement = document.getElementById("buttonRow");
+
 
 var ringtoneSound = null;
 var ringtoneIsPlaying = false;
@@ -482,10 +484,11 @@ function showPw() {
 
 function enablePasswordForm() {
 	gLog('enter password for calleeID='+calleeID);
-//	muteMicDiv.style.display = "none";
 	showStatus("Login "+calleeID+" ...",-1);
 	document.getElementById("current-password").value = "";
 	form.style.display = "block";
+	// disable switch + icons (re-enable in login())
+	buttonRowElement.style.display = "none";
 	document.getElementById("username").focus();
 	//gLog("form username "+document.getElementById("username").value);
 	missedCallsTitleElement.style.display = "none";
@@ -671,6 +674,9 @@ function login(retryFlag,comment) {
 				}
 			}
 			//gLog('playDialSounds='+playDialSounds);
+
+			// re-enable switch + icons
+			buttonRowElement.style.display = "block";
 
 			// login success -> send "init|"
 			sendInit("xhr login success");
@@ -1508,7 +1514,7 @@ function signalingCommand(message, comment) {
 		var addIceCallerCandidate = function(callerCandidate) {
 			if(!peerCon || peerCon.iceConnectionState=="closed") {
 				console.log("# cmd callerCandidate abort no peerCon");
-				stopAllAudioEffects();
+				stopAllAudioEffects("iceCon closed");
 				// TODO do we really need this?
 				// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 				endWebRtcSession(true,true,"callerCandidate no peercon / ice closed"); // -> peerConCloseFunc
@@ -1569,10 +1575,10 @@ function signalingCommand(message, comment) {
 		addIceCallerCandidate(callerCandidate);
 
 	} else if(cmd=="cancel") {
+		// this is a remote cancel
 		if(payload=="c") {
-			// this is a remote cancel
 			console.log('cmd cancel');
-			stopAllAudioEffects("incoming cancel");
+//			stopAllAudioEffects("incoming cancel");		// temp
 			if(mediaConnect) {
 				// TODO if callerID and/or callerName are avail we would rather show them
 				// instead of listOfClientIps
@@ -1591,7 +1597,7 @@ function signalingCommand(message, comment) {
 			// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 			endWebRtcSession(false,true,"incoming cancel"); // -> peerConCloseFunc
 		} else {
-			stopAllAudioEffects("ignore cmd cancel");
+//			stopAllAudioEffects("ignore cmd cancel");		// temp
 			// TODO no endWebRtcSession ? android service will not know that ringing has ended
 		}
 
@@ -2249,16 +2255,18 @@ function hangup(mustDisconnect,dummy2,message) {
 	} else if(!busySignalSound) {
 		console.log('# hangup no busySignalSound');
 	} else {
-		gLog("hangup short busy sound");
+		console.log("hangup short busy sound");
+		busySignalSound.volume = 0.5;
+		busySignalSound.currentTime = 0;
 		busySignalSound.play().catch(error => {
-			console.log('# busySignal play',error.message);
+			console.log("hangup short busy sound",error.message);
 		});
 
 		setTimeout(function() {
 			busySignalSound.pause();
 			busySignalSound.currentTime = 0;
-			stopAllAudioEffects("hangup mediaConnect busy");
-		},1000);
+			stopAllAudioEffects("hangup short busy sound paused");
+		},1200);
 	}
 
 	connectLocalVideo(true); // force disconnect
@@ -2455,7 +2463,7 @@ function newPeerCon() {
 		}
 		if(peerCon.connectionState=="disconnected") {
 			console.log("# peerCon disconnected "+rtcConnect+" "+mediaConnect);
-			stopAllAudioEffects();
+			stopAllAudioEffects("peerCon disconnected");
 			// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 			endWebRtcSession(true,true,"disconnected by peer"); // -> peerConCloseFunc
 
@@ -2465,7 +2473,7 @@ function newPeerCon() {
 			// in which case the callee webrtc stack seems to be hosed, until the callee is reloaded
 			// or until offline/online
 			console.log("# peerCon failed "+rtcConnect+" "+mediaConnect);
-			stopAllAudioEffects();
+			stopAllAudioEffects("peerCon failed");
 			// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 			endWebRtcSession(true,true,"peer connection failed"); // -> peerConCloseFunc
 
@@ -2630,7 +2638,7 @@ function peerConnected3() {
 		console.log('peerConnected3: caller early abort');
 		// TODO showStatus()
 		//hangup(true,true,"Caller early abort");
-		stopAllAudioEffects();
+		stopAllAudioEffects("iceConnectionState closed");
 		// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 		endWebRtcSession(true,true,"caller early disconnect"); // -> peerConCloseFunc
 		return;
@@ -2649,7 +2657,7 @@ function peerConnected3() {
 		// this should never happen
 		console.log("peerConnected3: NO DATACHANNEL - ABORT RING");
 		// TODO showStatus()
-		stopAllAudioEffects();
+		stopAllAudioEffects("NO DATACHANNEL ABORT RING");
 		// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 		endWebRtcSession(true,true,"caller early abort"); // -> peerConCloseFunc
 		return;
@@ -2871,8 +2879,8 @@ function dataChannelOnmessage(event) {
 
 var allAudioEffectsStopped = false;
 function stopAllAudioEffects(comment) {
-	if(typeof comment!=="undefined") {
-		gLog("stopAllAudioEffects ("+comment+")");
+	if(typeof comment!=="undefined" && comment!="") {
+		console.log("stopAllAudioEffects ("+comment+")");
 	}
 	allAudioEffectsStopped = true;
 	if(typeof Android !== "undefined" && Android !== null &&

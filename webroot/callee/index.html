@@ -479,20 +479,20 @@ input:disabled + .slider {
 <div id="dynDialog" style="position:relative; user-select:none; display:none;"></div>
 
 <div id="container">
-	<div class="buttonRow">
+	<div class="buttonRow" id="buttonRow">
 		<label class="switch" style="margin-top:8px;">
 			<input type="checkbox" id="onlineSwitch">
 			<span class="slider"></span>
 		</label>
 
-		<div>
+		<span>
 		<img id="menu"         onclick="menuDialogOpen(menuDialogElement,1)" src="menu.svg" class="iconbutton">
 		<img id="checkboxes"   onclick="openSlide()"        src="checkboxes.svg"  class="iconbutton">
 		<img id="dialpad"      onclick="openDialId('')"     src="dialpad.svg"     class="iconbutton">
 		<img id="iconContacts" onclick="openContacts()"     src="contacts.svg"    class="iconbutton">
 		<img id="camera"       onclick="videoSwitch(false)" src="camera.svg"      class="iconbutton">
 		<img id="exclamation"  onclick=""                   src="exclamation.svg" class="iconbutton" style="display:none;">
-		</div>
+		</span>
 	</div>
     <div style="clear:all;height:8px; _background:#666;"></div>
 
@@ -512,7 +512,7 @@ input:disabled + .slider {
 
 	<div id="status" class="status"></div>
 
-	<form action="javascript:;" onsubmit="submitFormDone(1)" style="max-width:420px;display:none;" id="password">
+	<form action="javascript:;" onsubmit="submitFormDone(1)" style="max-width:420px;margin-top:20px;display:none;" id="password">
 		<input type="text" autocomplete="username" id="username" style="display:none;" required>
 		<label for="current-password" style="display:inline-block;">Password:</label>
 		<span onclick="showPw()" style="font-size:0.95em;float:right;margin-right:16%;margin-top:2px;opacity:0.9;user-select:none;cursor:pointer;">show</span>
