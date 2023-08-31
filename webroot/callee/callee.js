@@ -10,7 +10,6 @@ const isHiddenlabel = document.querySelector('label#isHiddenlabel');
 const autoanswerCheckbox = document.querySelector('input#autoanswer');
 const autoanswerlabel = document.querySelector('label#autoanswerlabel');
 const statusLine = document.getElementById('status');
-const msgbox = document.querySelector('textarea#msgbox');
 const divspinnerframe = document.querySelector('div#spinnerframe');
 const timerElement = document.querySelector('div#timer');
 const missedCallsTitleElement = document.getElementById('missedCallsTitle');
@@ -232,13 +231,9 @@ window.onload = function() {
 	});
 
 	// mute mode handler
-	if(!muteMicElement) {
-		console.log("# no muteMicElement");
-	} else {
-		muteMicElement.addEventListener('change', function() {
-			muteMic(this.checked);
-		});
-	}
+	muteMicElement.addEventListener('change', function() {
+		muteMic(this.checked);
+	});
 
 	// requestFullscreen and exitFullscreen are not supported in iOS (will abort JS without err-msg)
 	if(fullscreenCheckbox && fullscreenLabel.style.display!="none") {
@@ -482,9 +477,7 @@ function showPw() {
 
 function enablePasswordForm() {
 	gLog('enter password for calleeID='+calleeID);
-//	if(muteMicDiv) {	// TODO ???
-//		muteMicDiv.style.display = "none";
-//	}
+//	muteMicDiv.style.display = "none";
 	showStatus("Login "+calleeID+" ...",-1);
 	document.getElementById("current-password").value = "";
 	form.style.display = "block";
@@ -519,9 +512,7 @@ function submitFormDone(idx) {
 //		onGotStreamGoOnline = true;			// TODO ???
 		//console.log("callee submitFormDone: enable goonline");
 
-//		if(muteMicDiv) {
-//			muteMicDiv.style.display = "block";
-//		}
+//		muteMicDiv.style.display = "block";
 		start();
 		// -> getStream() -> getUserMedia(constraints) -> gotStream() -> goOnline() -> login()
 	} else if(idx==2) {
@@ -625,9 +616,7 @@ function login(retryFlag,comment) {
 			form.style.display = "none";
 
 			// show muteMic checkbox
-//			if(muteMicDiv) {
-//				muteMicDiv.style.display = "block";
-//			}
+//			muteMicDiv.style.display = "block";
 
 //			menuClearCookieElement.style.display = "block";
 
@@ -1663,8 +1652,8 @@ function signalingCommand(message, comment) {
 				let secsSinceLastdeleteMissedCallAction = curSecs - missedCallAffectingUserActionMs;
 				console.log("cmd missedCallsSlice curSecs="+curSecs+" - "+missedCallAffectingUserActionMs+" = ms="+
 					secsSinceLastdeleteMissedCallAction);
-				if(secsSinceLastdeleteMissedCallAction <= 750) {
-					// a deleteMissedCallAction took place in the last 750ms, skip beep
+				if(secsSinceLastdeleteMissedCallAction <= 1500) {
+					// a deleteMissedCallAction took place in the last 1500ms, skip beep
 					console.log("skip beep due to recent deleteMissedCallAction "+secsSinceLastdeleteMissedCallAction);
 				} else {
 					console.log("beep, secsSinceLastdeleteMissedCallAction="+secsSinceLastdeleteMissedCallAction);
@@ -1683,7 +1672,7 @@ function signalingCommand(message, comment) {
 		gLog("textmode",textmode);
 
 		if(textmode=="true") {
-			if(muteMicElement && muteMicElement.checked==false) {
+			if(muteMicElement.checked==false) {
 				muteMicElement.checked = true;
 				// if we change the state of the muteMic checkbox here, we need to auto-change it back on hangup
 				// only then do we ever auto-change the state of this checkbox
@@ -2145,10 +2134,11 @@ function pickup2() {
 			vsendButton.style.display = "inline-block";
 		}
 		if(localStream) {
-			if(!muteMicElement || muteMicElement.checked==false) {
-				muteMic(false);
+			if(muteMicElement.checked==false) {
+				muteMic(false); // don't mute
 			} else {
-				muteMic(true);
+				muteMic(true); // do mute
+				// tmtmtm auto-open textchat (as if user clicks chatButton)
 			}
 		}
 
@@ -2179,45 +2169,22 @@ function pickup2() {
 				.then((results) => getStatsCandidateTypes(results,"Connected","e2ee"),
 					err => console.log(err.message));
 
-				let enableTextchat = function() {
-					if(msgbox.style.display=="block") {
-						msgbox.style.display = "none";
-						textbox.style.display = "none";
-						return;
-					}
-					console.log("enable textchat");
-					// hide chat-button
-					// msgbox NOT editable
-					msgbox.readOnly = true;
-					// msgbox no placeholder
-					msgbox.placeholder = "";
-					// show msgbox and textbox
-					msgbox.style.display = "block";
-					textbox.style.display = "block"; // -> submitForm()
-
-					setTimeout(function() {
-						console.log("focus enterTextElement");
-						enterTextElement.focus();
-					},500);
-				};
-
-				if(textmode=="true") {
-					// we open the textbox bc the caller requested textmode
-					enableTextchat();
-				} else if(chatButton) {
-					// we show the chatButton, so callee can manually open the textbox
-					chatButton.style.display = "block";
-					chatButton.onclick = function() {
-						if(textchatOKfromOtherSide) {
-							enableTextchat();
-						} else {
-							//chatButton.style.display = "none";
-							showStatus("Peer does not support textchat",4000);
-						}
+				chatButton.onclick = function() {
+					if(textchatOKfromOtherSide) {
+						console.log("chatButton.onclick -> enableDisableTextchat toggle");
+						enableDisableTextchat(false);
+					} else {
+						//chatButton.style.display = "none";
+						showStatus("Peer does not support textchat",2000);
 					}
 				}
+				if(muteMicElement.checked) {
+					// we auto-open the textbox bc the caller requested textmode
+					console.log("muteMicElement.checked -> enableDisableTextchat open");
+					enableDisableTextchat(true);
+				}
 			} else {
-				// TODO BAD
+				console.warn("# either peerCon or mediaConnect not set");
 			}
 		},200);
 	},400);
@@ -2231,7 +2198,7 @@ function hangup(mustDisconnect,dummy2,message) {
 	// showOnlineReadyMsg() is called in response to us calling sendInit() and the server responding with "sessionId|"
 	// hangup() -> endWebRtcSession() -> prepareCallee() -> sendInit() ... server "sessionId|" -> showOnlineReadyMsg()
 
-	msgbox.style.display = "none";
+	msgboxdiv.style.display = "none";
 	msgbox.value = "";
 	textbox.style.display = "none";
 	textbox.value = "";
@@ -2669,7 +2636,7 @@ function peerConnected3() {
 	answerButton.disabled = false;
 	// only show msgbox if not empty
 	if(msgbox.value!="" && !calleeID.startsWith("answie")) {
-		msgbox.style.display = "block";
+		msgboxdiv.style.display = "block";
 	}
 
 	// TODO disable goOnlineSwitch while peerconnected ?
@@ -2763,21 +2730,16 @@ function dataChannelOnmessage(event) {
 				let cleanString = cleanStringParameter(event.data.substring(4),false);
 				if(cleanString!="") {
 					//gLog("dataChannel.onmessage msg",cleanString);
-					if(msgbox) {
-//						chatButton.style.display = "none";
-						msgbox.style.display = "block";
-						msgbox.readOnly = true;
-						msgbox.placeholder = "";
-						textbox.style.display = "block"; // -> submitForm()
-						let msg = "< " + cleanString;
-						if(msgbox.value!="") { msg = newline + msg; }
-						msgbox.value += msg;
-						//console.log("msgbox "+msgbox.scrollTop+" "+msgbox.scrollHeight);
-						msgbox.scrollTop = msgbox.scrollHeight-1;
-
-						//soundBeep();
-						soundKeyboard();
-					}
+					msgboxdiv.style.display = "block";
+					msgbox.readOnly = true;
+					msgbox.placeholder = "";
+					textbox.style.display = "block"; // -> submitForm()
+					let msg = "< " + cleanString;
+					if(msgbox.value!="") { msg = newline + msg; }
+					msgbox.value += msg;
+					//console.log("msgbox "+msgbox.scrollTop+" "+msgbox.scrollHeight);
+					msgbox.scrollTop = msgbox.scrollHeight-1;
+					soundKeyboard();
 				}
 			} else if(event.data.startsWith("cmd|")) {
 				let subCmd = event.data.substring(4);
@@ -2927,7 +2889,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		showStatus("Offline",-1);
 	}
 
-	msgbox.style.display = "none";
+	msgboxdiv.style.display = "none";
 	msgbox.value = "";
 	textbox.style.display = "none";
 	textbox.value = "";
@@ -3026,7 +2988,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	fileselectLabel.style.display = "none";
 	progressSendElement.style.display = "none";
 	progressRcvElement.style.display = "none";
-	msgbox.style.display = "none";
+	msgboxdiv.style.display = "none";
 	msgbox.innerHTML = "";
 
 	if(goOnlineAfter && !goOnlinePending) {

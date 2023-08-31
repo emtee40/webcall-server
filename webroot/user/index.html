@@ -143,15 +143,16 @@ a, a:link, a:visited, a:active {
 }
 
 .status {
-	margin-top:18px;
-	margin-bottom:8px;
-	padding-left:2px;
+	padding-top:12px;
+	padding-bottom:12px;
+	_padding-left:2px;
 	width:98%;
 	max-width:520px;
-    font-size:1.1em;
-	line-height:1.3em;
-	transition:opacity 600ms;
-    color:#ddd;
+    _font-size:1.1em;
+	_line-height:1.3em;
+	transition:opacity 400ms ease-in-out;
+    color:#ccc;
+    font-weight:600;
 }
 
 .msgbox {
@@ -206,8 +207,8 @@ select:focus {
 }
 
 form {
-	margin-top:12px;
-	font-size:1.1em;
+	_margin-top:12px;
+	_font-size:1.1em;
 }
 .formtext {
 	border-radius:4px;
@@ -416,14 +417,17 @@ input[type=submit]:focus {
 
 	<div id="status" class="status"></div>
 
-	<textarea id="msgbox" class="msgbox" placeholder="(your message)" maxlength="137" style="display:none"></textarea>
-	<button id="chatButton" style="display:none; margin-top:4px; padding-top:4px; padding-bottom:3px;">TextChat</button>
-	<div id="textbox" style="display:none;">
-		<form action="javascript:;" style="margin-top:4px;" onsubmit="submitForm(2)" id="textboxid">
-			<input name="enterText" id="enterText" type="text" class="formtext" style="width:100%; max-width:550px; font-size:1.1em;">
-			<input type="submit" name="Submit" id="submitText" value="" style="display:none">
-		</form>
+	<div id="msgboxdiv" style="padding-top:10px;padding-bottom:10px;display:none;">
+		<textarea id="msgbox" class="msgbox" spellcheck="false""></textarea>
+		<div id="textbox" style="display:none;">
+			<form action="javascript:;" onsubmit="submitFormDone(2)">
+				<input name="enterText" id="enterText" type="text" class="formtext" style="width:97%; max-width:550px;">
+				<input type="submit" name="Submit" id="submitText" value="" style="display:none">
+			</form>
+		</div>
 	</div>
+	<button id="chatButton" style="display:none; margin-top:4px; padding-top:4px; padding-bottom:3px;">TextChat</button>
+
 
 	<div id="progressSend" style="width:100%;max-width:360px;display:none;">
 		<div id="progressSendLabel">sending:</div>
@@ -438,13 +442,13 @@ input[type=submit]:focus {
 	<div id="storeContact" style="margin-top:16px;"></div>
 
 	<div id="timer" class="timer">0:00</div>
-	<div style="opacity:0.7;margin-top:30px;user-select:none;">WebCall by <a href="https://timur.mobi/webcall">timur.mobi</a></div>
+	<div style="opacity:0.7;margin-top:20px;user-select:none;">WebCall by <a href="https://timur.mobi/webcall">timur.mobi</a></div>
 </div>
 
 <!-- dial-id -->
 <div id="enterId" style="display:none">
 	<h1>WebCall Dial ID</h1>
-	<form action="javascript:;" style="margin-top:6px;" onsubmit="submitForm(1)" id="mnumber">
+	<form action="javascript:;" style="margin-top:6px;" onsubmit="submitFormDone(1)" id="mnumber">
 		<label class="formlabel" for="enterDomain">Server address:</label><br>
 		<input name="enterDomain" id="enterDomainVal" type="text" class="formtext" required>
 		<span class="lbutton" id="enterDomainClear" onclick="clearForm(4)">clr</span><br>

@@ -15,7 +15,6 @@ const enterTextElement = document.getElementById('enterText');
 const codecPreferences = document.querySelector('#codecPreferences');
 const titleElement = document.getElementById('title');
 const statusLine = document.getElementById('status');
-const msgbox = document.querySelector('textarea#msgbox');
 const textbox = document.getElementById('textbox');
 const timerElement = document.querySelector('div#timer');
 const calleeOfflineElement = document.getElementById("calleeOffline");
@@ -118,7 +117,7 @@ function languageDefaults() {
 
 	str = lg("msgbox");
 	if(typeof str !== "undefined" && str!="") {
-		if(msgbox) msgbox.placeholder = str;
+		msgbox.placeholder = str;
 	}
 
 	str = lg("nicknameLabel");
@@ -569,7 +568,7 @@ window.onload = function() {
 		}
 		*/
 
-		// [Dial] button -> will resume in submitForm()
+		// [Dial] button -> will resume in submitFormDone()
 		return;
 	}
 
@@ -973,6 +972,8 @@ function onload3(comment) {
 	if(chatButton) {
 		chatButton.onclick = function() {
 			if(textchatOKfromOtherSide) {
+				// hide chat-button
+				chatButton.style.display = "none";
 				enableTextChat();
 			} else {
 				setTimeout(function() {
@@ -1043,7 +1044,7 @@ function dialButtonClick2() {
 	}
 	dialButton.disabled = true;
 	//hangupButton.disabled = false;
-	msgbox.style.display = "none";
+	msgboxdiv.style.display = "none";
 
 	// hide 'store contact' button
 	let storeContactElement = document.getElementById("storeContact");
@@ -1364,17 +1365,17 @@ function calleeOnlineAction(comment) {
 
 			// so we display a message to prepare the caller hitting the call button manually
 			if(calleeID.startsWith("answie"))  {
-				msgbox.style.display = "none";
+				msgboxdiv.style.display = "none";
 				showStatus(lg("digAnswMachine"),-1);
 			} else if(calleeID.startsWith("talkback")) {
-				msgbox.style.display = "none";
+				msgboxdiv.style.display = "none";
 				showStatus( "Talkback service let's you test your microphone audio quality. "+
 							"The first six seconds of the call will be recorded (red led) "+
 							"and then immediately played back to you (green led).",-1);
 			} else {
 				showStatus(lg("greetingMessage"),-1);
+				msgboxdiv.style.display = "block";
 				msgbox.value = "";
-				msgbox.style.display = "block";
 				msgbox.readOnly = false;
 				if(placeholderText!="") {
 					msgbox.placeholder = placeholderText;
@@ -1481,7 +1482,7 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 						calleeOfflineElement.style.display = "none";
 
 						showStatus("Enter text message before the call (optional):",-1);
-						msgbox.style.display = "block";
+						msgboxdiv.style.display = "block";
 						msgbox.readOnly = false;
 						if(placeholderText!="") {
 							msgbox.placeholder = placeholderText;
@@ -1662,17 +1663,17 @@ function confirmNotifyConnect() {
 	notifyConnect(callerName,callerId,location.host);
 }
 
-function submitForm(idx) {
-	console.log("submitForm() idx="+idx);
+function submitFormDone(idx) {
+	console.log("submitFormDone() idx="+idx);
 	if(idx==1) {
 		// DialID: switch back to default container
 		calleeID = cleanStringParameter(enterIdValElement.value,true); // remove all white spaces
 	//	if(!calleeID.startsWith("#")) {
 	//		if(calleeID.length>11) calleeID = calleeID.substring(0,11);
 	//	}
-		gLog("submitForm calleeID="+calleeID);
+		gLog("submitFormDone calleeID="+calleeID);
 		// TODO .host may have :443 set, while DomainVal may not
-		gLog("submitForm targetDomain="+enterDomainValElement.value+" location.host="+location.host);
+		gLog("submitFormDone targetDomain="+enterDomainValElement.value+" location.host="+location.host);
 		if(cleanStringParameter(enterDomainValElement.value,true) != location.host) {
 			// calling a remote server callee
 			// if we are running on Android, callUrl will be handled by onNewIntent() in the activity
@@ -1696,26 +1697,26 @@ function submitForm(idx) {
 			}
 			var openOK = false;
 			try {
-				//console.log("submitForm window.open "+callUrl);
+				//console.log("submitFormDone window.open "+callUrl);
 				// in WebCallAndroid: callUrl being opened will trigger onNewIntent()
 				openOK = window.open(callUrl, "");
 			} catch(e) {
 				// if we end here, the domain cannot be reached, so we don't do window.open()
-				console.log("# submitForm window.open("+callUrl+") ex="+e);
+				console.log("# submitFormDone window.open("+callUrl+") ex="+e);
 				alert("Connection failed. Please check the server address.");
 				//de-focus submit button
 				document.activeElement.blur();
 			} finally {
 				if(!openOK) {
 					// if we end here, the domain cannot be reached, so we don't do window.open()
-					console.log("# submitForm !openOK window.open("+callUrl+")");
+					console.log("# submitFormDone !openOK window.open("+callUrl+")");
 					alert("Connection failed. Please check the server address.");
 					//de-focus submit button
 					document.activeElement.blur();
 				} else {
 					// everything OK
 					// on android the window.open() may be handled by dialId() or by an ext browser
-					//console.log("submitForm window.open("+callUrl+") no err");
+					//console.log("submitFormDone window.open("+callUrl+") no err");
 					enterIdElement.style.display = "none";
 					containerElement.style.display = "block";
 					history.back();
@@ -2147,25 +2148,28 @@ function signalingCommand(message) {
 		}
 
 		// hide msgbox
-		msgbox.style.display = "none";
+		msgboxdiv.style.display = "none";
 		onlineIndicator.src="red-gradient.svg";
 
+/* TODO somewhere
+		if(!calleeID.startsWith("answie"))  {
+			chatButton.style.display = "block";
+		}
+*/
 		// open textChat or enable chatButton
-		if(muteMicElement && muteMicElement.checked) {
-			muteMic(true);
-			// give a little time for textchatOKfromOtherSide state
-			setTimeout(function() {
-				if(textchatOKfromOtherSide) {
-					enableTextChat();
-				} else {
-					chatButton.style.display = "none";
-				}
-			},1000);
-		} else if(chatButton) {
-			muteMic(false);
-			if(!calleeID.startsWith("answie"))  {
-				chatButton.style.display = "block";
+		chatButton.onclick = function() {
+			if(textchatOKfromOtherSide) {
+				console.log("chatButton.onclick -> enableDisableTextchat");
+				enableDisableTextchat(false);
+			} else {
+				//chatButton.style.display = "none";
+				showStatus("Peer does not support textchat",4000);
 			}
+		}
+		if(muteMicElement.checked) {
+			// we auto-open the textbox bc the caller requested textmode
+			console.log("muteMicElement.checked -> enableDisableTextchat");
+			enableDisableTextchat(true);
 		}
 
 		// mute mode handler
@@ -2647,22 +2651,18 @@ function dataChannelOnmessage(event) {
 				let cleanString = cleanStringParameter(event.data.substring(4),false);
 				if(cleanString!="") {
 					//gLog("dataChannel.onmessage msg",cleanString);
-					if(msgbox) {
-						chatButton.style.display = "none";
-						msgbox.readOnly = true;
-						placeholderText = msgbox.placeholder;
-						msgbox.placeholder = "";
-						msgbox.style.display = "block";
-						textbox.style.display = "block"; // -> submitForm()
-						let msg = "< " + cleanString;
-						if(msgbox.value!="") { msg = newline + msg; }
-						msgbox.value += msg;
-						//console.log("msgbox "+msgbox.scrollTop+" "+msgbox.scrollHeight);
-						msgbox.scrollTop = msgbox.scrollHeight-1;
-
-						//soundBeep();
-						soundKeyboard();
-					}
+					chatButton.style.display = "none";
+					msgbox.readOnly = true;
+					placeholderText = msgbox.placeholder;
+					msgbox.placeholder = "";
+					msgboxdiv.style.display = "block";
+					textbox.style.display = "block"; // -> submitFormDone()
+					let msg = "< " + cleanString;
+					if(msgbox.value!="") { msg = newline + msg; }
+					msgbox.value += msg;
+					//console.log("msgbox "+msgbox.scrollTop+" "+msgbox.scrollHeight);
+					msgbox.scrollTop = msgbox.scrollHeight-1;
+					soundKeyboard();
 				}
 			} else if(event.data.startsWith("cmd|")) {
 				let subCmd = event.data.substring(4);
@@ -2778,7 +2778,7 @@ function stopAllAudioEffects() {
 function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 	console.log('hangup: '+message);
 	dialing = false;
-	msgbox.style.display = "none";
+	msgboxdiv.style.display = "none";
 	textbox.style.display = "none";
 	chatButton.style.display = "none";
 	connectLocalVideo(true); // forceOff

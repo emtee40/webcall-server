@@ -1,6 +1,6 @@
 // WebCall Copyright 2023 timur.mobi. All rights reserved.
 'use strict';
-const clientVersion = '4.0.0-beta10';
+const clientVersion = '4.0.0-beta11';
 
 const avSelect = document.querySelector("select#avSelect");
 const vresDialogElement = document.getElementById('vresDialog');
@@ -36,6 +36,8 @@ const chatButton = document.querySelector('button#chatButton');
 const muteMicDiv = document.getElementById("muteMicDiv");
 const muteMicElement = document.getElementById("muteMic");
 const muteMiclabelElement = document.getElementById("muteMiclabel");
+const msgboxdiv = document.getElementById('msgboxdiv');
+const msgbox = document.querySelector('textarea#msgbox');
 
 var bitrate = 320000;
 var calleeID = "";
@@ -1842,21 +1844,26 @@ function clearcookie() {
 	},1000);
 }
 
-function enableTextChat() {
-	console.log("enable textchat");
+function enableDisableTextchat(force) {
+	if(!force && msgboxdiv.style.display=="block") {
+		console.log("textchat close");
+		msgboxdiv.style.display = "none";
+		textbox.style.display = "none";
+		return;
+	}
+	console.log("textchat open");
 	// hide chat-button
-	chatButton.style.display = "none";
 	// msgbox NOT editable
 	msgbox.readOnly = true;
 	// msgbox no placeholder
 	msgbox.placeholder = "";
 	// show msgbox and textbox
-	msgbox.style.display = "block";
+	msgboxdiv.style.display = "block";
 	textbox.style.display = "block"; // -> submitForm()
 
 	setTimeout(function() {
 		console.log("focus enterTextElement");
 		enterTextElement.focus();
 	},500);
-}
+};
 
