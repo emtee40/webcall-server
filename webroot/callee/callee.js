@@ -1115,10 +1115,12 @@ function gotStream2() {
 			localStream = null;
 		}
 		if(onGotStreamGoOnline && !rtcConnect) {
-			console.log('gotStream2 onGotStreamGoOnline goOnline');
+			//console.log('gotStream2 onGotStreamGoOnline goOnline');
+			console.log('gotStream2 onGotStreamGoOnline prepareCallee');
 			onGotStreamGoOnline = false;
 			//goOnline(true,"gotStream2");
 			// if wsSecret is set, prepareCallee() will call login()
+			// if wsSecret is not set, in android mode Android.jsGoOnline() will be call
 			prepareCallee(true,"gotStream2");
 		} else {
 			console.log("gotStream2 standby");
@@ -2328,6 +2330,7 @@ function prepareCallee(sendInitFlag,comment) {
 	// get ready to receive a peer connections
 	newPeerCon();
 
+
 	if(wsSecret=="") {
 		// in androild mode, we want to do the same as tile does
 		//   and this is to call: webCallServiceBinder.goOnline() to start the reconnector
@@ -2354,11 +2357,12 @@ function prepareCallee(sendInitFlag,comment) {
 		}
 	}
 
+
 	if(wsConn==null /*|| wsConn.readyState!=1*/) {
 		// this basically says: if prepareCallee() is called when we are NOT connected to the server,
 		// try to login now using cookie or wsSecret (from login form)
 		if(!mediaConnect) {
-			showStatus("Connecting...",-1);  // unsinn!?
+			showStatus("Connecting...",-1);
 		}
 		console.log("prepareCallee wsConn==null -> login()");
 		login(false,"prepareCallee");
@@ -2368,7 +2372,6 @@ function prepareCallee(sendInitFlag,comment) {
 	console.log('prepareCallee have wsConn');
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 
-//	muteMicDiv.style.display = "block";		// TODO
 	if(sendInitFlag) {
 		gLog('prepareCallee have wsConn -> send init');
 		sendInit("prepareCallee <- "+comment);
