@@ -93,7 +93,7 @@ var newline = String.fromCharCode(13, 10);
 var textmode="";
 var	muteMicModified = false;
 var textchatOKfromOtherSide = false;
-var missedCallAffectingUserActionMs = 0;
+var newestMissedCallBingClock = 0;
 
 window.onload = function() {
 	console.log("callee.js onload...");
@@ -417,7 +417,6 @@ function videoOff() {
 	}
 
 	// getStream() triggers a new cmd=='missedCalls' but we don't want a beep
-	missedCallAffectingUserActionMs = (new Date()).getTime();
 
 	// switch to the 1st audio option
 	let optionElements = Array.from(avSelect);
@@ -1308,7 +1307,6 @@ function wsOnOpen() {
 	menuSettingsElement.style.display = "block";
 	iconContactsElement.style.display = "block";
 	idMappingElement.style.display = "block";
-	missedCallAffectingUserActionMs = (new Date()).getTime();
 }
 
 function wsOnError(evt) {
@@ -1667,21 +1665,22 @@ function signalingCommand(message, comment) {
 		if(missedCallsSlice!=null) {
 			oldMissedCallsSliceLen = missedCallsSlice.length;
 		}
+
 		missedCallsSlice = null;
 		if(payload.length>0) {
 			missedCallsSlice = JSON.parse(payload);
 			console.log('cmd missedCallsSlice len='+missedCallsSlice.length);
-			// beep when list changes
-			if(missedCallsSlice!=null && missedCallsSlice.length != oldMissedCallsSliceLen) {
-				let curSecs = (new Date()).getTime()
-				let secsSinceLastdeleteMissedCallAction = curSecs - missedCallAffectingUserActionMs;
-				console.log("cmd missedCallsSlice curSecs="+curSecs+" - "+missedCallAffectingUserActionMs+" = ms="+
-					secsSinceLastdeleteMissedCallAction);
-				if(secsSinceLastdeleteMissedCallAction <= 1500) {
-					// a deleteMissedCallAction took place in the last 1500ms, skip beep
-					console.log("skip beep due to recent deleteMissedCallAction "+secsSinceLastdeleteMissedCallAction);
-				} else {
-					console.log("beep, secsSinceLastdeleteMissedCallAction="+secsSinceLastdeleteMissedCallAction);
+			// beep when there is a new missedCall entry
+			if(missedCallsSlice!=null && missedCallsSlice.length>0) {
+				// OK, there is at least one entry
+				if(newestMissedCallBingClock==0) {
+					// the first time (right after start, when newestMissedCallBingClock==0) we do not beep
+					// we only take the time of the newest missedCall entry
+					newestMissedCallBingClock = missedCallsSlice[missedCallsSlice.length-1].CallTime;
+					// from now we will check if the newest entry is newer than newestMissedCallBingClock
+				} else if(missedCallsSlice[missedCallsSlice.length-1].CallTime > newestMissedCallBingClock) {
+					newestMissedCallBingClock = missedCallsSlice[missedCallsSlice.length-1].CallTime;
+					console.log("beep newestMissedCallBingClock="+newestMissedCallBingClock);
 					soundBeep();
 				}
 			}
@@ -2066,7 +2065,6 @@ function deleteMissedCall(callerAddrPortPlusCallTime,name,id) {
 function deleteMissedCallDo() {
 	// will be called by deleteMissedCall()
 	gLog('deleteMissedCallDo '+myCallerAddrPortPlusCallTime);
-	missedCallAffectingUserActionMs = (new Date()).getTime();
 	wsSend("deleteMissedCall|"+myCallerAddrPortPlusCallTime);
 }
 
@@ -3102,7 +3100,6 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	if(vsendButton) {
 		vsendButton.style.display = "none";
 	}
-	missedCallAffectingUserActionMs = (new Date()).getTime();
 
 	// show clearCookie on android (after peer disconnect)
 	menuClearCookieElement.style.display = "block";
