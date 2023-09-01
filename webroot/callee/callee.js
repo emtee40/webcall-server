@@ -94,6 +94,7 @@ var textmode="";
 var	muteMicModified = false;
 var textchatOKfromOtherSide = false;
 var newestMissedCallBingClock = 0;
+var lastInnerWidth = 0;
 
 window.onload = function() {
 	console.log("callee.js onload...");
@@ -152,6 +153,22 @@ window.onload = function() {
 		window.location.replace("/callee/"+calleeID);
 		return;
 	}
+
+	window.onresize = (event) => {
+		//console.log("onresize "+window.innerHeight+" "+window.innerWidth);
+		if(window.innerWidth!=lastInnerWidth) {
+			if(Math.abs(window.innerWidth-lastInnerWidth)>=10) {
+				//console.log("window.innerWidth has changed="+(window.innerWidth)+" was="+lastInnerWidth);
+				if(wsConn!=null && missedCallsSlice!=null && missedCallsSlice.length>0) {
+					console.log("onresize -> showMissedCalls(");
+					showMissedCalls();
+				} else {
+					console.log("onresize -> no showMissedCalls(");
+				}
+			}
+			lastInnerWidth = window.innerWidth;
+		}
+	};
 
 	menuClearCookieElement.style.display = "block";
 
