@@ -160,10 +160,10 @@ window.onload = function() {
 			if(Math.abs(window.innerWidth-lastInnerWidth)>=10) {
 				//console.log("window.innerWidth has changed="+(window.innerWidth)+" was="+lastInnerWidth);
 				if(wsConn!=null && missedCallsSlice!=null && missedCallsSlice.length>0) {
-					console.log("onresize -> showMissedCalls(");
+					//console.log("onresize -> showMissedCalls(");
 					showMissedCalls();
 				} else {
-					console.log("onresize -> no showMissedCalls(");
+					//console.log("onresize -> no showMissedCalls(");
 				}
 			}
 			lastInnerWidth = window.innerWidth;
@@ -1223,7 +1223,7 @@ function showOnlineReadyMsg() {
 	// delay 'ready to receive calls' msg, so that prev msg can be read by user
 	setTimeout(function(oldWidth) {
 		if(!mediaConnect) {
-			console.log("showOnlineReadyMsg");
+			//console.log("showOnlineReadyMsg");
 			if(typeof Android !== "undefined" && Android !== null) {
 				if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
 					Android.calleeConnected();
@@ -1234,7 +1234,6 @@ function showOnlineReadyMsg() {
 					// 2. statusMessage(awaitingCalls,-1,true,false);
 				}
 			} else {
-				//showStatus("connected to webcall server",1200);
 				showStatus("Ready to receive calls",-1);
 			}
 		}
@@ -2248,10 +2247,6 @@ function prepareCallee(sendInitFlag,comment) {
 		notificationSound = new Audio("notification.mp3");
 	}
 
-	// get ready to receive a peer connections
-//	newPeerCon();
-
-
 	if(wsSecret=="") {
 		// in androild mode, we want to do the same as tile does
 		//   and this is to call: webCallServiceBinder.goOnline() to start the reconnector
@@ -2301,7 +2296,7 @@ function prepareCallee(sendInitFlag,comment) {
 }
 
 function newPeerCon() {
-	console.log("newPeerCon()");
+	//console.log("newPeerCon()");
 	try {
 		peerCon = new RTCPeerConnection(ICE_config);
 		console.log("newPeerCon() new RTCPeerConnection ready");
@@ -2391,12 +2386,7 @@ function newPeerCon() {
 			stopAllAudioEffects("peerCon failed");
 			// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 			endWebRtcSession(true,true,"peer connection failed"); // -> peerConCloseFunc
-
-// is now created in endWebRtcSession()
-//			if(newPeerCon()) {
-//				// fail
-//				return;
-//			}
+/*
 			if(wsConn==null) {
 				console.log('peerCon failed and wsConn==null -> login()');
 				login(false,"onconnectionstatechange="+peerCon.iceConnectionState);
@@ -2405,6 +2395,7 @@ function newPeerCon() {
 				//gLog('peerCon failed but have wsConn -> send init');
 				//sendInit("after peerCon failed");
 			}
+*/
 		} else if(peerCon.connectionState=="connected") {
 			if(!rtcConnect) {
 				console.log("peerCon connectionState connected -> peerConnected()");
