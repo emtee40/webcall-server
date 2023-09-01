@@ -2791,24 +2791,24 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 	msg = msg.replace(eventString1,"");
 	// result: "p2p/p2p"
 
-	if(textmode=="true") {
-		msg = msg + " TextMode";
-		// result: "p2p/p2p TextMode"
-	}
-
 	if(eventString2!="") {
 		msg = msg + " "+eventString2;
-		// result: "p2p/p2p TextMode E2EE"
+		// result: "p2p/p2p E2EE"
+	}
+
+	if(textmode=="true") {
+		msg = msg + " TextMode";
+		// result: "p2p/p2p E2EE TextMode"
 	}
 
 	// we rather show callerID and/or callerName if they are avail, instead of listOfClientIps
 	if(callerName!="" || callerID!="") {
 		if(callerName=="" || callerName.toLowerCase()==callerID.toLowerCase()) {
 			msg = callerID +" "+ msg;
-			// result: "nnnnnnnnnnn p2p/p2p TextMode E2EE"
+			// result: "nnnnnnnnnnn p2p/p2p E2EE TextMode"
 		} else {
 			msg = callerName +" "+ callerID +" "+ msg;
-			// result: "Nickname nnnnnnnnnnn p2p/p2p TextMode E2EE"
+			// result: "Nickname nnnnnnnnnnn p2p/p2p E2EE TextMode"
 		}
 	} else if(listOfClientIps!="") {
 		msg += " "+listOfClientIps;
