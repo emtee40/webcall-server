@@ -1702,12 +1702,12 @@ function showStatus(msg,timeoutMs) {
 
 function isDataChlOpen() {
 	if(dataChannel) {
-		gLog("isDataChlOpen state="+dataChannel.readyState);
+		console.log("isDataChannelOpen state="+dataChannel.readyState);
 		if(dataChannel.readyState=="open") {
 			return true;
 		}
 	} else {
-		//gLog("isDataChlOpen no dataChannel");
+		console.log("isDataChannelOpen no");
 	}
 	return false;
 }

@@ -1257,6 +1257,16 @@ function connectSignaling(message,comment) {
 	tryingToOpenWebSocket = true;
 	wsSendMessage = message;
 
+	// create a new peerCon - if none exists, this is the latest moment
+	// but only if none exist currently and is not closed
+	if(peerCon==null || peerCon.signalingState=="closed") {
+	    console.log('connectSig: peercon is gone ----------------');
+		if(newPeerCon()) {
+			// fail
+			return;
+		}
+	}
+
 	if(typeof Android !== "undefined" && Android !== null) {
 		// wsUrl will only be used if service:wsClient==null
 		// but on server triggered reconnect, service:wsClient will be set (and wsUrl will not be used)
@@ -1265,7 +1275,6 @@ function connectSignaling(message,comment) {
 		//  service -> wsCli=connectHost(wsUrl) -> onOpen() -> runJS("wsOnOpen()",null) -> wsSendMessage("init|!")
 		// if service IS already connected:
 		//  service -> if activityWasDiscarded -> wakeGoOnlineNoInit()
-// TODO how do we get peerCon
 
 	} else {
 		if(!window["WebSocket"]) {
@@ -1274,15 +1283,6 @@ function connectSignaling(message,comment) {
 			return;
 		}
 	    console.log('connectSig: open ws connection... '+calleeID+' '+wsUrl);
-/*
-// odd:
-		if(peerCon==null || peerCon.signalingState=="closed") {
-		    console.log('connectSig: peercon is gone ----------------');
-			newPeerCon();
-		}
-*/
-		// get ready for a new peerConnection
-		newPeerCon();
 
 		// get ready for a new websocket connection with webcall server
 		wsConn = new WebSocket(wsUrl);
@@ -1293,7 +1293,6 @@ function connectSignaling(message,comment) {
 	}
 
 	iconContactsElement.style.display = "block";
-//	checkboxesElement.style.display = "block";
 }
 
 function wsOnOpen() {
@@ -2250,7 +2249,7 @@ function prepareCallee(sendInitFlag,comment) {
 	}
 
 	// get ready to receive a peer connections
-	newPeerCon();
+//	newPeerCon();
 
 
 	if(wsSecret=="") {
@@ -2313,9 +2312,11 @@ function newPeerCon() {
 			statusMsg += " <a href='https://timur.mobi/webcall/android/#webview'>More info</a>";
 		}
 		showStatus(statusMsg);
+
+		// we also need to make the callee go offline, bc without a peerCon, it makes no sense to stay online
 		if(divspinnerframe) divspinnerframe.style.display = "none";
 		offlineAction("err on newPeerCon() "+ex.message);
-		return;
+		return true;
 	};
 
 	peerCon.onicecandidate = e => onIceCandidate(e,"calleeCandidate");
@@ -2391,7 +2392,11 @@ function newPeerCon() {
 			// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 			endWebRtcSession(true,true,"peer connection failed"); // -> peerConCloseFunc
 
-			newPeerCon();
+// is now created in endWebRtcSession()
+//			if(newPeerCon()) {
+//				// fail
+//				return;
+//			}
 			if(wsConn==null) {
 				console.log('peerCon failed and wsConn==null -> login()');
 				login(false,"onconnectionstatechange="+peerCon.iceConnectionState);
@@ -2424,6 +2429,7 @@ function newPeerCon() {
 		dataChannel.onerror = event => dataChannelOnerror(event);
 		dataChannel.onmessage = event => dataChannelOnmessage(event);
 	};
+	return false;
 }
 
 var startWaitConnect;
@@ -2850,6 +2856,7 @@ function dataChannelOnmessage(event) {
 			if(event.data.startsWith("disconnect")) {
 				console.log("dataChannel.onmessage '"+event.data+"'");
 				if(dataChannel!=null) {
+					console.log("dataChannel.onmessage '"+event.data+" dataChannel.close");
 					dataChannel.close();
 					dataChannel = null;
 				}
@@ -3040,6 +3047,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		autoPlaybackAudioSource = null;
 	}
 
+// TODO what if state is "failed" ?
 	if(peerCon && peerCon.iceConnectionState!="closed") {
 		let peerConCloseFunc = function() {
 			// rtcConnect && peerCon may be cleared by now
@@ -3061,7 +3069,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 				}
 			}
 			if(dataChannel) {
-				gLog('endWebRtcSession dataChannel.close');
+				console.log('endWebRtcSession dataChannel.close');
 				dataChannel.close();
 				dataChannel = null;
 			}
@@ -3078,6 +3086,12 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 				gLog('endWebRtcSession peerCon.close');
 				peerCon.close();
 				gLog('endWebRtcSession peerCon cleared');
+			}
+
+			console.log('endWebRtcSession newPeerCon');
+			if(newPeerCon()) {
+				// fail
+				return;
 			}
 		};
 
@@ -3130,7 +3144,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		}
 	}
 
-	console.log("endWebRtcSession wsConn="+(wsConn!=null));
+	console.log("endWebRtcSession wsConn="+(wsConn!=null)+" "+isDataChlOpen());
 	fileselectLabel.style.display = "none";
 	progressSendElement.style.display = "none";
 	progressRcvElement.style.display = "none";
@@ -3402,7 +3416,7 @@ function wakeGoOnline() {
 	console.log("wakeGoOnline start");
 	connectSignaling('','wakeGoOnline'); // only get wsConn from service (from Android.wsOpen())
 	wsOnOpen(); // green led
-	prepareCallee(true,"wakeGoOnline");   // newPeerCon() + wsSend("init|!")
+	prepareCallee(true,"wakeGoOnline");   // wsSend("init|!")
 	gLog("wakeGoOnline done");
 }
 
@@ -3411,7 +3425,7 @@ function wakeGoOnlineNoInit() {
 	console.log("wakeGoOnlineNoInit start");
 	connectSignaling('','wakeGoOnlineNoInit'); // only get wsConn from service (from Android.wsOpen())
 	wsOnOpen(); // green led
-	prepareCallee(false,"wakeGoOnlineNoInit");  // newPeerCon() but do NOT wsSend("init|!")
+	prepareCallee(false,"wakeGoOnlineNoInit");  // do NOT wsSend("init|!")
 	gLog("wakeGoOnlineNoInit done");
 }
 
