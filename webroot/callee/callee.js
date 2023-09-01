@@ -1669,7 +1669,7 @@ function signalingCommand(message, comment) {
 		showWaitingCallers();
 
 	} else if(cmd=="missedCalls") {
-		console.log('cmd missedCalls len='+payload.length);
+		console.log("cmd missedCalls len="+payload.length+" comment="+comment+" wsConn="+(wsConn!=null));
 		let oldMissedCallsSliceLen = 0;
 		if(missedCallsSlice!=null) {
 			oldMissedCallsSliceLen = missedCallsSlice.length;
@@ -1678,7 +1678,7 @@ function signalingCommand(message, comment) {
 		missedCallsSlice = null;
 		if(payload.length>0) {
 			missedCallsSlice = JSON.parse(payload);
-			console.log('cmd missedCallsSlice len='+missedCallsSlice.length);
+			console.log('cmd missedCallsSlice elements='+missedCallsSlice.length);
 			// beep when there is a new missedCall entry
 			if(missedCallsSlice!=null && missedCallsSlice.length>0) {
 				// OK, there is at least one entry
@@ -1835,15 +1835,15 @@ function showMissedCalls() {
 	if(wsConn==null) {
 		// don't execute if client is disconnected
 		if(!goOnlineWanted) {
-			console.log('showMissedCalls abort !goOnlineWanted');
+			//console.log('showMissedCalls abort !goOnlineWanted');
 			return;
 		}
-		console.log('! showMissedCalls skip: wsConn==null');
+		//console.log('! showMissedCalls skip: wsConn==null');
 		nextDrawDelay = 10000;
 		skipRender = true;
 	}
 	if(missedCallsSlice==null || missedCallsSlice.length<=0) {
-		console.log("! showMissedCalls skip: missedCallsSlice==null");
+		//console.log("! showMissedCalls skip: missedCallsSlice==null");
 		missedCallsTitleElement.style.display = "none";
 		missedCallsElement.style.display = "none";
 		missedCallsElement.innerHTML = "";
