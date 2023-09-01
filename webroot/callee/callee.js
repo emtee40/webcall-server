@@ -1581,8 +1581,8 @@ function signalingCommand(message, comment) {
 		addIceCallerCandidate(callerCandidate);
 
 	} else if(cmd=="cancel") {
-		// this is a remote cancel (from server or from other side)
-		// can happen when the server aborts ringing after 120s
+		// this is a remote cancel (from server or from peer)
+		// can for instance occur when the server aborts ringing after 120s
 		stopAllAudioEffects("cmd cancel");
 		if(divspinnerframe) divspinnerframe.style.display = "none";
 		if(payload=="c") {
@@ -2786,6 +2786,9 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 	if(textmode=="true") {
 		msg = msg + " TextMode";
 	}
+	if(eventString2!="") {
+		msg = msg + " "+eventString2;
+	}
 
 	// we rather show callerID and/or callerName if they are avail, instead of listOfClientIps
 	if(callerName!="" || callerID!="") {
@@ -2803,9 +2806,6 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 	}
 
 	let showMsg = msg;
-	if(eventString2!="") {
-		showMsg += " "+eventString2;
-	}
 	if(otherUA!="") {
 		showMsg += "<div style='font-size:0.8em;margin-top:8px;color:#aac;'>"+otherUA+"</div>";
 	}
