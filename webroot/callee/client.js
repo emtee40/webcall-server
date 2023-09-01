@@ -263,7 +263,7 @@ function sendFile(file) {
 	console.log("sendFile "+file.name, file.size, file.type, file.lastModified);
 	dataChannel.send("file|"+fileName+","+file.size+","+file.type+","+file.lastModified);
 	fileselectLabel.style.display = "none";
-	//showStatus("",-1);
+	showStatus("send file...",2000);
 
 	const chunkSize = 16*1024;
 	let fileReader = new FileReader();
@@ -284,6 +284,7 @@ function sendFile(file) {
 		}
 		if(!isDataChlOpen()) {
 			console.log("# sendFile no dataChannel");
+			showStatus("send file aborted",2000);
 			fileReader.abort();
 			return;
 		}
