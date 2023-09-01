@@ -2817,7 +2817,7 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 			// result: "Nickname nnnnnnnnnnn p2p/p2p E2EE TextMode"
 		}
 	} else if(listOfClientIps!="") {
-		msg += " "+listOfClientIps;
+		msg = listOfClientIps+" "+msg;
 	}
 
 	if(callerMsg!="") {
