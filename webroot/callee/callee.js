@@ -2758,7 +2758,7 @@ function pickup4() {
 			// send "log|connected" to server
 			console.log("pickup4 send log|connected");
 			peerCon.getStats(null)
-			.then((results) => getStatsCandidateTypes(results,"Connected","e2ee"),
+			.then((results) => getStatsCandidateTypes(results,"Connected","E2EE"),
 				err => console.log(err.message));
 
 			chatButton.onclick = function() {
@@ -2780,22 +2780,35 @@ function pickup4() {
 
 function getStatsCandidateTypes(results,eventString1,eventString2) {
 	let msg = getStatsCandidateTypesEx(results,eventString1)
+	// result: "Connected p2p/p2p"
 	console.log("getStats msg=("+msg+") callerName=("+callerName+") callerID=("+callerID+") callerMsg=("+callerMsg+")");
-	wsSend("log|callee "+msg); // shows up in server log as: serveWss peer callee Incoming p2p/p2p
+	// the original string from getStatsCandidateTypesEx() is sent as log to the server
+	wsSend("log|callee "+msg); // shows up in server log as: serveWss peer callee "Incoming p2p/p2p"
+
+	// now we create the string for showStatus
+
+	// remove eventString1 (Incoming, Connected) from msg
+	msg = msg.replace(eventString1,"");
+	// result: "p2p/p2p"
 
 	if(textmode=="true") {
 		msg = msg + " TextMode";
+		// result: "p2p/p2p TextMode"
 	}
+
 	if(eventString2!="") {
 		msg = msg + " "+eventString2;
+		// result: "p2p/p2p TextMode E2EE"
 	}
 
 	// we rather show callerID and/or callerName if they are avail, instead of listOfClientIps
 	if(callerName!="" || callerID!="") {
 		if(callerName=="" || callerName.toLowerCase()==callerID.toLowerCase()) {
 			msg = callerID +" "+ msg;
+			// result: "nnnnnnnnnnn p2p/p2p TextMode E2EE"
 		} else {
 			msg = callerName +" "+ callerID +" "+ msg;
+			// result: "Nickname nnnnnnnnnnn p2p/p2p TextMode E2EE"
 		}
 	} else if(listOfClientIps!="") {
 		msg += " "+listOfClientIps;
@@ -2803,11 +2816,13 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 
 	if(callerMsg!="") {
 		msg += "<br>\""+callerMsg+"\""; // greeting msg
+		// result: greeting msg added as 2nd line
 	}
 
 	let showMsg = msg;
 	if(otherUA!="") {
 		showMsg += "<div style='font-size:0.8em;margin-top:8px;color:#aac;'>"+otherUA+"</div>";
+		// result: callers UA added with smaller font
 	}
 
 	showStatus(showMsg,-1);
