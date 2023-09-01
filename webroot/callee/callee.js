@@ -1393,7 +1393,7 @@ function wsOnMessage2(str, comment) {
 
 var startIncomingCall;
 function signalingCommand(message, comment) {
-	console.log("signalingCommand "+message+" comment="+comment);
+	//console.log("signalingCommand "+message+" comment="+comment);
 	let tok = message.split("|");
 	let cmd = tok[0];
 	let payload = "";
@@ -1468,7 +1468,7 @@ function signalingCommand(message, comment) {
 			console.log('callerAnswer setRemoteDescription');
 			peerCon.setRemoteDescription(callerDescription).then(() => {
 				console.log('callerAnswer setRemoteDescription done');
-				pickup4();
+				pickup4(); // tmtmtm
 			}, err => {
 				console.warn(`# callerAnswer Failed to set RemoteDescription`,err.message)
 				showStatus("Cannot set remoteDescr "+err.message);
@@ -1578,10 +1578,12 @@ function signalingCommand(message, comment) {
 		addIceCallerCandidate(callerCandidate);
 
 	} else if(cmd=="cancel") {
-		// this is a remote cancel
+		// this is a remote cancel (from server or from other side)
+		// can happen when the server aborts ringing after 120s
+		stopAllAudioEffects("cmd cancel");
+		if(divspinnerframe) divspinnerframe.style.display = "none";
 		if(payload=="c") {
-			console.log('cmd cancel');
-//			stopAllAudioEffects("incoming cancel");		// temp
+			console.log('cmd cancel c -> endWebRtcSession');
 			if(mediaConnect) {
 				// TODO if callerID and/or callerName are avail we would rather show them
 				// instead of listOfClientIps
@@ -1596,11 +1598,9 @@ function signalingCommand(message, comment) {
 				// caller canceled call before connect
 				//showStatus("canceled");
 			}
-			//console.log('cmd cancel -> endWebRtcSession');
 			// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
-			endWebRtcSession(false,true,"incoming cancel"); // -> peerConCloseFunc
+			endWebRtcSession(false,true,"cmd cancel"); // -> peerConCloseFunc
 		} else {
-//			stopAllAudioEffects("ignore cmd cancel");		// temp
 			// TODO no endWebRtcSession ? android service will not know that ringing has ended
 		}
 
@@ -2383,9 +2383,8 @@ function newPeerCon() {
 				console.log("peerCon connectionState connected -> peerConnected()");
 				peerConnected();
 			} else {
-				// only ff calls this twice?
-				console.log("peerCon connectionState connected -> // pickup4()");
-				//pickup4();
+				// only ff calls this twice
+				console.log("peerCon connectionState connected (with rtcConnect ignore)");
 			}
 		}
 	}
@@ -2639,6 +2638,20 @@ function pickup2() {
 	}
 
 	console.log("pickup2 ------------------------- WAIT for pickup4 .....");
+
+	// timer: if pickup4() is NOT called within 5000ms, abort
+	let startWaitPickup4 = Date.now();
+	setTimeout(function() {
+		console.log("pickup2");
+		if(!mediaConnect && rtcConnect && startWaitPickup4>startPickup) {
+			// abort running pickup2
+			console.log("pickup2 timer abort waiting for pickup4");
+			if(divspinnerframe) divspinnerframe.style.display = "none";
+			hangup(true,true,"Pickup aborted on timeout");
+			chatButton.style.display = "none";
+			fileselectLabel.style.display = "none"
+		}
+	},5000);
 }
 
 function pickup4() {
@@ -2647,6 +2660,8 @@ function pickup4() {
 		return;
 	}
 
+	mediaConnect = true;
+
 	// full connect
 	console.log("pickup4 - mediaConnect ------------------ "+(Date.now() - startPickup));
 
@@ -2654,9 +2669,9 @@ function pickup4() {
 	if(divspinnerframe) divspinnerframe.style.display = "none";
 
 	// this will make the caller unmute our mic on their side
+	// TODO could also use datachannel?
 	wsSend("pickup|!");
 
-	mediaConnect = true;
 	onlineIndicator.src="red-gradient.svg";
 	chatButton.style.display = "block";
 	// see below
@@ -2778,7 +2793,7 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 
 function dataChannelOnmessage(event) {
 	if(typeof event.data === "string") {
-		console.log("dataChannel.onmessage "+event.data);
+		//console.log("dataChannel.onmessage "+event.data);
 		if(event.data) {
 			if(event.data.startsWith("disconnect")) {
 				console.log("dataChannel.onmessage '"+event.data+"'");
@@ -2809,7 +2824,7 @@ function dataChannelOnmessage(event) {
 				}
 			} else if(event.data.startsWith("cmd|")) {
 				let subCmd = event.data.substring(4);
-				console.log("dataChannel.onmessage fw to signalingCommand() "+subCmd);
+				//console.log("dataChannel.onmessage fw to signalingCommand() "+subCmd);
 				signalingCommand(subCmd,"dataChl");
 			} else if(event.data.startsWith("file|")) {
 				var fileDescr = event.data.substring(5);
