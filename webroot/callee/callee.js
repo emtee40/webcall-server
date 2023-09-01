@@ -751,13 +751,10 @@ function login(retryFlag,comment) {
 			form.style.display = "none";
 		} else if(parts[0]=="errorWrongCookie") {
 			showStatus("Error: "+parts[0].substring(5),-1);
-			// TODO is this correct ??? No.
-			//window.location.reload();
 		} else if(parts[0]=="error") {
 			// parts[0] "error" = "wrong pw", "pw has less than 6 chars" or "empty pw"
 			// offer pw entry again
 			console.log('login error - try again');
-			//goOnlineButton.disabled = true;	// TODO or offlineAction(comment)
 			enablePasswordForm();
 		} else if(parts[0]=="") {
 			showStatus("No response from server",-1);
@@ -1013,7 +1010,7 @@ function getSettingDone() {
 					// alt-id is active
 					links += "<input type='checkbox' id='"+altIdArray[i]+"' class='checkbox' style='margin-top:8px;margin-left:2px;margin-right:10px;' onclick='mappingCheckboxClick(this);' checked />";
 				}
-				// TODO is altIdArray[i] sometimes garbage?
+				// TODO is altIdArray[i] sometimes garbage? only when there is nginx rate limiter issue
 				let userLinkMap = userLink.replace("/user/"+calleeID,"/user/"+altIdArray[i]);
 				let showUserLinkMap = altIdArray[i];
 				if(altLabel[i]=="") {
@@ -1093,9 +1090,7 @@ function offlineAction(comment) {
 	// TODO also remove auto=1 ?
 
 	if(divspinnerframe) divspinnerframe.style.display = "none";
-
 	iconContactsElement.style.display = "none";
-//	checkboxesElement.style.display = "none";
 
 	// hide ownlink, but only if p2p connection is also gone
 	if(!mediaConnect) {
@@ -1343,7 +1338,6 @@ function wsOnError2(str,code) {
 // TODO explain why the following is needed (and whether it is always true to assume wsConn=null on wsOnError()
 	wsConn=null;
 	iconContactsElement.style.display = "none";
-//	checkboxesElement.style.display = "none";
 }
 
 function wsOnClose(evt) {
@@ -1484,7 +1478,7 @@ function signalingCommand(message, comment) {
 			console.log('callerAnswer setRemoteDescription');
 			peerCon.setRemoteDescription(callerDescription).then(() => {
 				console.log('callerAnswer setRemoteDescription done');
-				pickup4(); // tmtmtm
+				pickup4();
 			}, err => {
 				console.warn(`# callerAnswer Failed to set RemoteDescription`,err.message)
 				showStatus("Cannot set remoteDescr "+err.message);
@@ -2133,7 +2127,7 @@ function wsSend(message) {
 function hangup(mustDisconnect,dummy2,message) {
 	// hangup the peer connection (the incomming call)
 	console.log("hangup: "+message);
-	// TODO: NOTE: not all message strings are suited for users
+	// NOTE: not all message strings are suited for users
 	showStatus(message,2000);
 	// expected followup-message "ready to receive calls" from showOnlineReadyMsg()
 	// showOnlineReadyMsg() is called in response to us calling sendInit() and the server responding with "sessionId|"
@@ -3038,7 +3032,6 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		autoPlaybackAudioSource = null;
 	}
 
-// TODO what if state is "failed" ?
 	if(peerCon && peerCon.iceConnectionState!="closed") {
 		let peerConCloseFunc = function() {
 			// rtcConnect && peerCon may be cleared by now
@@ -3172,9 +3165,9 @@ function goOffline(comment) {
 	offlineAction("goOffline");
 
 //	if(peerCon && peerCon.iceConnectionState!="closed") {
-	if(mediaConnect) {
+	if(peerCon && mediaConnect) {
   		// do not overwrites caller-info in status area
-		console.log("goOffline skip showStatus()");
+		//console.log("goOffline skip showStatus('Offline')");
 	} else {
 		showStatus("Offline");
 	}
@@ -3199,7 +3192,6 @@ function goOffline(comment) {
 	}
 	stopAllAudioEffects("goOffline");
 	waitingCallerSlice = null;
-//	muteMicDiv.style.display = "none";		// TODO ???
 
 	isHiddenlabel.style.display = "none";
 	autoanswerlabel.style.display = "none";
