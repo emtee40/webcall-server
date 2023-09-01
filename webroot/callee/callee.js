@@ -1107,7 +1107,7 @@ function gotStream2() {
 	// we got the mic
 	// NOTE: this'if' used to be located after the Android check
 	if(pickupAfterLocalStream) {
-		console.log('gotStream2 -> auto pickup2()');
+		console.log("gotStream2 -> auto pickup2()");
 		pickupAfterLocalStream = false;
 		pickup2();
 		return;
@@ -1478,7 +1478,7 @@ function signalingCommand(message, comment) {
 			console.log('callerAnswer setRemoteDescription');
 			peerCon.setRemoteDescription(callerDescription).then(() => {
 				console.log('callerAnswer setRemoteDescription done');
-				pickup4();
+				pickup4("cmd=callerAnswer");
 			}, err => {
 				console.warn(`# callerAnswer Failed to set RemoteDescription`,err.message)
 				showStatus("Cannot set remoteDescr "+err.message);
@@ -2324,6 +2324,8 @@ function newPeerCon() {
 		console.log("peerCon onicegatheringstatechange "+connection.iceGatheringState);
 	}
 	peerCon.onnegotiationneeded = async () => {
+		// triggered when media is first added to the connection (during the initial setup of the connection)
+		// as well as any time a change to the communication environment requires reconfiguring the connection
 		if(!peerCon || peerCon.iceConnectionState=="closed") {
 			console.log('! peerCon onnegotiationneeded deny: no peerCon');
 			return;
@@ -2474,14 +2476,36 @@ function peerConnected3() {
 	}
 
 	// data channel is available !!!!!!!!!!!!!!!!
-	console.log("peerConnected3: got data channel after");
+	console.log("peerConnected3: got data channel after "+sinceStartWaitConnect);
 
+/*
+	if(localStream==null) {
+		// before we can continue enabling answerButton, we need to wait for datachannel
+		if(sinceStartWaitConnect < 3500) {
+			console.log("peerConnected3: waiting for localStream... "+
+				sinceStartWaitConnect+" "+(Date.now() - startIncomingCall));
+			setTimeout(function() {
+				peerConnected3();
+			},100);
+			return;
+		}
+
+		// this should never happen
+		console.warn("# peerConnected3: NO LOCALSTREAM - ABORT RING");
+		// TODO showStatus()
+		stopAllAudioEffects("NO DATACHANNEL ABORT RING");
+		// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
+		endWebRtcSession(true,true,"caller early abort"); // -> peerConCloseFunc
+		return;
+	}
+
+	console.log("peerConnected3: got localStream after "+sinceStartWaitConnect);
+*/
 
 	// scroll to top
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 
-	// show Answer + Reject buttons
-	// clicking the Answer button woll call pickup()
+	// show Answer + Reject buttons (handlers below)
 	answerButtons.style.display = "grid";
 	answerButton.disabled = false;
 	chatButton.style.display = "none";
@@ -2594,7 +2618,7 @@ function peerConnected3() {
 	// wait for the user to click one of the two buttons
 	answerButton.onclick = function(ev) {
 		ev.stopPropagation();
-		console.log("answer button");
+		console.log("answer button -> pickup()");
 		pickup();
 	}
 	rejectButton.onclick = function(ev) {
@@ -2607,7 +2631,7 @@ function peerConnected3() {
 		}
 	}
 
-	console.log("peerConnected3 waiting for pickup/reject....."+(Date.now() - startIncomingCall));
+	console.log("peerConnected3 waiting for manual pickup/reject....."+(Date.now() - startIncomingCall));
 }
 
 var startPickup;
@@ -2620,7 +2644,7 @@ function pickup() {
 
 	if(divspinnerframe) divspinnerframe.style.display = "block";
 	pickupAfterLocalStream = true; // getStream() -> gotStream() -> gotStream2() -> pickup2()
-	getStream();
+	getStream(); // -> gotStream() -> gotStream2()
 	console.log("pickup waiting for pickup2...");
 
 	// pickup timer: if getStream does NOT call pickup2() within a max duration -> hangup()
@@ -2638,6 +2662,11 @@ function pickup() {
 }
 
 function pickup2() {
+	// pretend pickup2() was never called
+	//console.warn("# pickup2 IGNORE-------------------");
+	//return;
+
+
 	// user has picked up incoming call and now we got the local mic stream
 	if(!localStream) {
 		console.warn("# pickup2 no localStream");
@@ -2678,16 +2707,16 @@ function pickup2() {
 	},2500);
 }
 
-function pickup4() {
+function pickup4(comment) {
 	// user has picked up incoming call, we got the mic stream and now we transiton to mediaConnect
 	if(mediaConnect) {
-		console.log("# pickup4 called when mediaConnect was already set");
+		console.log("# pickup4 called when mediaConnect was already set "+comment);
 		return;
 	}
 
 	// full connect
 	mediaConnect = true;
-	console.log("pickup4 - mediaConnect ------------------ "+(Date.now() - startPickup));
+	console.log("pickup4 - mediaConnect ---------- "+comment+" "+(Date.now() - startPickup));
 	// desktop browser does this in 80-160ms
 	// android webview does this in 800-900ms
 

@@ -1179,7 +1179,7 @@ var addedVideoTrack = null;
 function gotStream(stream) {
 	// add localStream audioTrack and (possibly) localStream videoTrack to peerCon using peerCon.addTrack()
 	// then activate localVideoFrame with localStream
-    console.log("gotStream set localStream");
+	//console.log("gotStream set localStream");
 	if(localStream) {
 		// stop all tracks on previous localStream
 		const allTracks = localStream.getTracks();
@@ -1198,14 +1198,15 @@ function gotStream(stream) {
 	}
 
 	localStream = stream;
+	console.log("gotStream got localStream "+(localStream!=null));
 
 	const audioTracks = localStream.getAudioTracks();
 	if(!mediaConnect) {
-		gLog('gotStream mute loc audio inp '+audioTracks[0]);
+		console.log('gotStream mute loc audio inp '+audioTracks[0]);
 		audioTracks[0].enabled = false;
 	} else {
 		if(!muteMicElement || !muteMicElement.checked) {
-			gLog('gotStream unmute loc audio inp '+audioTracks[0]);
+			console.log('gotStream unmute loc audio inp '+audioTracks[0]);
 			audioTracks[0].enabled = true;
 		}
 	}
@@ -1214,9 +1215,10 @@ function gotStream(stream) {
 		// in ff this occurs onload
 		//console.log("# gotStream no peerCon: no addTrack");
 	} else if(addedAudioTrack) {
-		gLog('gotStream addedAudioTrack already set: no addTrack');
+		console.log('gotStream addedAudioTrack already set: no addTrack');
 	} else {
-		gLog('gotStream addedAudioTrack');
+		console.log('gotStream addedAudioTrack');
+		// adding media to peerCon will dispatch negotiationneeded event
 		addedAudioTrack = peerCon.addTrack(audioTracks[0],localStream);
 	}
 
