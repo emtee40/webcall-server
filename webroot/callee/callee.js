@@ -1137,7 +1137,8 @@ function gotStream2() {
 	} else {
 		if(wsConn==null) {
 			// we are offline
-			console.log("! gotStream2 standby wsConn==null, no sendInit");
+			// in ff this occurs onload
+			//console.log("! gotStream2 standby wsConn==null, no sendInit");
 		} else {
 			// we are online
 			// send init to request list of missedCalls
@@ -2117,6 +2118,7 @@ function wsSend(message) {
 }
 
 function hangup(mustDisconnect,dummy2,message) {
+	// hangup the peer connection (the incomming call)
 	console.log("hangup: "+message);
 	// TODO: NOTE: not all message strings are suited for users
 	showStatus(message,2000);
@@ -2124,15 +2126,17 @@ function hangup(mustDisconnect,dummy2,message) {
 	// showOnlineReadyMsg() is called in response to us calling sendInit() and the server responding with "sessionId|"
 	// hangup() -> endWebRtcSession() -> prepareCallee() -> sendInit() ... server "sessionId|" -> showOnlineReadyMsg()
 
+	if(divspinnerframe) divspinnerframe.style.display = "none";
+	answerButtons.style.display = "none";
 	msgboxdiv.style.display = "none";
 	msgbox.value = "";
 	textbox.style.display = "none";
 	textbox.value = "";
 
 	buttonBlinking = false;
-	if(textmode!="") {
-		textmode = "";
-	}
+	textmode = "";
+	textchatOKfromOtherSide = false;
+
 	if(muteMicModified) {
 		muteMicElement.checked = false;
 		muteMicModified = false;
@@ -2353,7 +2357,7 @@ function newPeerCon() {
 		connectionstatechangeCounter++;
 		console.log("peerCon connectionstatechange "+peerCon.connectionState);
 		if(!peerCon || peerCon.iceConnectionState=="closed") {
-			hangup(true,true,"No peer connection");
+			hangup(true,false,"No peer connection");
 			return;
 		}
 		if(peerCon.connectionState=="disconnected") {
@@ -2436,7 +2440,7 @@ function peerConnected3() {
 		// caller early abort
 		console.log("! peerConnected3: caller early abort");
 		// TODO showStatus()
-		//hangup(true,true,"Caller early abort");
+		//hangup(true,false,"Caller early abort");
 		stopAllAudioEffects("iceConnectionState closed");
 		// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 		endWebRtcSession(true,true,"caller early disconnect"); // -> peerConCloseFunc
@@ -2591,12 +2595,10 @@ function peerConnected3() {
 		ev.stopPropagation();
 		console.log("hangup button");
 		if(mediaConnect) {
-			hangup(true,true,"Hangup button end call");
+			hangup(true,false,"Hangup button ending call");
 		} else {
-			hangup(true,true,"Hangup button reject call");
+			hangup(true,false,"Hangup button rejecting call");
 		}
-		chatButton.style.display = "none";
-		fileselectLabel.style.display = "none";
 	}
 
 	console.log("peerConnected3 waiting for pickup/reject....."+(Date.now() - startIncomingCall));
@@ -2613,6 +2615,7 @@ function pickup() {
 	if(divspinnerframe) divspinnerframe.style.display = "block";
 	pickupAfterLocalStream = true; // getStream() -> gotStream() -> gotStream2() -> pickup2()
 	getStream();
+	console.log("pickup waiting for pickup2...");
 
 	// pickup timer: if getStream fails and does NOT call pickup2() within ....ms, we must remove divspinnerframe
 	let startWaitPickup = Date.now();
@@ -2621,27 +2624,25 @@ function pickup() {
 		if(pickupAfterLocalStream && !mediaConnect && rtcConnect && startWaitPickup>=startPickup) {
 			// abort waiting for pickup2
 			console.log("# pickup timer ended, abort waiting for pickup2 (no gotstream)");
-			if(divspinnerframe) divspinnerframe.style.display = "none";
-			hangup(true,true,"Pickup aborted on timeout");
-//			chatButton.style.display = "none";
-//			fileselectLabel.style.display = "none";
+			hangup(true,false,"Pickup aborted on timeout");
 			return;
 		}
 		// all is well, do nothing
-		//console.log("pickup timer ended");
 	},1000);
 }
 
 function pickup2() {
-	// user has picked up incoming call and now we got the mic stream
-	console.log("pickup2 gotStream ------------------ "+(Date.now() - startPickup));
-	stopAllAudioEffects("pickup2");
-
+	// user has picked up incoming call and now we got the local mic stream
 	if(!localStream) {
 		console.warn("# pickup2 no localStream");
 		if(divspinnerframe) divspinnerframe.style.display = "none";
+		stopAllAudioEffects("pickup2 no localStream");
 		return;
 	}
+
+	console.log("pickup2 gotStream "+(Date.now() - startPickup));
+	// stop the ringing
+	stopAllAudioEffects("pickup2");
 
 	if(typeof Android !== "undefined" && Android !== null) {
 		Android.callPickedUp(); // audioToSpeakerSet() + callPickedUpFlag=true (needed for callInProgress())
@@ -2654,33 +2655,33 @@ function pickup2() {
 	} else {
 		console.log("# pickup2 no remoteStream");
 	}
+	console.log("pickup2 waiting for pickup4...");
 
-	console.log("pickup2 ------------------------- WAIT for pickup4 .....");
-
-	// timer: if pickup4() is NOT called within 3000ms, abort
+	// peerCon onnegotiationneeded now taking place, createOffer for caller -> callerAnswer setLocalDescription
+	// -> callerAnswer setRemoteDescription -> pickup4()
+	// timer: if pickup4() is NOT called within 2000ms, abort
 	let startWaitPickup4 = Date.now();
 	setTimeout(function() {
-		console.log("pickup2 timer ended");
 		if(!mediaConnect && rtcConnect && startWaitPickup4>startPickup) {
-			// abort running pickup2
+			// abort waiting for pickup4
 			console.log("pickup2 timer abort waiting for pickup4");
 			if(divspinnerframe) divspinnerframe.style.display = "none";
-			hangup(true,true,"Pickup aborted on timeout");
-			chatButton.style.display = "none";
-			fileselectLabel.style.display = "none";
+			hangup(true,false,"Pickup aborted on timeout");
+			return;
 		}
-	},3000);
+		// all is well, do nothing
+	},2000);
 }
 
 function pickup4() {
+	// user has picked up incoming call, we got the mic stream and now we transiton to mediaConnect
 	if(mediaConnect) {
 		console.log("# pickup4 called when mediaConnect was already set");
 		return;
 	}
 
-	mediaConnect = true;
-
 	// full connect
+	mediaConnect = true;
 	console.log("pickup4 - mediaConnect ------------------ "+(Date.now() - startPickup));
 
 	// end busy bee
@@ -2692,8 +2693,18 @@ function pickup4() {
 
 	onlineIndicator.src="red-gradient.svg";
 	chatButton.style.display = "block";
-	// see below
-	//fileselectLabel.style.display = "block"
+
+	// filetransfer button (fileselectLabel) is still hidden
+	if(!isDataChlOpen()) {
+		// should never happen
+		console.log("# pickup4 no datachl - do not enable fileselectLabel: !isDataChlOpen");
+	} else if(!isP2pCon()) {
+		// we don't allow file transfer over relayed link
+		console.log("# pickup4 no datachl - do not enable fileselectLabel: !isP2pCon()");
+	} else {
+		gLog("pickup4 enable fileselectLabel");
+		fileselectLabel.style.display = "block";
+	}
 
 	// hide clear cookie (while peer connected) - will be re-enabled in endWebRtcSession(
 	menuClearCookieElement.style.display = "none";
@@ -2710,31 +2721,25 @@ function pickup4() {
 	if(vsendButton) {
 		vsendButton.style.display = "inline-block";
 	}
-	if(localStream) {
-		if(muteMicElement.checked) {
-			muteMic(true); // mute mic
-// auto-open textchat (as if user clicks chatButton)
-// for some reason we do that delayed below
-// TODO but should we not create a muteMicElement onclick-handler to set muteMic()
-		} else {
-			muteMic(false); // don't mute mic
-		}
+
+	if(muteMicElement.checked) {
+		muteMic(true); // mute mic
+		// we auto-open the textbox bc the local mic is muted
+		console.log("pickup4 muteMicElement.checked -> enableDisableTextchat open");
+		enableDisableTextchat(true);
 	} else {
-		console.log("# pickup4 no localStream (cannot unmute mic)");
+		muteMic(false); // don't mute mic
+	}
+
+	if(textmode=="true") {
+		// we auto-open the textbox bc the caller requested textmode
+		console.log("pickup4 textmode -> enableDisableTextchat open");
+		enableDisableTextchat(true);
 	}
 
 	mediaConnectStartDate = Date.now();
 	if(typeof Android !== "undefined" && Android !== null) {
 		Android.peerConnect();
-	}
-
-	if(!isDataChlOpen()) {
-		console.log("# pickup4 no datachl - do not enable fileselectLabel: !isDataChlOpen");
-	} else if(!isP2pCon()) {
-		console.log("# pickup4 no datachl - do not enable fileselectLabel: !isP2pCon()");
-	} else {
-		gLog('enable fileselectLabel');
-		fileselectLabel.style.display = "block";
 	}
 
 	setTimeout(function() {
@@ -2761,14 +2766,12 @@ function pickup4() {
 					enableDisableTextchat(false);
 				} else {
 					//chatButton.style.display = "none";
-					showStatus("Peer does not support textchat",2000);
+					if(mediaConnect) {
+						showStatus("Peer does not support TextChat",2000);
+					} else {
+						showStatus("Cannot open TextChat",2000);
+					}
 				}
-			}
-
-			if(muteMicElement.checked) {
-				// we auto-open the textbox bc the caller requested textmode
-				console.log("muteMicElement.checked -> enableDisableTextchat open");
-				enableDisableTextchat(true);
 			}
 		}
 	},200);

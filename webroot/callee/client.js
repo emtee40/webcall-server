@@ -185,11 +185,11 @@ function showVideoResolutionRemote() {
 
 function muteMic(flag) {
 	if(!localStream) {
-		//console.log("muteMic no localStream on mic state change: "+flag);
+		console.log("# muteMic "+flag+": no localStream");
 	} else {
 		const audioTracks = localStream.getAudioTracks();
 		if(!audioTracks[0]) {
-			console.log("# muteMic no audioTracks on mic state change: "+flag);
+			console.log("# muteMic "+flag+": no audioTracks");
 		} else {
 			if(flag) {
 				console.log("muteMic state change "+flag+": mic disable");
@@ -763,7 +763,8 @@ function onIceCandidate(event,myCandidateName) {
 		// ICE gathering has finished
 		gLog('onIce end of candidates');
 	} else if(event.candidate.address==null) {
-		console.log('# onIce skip event.candidate.address==null '+JSON.stringify(event.candidate));
+		// this happens in both browsers
+		// console.log('# onIce skip event.candidate.address==null '+JSON.stringify(event.candidate));
 	} else if(isDataChlOpen()) {
 		onIceCandidates++;
 		console.log("onIce "+myCandidateName+" dataChl doneHangup="+doneHangup);
@@ -1209,7 +1210,8 @@ function gotStream(stream) {
 	}
 
 	if(!peerCon || peerCon.iceConnectionState=="closed") {
-		console.log("# gotStream no peerCon: no addTrack");
+		// in ff this occurs onload
+		//console.log("# gotStream no peerCon: no addTrack");
 	} else if(addedAudioTrack) {
 		gLog('gotStream addedAudioTrack already set: no addTrack');
 	} else {
