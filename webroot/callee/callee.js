@@ -2617,7 +2617,7 @@ function pickup() {
 	getStream();
 	console.log("pickup waiting for pickup2...");
 
-	// pickup timer: if getStream fails and does NOT call pickup2() within ....ms, we must remove divspinnerframe
+	// pickup timer: if getStream does NOT call pickup2() within a max duration -> hangup()
 	let startWaitPickup = Date.now();
 	setTimeout(function() {
 		// gotStream2() should have cleared pickupAfterLocalStream
@@ -2627,8 +2627,8 @@ function pickup() {
 			hangup(true,false,"Pickup aborted on timeout");
 			return;
 		}
-		// all is well, do nothing
-	},1000);
+		// all is well, no action needed
+	},1500);
 }
 
 function pickup2() {
@@ -2659,18 +2659,17 @@ function pickup2() {
 
 	// peerCon onnegotiationneeded now taking place, createOffer for caller -> callerAnswer setLocalDescription
 	// -> callerAnswer setRemoteDescription -> pickup4()
-	// timer: if pickup4() is NOT called within 2000ms, abort
+	// timer: if pickup4() is NOT called within a max duration -> hangup()
 	let startWaitPickup4 = Date.now();
 	setTimeout(function() {
 		if(!mediaConnect && rtcConnect && startWaitPickup4>startPickup) {
 			// abort waiting for pickup4
 			console.log("pickup2 timer abort waiting for pickup4");
-			if(divspinnerframe) divspinnerframe.style.display = "none";
 			hangup(true,false,"Pickup aborted on timeout");
 			return;
 		}
-		// all is well, do nothing
-	},2000);
+		// all is well, no action needed
+	},2500);
 }
 
 function pickup4() {
@@ -2683,6 +2682,8 @@ function pickup4() {
 	// full connect
 	mediaConnect = true;
 	console.log("pickup4 - mediaConnect ------------------ "+(Date.now() - startPickup));
+	// desktop browser does this in 80-160ms
+	// android webview does this in 800-900ms
 
 	// end busy bee
 	if(divspinnerframe) divspinnerframe.style.display = "none";
