@@ -1209,7 +1209,7 @@ function gotStream(stream) {
 	}
 
 	if(!peerCon || peerCon.iceConnectionState=="closed") {
-		gLog('gotStream no peerCon: no addTrack');
+		console.log("# gotStream no peerCon: no addTrack");
 	} else if(addedAudioTrack) {
 		gLog('gotStream addedAudioTrack already set: no addTrack');
 	} else {

@@ -1094,53 +1094,55 @@ function offlineAction(comment) {
 
 function gotStream2() {
 	// we got the mic
+	// NOTE: this'if' used to be located after the Android check
+	if(pickupAfterLocalStream) {
+		console.log('gotStream2 -> auto pickup2()');
+		pickupAfterLocalStream = false;
+		pickup2();
+		return;
+	}
+
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.calleeReady !== "undefined" && Android.calleeReady !== null) {
 			// service v1.1.5
 			// when service starts activity/callee.js for answering a waiting call, then...
 			// 1. we don't do offlineAction()
 			// 2. we need to trigger service processWebRtcMessages()
+			console.log("gotStream2 -> Android.calleeReady()");
 			if(Android.calleeReady()) {
 				// processWebRtcMessages() now active (don't mute mic; don't change online/offline buttons)
+				// TODO: but what about calling pickup2() if pickupAfterLocalStream is set
+				console.log("gotStream2 -> Android.calleeReady() -> abort gotStream2");
 				return;
 			}
 		}
 	}
 
-	if(pickupAfterLocalStream) {
-		pickupAfterLocalStream = false;
-		console.log('gotStream2 -> auto pickup2()');
-		pickup2();
+	if(localStream && !videoEnabled && !rtcConnect) {
+		// mute (disable) mic until a call
+		console.log('gotStream2 mute (disable) mic (localStream) standby');
+		localStream.getTracks().forEach(track => { track.stop(); });
+		const audioTracks = localStream.getAudioTracks();
+		localStream.removeTrack(audioTracks[0]);
+		localStream = null;
+	}
+	if(onGotStreamGoOnline && !rtcConnect) {
+		//console.log('gotStream2 onGotStreamGoOnline goOnline');
+		console.log('gotStream2 onGotStreamGoOnline prepareCallee');
+		onGotStreamGoOnline = false;
+		//goOnline(true,"gotStream2");
+		// if wsSecret is set, prepareCallee() will call login()
+		// if wsSecret is not set, in android mode Android.jsGoOnline() will be call
+		prepareCallee(true,"gotStream2");
 	} else {
-		if(localStream && !videoEnabled && !rtcConnect) {
-			// mute (disable) mic until a call
-			console.log('gotStream2 mute (disable) mic (localStream) standby');
-			localStream.getTracks().forEach(track => { track.stop(); });
-			const audioTracks = localStream.getAudioTracks();
-			localStream.removeTrack(audioTracks[0]);
-			localStream = null;
-		}
-		if(onGotStreamGoOnline && !rtcConnect) {
-			//console.log('gotStream2 onGotStreamGoOnline goOnline');
-			console.log('gotStream2 onGotStreamGoOnline prepareCallee');
-			onGotStreamGoOnline = false;
-			//goOnline(true,"gotStream2");
-			// if wsSecret is set, prepareCallee() will call login()
-			// if wsSecret is not set, in android mode Android.jsGoOnline() will be call
-			prepareCallee(true,"gotStream2");
+		if(wsConn==null) {
+			// we are offline
+			console.log("! gotStream2 standby wsConn==null, no sendInit");
 		} else {
-			console.log("gotStream2 standby");
-
-// questionable
-//			console.log("gotStream2 set goOnlineSwitch "+(wsConn!=null));
-//			goOnlineSwitch.checked = (wsConn!=null);
-			if(wsConn==null) {
-				// we are offline
-			} else {
-				// we are online
-				// send init to request list of missedCalls
-				sendInit("gotStream2 standby");
-			}
+			// we are online
+			// send init to request list of missedCalls
+			console.log("# gotStream2 standby sendInit");
+			sendInit("gotStream2 standby");
 		}
 	}
 }
@@ -1707,7 +1709,8 @@ function signalingCommand(message, comment) {
 		console.log("cmd==rtcNegotiate");
 		if(isDataChlOpen()) {
 			pickupAfterLocalStream = true;
-			getStream(); // -> pickup2() -> "calleeDescriptionUpd"
+			// getStream() -> gotStream() -> gotStream2() -> pickup2() -> "calleeDescriptionUpd"
+			getStream();
 		}
 
 	} else if(cmd=="rtcVideoOff") {
@@ -2472,7 +2475,7 @@ function peerConnected3() {
 	answerButtons.style.display = "grid";
 	answerButton.disabled = false;
 	chatButton.style.display = "none";
-	fileselectLabel.style.display = "none"
+	fileselectLabel.style.display = "none";
 
 	// instead of listOfClientIps (???)
 	//gLog('peerConnected3 accept incoming call?',listOfClientIps,dataChannel);
@@ -2593,7 +2596,7 @@ function peerConnected3() {
 			hangup(true,true,"Hangup button reject call");
 		}
 		chatButton.style.display = "none";
-		fileselectLabel.style.display = "none"
+		fileselectLabel.style.display = "none";
 	}
 
 	console.log("peerConnected3 waiting for pickup/reject....."+(Date.now() - startIncomingCall));
@@ -2602,16 +2605,31 @@ function peerConnected3() {
 var startPickup;
 function pickup() {
 	// user has clicked the answer button to pickup the incoming call
-	console.log('pickup -> open mic');
+	startPickup = Date.now();
+	console.log("pickup -> open mic, startPickup=",startPickup);
 	answerButton.disabled = true;
 	buttonBlinking = false;
-	startPickup = Date.now();
 
 	if(divspinnerframe) divspinnerframe.style.display = "block";
-// TODO if getStream fails and does NOT call pickup2() it must remove divspinnerframe
-
-	pickupAfterLocalStream = true; // getStream(); // -> pickup2()
+	pickupAfterLocalStream = true; // getStream() -> gotStream() -> gotStream2() -> pickup2()
 	getStream();
+
+	// pickup timer: if getStream fails and does NOT call pickup2() within ....ms, we must remove divspinnerframe
+	let startWaitPickup = Date.now();
+	setTimeout(function() {
+		// gotStream2() should have cleared pickupAfterLocalStream
+		if(pickupAfterLocalStream && !mediaConnect && rtcConnect && startWaitPickup>=startPickup) {
+			// abort waiting for pickup2
+			console.log("# pickup timer ended, abort waiting for pickup2 (no gotstream)");
+			if(divspinnerframe) divspinnerframe.style.display = "none";
+			hangup(true,true,"Pickup aborted on timeout");
+//			chatButton.style.display = "none";
+//			fileselectLabel.style.display = "none";
+			return;
+		}
+		// all is well, do nothing
+		//console.log("pickup timer ended");
+	},1000);
 }
 
 function pickup2() {
@@ -2639,19 +2657,19 @@ function pickup2() {
 
 	console.log("pickup2 ------------------------- WAIT for pickup4 .....");
 
-	// timer: if pickup4() is NOT called within 5000ms, abort
+	// timer: if pickup4() is NOT called within 3000ms, abort
 	let startWaitPickup4 = Date.now();
 	setTimeout(function() {
-		console.log("pickup2");
+		console.log("pickup2 timer ended");
 		if(!mediaConnect && rtcConnect && startWaitPickup4>startPickup) {
 			// abort running pickup2
 			console.log("pickup2 timer abort waiting for pickup4");
 			if(divspinnerframe) divspinnerframe.style.display = "none";
 			hangup(true,true,"Pickup aborted on timeout");
 			chatButton.style.display = "none";
-			fileselectLabel.style.display = "none"
+			fileselectLabel.style.display = "none";
 		}
-	},5000);
+	},3000);
 }
 
 function pickup4() {
