@@ -2680,7 +2680,7 @@ function pickup2() {
 			return;
 		}
 		// all is well, no action needed
-	},2500);
+	},3500);
 }
 
 function pickup4(comment) {

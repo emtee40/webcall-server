@@ -1189,15 +1189,15 @@ function gotStream(stream) {
 		allTracks.forEach(track => {
 			track.stop();
 		});
-		if(peerCon && peerCon.iceConnectionState!="closed" && addedAudioTrack) {
-			peerCon.removeTrack(addedAudioTrack);
-		}
-		addedAudioTrack = null;
-		if(peerCon && peerCon.iceConnectionState!="closed" && addedVideoTrack) {
-			peerCon.removeTrack(addedVideoTrack);
-		}
-		addedVideoTrack = null;
 	}
+	if(peerCon && peerCon.iceConnectionState!="closed" && addedAudioTrack) {
+		peerCon.removeTrack(addedAudioTrack);
+	}
+	addedAudioTrack = null;
+	if(peerCon && peerCon.iceConnectionState!="closed" && addedVideoTrack) {
+		peerCon.removeTrack(addedVideoTrack);
+	}
+	addedVideoTrack = null;
 
 	localStream = stream;
 	console.log("gotStream got localStream "+(localStream!=null));
@@ -1215,7 +1215,7 @@ function gotStream(stream) {
 
 	if(!peerCon || peerCon.iceConnectionState=="closed") {
 		// in ff this occurs onload
-		//console.log("# gotStream no peerCon: no addTrack");
+		console.log("# gotStream no peerCon: no addTrack");
 	} else if(addedAudioTrack) {
 		console.log('gotStream addedAudioTrack already set: no addTrack');
 	} else {
@@ -1227,27 +1227,27 @@ function gotStream(stream) {
 	// now let's look at all the reasons NOT to add the videoTrack to peerCon
 	if(!videoEnabled) {
 		// disable all video tracks (do not show the video locally)
-		gLog("gotStream !videoEnabled -> stop video tracks");
+		console.log("gotStream !videoEnabled -> stop video tracks");
 		stream.getVideoTracks().forEach(function(track) {
-			gLog("gotStream !videoEnabled stop video track "+track);
+			console.log("gotStream !videoEnabled stop video track "+track);
 			track.stop();
 		})
 	} else if(!addLocalVideoEnabled) {
 		// video streaming has not been activated yet
-		gLog('gotStream videoEnabled but !addLocalVideoEnabled: no addTrack vid');
+		console.log('gotStream videoEnabled but !addLocalVideoEnabled: no addTrack vid');
 	} else if(!peerCon || peerCon.iceConnectionState=="closed") {
-		//gLog('gotStream videoEnabled but !peerCon: no addTrack vid');
+		console.log('gotStream videoEnabled but !peerCon: no addTrack vid');
 	} else if(localCandidateType=="relay" || remoteCandidateType=="relay") {
-		gLog('gotStream videoEnabled but relayed con: no addTrack vid (%s)(%s) '+
+		console.log('gotStream videoEnabled but relayed con: no addTrack vid (%s)(%s) '+
 			localCandidateType+" "+remoteCandidateType);
 	} else if(localStream.getTracks().length<2) {
 		console.log('# gotStream videoEnabled but getTracks().length<2: no addTrack vid '+localStream.getTracks().length);
 	} else {
-		gLog('peerCon addTrack local video input '+localStream.getTracks()[1]);
+		console.log('peerCon addTrack local video input '+localStream.getTracks()[1]);
 		addedVideoTrack = peerCon.addTrack(localStream.getTracks()[1],localStream);
 	}
 
-	gLog("gotStream set localVideoFrame.srcObject");
+	console.log("gotStream set localVideoFrame.srcObject");
 	localVideoFrame.srcObject = localStream;
 	localVideoFrame.volume = 0;
 	localVideoFrame.muted = 0;
