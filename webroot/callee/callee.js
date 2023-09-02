@@ -1530,7 +1530,8 @@ function signalingCommand(message, comment) {
 				stopAllAudioEffects("iceCon closed");
 				// TODO do we really need this?
 				// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
-				endWebRtcSession(true,true,"callerCandidate no peercon / ice closed"); // -> peerConCloseFunc
+				let mustGoOnlineAfter = goOnlineSwitch.checked;
+				endWebRtcSession(true,mustGoOnlineAfter,"callerCandidate no peercon / ice closed"); // -> peerConCloseFunc
 				return;
 			}
 			if(!peerCon.remoteDescription) {
@@ -1593,9 +1594,9 @@ function signalingCommand(message, comment) {
 		// also: turnauth (...) session outdated
 // TODO this code is not sufficient: if payload not "c", we only do stopAllAudioEffects()
 		stopAllAudioEffects("cmd cancel");
+		/*
 		if(divspinnerframe) divspinnerframe.style.display = "none";
 		if(payload=="c") {
-			console.log('cmd cancel c -> endWebRtcSession');
 			if(mediaConnect) {
 				// TODO if callerID and/or callerName are avail we would rather show them
 				// instead of listOfClientIps
@@ -1610,11 +1611,13 @@ function signalingCommand(message, comment) {
 				// caller canceled call before connect
 				//showStatus("canceled");
 			}
-			// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
-			endWebRtcSession(false,true,"cmd cancel"); // -> peerConCloseFunc
 		} else {
 			// TODO no endWebRtcSession ? android service will not know that ringing has ended
 		}
+		*/
+		console.log("cmd cancel payload=("+payload+") -> endWebRtcSession");
+		let mustGoOnlineAfter = goOnlineSwitch.checked;
+		endWebRtcSession(true,mustGoOnlineAfter,"cmd cancel"); // -> peerConCloseFunc
 
 	} else if(cmd=="clearcache") {
 		clearcache();
@@ -2179,8 +2182,8 @@ function hangup(mustDisconnect,dummy2,message) {
 	}
 
 	connectLocalVideo(true); // force disconnect
-	let mustReconnectServer = goOnlineSwitch.checked;
-	endWebRtcSession(mustDisconnect,mustReconnectServer,"hangup "+message);
+	let mustGoOnlineAfter = goOnlineSwitch.checked;
+	endWebRtcSession(mustDisconnect,mustGoOnlineAfter,"hangup "+message);
 	vsendButton.classList.remove('blink_me')
 }
 
@@ -2210,7 +2213,7 @@ function goOnline(sendInitFlag,comment) {
 function prepareCallee(sendInitFlag,comment) {
 	// called by goOnline()            when we activate goOnlineSwitch
 	//           gotStream2()          on load with auto=
-	//           endWebRtcSession()    after a call to get ready for the next one
+	//           endWebRtcSession()    after a call to get ready for the next incoming call
 	//           wakeGoOnline()        --currently not used--
 	//           wakeGoOnlineNoInit()  when service has loaded the mainpage and is already connected
 	// create a newPeerCon() -> new RTCPeerConnection() for the next incoming call
@@ -2284,12 +2287,10 @@ function prepareCallee(sendInitFlag,comment) {
 
 	console.log('prepareCallee have wsConn');
 	if(divspinnerframe) divspinnerframe.style.display = "none";
-
 	if(sendInitFlag) {
-		gLog('prepareCallee have wsConn -> send init');
 		sendInit("prepareCallee <- "+comment);
 	}
-	getSettings(); // display ID-links
+	getSettings(); // display ownID links
 }
 
 function newPeerCon() {
@@ -2373,8 +2374,8 @@ function newPeerCon() {
 		if(peerCon.connectionState=="disconnected") {
 			console.log("# peerCon disconnected "+rtcConnect+" "+mediaConnect);
 			stopAllAudioEffects("peerCon disconnected");
-			// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
-			endWebRtcSession(true,true,"disconnected by peer"); // -> peerConCloseFunc
+			let mustGoOnlineAfter = goOnlineSwitch.checked;
+			endWebRtcSession(true,mustGoOnlineAfter,"disconnected by peer"); // -> peerConCloseFunc
 
 		} else if(peerCon.connectionState=="failed") {
 			// "failed" could be an early caller hangup
@@ -2383,8 +2384,8 @@ function newPeerCon() {
 			// or until offline/online
 			console.log("# peerCon failed "+rtcConnect+" "+mediaConnect);
 			stopAllAudioEffects("peerCon failed");
-			// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
-			endWebRtcSession(true,true,"peer connection failed"); // -> peerConCloseFunc
+			let mustGoOnlineAfter = goOnlineSwitch.checked;
+			endWebRtcSession(true,mustGoOnlineAfter,"peer connection failed"); // -> peerConCloseFunc
 /*
 			if(wsConn==null) {
 				console.log('peerCon failed and wsConn==null -> login()');
@@ -2706,8 +2707,8 @@ function pickup4(comment) {
 		// this should never happen
 		console.warn("# pickup4: NO LOCALSTREAM - ABORT PICKUP");
 		//stopAllAudioEffects("NO LOCALSTREAM ABORT PICKUP");
-		// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
-		endWebRtcSession(true,true,"NO LOCALSTREAM ABORT PICKUP"); // -> peerConCloseFunc
+		let mustGoOnlineAfter = goOnlineSwitch.checked;
+		endWebRtcSession(true,mustGoOnlineAfter,"NO LOCALSTREAM ABORT PICKUP"); // -> peerConCloseFunc
 		return;
 	}
 
@@ -3040,6 +3041,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	buttonBlinking = false;
 	answerButtons.style.display = "none";
 	goOnlineSwitch.disabled = false;
+	if(divspinnerframe) divspinnerframe.style.display = "none";
 
 	if(!wsConn) {
 		showStatus("Offline",-1);
@@ -3164,7 +3166,6 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	if(!goOnlineAfter) {
 		offlineAction("endWebRtcSession no goOnlineAfter");
 	} else if(goOnlinePending) {
-		//offlineAction("endWebRtcSession goOnlinePending");
 		console.log("endWebRtcSession goOnlinePending");
 	} else {
 		// bc we keep our wsConn alive, no new login is needed
