@@ -1478,6 +1478,7 @@ function signalingCommand(message, comment) {
 			console.log('callerAnswer setRemoteDescription');
 			peerCon.setRemoteDescription(callerDescription).then(() => {
 				console.log('callerAnswer setRemoteDescription done');
+// TODO this can come WAY too early
 				pickup4("cmd=callerAnswer");
 			}, err => {
 				console.warn(`# callerAnswer Failed to set RemoteDescription`,err.message)
@@ -2434,6 +2435,7 @@ function peerConnected() {
 	wsSend("rtcConnect|")
 
 	// peerConnected3() will wait for a DATACHANNEL before enabling answerButton
+// TODO could we also use rtcConnectStartDate?
 	startWaitConnect = Date.now();
 	peerConnected3();
 }
@@ -2477,30 +2479,6 @@ function peerConnected3() {
 
 	// data channel is available !!!!!!!!!!!!!!!!
 	console.log("peerConnected3: got data channel after "+sinceStartWaitConnect);
-
-/*
-	if(localStream==null) {
-		// before we can continue enabling answerButton, we need to wait for datachannel
-		if(sinceStartWaitConnect < 3500) {
-			console.log("peerConnected3: waiting for localStream... "+
-				sinceStartWaitConnect+" "+(Date.now() - startIncomingCall));
-			setTimeout(function() {
-				peerConnected3();
-			},100);
-			return;
-		}
-
-		// this should never happen
-		console.warn("# peerConnected3: NO LOCALSTREAM - ABORT RING");
-		// TODO showStatus()
-		stopAllAudioEffects("NO DATACHANNEL ABORT RING");
-		// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
-		endWebRtcSession(true,true,"caller early abort"); // -> peerConCloseFunc
-		return;
-	}
-
-	console.log("peerConnected3: got localStream after "+sinceStartWaitConnect);
-*/
 
 	// scroll to top
 	window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2713,6 +2691,29 @@ function pickup4(comment) {
 		console.log("# pickup4 called when mediaConnect was already set "+comment);
 		return;
 	}
+
+	let sinceStartPickup = Date.now() - startPickup;
+	if(localStream==null) {
+		// before we can continue enabling answerButton, we need to wait for datachannel
+		if(sinceStartPickup < 3500) {
+			console.log("! pickup4: waiting for localStream... "+
+				sinceStartPickup+" "+(Date.now() - startIncomingCall));
+			setTimeout(function() {
+				pickup4(comment+" (retry)");
+			},100);
+			return;
+		}
+
+		// this should never happen
+		console.warn("# pickup4: NO LOCALSTREAM - ABORT PICKUP");
+		// TODO showStatus()
+		stopAllAudioEffects("NO LOCALSTREAM ABORT PICKUP");
+		// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
+		endWebRtcSession(true,true,"NO LOCALSTREAM ABORT PICKUP"); // -> peerConCloseFunc
+		return;
+	}
+
+	console.log("pickup4: got localStream after "+sinceStartPickup);
 
 	// full connect
 	mediaConnect = true;
