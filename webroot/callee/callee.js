@@ -2125,7 +2125,8 @@ function wsSend(message) {
 }
 
 function hangup(mustDisconnect,dummy2,message) {
-	// hangup the peer connection (the incomming call)
+	// hide answerButtons, close msgbox, stop buttonBlinking, hide remoteVideo, stopAllAudioEffects(
+	// close the peer connection (the incomming call) via endWebRtcSession()
 	console.log("hangup: "+message);
 	// NOTE: not all message strings are suited for users
 	showStatus(message,2000);
@@ -2402,6 +2403,7 @@ function newPeerCon() {
 			}
 		}
 	}
+
 	dataChannel = null;
 	peerCon.ondatachannel = event => {
 		dataChannel = event.channel;
@@ -2421,43 +2423,35 @@ function newPeerCon() {
 
 var startWaitConnect;
 function peerConnected() {
+	// set rtcConnect=true and cont with peerConnected3() to wait for dataChl
 	// called when peerCon.connectionState=="connected"
 	if(rtcConnect) {
 		console.log("# peerConnected already rtcConnect abort");
 		return;
 	}
-
 	console.log("peerConnected rtcConnect --------------------");
-	rtcConnectStartDate = Date.now();
+	rtcConnectStartDate = Date.now(); // used in getStatsPostCall()
 	mediaConnectStartDate = 0;
 	rtcConnect = true;
 	wsSend("rtcConnect|")
-
-	// peerConnected3() will wait for a DATACHANNEL before enabling answerButton
-// TODO could we also use rtcConnectStartDate?
 	startWaitConnect = Date.now();
 	peerConnected3();
 }
 
 function peerConnected3() {
-	// wait here up to 1500ms while dataChannel==null or peerCon is closed
-	// peerConnected3() will be called again while
-	let sinceStartWaitConnect = Date.now() - startWaitConnect;
-	//console.log("peerConnected3..."+sinceStartWaitConnect);
+	// wait here for up to 1500ms while dataChannel==null (abort if peerCon is lost or closed)
+	// then show answerButtons, play ringtone and blink answer button
 
 	if(!peerCon || peerCon.iceConnectionState=="closed") {
 		// caller early abort
 		console.log("! peerConnected3: caller early abort");
-		// TODO showStatus()
-		//hangup(true,false,"Caller early abort");
-		stopAllAudioEffects("iceConnectionState closed");
-		// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
-		endWebRtcSession(true,true,"caller early disconnect"); // -> peerConCloseFunc
+		hangup(true,false,"Caller early abort");
 		return;
 	}
 
+	// before we can continue enabling answerButton, we need to wait for datachannel
+	let sinceStartWaitConnect = Date.now() - startWaitConnect;
 	if(dataChannel==null) {
-		// before we can continue enabling answerButton, we need to wait for datachannel
 		if(sinceStartWaitConnect < 1500) {
 			console.log("peerConnected3: waiting for datachannel... "+
 				sinceStartWaitConnect+" "+(Date.now() - startIncomingCall));
@@ -2469,19 +2463,14 @@ function peerConnected3() {
 
 		// this should never happen
 		console.warn("# peerConnected3: NO DATACHANNEL - ABORT RING");
-		// TODO showStatus()
-		stopAllAudioEffects("NO DATACHANNEL ABORT RING");
-		// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
-		endWebRtcSession(true,true,"caller early abort"); // -> peerConCloseFunc
+		hangup(true,false,"Caller early abort");
 		return;
 	}
 
-	// data channel is available !!!!!!!!!!!!!!!!
+	// success: data channel is available !!!!!!!!!!!!!!!!
 	console.log("peerConnected3: got data channel after "+sinceStartWaitConnect);
-
 	// scroll to top
 	window.scrollTo({ top: 0, behavior: 'smooth' });
-
 	// show Answer + Reject buttons (handlers below)
 	answerButtons.style.display = "grid";
 	answerButton.disabled = false;
@@ -2502,9 +2491,13 @@ function peerConnected3() {
 	// play ringtone and blink answer button
 	let skipRinging = false;
 	if(typeof Android !== "undefined" && Android !== null) {
-		skipRinging = Android.rtcConnect(); // may call pickup() if autoPickup was set
+		// if autoPickup was set by 3-button call notification, rtcConnect() may call pickup() and return true
+		// this means that we don't need to ring or blink in JS
+		skipRinging = Android.rtcConnect();
 	}
-	if(!skipRinging) {
+	if(skipRinging) {
+		console.log("peerConnected3 waiting for auto pickup..."+(Date.now() - startIncomingCall));
+	} else {
 		let doneRing = false;
 		if(typeof Android !== "undefined" && Android !== null &&
 		   typeof Android.ringStart !== "undefined" && Android.ringStart !== null) {
@@ -2572,24 +2565,25 @@ function peerConnected3() {
 			}
 		}
 		blinkButtonFunc();
-	}
 
-	// TODO disable goOnlineSwitch while peerconnected ?
-	if(autoanswerCheckbox.checked) {
-		var pickupFunc = function() {
-			// may have received "onmessage disconnect (caller)" and/or "cmd cancel (server)" in the meantime
-			if(!buttonBlinking) {
-				return;
+		if(autoanswerCheckbox.checked) {
+			var pickupFunc = function() {
+				// may have received "onmessage disconnect (caller)" and/or "cmd cancel (server)" in the meantime
+				if(!buttonBlinking) {
+					return;
+				}
+				// only auto-pickup if iframeWindow (caller widget) is NOT active
+				if(iframeWindowOpenFlag) {
+					setTimeout(pickupFunc,1000);
+					return;
+				}
+				console.log("peerConnected3 auto-answer call");
+				pickup();
 			}
-			// only auto-pickup if iframeWindow (caller widget) is NOT active
-			if(iframeWindowOpenFlag) {
-				setTimeout(pickupFunc,1000);
-				return;
-			}
-			console.log("peerConnected3 auto-answer call");
-			pickup();
+			setTimeout(pickupFunc,1000);
 		}
-		setTimeout(pickupFunc,1000);
+
+		console.log("peerConnected3 waiting for manual pickup/reject....."+(Date.now() - startIncomingCall));
 	}
 
 	// wait for the user to click one of the two buttons
@@ -2607,29 +2601,36 @@ function peerConnected3() {
 			hangup(true,false,"Hangup button rejecting call");
 		}
 	}
-
-	console.log("peerConnected3 waiting for manual pickup/reject....."+(Date.now() - startIncomingCall));
 }
 
 var startPickup;
 function pickup() {
-	// user has clicked the answer button to pickup the incoming call
+	// to pickup the incoming call, user has clicked the answer button, or the 3-button Notification dialog
+	// we call getStream() to get localStream, once avail pickup2() is called
 	startPickup = Date.now();
 	console.log("pickup -> open mic, startPickup=",startPickup);
 	answerButton.disabled = true;
 	buttonBlinking = false;
-
 	if(divspinnerframe) divspinnerframe.style.display = "block";
-	pickupAfterLocalStream = true; // getStream() -> gotStream() -> gotStream2() -> pickup2()
-	getStream(); // -> gotStream() -> gotStream2()
 
+	pickupAfterLocalStream = true; // getStream() -> gotStream() -> gotStream2() -> pickup2()
+	getStream();
+
+	// stop the ringing
+	stopAllAudioEffects("pickup");
+
+// TODO not sure about this timeout function
+// if user must be asked for mic permission, that could take much longer than 1500ms
+	// pickup timer: in case getStream does NOT call pickup2() within a max duration -> hangup()
 	console.log("pickup waiting for pickup2...");
-	// pickup timer: if getStream does NOT call pickup2() within a max duration -> hangup()
 	let startWaitPickup = Date.now();
 	setTimeout(function() {
-		// gotStream2() should have cleared pickupAfterLocalStream
-		if(pickupAfterLocalStream && !mediaConnect && rtcConnect && startWaitPickup>=startPickup) {
-			// abort waiting for pickup2
+		// if gotStream2() was called, pickupAfterLocalStream would be cleared
+		// if endWebRtcSession() was called rtcConnect would be false
+		// if pickup4() was called, mediaConnect would be set
+		// if pickup() was called again, startPickup would be > startWaitPickup (our old copy)
+		if(pickupAfterLocalStream && rtcConnect && !mediaConnect && startWaitPickup>=startPickup) {
+			// abort waiting for pickup2 to be called
 			console.log("# pickup timer ended, abort waiting for pickup2 (no gotstream)");
 			hangup(true,false,"Pickup aborted on timeout");
 			return;
@@ -2639,12 +2640,8 @@ function pickup() {
 }
 
 function pickup2() {
-	// pretend pickup2() was never called
-	//console.warn("# pickup2 IGNORE-------------------");
-	//return;
-
-
-	// user has picked up incoming call and now we got the local mic stream
+	// we got the mic localStream (after user has Accepted the incoming call before)
+	// here we add remoteStream, which should trigger onnegotiationneeded, createOffer, callerAnswer and pickup4()
 	if(!localStream) {
 		console.warn("# pickup2 no localStream");
 		if(divspinnerframe) divspinnerframe.style.display = "none";
@@ -2654,7 +2651,7 @@ function pickup2() {
 
 	console.log("pickup2 gotStream "+(Date.now() - startPickup));
 	// stop the ringing
-	stopAllAudioEffects("pickup2");
+	//stopAllAudioEffects("pickup2");
 
 	if(typeof Android !== "undefined" && Android !== null) {
 		Android.callPickedUp(); // audioToSpeakerSet() + callPickedUpFlag=true (needed for callInProgress())
@@ -2669,15 +2666,14 @@ function pickup2() {
 	}
 	console.log("pickup2 waiting for pickup4...");
 
-	// peerCon onnegotiationneeded now taking place, createOffer for caller -> callerAnswer setLocalDescription
-	// -> callerAnswer setRemoteDescription -> pickup4()
+// TODO not sure this is really needed
 	// timer: if pickup4() is NOT called within a max duration -> hangup()
 	let startWaitPickup4 = Date.now();
 	setTimeout(function() {
 		if(!mediaConnect && rtcConnect && startWaitPickup4>startPickup) {
 			// abort waiting for pickup4
-			console.log("pickup2 timer abort waiting for pickup4");
-			hangup(true,false,"Pickup aborted on timeout");
+			console.log("# pickup2 timer abort waiting for pickup4");
+			hangup(true,false,"Pickup2 aborted on timeout");
 			return;
 		}
 		// all is well, no action needed
