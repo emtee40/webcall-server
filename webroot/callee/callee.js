@@ -1217,21 +1217,23 @@ function showOnlineReadyMsg() {
 
 	// delay 'ready to receive calls' msg, so that prev msg can be read by user
 	setTimeout(function(oldWidth) {
-		if(!mediaConnect) {
-			//console.log("showOnlineReadyMsg");
+/*
+		if(mediaConnect) {
+			console.log("# showOnlineReadyMsg already mediaConnect");
+		} else {
+*/
+			console.log("showOnlineReadyMsg");
 			if(typeof Android !== "undefined" && Android !== null) {
 				if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
 					Android.calleeConnected();
 					// calleeConnected() does 2 things:
-					// 1. Intent brintent = new Intent("webcall");
-					//    brintent.putExtra("state", "connected");
-					//    sendBroadcast(brintent);
-					// 2. statusMessage(awaitingCalls,-1,true,false);
+					// 1. postStatus("state","connected");
+					// 2. statusMessage(readyToReceiveCallsString,-1,true,false);
+					return;
 				}
-			} else {
-				showStatus("Ready to receive calls",-1);
 			}
-		}
+			showStatus("Ready to receive calls",-1);
+//		}
 
 /*
 		// TODO isHiddenCheckbox needs a different implementation
@@ -1291,7 +1293,7 @@ function connectSignaling(message,comment) {
 
 function wsOnOpen() {
 	// called by service connectHost(wsUrl) -> onOpen() -> runJS("wsOnOpen()",null)
-	gLog("wsOnOpen calleeID="+calleeID+" connected="+(wsConn!=null));
+	console.log("wsOnOpen calleeID="+calleeID+" connected="+(wsConn!=null));
 	tryingToOpenWebSocket = false;
 	wsAutoReconnecting = false;
 	//console.log("wsOnOpen goOnlineSwitch=true");
