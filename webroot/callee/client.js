@@ -1705,7 +1705,7 @@ function showStatus(msg,timeoutMs) {
 
 function isDataChlOpen() {
 	if(dataChannel) {
-		console.log("isDataChannelOpen state="+dataChannel.readyState);
+		//console.log("isDataChannelOpen state="+dataChannel.readyState);
 		if(dataChannel.readyState=="open") {
 			return true;
 		}
