@@ -118,12 +118,19 @@ body {
 	cursor:pointer;
 }
 
+div#containerOuter {
+	width:100%;
+	_display:flex;
+	_justify-content:center;
+}
+
 div#container {
 	padding-top:5px;
 	padding-bottom:5px;
 	padding-right: 0.4em;
-	padding-left: 2.5%;
-	max-width:600px;
+	padding-left: 2%;
+	width:100%;
+	max-width:740px;
 	overflow:hidden;
 }
 
@@ -430,7 +437,7 @@ input:disabled + .slider {
 <div id="iframeWindow" style="display:none"></div>
 
 <!-- max-width same as for container -->
-<div id="menuDialog" style="position:relative; max-width:600px; user-select:none; display:none;">
+<div id="menuDialog" style="position:relative; max-width:740px; user-select:none; display:none;">
 	<div style="position:absolute; right:10px; top:0; z-index:110; background:#45dd; color:#fff; padding:10px 0px; line-height:2.6em; border-radius:3px; cursor:pointer;">
 		<div id="menuSettings" class="menuButton" style="display:none" onclick="openSettings()">Settings</div>
 		<div id="idMapping" class="menuButton" style="display:none" onclick="openIdMapping()">ID Manager</div>
@@ -482,6 +489,7 @@ input:disabled + .slider {
 
 <div id="dynDialog" style="position:relative; user-select:none; display:none;"></div>
 
+<div id="containerOuter">
 <div id="container">
 	<div class="buttonRow" id="buttonRow">
 		<label class="switch" style="margin-top:8px;">
@@ -577,6 +585,7 @@ input:disabled + .slider {
 
 	<div id="timer" class="timer">4:32</div>
 	<div style="opacity:0.7;padding-top:8px;user-select:none;">WebCall by <a id="webcallhome" href="https://timur.mobi/webcall">timur.mobi</a> <span id="version"></span></div>
+</div>
 </div>
 </body>
 

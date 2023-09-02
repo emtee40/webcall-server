@@ -2546,8 +2546,8 @@ function peerConnected3() {
 			if(!buttonBgHighlighted) {
 				// blink on
 				//answerButton.style.background = "#b82a68";
-				answerButton.style.background = "#b03";
-				answerButton.style.border = "1.2px solid #b03";
+				answerButton.style.background = "#c03";
+				answerButton.style.border = "1.2px solid #c03";
 
 				buttonBgHighlighted = true;
 				setTimeout(blinkButtonFunc, 500);
