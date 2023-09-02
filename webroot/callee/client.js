@@ -1191,10 +1191,12 @@ function gotStream(stream) {
 		});
 	}
 	if(peerCon && peerCon.iceConnectionState!="closed" && addedAudioTrack) {
+		console.log("gotStream removeTrack(addedAudioTrack)");
 		peerCon.removeTrack(addedAudioTrack);
 	}
 	addedAudioTrack = null;
 	if(peerCon && peerCon.iceConnectionState!="closed" && addedVideoTrack) {
+		console.log("gotStream removeTrack(addedVideoTrack)");
 		peerCon.removeTrack(addedVideoTrack);
 	}
 	addedVideoTrack = null;
@@ -1217,7 +1219,7 @@ function gotStream(stream) {
 		// in ff this occurs onload
 		console.log("# gotStream no peerCon: no addTrack");
 	} else if(addedAudioTrack) {
-		console.log('gotStream addedAudioTrack already set: no addTrack');
+		console.log("# gotStream addedAudioTrack already set: no addTrack");
 	} else {
 		console.log('gotStream addedAudioTrack');
 		// adding media to peerCon will dispatch negotiationneeded event
@@ -1236,9 +1238,9 @@ function gotStream(stream) {
 		// video streaming has not been activated yet
 		console.log('gotStream videoEnabled but !addLocalVideoEnabled: no addTrack vid');
 	} else if(!peerCon || peerCon.iceConnectionState=="closed") {
-		console.log('gotStream videoEnabled but !peerCon: no addTrack vid');
+		console.log('# gotStream videoEnabled but !peerCon: no addTrack vid');
 	} else if(localCandidateType=="relay" || remoteCandidateType=="relay") {
-		console.log('gotStream videoEnabled but relayed con: no addTrack vid (%s)(%s) '+
+		console.log('# gotStream videoEnabled but relayed con: no addTrack vid (%s)(%s) '+
 			localCandidateType+" "+remoteCandidateType);
 	} else if(localStream.getTracks().length<2) {
 		console.log('# gotStream videoEnabled but getTracks().length<2: no addTrack vid '+localStream.getTracks().length);

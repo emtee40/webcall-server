@@ -1440,7 +1440,7 @@ function signalingCommand(message, comment) {
 		callerDescription = JSON.parse(payload);
 		console.log('callerOffer setRemoteDescription '+callerDescription);
 		peerCon.setRemoteDescription(callerDescription).then(() => {
-			gLog('callerOffer createAnswer');
+			console.log('callerOffer createAnswer');
 			peerCon.createAnswer().then((desc) => {
 				localDescription = desc;
 				console.log('callerOffer in, calleeAnswer out');
@@ -1489,7 +1489,7 @@ function signalingCommand(message, comment) {
 		});
 
 	} else if(cmd=="callerInfo") {
-		//gLog('cmd callerInfo payload=(%s)',payload);
+		console.log('cmd callerInfo payload=(%s)',payload);
 		callerMsg = "";
 		let idxSeparator = payload.indexOf("\t");
 		if(idxSeparator<0) {
@@ -1506,10 +1506,10 @@ function signalingCommand(message, comment) {
 				callerMsg = callerName.substring(idxSeparator+1);
 				callerName = callerName.substring(0,idxSeparator);
 			}
-			gLog('cmd callerInfo ('+callerID+') ('+callerName+') ('+callerMsg+')');
+			console.log('cmd callerInfo ('+callerID+') ('+callerName+') ('+callerMsg+')');
 			// callerID + callerName will be displayed via getStatsCandidateTypes()
 		} else {
-			gLog('cmd callerInfo payload=(%s)',payload);
+			console.log('cmd callerInfo payload=(%s)',payload);
 		}
 
 	} else if(cmd=="callerCandidate") {
