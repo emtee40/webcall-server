@@ -1023,8 +1023,8 @@ function getStream(selectObject) {
 	}
 
 	if(localStream) {
-		console.log("getStream stop previous localStream len",allTracks.length);
 		const allTracks = localStream.getTracks();
+		console.log("getStream stop previous localStream len",allTracks.length);
 		allTracks.forEach(track => {
 			track.stop();
 		});
