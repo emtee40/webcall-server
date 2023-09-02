@@ -1728,11 +1728,10 @@ function dataChannelOnclose(event) {
 }
 
 function dataChannelOnerror(event) {
-	console.log("# dataChannel.onerror",event.error);
+	console.log("# dataChannel.onerror="+event.error+" rtcConnect="+rtcConnect);
 	if(rtcConnect) {
-		hangup(true,true,"dataChannelOnerror");
-	} else {
-		showStatus(""+event.error,-1);
+		// no need to showStatus() anything
+		hangup(true,true,"");
 	}
 	progressSendElement.style.display = "none";
 	if(fileselectLabel && mediaConnect && isDataChlOpen() && isP2pCon()) {
