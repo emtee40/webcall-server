@@ -966,6 +966,7 @@ let lastGoodAvSelectIndex;
 let myUserMediaConstraints;
 function getStream(selectObject) {
 	if(!navigator || !navigator.mediaDevices) {
+		console.log("getStream no access navigator.mediaDevices");
 		alert("getStream no access navigator.mediaDevices");
 		return;
 	}
@@ -976,7 +977,7 @@ function getStream(selectObject) {
 	//}
 
 	if(selectObject) {
-		gLog('===getStream avSelect===');
+		console.log('===getStream avSelect===');
 		// selectObject is (only) set if user operates avSelect manually
 		// parse for deviceId (selectObject.value in avSelect.options)
 		for(var i = avSelect.options.length - 1; i >= 0; i--) {
@@ -1022,7 +1023,7 @@ function getStream(selectObject) {
 	}
 
 	if(localStream) {
-		//gLog("gotStream stop previous localStream len",allTracks.length);
+		console.log("getStream stop previous localStream len",allTracks.length);
 		const allTracks = localStream.getTracks();
 		allTracks.forEach(track => {
 			track.stop();
@@ -1038,11 +1039,11 @@ function getStream(selectObject) {
 		localStream = null;
 	}
 
-	//gLog('getStream set getUserMedia '+myUserMediaConstraints);
+	console.log("getStream set getUserMedia "+myUserMediaConstraints);
 	let saveWorkingConstraints = JSON.parse(JSON.stringify(myUserMediaConstraints));
 	return navigator.mediaDevices.getUserMedia(myUserMediaConstraints)
 		.then(function(stream) {
-			gLog('getStream success -> gotStream');
+			console.log('getStream success -> gotStream');
 			gotStream(stream);
 			// no error: use this as lastGoodMediaConstraints
 			lastGoodMediaConstraints = JSON.parse(JSON.stringify(saveWorkingConstraints));
@@ -1055,8 +1056,8 @@ function getStream(selectObject) {
 			if(!videoEnabled) {
 				console.log("# audio error " + err.message);
 				if(!doneHangup) {
-					alert("audio error: " + err.message +
-						  "\nLooks like an issue with your browser");
+//					alert("audio error: " + err.message +
+//						  "\nLooks like an issue with your browser");
 				}
 			} else {
 				console.log('# audio/video error', err.message);
@@ -1065,7 +1066,7 @@ function getStream(selectObject) {
 					localVideoMsgElement.style.opacity = 0.9;
 				}
 			}
-			showStatus(""); // undo "Connecting..."
+			showStatus("Error getStream "+err.message); // undo "Connecting..."
 			if(typeof dialButton!=="undefined" && dialButton) {
 				dialButton.disabled = false;
 				hangupButton.disabled = true;

@@ -1478,7 +1478,6 @@ function signalingCommand(message, comment) {
 			console.log('callerAnswer setRemoteDescription');
 			peerCon.setRemoteDescription(callerDescription).then(() => {
 				console.log('callerAnswer setRemoteDescription done');
-// TODO this can come WAY too early
 				pickup4("cmd=callerAnswer");
 			}, err => {
 				console.warn(`# callerAnswer Failed to set RemoteDescription`,err.message)
@@ -2623,8 +2622,8 @@ function pickup() {
 	if(divspinnerframe) divspinnerframe.style.display = "block";
 	pickupAfterLocalStream = true; // getStream() -> gotStream() -> gotStream2() -> pickup2()
 	getStream(); // -> gotStream() -> gotStream2()
-	console.log("pickup waiting for pickup2...");
 
+	console.log("pickup waiting for pickup2...");
 	// pickup timer: if getStream does NOT call pickup2() within a max duration -> hangup()
 	let startWaitPickup = Date.now();
 	setTimeout(function() {
@@ -2692,10 +2691,12 @@ function pickup4(comment) {
 		return;
 	}
 
+	// cmd=="callerAnswer" -> pickup4() can come WAY too early
+	// this is why we need to wait for localStream
 	let sinceStartPickup = Date.now() - startPickup;
 	if(localStream==null) {
 		// before we can continue enabling answerButton, we need to wait for datachannel
-		if(sinceStartPickup < 3500) {
+		if(sinceStartPickup<3500 && rtcConnect) {
 			console.log("! pickup4: waiting for localStream... "+
 				sinceStartPickup+" "+(Date.now() - startIncomingCall));
 			setTimeout(function() {
@@ -2706,8 +2707,7 @@ function pickup4(comment) {
 
 		// this should never happen
 		console.warn("# pickup4: NO LOCALSTREAM - ABORT PICKUP");
-		// TODO showStatus()
-		stopAllAudioEffects("NO LOCALSTREAM ABORT PICKUP");
+		//stopAllAudioEffects("NO LOCALSTREAM ABORT PICKUP");
 		// TODO should the 2nd parm not depend on goOnlineSwitch.checked?
 		endWebRtcSession(true,true,"NO LOCALSTREAM ABORT PICKUP"); // -> peerConCloseFunc
 		return;
