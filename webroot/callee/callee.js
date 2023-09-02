@@ -1217,11 +1217,6 @@ function showOnlineReadyMsg() {
 
 	// delay 'ready to receive calls' msg, so that prev msg can be read by user
 	setTimeout(function(oldWidth) {
-/*
-		if(mediaConnect) {
-			console.log("# showOnlineReadyMsg already mediaConnect");
-		} else {
-*/
 			console.log("showOnlineReadyMsg");
 			if(typeof Android !== "undefined" && Android !== null) {
 				if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
@@ -1232,8 +1227,12 @@ function showOnlineReadyMsg() {
 					return;
 				}
 			}
-			showStatus("Ready to receive calls",-1);
-//		}
+
+			if(peerCon==null || peerCon.signalingState=="closed") {
+				showStatus("Ready to receive calls",-1);
+			} else {
+				showStatus("Call in progress",-1);
+			}
 
 /*
 		// TODO isHiddenCheckbox needs a different implementation
