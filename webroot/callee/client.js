@@ -948,6 +948,7 @@ function iframeWindowClose() {
 
 		if(iframeWindowOpenUrl.indexOf("/user/")>=0 && iframeWindowOpenUrl.indexOf("?callerId=")>=0) {
 			if(typeof Android !== "undefined" && Android !== null) {
+				// TODO ???
 				Android.peerDisConnect(); // will reset callInProgress and turn off proximity sensor
 			}
 		} else if(iframeWindowOpenUrl.indexOf("/callee/settings")>=0 || 
@@ -1635,7 +1636,7 @@ function showStatus(msg,timeoutMs) {
 		console.log("status: msg empty");
 		return;
 	}
-	//console.log("showStatus msg="+msg,timeoutMs);
+	console.log("showStatus msg=("+msg+") timeoutMs="+timeoutMs);
 	if(showStatusTimeout!=null) {
 		//console.log("showStatus clearTimeout of prev");
 		clearTimeout(showStatusTimeout);
@@ -1710,7 +1711,7 @@ function isDataChlOpen() {
 			return true;
 		}
 	} else {
-		console.log("isDataChannelOpen no");
+		//console.log("isDataChannelOpen no");
 	}
 	return false;
 }
@@ -1728,9 +1729,10 @@ function dataChannelOnclose(event) {
 
 function dataChannelOnerror(event) {
 	console.log("# dataChannel.onerror",event.error);
-	showStatus("dataChannel error "+event.error,-1);
 	if(rtcConnect) {
 		hangup(true,true,"dataChannelOnerror");
+	} else {
+		showStatus(""+event.error,-1);
 	}
 	progressSendElement.style.display = "none";
 	if(fileselectLabel && mediaConnect && isDataChlOpen() && isP2pCon()) {

@@ -2077,7 +2077,7 @@ function signalingCommand(message) {
 	} else if(cmd=="calleeCandidate") {
 		if(!peerCon || peerCon.iceConnectionState=="closed") {
 			console.warn('cmd calleeCandidate abort no peerCon');
-			hangupWithBusySound(true,"calleeCandidate lost peerCon");
+			hangupWithBusySound(true,"Peer connection lost");
 			return;
 		}
 		var calleeCandidate = JSON.parse(payload);
@@ -2145,7 +2145,7 @@ function signalingCommand(message) {
 			// I see this when I quickly re-dial while busy signal of last call is still playing
 			// TODO button may now continue to show "Connecting..."
 			// but connection is still established (at least when calling answ)
-			hangupWithBusySound(true,"pickup but no localStream");
+			hangupWithBusySound(true,"no localStream");
 			return;
 		}
 
@@ -2228,7 +2228,7 @@ function signalingCommand(message) {
 			// getting stats (p2p or relayed connection)
 			gLog("full mediaConnect, getting stats...");
 			peerCon.getStats(null)
-				.then((results) => getStatsCandidateTypes(results,lg("connected"),"e2ee"),
+				.then((results) => getStatsCandidateTypes(results,lg("connected"),"E2EE"),
 				err => console.log(err));
 
 			// in case local video is active, blink vsendButton
@@ -2272,9 +2272,8 @@ function signalingCommand(message) {
 		}
 		*/
 	} else if(cmd=="cancel") {
+		// either the server or the peer wants us disconnected
 		if(payload!="c") {
-			//console.log("peer disconnect");
-			//showStatus("peer disconnect",8000);
 			setTimeout(function() {
 				if(wsConn) {
 					if(!mediaConnect) {
@@ -2290,7 +2289,7 @@ function signalingCommand(message) {
 					// wsConn=null prevents hangup() from generating a return cancel msg
 					wsConn=null;
 				}
-				hangupWithBusySound(false,"Peer hang up");
+				hangupWithBusySound(false,"Peer has disconnected");
 			},250);
 		} else {
 			console.log("ignore cancel "+payload);
@@ -2353,7 +2352,7 @@ function dial() {
 	if(!localStream) {
 		console.warn('dial abort no localStream');
 		showStatus("Dialup canceled");
-		hangupWithBusySound(true,"dial no localStream");
+		hangupWithBusySound(true,"no localStream");
 		return;
 	}
 
@@ -2524,26 +2523,17 @@ function dial2() {
 		connectionstatechangeCounter++;
 		if(!peerCon || peerCon.iceConnectionState=="closed") {
 			gLog("peerCon onconnectionstatechange !peerCon "+peerCon.connectionState);
-			if(typeof Android !== "undefined" && Android !== null) {
-				Android.peerDisConnect();
-			}
 			hangupWithBusySound(true,"Peer connection closed");
 			return;
 		}
 		gLog("peerCon onconnectionstatechange "+peerCon.connectionState);
 		if(peerCon.connectionState=="disconnected") {
 			gLog("peerCon disconnected",rtcConnect,mediaConnect);
-			if(typeof Android !== "undefined" && Android !== null) {
-				Android.peerDisConnect();
-			}
-			hangupWithBusySound(true,"Peer disconnected");
+			hangupWithBusySound(true,"Peer is disconnected");
 			return;
 		}
 		if(peerCon.connectionState=="failed") {
 			// TODO in some situations this strikes multiple times; but there is no point playing busySound multpl times
-			if(typeof Android !== "undefined" && Android !== null) {
-				Android.peerDisConnect();
-			}
 			hangupWithBusySound(true,"Peer connection failed "+candidateResultString);
 			return;
 		}
@@ -2636,7 +2626,7 @@ function dataChannelOnmessage(event) {
 		return;
 	}
 	if(typeof event.data === "string") {
-		console.log("dataChannel.onmessage "+event.data);
+		//console.log("dataChannel.onmessage "+event.data);
 		if(event.data) {
 			if(event.data.startsWith("disconnect")) {
 				gLog("disconnect via dataChannel");
@@ -2644,7 +2634,7 @@ function dataChannelOnmessage(event) {
 					dataChannel.close();
 					dataChannel = null;
 				}
-				hangupWithBusySound(false,"disconnect by peer via datachl");
+				hangupWithBusySound(false,"Disconnect by peer");
 			} else if(event.data.startsWith("textchatOK")) {
 				textchatOKfromOtherSide = true;
 			} else if(event.data.startsWith("msg|")) {
@@ -2778,7 +2768,7 @@ function stopAllAudioEffects() {
 }
 
 function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
-	console.log('hangup: '+message);
+	console.log("hangup: message="+message);
 	dialing = false;
 	msgboxdiv.style.display = "none";
 	textbox.style.display = "none";
@@ -2907,6 +2897,10 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 		localStream = null;
 	}
 
+	if(typeof Android !== "undefined" && Android !== null) {
+		Android.peerDisConnect();
+	}
+
 	mediaConnect = false;
 	rtcConnect = false;
 	if(vsendButton) {
@@ -2917,9 +2911,8 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 		vsendButton.classList.remove('blink_me')
 
 	if(peerCon && peerCon.iceConnectionState!="closed") {
-		console.log('hangup peerCon');
 		let peerConCloseFunc = function() {
-			gLog('hangup peerConCloseFunc');
+			console.log("hangup: peerConClose");
 			if(mustDisconnectCallee) {
 				let closePeerCon = function() {
 					if(peerCon && peerCon.iceConnectionState!="closed") {
@@ -2953,18 +2946,18 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 							}
 						}
 
-						console.log('hangup peerCon.close');
+						console.log("hangup: peerCon.close");
 						peerCon.close();
 					}
 				}
 
 				if(isDataChlOpen()) {
-					console.log('hangup send disconnect via dataChannel');
+					console.log("hangup: send disconnect via dataChannel");
 					dataChannel.send("disconnect");
 					// give dataChannel disconnect some time to deliver
 					setTimeout(function() {
 						if(isDataChlOpen()) {
-							console.log('hangup dataChannel.close');
+							console.log("hangup: dataChannel.close");
 							dataChannel.close();
 							dataChannel = null;
 						}
@@ -2988,17 +2981,13 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 				peerCon.close();
 				gLog('hangup peerCon.signalingState '+peerCon.signalingState);
 			}
-
-			if(typeof Android !== "undefined" && Android !== null) {
-				Android.peerDisConnect();
-			}
 		}
 
 		peerCon.getStats(null).then((results) => { 
 			getStatsPostCall(results);
 			peerConCloseFunc();
 		}, err => {
-			console.log(err); 
+			console.log("hangup: error="+err);
 			peerConCloseFunc();
 		});
 	}

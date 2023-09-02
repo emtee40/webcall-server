@@ -1590,6 +1590,8 @@ function signalingCommand(message, comment) {
 	} else if(cmd=="cancel") {
 		// this is a remote cancel (from server or from peer)
 		// can for instance occur when the server aborts ringing after 120s
+		// also: turnauth (...) session outdated
+// TODO this code is not sufficient: if payload not "c", we only do stopAllAudioEffects()
 		stopAllAudioEffects("cmd cancel");
 		if(divspinnerframe) divspinnerframe.style.display = "none";
 		if(payload=="c") {
@@ -2858,6 +2860,7 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 	}
 
 	showStatus(showMsg,-1);
+	// TODO create Android notification message?
 }
 
 function dataChannelOnmessage(event) {
@@ -2871,7 +2874,7 @@ function dataChannelOnmessage(event) {
 					dataChannel.close();
 					dataChannel = null;
 				}
-				hangupWithBusySound(true,"disconnected by peer");
+				hangupWithBusySound(true,"Disconnect by peer");
 			} else if(event.data.startsWith("textchatOK")) {
 				textchatOKfromOtherSide = true;
 			} else if(event.data.startsWith("msg|")) {
@@ -3129,9 +3132,6 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	}
 
 	if(typeof Android !== "undefined" && Android !== null) {
-		// if a peerConnection existed, this will do: statusMessage("peer disconnect")
-		// if no peerConnection existed, this will do: updateNotification(awaitingCalls) ('ready to receive calls')
-		// TODO: unfortunately this will NOT display our comment string ('hangup disconnected by peer')
 		Android.peerDisConnect();
 	}
 
