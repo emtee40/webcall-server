@@ -868,9 +868,7 @@ function iframeWindowOpen(url, horiCenterBound, addStyleString, dontIframeOnload
 			return;
 		}
 
-		if(divspinnerframe) {
-			if(divspinnerframe) divspinnerframe.style.display = "block";
-		}
+		divspinnerframe.style.display = "block";
 		// we call iframeOnload() so that the iframe height becomes same as the content height
 		// for this to work, the document at url needs to have a fixed height or min-height
 		// if the document does not have fixed height or min-height, scrollHeight = 150px
@@ -882,9 +880,7 @@ function iframeWindowOpen(url, horiCenterBound, addStyleString, dontIframeOnload
 		}
 	}
 
-	if(divspinnerframe) {
-		divspinnerframe.style.display = "none";
-	}
+	divspinnerframe.style.display = "none";
 }
 
 function iframeOnload(obj) {
@@ -1216,7 +1212,7 @@ function gotStream(stream) {
 	}
 
 	if(!peerCon || peerCon.iceConnectionState=="closed") {
-		// in ff this occurs onload
+		// this normally occurs onload
 		console.log("# gotStream no peerCon: no addTrack");
 	} else if(addedAudioTrack) {
 		console.log("# gotStream addedAudioTrack already set: no addTrack");
@@ -1638,7 +1634,7 @@ function showStatus(msg,timeoutMs) {
 		console.log("status: msg empty");
 		return;
 	}
-	console.log("showStatus msg=("+msg+") timeoutMs="+timeoutMs);
+	//console.log("showStatus msg=("+msg+") timeoutMs="+timeoutMs);
 	if(showStatusTimeout!=null) {
 		//console.log("showStatus clearTimeout of prev");
 		clearTimeout(showStatusTimeout);

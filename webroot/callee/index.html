@@ -75,9 +75,8 @@ body {
 
 @media (hover: hover) {
 	.mainbutton:hover {
-		_background-color: #b82a68;
-		_background-color: #b03;
 		background-color: #69f;
+		border: 1.2px solid #69f;
 		outline:none;
 		color:#fff;
 	}
@@ -130,8 +129,8 @@ div#container {
 	padding-top:5px;
 	padding-bottom:5px;
 	padding-left: 2%;
-	padding-right: 0.4em;
-	width:99%;
+	padding-right: 2%;
+	width:98%;
 	max-width:740px;
 	overflow:hidden;
 	scrollbar-width:none;
@@ -193,6 +192,7 @@ label {
 	line-height:1.2em;
 	transition:opacity 400ms;
     color:#ddd;
+    width:99%;
 }
 .msgbox {
 	padding-top:2px;
@@ -504,7 +504,7 @@ input:disabled + .slider {
 		<img id="menu"         onclick="menuDialogOpen(menuDialogElement,1)" src="menu.svg" class="iconbutton">
 		<img id="checkboxes"   onclick="openSlide()"        src="checkboxes.svg"  class="iconbutton">
 		<img id="dialpad"      onclick="openDialId('')"     src="dialpad.svg"     class="iconbutton">
-		<img id="iconContacts" onclick="openContacts()"     src="contacts.svg"    class="iconbutton">
+		<img id="iconContacts" onclick="openContacts()"     src="contacts.svg"    class="iconbutton" style="display:none;">
 		<img id="camera"       onclick="videoSwitch(false)" src="camera.svg"      class="iconbutton">
 		<img id="exclamation"  onclick=""                   src="exclamation.svg" class="iconbutton" style="display:none;">
 		</span>
@@ -525,7 +525,7 @@ input:disabled + .slider {
 		</label>
 	</div>
 
-	<div id="status" class="status"></div>
+	<div id="status" class="status" style="display:none"></div>
 
 	<form action="javascript:;" onsubmit="submitFormDone(1)" style="max-width:420px;margin-top:20px;display:none;" id="password">
 		<input type="text" autocomplete="username" id="username" style="display:none;" required>
@@ -581,10 +581,10 @@ input:disabled + .slider {
 	<div id="waitingCallersTitle" class="callListTitle" style="color:#f46; display:none;">Waiting calls:</div>
 	<div id="waitingCallers" class="callList" style="display:none;"></div>
 
-	<div id="ownlink" style="opacity:0.9; padding-top:10px; padding-bottom:10px;;"></div>
+	<div id="ownlink" style="opacity:0.9; padding-top:10px; padding-bottom:10px; display:none;"></div>
 
 	<div id="missedCallsTitle" class="callListTitle" style="display:none;">Missed calls:</div>
-	<div id="missedCalls" class="callList"></div>
+	<div id="missedCalls" class="callList" style="display:none;"></div>
 
 	<div id="timer" class="timer">4:32</div>
 	<div style="opacity:0.7;padding-top:8px;user-select:none;">WebCall by <a id="webcallhome" href="https://timur.mobi/webcall">timur.mobi</a> <span id="version"></span></div>
