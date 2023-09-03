@@ -3286,6 +3286,8 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 
 	if(wsConn==null) {
 		showStatus("Offline");
+		// also hide ownlink
+		showVisualOffline();
 	} else {
 		// status: 'Ready to receive calls'
 		// we must do this here bc we receive no cmd==sessionId -> showOnlineReadyMsg()
@@ -3293,11 +3295,9 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	}
 
 	if(!goOnlineAfter) {
-		console.log("! endWebRtcSession no goOnlineAfter (???)");
-// TODO a hostConnection after peerDisconnect was not requested
-// does that mean we should change the switch to offline mode: goOffline("endWebRtcSession no goOnlineAfter")
-// or should we only render being offline: showVisualOffline("endWebRtcSession no goOnlineAfter");
-// I think we should do nothing
+		// a hostConnection after peerDisconnect is not requested
+		// this occurs if the serverconnection was closed before also the peerConnection was ended
+		console.log("endWebRtcSession no goOnlineAfter");
 	} else if(goOnlinePending) {
 		console.log("endWebRtcSession goOnlineAfter, but goOnlinePending");
 	} else {
@@ -3372,10 +3372,6 @@ function slideTransitioned() {
 
 var slideRevealDivHeight = 123;
 function openSlide() {
-		console.log("goOnlineSwitch swap");
-		goOnlineSwitch.checked = !goOnlineSwitch.checked;
-
-/*
 	if(!slideOpen) {
 		// close->-open
 		console.log("openSlide close-to-open, wsConn="+(wsConn!=null)+" "+slideRevealDivHeight);
@@ -3396,7 +3392,6 @@ function openSlide() {
 			slideRevealElement.style.height = "0";
 		},100);
 	}
-*/
 }
 
 function openDialId(userId) {
