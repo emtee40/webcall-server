@@ -3277,12 +3277,20 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		}
 	}
 
-	console.log("endWebRtcSession wsConn="+(wsConn!=null)+" "+isDataChlOpen());
+	console.log("endWebRtcSession wsConn="+(wsConn!=null)+" dataChl="+isDataChlOpen());
 	fileselectLabel.style.display = "none";
 	progressSendElement.style.display = "none";
 	progressRcvElement.style.display = "none";
 	msgboxdiv.style.display = "none";
 	msgbox.innerHTML = "";
+
+	if(wsConn==null) {
+		showStatus("Offline");
+	} else {
+		// status: 'Ready to receive calls'
+		// we must do this here bc we receive no cmd==sessionId -> showOnlineReadyMsg()
+		showOnlineReadyMsg();
+	}
 
 	if(!goOnlineAfter) {
 		console.log("! endWebRtcSession no goOnlineAfter (???)");
@@ -3304,6 +3312,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		setTimeout(function() {
 			console.log('endWebRtcSession auto prepareCallee()');
 			goOnlinePending = false;
+
 			//console.log("callee endWebRtcSession auto prepareCallee(): enable goonline");
 			// get peerCon ready for the next incoming call
 			// bc we are most likely still connected, prepareCallee() will just send "init"
@@ -3492,12 +3501,11 @@ function wakeGoOnline() {
 
 	console.log("spinner off wakeGoOnline");
 	divspinnerframe.style.display = "none";
-//	getSettings();
 	gLog("wakeGoOnline done");
 }
 
 function wakeGoOnlineNoInit() {
-	// service is telling us that it is connected (and also has sent init already)
+	// service is telling us that it is connected (and also has send init already)
 	// we only need to get wsConn, load audio files, stop spinner
 	// TODO do we need to call Android.calleeConnected() -> calleeIsConnected() ?
 	console.log("wakeGoOnlineNoInit start");
@@ -3507,7 +3515,6 @@ function wakeGoOnlineNoInit() {
 
 	console.log("spinner off wakeGoOnlineNoInit");
 	divspinnerframe.style.display = "none";
-//	getSettings();
 	gLog("wakeGoOnlineNoInit done");
 }
 
