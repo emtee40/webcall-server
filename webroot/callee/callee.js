@@ -172,8 +172,7 @@ window.onload = function() {
 	let auto = cleanStringParameter(getUrlParams("auto"),true,"auto");
 	if(auto) {
 		console.log("onload auto is set ("+auto+")");
-		divspinnerframe.style.display = "block";
-		// auto will cause onGotStreamGoOnline to be set below
+		// auto will cause onGotStreamGoOnline to be set below (for Android client only)
 	} else {
 		gLog("onload auto is not set");
 	}
@@ -196,10 +195,11 @@ window.onload = function() {
 		if(element) element.href = "https://timur.mobi/webcall/update/";
 		// TODO ideally open 'webcallhome' url in an iframe
 	} else {
-		// pure browser mode (not in android mode)
+		// pure browser mode (not in android)
 		if(auto) {
-			// to prevent this error when we try to play the ringtone in pure browser mode
-			//    "peerConnected2 ringtone error
+			// auto can NOT be used in pure browser mode
+			// bc we cannot play audio (ringtone) without user interaction first
+			// to prevent this problem ("peerConnected2 ringtone error)
 			//    play() failed because the user didn't interact with the document first"
 			// we must make the user interact with the app (click the switch to go online)
 			// this is why we clear auto
@@ -292,14 +292,12 @@ window.onload = function() {
 				// we have a cockie, so no manual pw-entry is needed
 				// turn automatic online off, user needs to interact before we can answer calls
 				onGotStreamGoOnline = false;
-
-				if(!wsConn) {
-					showVisualOffline("checkServerMode no wsConn");
-				}
 				if(auto) {
-					// if loaded by android client, setting onGotStreamGoOnline=true will cause prepareCallee()
-					console.log("checkServerMode auto onGotStreamGoOnline=true");
-					onGotStreamGoOnline=true;
+					// if loaded by android client, setting onGotStreamGoOnline will cause
+					// prepareCallee() to be called when the mic stream becomes available
+					// and the client to start auto-connect
+					console.log("onload checkServerMode auto -> onGotStreamGoOnline=true");
+					onGotStreamGoOnline = true;
 				}
 				start();
 				return;
@@ -308,7 +306,7 @@ window.onload = function() {
 			gLog('onload pw-entry is needed '+mode);
 			divspinnerframe.style.display = "none";
 
-			onGotStreamGoOnline = true;	        // TODO ???
+			onGotStreamGoOnline = true;
 			enablePasswordForm();
 			return;
 		}
@@ -557,7 +555,7 @@ function goOnlineSwitchChange(comment) {
 // called when we go from offline to online or reverse (goOnlineSwitch or tile has been switched)
 // will update url-param auto=, call prepareCallee
 
-	console.log('goOnlineSwitchChange new state='+goOnlineSwitch.checked);
+	console.log("goOnlineSwitchChange state="+goOnlineSwitch.checked+" "+comment);
 	if(goOnlineSwitch.checked) {
 		// goOnline
 		if(wsConn!=null) {
@@ -659,6 +657,7 @@ function goOnlineSwitchChange(comment) {
 		wsConn=null;
 
 		iconContactsElement.style.display = "none";
+		console.log("spinner off goOnlineSwitchChange");
 		divspinnerframe.style.display = "none";
 	}
 }
@@ -666,6 +665,7 @@ function goOnlineSwitchChange(comment) {
 function goOnline(initDummy,comment) {
 	// called by ws engine wsOnOpen() and by our Android service
 	// the new implementation makes sure that calling goOnline() does 100% the same as clicking the switch on
+	console.log("goOnline "+comment);
 	goOnlineSwitch.checked = true;
 	goOnlineSwitchChange(comment);
 }
@@ -673,6 +673,7 @@ function goOnline(initDummy,comment) {
 function goOffline(comment) {
 	// called by ws engine wsOnOpen() and by our Android service
 	// the new implementation makes sure that calling goOffline() does 100% the same as clicking the switch off
+	console.log("goOffline "+comment);
 	goOnlineSwitch.checked = false;
 	goOnlineSwitchChange(comment);
 }
@@ -795,6 +796,7 @@ function login(retryFlag,comment) {
 			}
 		}
 
+		console.log("spinner off login");
 		divspinnerframe.style.display = "none";
 
 		let mainLink = window.location.href;
@@ -883,6 +885,7 @@ function login(retryFlag,comment) {
 			showStatus("xhr error "+err,3000);
 		}
 
+		console.log("spinner off login error");
 		divspinnerframe.style.display = "none";
 
 		waitingCallerSlice = null;
@@ -1183,7 +1186,6 @@ function showVisualOffline(comment) {
 		ownlinkElement.innerHTML = "";
 	}
 
-	if(divspinnerframe) divspinnerframe.style.display = "none";
 	buttonBlinking=false; // abort blinkButtonFunc()
 }
 
@@ -1192,11 +1194,13 @@ function gotStream2() {
 	// we got the mic
 	// NOTE: this'if' used to be located after the Android check
 	if(pickupAfterLocalStream) {
-		console.log("gotStream2 -> auto pickup2()");
+		console.log("gotStream2 -> pickupAfterLocalStream pickup2()");
 		pickupAfterLocalStream = false;
 		pickup2();
 		return;
 	}
+
+	console.log("gotStream2 goOnlineSwitch.checked="+goOnlineSwitch.checked);
 
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.calleeReady !== "undefined" && Android.calleeReady !== null) {
@@ -1222,22 +1226,34 @@ function gotStream2() {
 		localStream.removeTrack(audioTracks[0]);
 		localStream = null;
 	}
+
+// TODO what does rtcConnect have to do with this?
 	if(onGotStreamGoOnline && !rtcConnect) {
-		//console.log('gotStream2 onGotStreamGoOnline goOnline');
-		console.log('gotStream2 onGotStreamGoOnline prepareCallee');
+		// we start prepareCallee() bc auto=1 has set onGotStreamGoOnline in onLoad
+		// NOTE this works only for Android clients (and will not be enabled for pure browsing mode)
 		onGotStreamGoOnline = false;
-		// if wsSecret is set, prepareCallee() will call login()
-		// if wsSecret is not set, in android mode Android.jsGoOnline() will be call
-		prepareCallee(true,"gotStream2");
+
+		if(wsConn==null) {
+			// not yet connected: we turn goOnlineSwitch.checked on automatically
+			// goOnlineSwitchChange() will call prepareCallee() so we don't have to
+			console.log("gotStream2 onGotStreamGoOnline wsConn==null -> goOnlineSwitch AUTO ON + goOnlineSwitchChange");
+			goOnlineSwitch.checked = true;
+			goOnlineSwitchChange("gotStream2 onGotStreamGoOnline");
+		} else {
+			console.log("gotStream2 onGotStreamGoOnline wsConn!=null -> prepareCallee()");
+			// if wsSecret is not set, in android mode Android.jsGoOnline() will be call
+			// if wsSecret is set, prepareCallee() will call login()
+			prepareCallee(true,"gotStream2");
+		}
 	} else {
 		if(wsConn==null) {
-			// we are offline, this usually occurs onload
-			console.log("! gotStream2 wsConn==null, standby, no sendInit");
+			// we are offline, this usually occurs onload in pure browser mode
+			console.log("gotStream2 wsConn==null, no sendInit, standby");
 			showStatus("Offline",-1);
 		} else {
 			// we are online
 			// send init to request list of missedCalls
-			console.log("gotStream2 wsConn!=null, standby, sendInit");
+			console.log("gotStream2 wsConn!=null, sendInit, standby");
 			sendInit("gotStream2 standby");
 		}
 	}
@@ -1327,7 +1343,7 @@ function connectToWsServer(message,comment) {
 	// create a new webrtc peerCon, if it does not exist yet, this is the last opportunity
 	if(peerCon==null || peerCon.signalingState=="closed") {
 	    console.log("connectToWsServer: no peerCon or peerCon is closed -> newPeerCon()");
-		if(newPeerCon()) {
+		if(newPeerCon("connectToWsServer")) {
 			// fail
 		    console.warn("# connectToWsServer: newPeerCon() failed - abort");
 			return;
@@ -2247,7 +2263,8 @@ function hangup(mustDisconnect,dummy2,message) {
 	// showOnlineReadyMsg() is called in response to us calling sendInit() and the server responding with "sessionId|"
 	// hangup() -> endWebRtcSession() -> prepareCallee() -> sendInit() ... server "sessionId|" -> showOnlineReadyMsg()
 
-	if(divspinnerframe) divspinnerframe.style.display = "none";
+	console.log("spinner off hangup");
+	divspinnerframe.style.display = "none";
 	answerButtons.style.display = "none";
 	msgboxdiv.style.display = "none";
 	msgbox.value = "";
@@ -2301,12 +2318,13 @@ function prepareCallee(sendInitFlag,comment) {
 	//           endWebRtcSession()    after a call to get ready for the next incoming call
 	//           wakeGoOnline()        --currently not used--
 	//           wakeGoOnlineNoInit()  when service has loaded the mainpage and is already connected
-//	// create a newPeerCon() -> new RTCPeerConnection() for the next incoming call
 	// 1. load ringtone and notification sounds
-	// 2. if wsSecret is empty and we are not yet connected, try to login via Android.jsGoOnline() using the cookie
-	//    else if wsSecret is given and we are not connected, try to login()
+	// 2. if wsSecret is empty and service is not yet connected, start reconnector via Android.jsGoOnline()
+	//                              using existing cookie
+	//    if wsSecret is given (from basepage form) and we are not yet connected, try login()
 	//    else if sendInitFlag is set, call sendInit
 	//    finally call getSettings()
+	console.log("prepareCallee");
 	rtcConnectStartDate = 0;
 	mediaConnectStartDate = 0;
 	addedAudioTrack = null;
@@ -2338,36 +2356,42 @@ function prepareCallee(sendInitFlag,comment) {
 	}
 
 	if(wsSecret=="") {
-		// in androild mode, we want to do the same as tile does
+		// in android mode, we want to do the same as tile does
 		//   and this is to call: webCallServiceBinder.goOnline() to start the reconnector
 		// this is what Android.jsGoOnline() allows us to do
 		// TODO not sure what happens service needs to login and fails ???
+		// most likely the switch will go off, yes?
 		if(typeof Android !== "undefined" && Android !== null) {
 			// note: Android.isConnected() returns: 0=offline, 1=reconnector busy, 2=connected (wsClient!=null)
-			if(Android.isConnected()<=0) {
-				// we are offline and not connecting
-				if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
-					console.log("prepareCallee not connected/connecting -> call Android.jsGoOnline()");
-					Android.jsGoOnline();	// -> startReconnecter()
-					return;
-				}
-				console.log("# prepareCallee Android.jsGoOnline() not supported");
-			} else {
+			if(Android.isConnected()>0) {
 				console.log("prepareCallee isConnected()="+Android.isConnected()+" >0 (connected or connection)");
+				return;
 			}
 
-			// if already connected do NOT show spinner (we are most likely called by wakeGoOnline())
+			// we are offline and (so far) not connecting
+			console.log("spinner on prepareCallee");
+			divspinnerframe.style.display = "block";
+
+			if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
+				console.log("prepareCallee not connected/connecting -> call Android.jsGoOnline()");
+				Android.jsGoOnline();	// -> startReconnecter()
+				return;
+			}
+			console.log("! prepareCallee Android.jsGoOnline() not supported, fall through");
+			// fall through
 		} else {
-			gLog("prepareCallee spinner on");
+			// no Android service,fall through
+			console.log("! prepareCallee no Android service, fall through");
+			console.log("spinner on prepareCallee");
 			divspinnerframe.style.display = "block";
 		}
 	}
-
 
 	if(wsConn==null /*|| wsConn.readyState!=1*/) {
 		// this basically says: if prepareCallee() is called when we are NOT connected to the server,
 		// try to login now using cookie or wsSecret (from login form)
 		if(!mediaConnect) {
+			// only show server activity if we are not peer connected
 			showStatus("Connecting...",-1);
 		}
 		console.log("prepareCallee wsConn==null -> login()");
@@ -2376,6 +2400,8 @@ function prepareCallee(sendInitFlag,comment) {
 	}
 
 	console.log('prepareCallee have wsConn');
+
+	console.log("spinner off prepareCallee");
 	divspinnerframe.style.display = "none";
 	if(sendInitFlag) {
 		sendInit("prepareCallee <- "+comment);
@@ -2383,13 +2409,14 @@ function prepareCallee(sendInitFlag,comment) {
 	getSettings(); // display ownID links
 }
 
-function newPeerCon() {
+function newPeerCon(comment) {
 	//console.log("newPeerCon()");
 	try {
 		peerCon = new RTCPeerConnection(ICE_config);
-		console.log("newPeerCon() new RTCPeerConnection ready");
+		console.log("newPeerCon("+comment+") new RTCPeerConnection ready");
 	} catch(ex) {
-		console.error("# newPeerCon() RTCPeerConnection "+ex.message);
+		console.error("# newPeerCon("+comment+") RTCPeerConnection "+ex.message);
+		console.log("spinner off newPeerCon ex");
 		divspinnerframe.style.display = "none";
 
 		// wrong: we need to make callee go offline, bc without a peerCon, it makes no sense to stay online
@@ -2703,6 +2730,7 @@ function pickup() {
 	console.log("pickup -> open mic, startPickup=",startPickup);
 	answerButton.disabled = true;
 	buttonBlinking = false;
+	console.log("spinner om pickup");
 	divspinnerframe.style.display = "block";
 
 	pickupAfterLocalStream = true; // getStream() -> gotStream() -> gotStream2() -> pickup2()
@@ -2736,7 +2764,8 @@ function pickup2() {
 	// here we add remoteStream, which should trigger onnegotiationneeded, createOffer, callerAnswer and pickup4()
 	if(!localStream) {
 		console.warn("# pickup2 no localStream");
-		if(divspinnerframe) divspinnerframe.style.display = "none";
+		console.log("spinner off pickup2 no localStrean");
+		divspinnerframe.style.display = "none";
 		stopAllAudioEffects("pickup2 no localStream");
 		return;
 	}
@@ -2810,7 +2839,8 @@ function pickup4(comment) {
 	// android webview does this in 800-900ms
 
 	// end busy bee
-	if(divspinnerframe) divspinnerframe.style.display = "none";
+	console.log("spinner off pickup4");
+	divspinnerframe.style.display = "none";
 
 	// this will make the caller unmute our mic on their side
 	// TODO could also use datachannel?
@@ -3129,6 +3159,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	}
 	buttonBlinking = false;
 	answerButtons.style.display = "none";
+	console.log("spinner off endWebRtcSession");
 	divspinnerframe.style.display = "none";
 
 	if(!wsConn) {
@@ -3192,7 +3223,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 			}
 
 			console.log('endWebRtcSession newPeerCon');
-			if(newPeerCon()) {
+			if(newPeerCon("endWebRtcSession")) {
 				// fail
 				return;
 			}
@@ -3456,15 +3487,23 @@ function wakeGoOnline() {
 	connectToWsServer('','wakeGoOnline'); // get wsConn
 	wsOnOpen(); // green led
 	prepareCallee(true,"wakeGoOnline");   // wsSend("init|!")
+
+	console.log("spinner off wakeGoOnline");
+	divspinnerframe.style.display = "none";
 	gLog("wakeGoOnline done");
 }
 
 function wakeGoOnlineNoInit() {
+	// service is telling us that it is connected (and also has sent init already)
+	// we only need to get wsConn, load audio files, stop spinner
 	// TODO do we need to call Android.calleeConnected() -> calleeIsConnected() ?
 	console.log("wakeGoOnlineNoInit start");
 	connectToWsServer('','wakeGoOnlineNoInit'); // get wsConn
 	wsOnOpen(); // green led
 	prepareCallee(false,"wakeGoOnlineNoInit");  // do NOT wsSend("init|!")
+
+	console.log("spinner off wakeGoOnlineNoInit");
+	divspinnerframe.style.display = "none";
 	gLog("wakeGoOnlineNoInit done");
 }
 
