@@ -818,8 +818,6 @@ function login(retryFlag,comment) {
 
 			form.style.display = "none";
 			goOffline("login notregistered");
-			// clear "You will receive calls made by this link"
-			// ownlinkElement.innerHTML = "";	// goOffline() takes care of this
 
 			// clear cookie
 			console.log('clear cookie');
@@ -1025,7 +1023,7 @@ function getSettings() {
 }
 
 function getSettingDone() {
-	//console.log("getSettingDone",wsConn);
+	console.log("getSettingDone wsConn="+(wsConn!=null));
 	if(wsConn) {
 		// show "Your Webcall ID's"
 		let calleeLink = window.location.href;
@@ -1183,6 +1181,7 @@ function showVisualOffline(comment) {
 
 	// if p2p connection is also gone, hide ownlinks
 	if(!mediaConnect) {
+		ownlinkElement.style.display = "none";
 		ownlinkElement.innerHTML = "";
 	}
 
@@ -2365,6 +2364,7 @@ function prepareCallee(sendInitFlag,comment) {
 			// note: Android.isConnected() returns: 0=offline, 1=reconnector busy, 2=connected (wsClient!=null)
 			if(Android.isConnected()>0) {
 				console.log("prepareCallee isConnected()="+Android.isConnected()+" >0 (connected or connection)");
+				getSettings(); // display ownID links
 				return;
 			}
 
@@ -2375,6 +2375,7 @@ function prepareCallee(sendInitFlag,comment) {
 			if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
 				console.log("prepareCallee not connected/connecting -> call Android.jsGoOnline()");
 				Android.jsGoOnline();	// -> startReconnecter()
+				// will end up in wakeGoOnline or wakeGoOnlineNoInit and will call prepareCallee again
 				return;
 			}
 			console.log("! prepareCallee Android.jsGoOnline() not supported, fall through");
@@ -2396,6 +2397,7 @@ function prepareCallee(sendInitFlag,comment) {
 		}
 		console.log("prepareCallee wsConn==null -> login()");
 		login(false,"prepareCallee");
+// TODO does not call getSettings() for ownID links?
 		return;
 	}
 
@@ -3490,6 +3492,7 @@ function wakeGoOnline() {
 
 	console.log("spinner off wakeGoOnline");
 	divspinnerframe.style.display = "none";
+//	getSettings();
 	gLog("wakeGoOnline done");
 }
 
@@ -3504,6 +3507,7 @@ function wakeGoOnlineNoInit() {
 
 	console.log("spinner off wakeGoOnlineNoInit");
 	divspinnerframe.style.display = "none";
+//	getSettings();
 	gLog("wakeGoOnlineNoInit done");
 }
 
