@@ -1165,6 +1165,12 @@ function mainlinkCheckboxClick(cb) {
 	}, newSettings);
 }
 
+function offlineAction() {
+	// service calls this when "giving up reconnector"
+	// we want to switch to offline mode
+	goOffline("offlineAction");
+}
+
 function showVisualOffline(comment) {
 	// here we accept that we are now offline, by rendering the visual changes
 	// we got disconnected from the server, make OnlineSwitch reflect offline state
