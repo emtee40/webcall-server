@@ -198,6 +198,12 @@ function muteMic(flag) {
 				console.log("muteMic state change "+flag+": mic enable");
 				audioTracks[0].enabled = true;
 			}
+
+			if(typeof Android !== "undefined" && Android !== null) {
+				if(typeof Android.muteStateChange !== "undefined" && Android.muteStateChange !== null) {
+					Android.muteStateChange(flag);
+				}
+			}
 		}
 	}
 }
