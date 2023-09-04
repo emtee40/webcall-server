@@ -3155,6 +3155,7 @@ function stopAllAudioEffects(comment) {
 
 var goOnlinePending = false;
 function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
+	// NOTE comment may be undefined
 	console.log("endWebRtcSession discCaller="+disconnectCaller+
 				" onlAfter="+goOnlineAfter+" switch="+goOnlineSwitch.checked+" ("+comment+")");
 	pickupAfterLocalStream = false;

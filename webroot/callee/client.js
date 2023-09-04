@@ -1188,12 +1188,22 @@ function gotStream(stream) {
 	}
 	if(peerCon && peerCon.iceConnectionState!="closed" && addedAudioTrack) {
 		console.log("gotStream removeTrack(addedAudioTrack)");
-		peerCon.removeTrack(addedAudioTrack);
+		// this can throw "The sender was not created by this peer connection."
+		// TODO where shold the old addedAudioTrack be removed, nulled?
+		try {
+			peerCon.removeTrack(addedAudioTrack);
+		} catch(ex) {
+			console.log("# gotStream peerCon.removeTrack ex="+ex);
+		}
 	}
 	addedAudioTrack = null;
 	if(peerCon && peerCon.iceConnectionState!="closed" && addedVideoTrack) {
 		console.log("gotStream removeTrack(addedVideoTrack)");
-		peerCon.removeTrack(addedVideoTrack);
+		try {
+			peerCon.removeTrack(addedVideoTrack);
+		} catch(ex) {
+			console.log("# gotStream peerCon.removeTrack ex="+ex);
+		}
 	}
 	addedVideoTrack = null;
 
@@ -1213,7 +1223,7 @@ function gotStream(stream) {
 
 	if(!peerCon || peerCon.iceConnectionState=="closed") {
 		// this normally occurs onload
-		console.log("# gotStream no peerCon: no addTrack");
+		console.log("gotStream no peerCon: no addTrack");
 	} else if(addedAudioTrack) {
 		console.log("# gotStream addedAudioTrack already set: no addTrack");
 	} else {
