@@ -2671,7 +2671,7 @@ function peerConnected3() {
 		buttonBlinking = true;
 		let buttonBgHighlighted = false;
 		let blinkButtonFunc = function() {
-			if(!buttonBgHighlighted) {
+			if(!buttonBgHighlighted && buttonBlinking) {
 				// blink on
 				//answerButton.style.background = "#b82a68";
 				answerButton.style.background = "#c13";
@@ -2686,7 +2686,7 @@ function peerConnected3() {
 				answerButton.style.border = "1.2px solid #ccc";
 				buttonBgHighlighted = false;
 				if(!buttonBlinking || wsConn==null) {
-					//gLog("peerConnected3 buttonBlinking stop");
+					console.log("peerConnected3 !buttonBlinking or !wsConn -> abort blinking");
 					//answerButton.style.background = "#04c";
 					return;
 				}
@@ -2739,8 +2739,12 @@ function pickup() {
 	// we call getStream() to get localStream, once avail pickup2() is called
 	startPickup = Date.now();
 	console.log("pickup -> open mic, startPickup=",startPickup);
-	answerButton.disabled = true;
+
 	buttonBlinking = false;
+	answerButton.style.background = "#0000"; // .mainbutton background-color
+	answerButton.style.border = "1.2px solid #ccc";
+	answerButton.disabled = true;
+
 	console.log("spinner om pickup");
 	divspinnerframe.style.display = "block";
 
