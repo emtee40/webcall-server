@@ -1940,11 +1940,23 @@ function showWaitingCallers() {
 				callerNameShow =
 					"<a onclick='showMsg(\""+waitingCallerSlice[i].Msg+"\");return false;'>"+callerName+"</a>";
 			}
+
+			let myDomain = location.host;
+			let callerID = waitingCallerSlice[i].CallerID;
+			if(callerID.endsWith("@"+myDomain)) {
+				let idx = callerID.indexOf("@"+myDomain);
+				if(idx>=0) {
+					callerID = callerID.substring(0,idx);
+				}
+				if(callerID.endsWith("@")) {
+					callerID = callerID.substring(0,callerID.length-1);
+				}
+			}
 			str += "<td>" + callerNameShow + "</td><td>"+
-			    waitingCallerSlice[i].CallerID + "</td>"+
-				"<td style='text-align:right;'>since "+
-				waitingTimeString + "</td><td>"+
-				"<a onclick='pickupWaitingCaller(\""+waitingCallerSlice[i].AddrPort+"\")'>"+
+			    callerID + "</td>"+
+				"<td style='text-align:right;'> "+
+				waitingTimeString + "</td>"+
+				"<td style='text-align:right;'><a onclick='pickupWaitingCaller(\""+waitingCallerSlice[i].AddrPort+"\")'>"+
 				"accept</a></td></tr>";
 		}
 		str += "</table>";
