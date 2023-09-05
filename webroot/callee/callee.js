@@ -1921,7 +1921,7 @@ function showWaitingCallers() {
 			return;
 		}
 
-		waitingCallersTitleElement.style,display = "block";
+		waitingCallersTitleElement.style.display = "block";
 		waitingCallersElement.style,display = "block";
 		gLog('showWaitingCallers fkt waitingCallerSlice.length',waitingCallerSlice.length);
 		let timeNowSecs = Math.floor((Date.now()+500)/1000);
