@@ -1257,7 +1257,7 @@ function gotStream2() {
 			console.log("gotStream2 wsConn==null, stay offline, no sendInit, standby");
 			showStatus("Offline",-1);
 		} else {
-			console.log("gotStream2 wsConn!=null, turn on goOnlineSwitch, sendInit, standby");
+			console.log("gotStream2 wsConn!=null, turn goOnlineSwitch ON, sendInit, standby");
 			// we are connected to server already
 			goOnlineSwitch.checked = true;
 			// send init to request list of missedCalls
