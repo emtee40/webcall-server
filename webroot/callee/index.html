@@ -123,14 +123,14 @@ div#containerOuter {
 	_display:flex;
 	_justify-content:center;
 	scrollbar-width:none;
+	overflow:hidden;
 }
 
 div#container {
 	padding-top:5px;
 	padding-bottom:5px;
 	padding-left: 2%;
-	padding-right: 2%;
-	width:98%;
+	padding-right: 1%;
 	max-width:740px;
 	overflow:hidden;
 	scrollbar-width:none;
@@ -188,11 +188,13 @@ label {
 }
 .callList {
 	padding-bottom:12px;
+	padding-right:4px;
 	font-size:1.0em;
 	line-height:1.2em;
 	transition:opacity 400ms;
-    color:#ddd;
-    width:99%;
+	color:#ddd;
+	_width:99%;
+	_max-width:580px;
 }
 .msgbox {
 	padding-top:2px;
