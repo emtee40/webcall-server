@@ -2825,7 +2825,7 @@ function pickup4(comment) {
 			console.log("! pickup4: waiting for localStream... "+
 				sinceStartPickup+" "+(Date.now() - startIncomingCall));
 			setTimeout(function() {
-				pickup4(comment+" (retry)");
+				pickup4(comment); //+" (retry)");
 			},100);
 			return;
 		}
