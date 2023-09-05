@@ -1875,6 +1875,7 @@ function gotStream2() {
 
 function getStatsCandidateTypes(results,eventString1,eventString2) {
 	let msg = getStatsCandidateTypesEx(results,eventString1)
+	console.log("getStatsCandidateTypes "+msg);
 	wsSend("log|caller "+msg);
 
 	if(eventString2!="") {
@@ -2189,7 +2190,7 @@ function signalingCommand(message) {
 		}
 
 		var enableRemoteStream = function(calleeCandidate) {
-			gLog('enableRemoteStream stopAllAudioEffects');
+			console.log('enableRemoteStream stopAllAudioEffects');
 			stopAllAudioEffects();
 
 			if(remoteVideoFrame) {
@@ -2222,11 +2223,11 @@ function signalingCommand(message) {
 					gLog("fileselectLabel not enabled (not p2p)");
 				}
 			} else {
-				gLog("fileselectLabel not enabled (no dataChl)");
+				console.log("# fileselectLabel not enabled (no dataChl)");
 			}
 
 			// getting stats (p2p or relayed connection)
-			gLog("full mediaConnect, getting stats...");
+			console.log("full mediaConnect, getting stats...");
 			peerCon.getStats(null)
 				.then((results) => getStatsCandidateTypes(results,lg("connected"),"E2EE"),
 				err => console.log(err));
@@ -2239,19 +2240,19 @@ function signalingCommand(message) {
 			}
 		}
 
-		// we now wait up to 4x300ms for remoteStream before we continue with enableRemoteStream()
+		// we now wait up to 7x300ms for remoteStream before we continue with enableRemoteStream()
 		// remoteStream will arrive via: peerCon.ontrack onunmute
 		var waitLoopCount=0;
 		let waitForRemoteStreamFunc = function() {
 			if(!remoteStream) {
 				waitLoopCount++;
 				gLog('waitForRemoteStreamFunc '+remoteStream+" "+waitLoopCount);
-				if(waitLoopCount<=4) {
+				if(waitLoopCount<=7) {
 					setTimeout(waitForRemoteStreamFunc, 300);
 					return;
 				}
 			}
-			gLog('waitForRemoteStreamFunc enableRemoteStream');
+			console.log("# waitForRemoteStreamFunc force enableRemoteStream");
 			enableRemoteStream();
 		}
 		waitForRemoteStreamFunc();
