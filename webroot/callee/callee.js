@@ -1225,7 +1225,7 @@ function gotStream2() {
 
 	if(localStream && !videoEnabled && !rtcConnect) {
 		// mute (disable) mic until a call
-		console.log('gotStream2 mute (disable) mic (localStream) standby');
+		console.log('gotStream2 mute mic (localStream) standby');
 		localStream.getTracks().forEach(track => { track.stop(); });
 		const audioTracks = localStream.getAudioTracks();
 		localStream.removeTrack(audioTracks[0]);
@@ -1233,7 +1233,7 @@ function gotStream2() {
 	}
 
 // TODO what does rtcConnect have to do with this?
-	if(onGotStreamGoOnline && !rtcConnect) {
+	if(onGotStreamGoOnline /*&& !rtcConnect*/) {
 		// we start prepareCallee() bc auto=1 has set onGotStreamGoOnline in onLoad
 		// NOTE this works only for Android clients (and will not be enabled for pure browsing mode)
 		onGotStreamGoOnline = false;
@@ -1251,12 +1251,15 @@ function gotStream2() {
 			prepareCallee(true,"gotStream2");
 		}
 	} else {
+		console.log("gotStream2 onGotStreamGoOnline="+onGotStreamGoOnline+" rtcConnect="+rtcConnect);
 		if(wsConn==null) {
 			// we are offline, this usually occurs onload in pure browser mode
-			console.log("gotStream2 wsConn==null, no sendInit, standby");
+			console.log("gotStream2 wsConn==null, stay offline, no sendInit, standby");
 			showStatus("Offline",-1);
 		} else {
-			// we are online
+			console.log("gotStream2 wsConn!=null, turn on goOnlineSwitch, sendInit, standby");
+			// we are connected to server already
+			goOnlineSwitch.checked = true;
 			// send init to request list of missedCalls
 			console.log("gotStream2 wsConn!=null, sendInit, standby");
 			sendInit("gotStream2 standby");

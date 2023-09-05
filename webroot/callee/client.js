@@ -192,10 +192,10 @@ function muteMic(flag) {
 			console.log("# muteMic "+flag+": no audioTracks");
 		} else {
 			if(flag) {
-				console.log("muteMic state change "+flag+": mic disable");
+				console.log("muteMic state change "+flag+": mic muted");
 				audioTracks[0].enabled = false;
 			} else {
-				console.log("muteMic state change "+flag+": mic enable");
+				console.log("muteMic state change "+flag+": mic un-muted");
 				audioTracks[0].enabled = true;
 			}
 
@@ -1677,14 +1677,14 @@ function showStatus(msg,timeoutMs) {
 	statusLine.style.opacity = 1;
 	// make msg visible
 	statusLine.style.display = "block";
-
+/*
 	// clear lastStatusMessage in service (so service will not overwrite our new msg)
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.clearLastStatus !== "undefined" && Android.clearLastStatus !== null) {
 			Android.clearLastStatus();
 		}
 	}
-
+*/
 	if(msg!="" && sleepMs>=0) {
 		// msg bleibt für sleepMs stehen
 		// und dann transitioned to opacity für 600ms zu 0
