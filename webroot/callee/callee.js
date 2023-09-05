@@ -688,6 +688,18 @@ function start() {
 		goOnlineSwitchChange("user button");
 	}
 
+	isHiddenlabel.onchange = function(ev) {
+		ev.stopPropagation();
+		console.log("isHidden click");
+		showOnlineReadyMsg();
+	}
+
+	autoanswerlabel.onchange = function(ev) {
+		ev.stopPropagation();
+		console.log("autoanswer click");
+		showOnlineReadyMsg();
+	}
+
 	try {
 		getStream().then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 		//getStream() -> getUserMedia(constraints) -> gotStream2() -> prepareCallee()
@@ -1307,31 +1319,28 @@ function showOnlineReadyMsg() {
 
 	// delay 'ready to receive calls' msg, so that prev msg can be read by user
 	setTimeout(function(oldWidth) {
-			console.log("showOnlineReadyMsg");
-			if(typeof Android !== "undefined" && Android !== null) {
-				if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
-					Android.calleeConnected();
-					// calleeConnected() does 2 things:
-					// 1. postStatus("state","connected");
-					// 2. statusMessage(readyToReceiveCallsString,-1,true,false);
-					return;
-				}
+		console.log("showOnlineReadyMsg");
+		if(typeof Android !== "undefined" && Android !== null) {
+			if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
+				Android.calleeConnected();
+				// calleeConnected() does 2 things:
+				// 1. postStatus("state","connected");
+				// 2. statusMessage(readyToReceiveCallsString,-1,true,false);
+				return;
 			}
-
-			if(!mediaConnect || peerCon==null || peerCon.signalingState!="open") {
-				showStatus("Ready to receive calls",-1);
-			} else {
-				console.log("peerCon.signalingState="+peerCon.signalingState);
-				showStatus("Call in progress",-1);
-			}
-
-/*
-		// TODO isHiddenCheckbox needs a different implementation
-		if(isHiddenCheckbox.checked) {
-			showStatus("Your online status is hidden",2500);
 		}
-*/
-	},600);
+
+		let readyMessage = "Ready to receive calls";
+		if(mediaConnect) {
+			readyMessage = "Call in progress";
+		}
+		if(isHiddenCheckbox.checked) {
+			readyMessage += " (Online status hidden)";
+		} else if(autoanswerCheckbox.checked) {
+			readyMessage += " (Autoanswer)";
+		}
+		showStatus(readyMessage,-1);
+	},300);
 }
 
 let tryingToOpenWebSocket = false;
