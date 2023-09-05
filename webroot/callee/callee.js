@@ -1337,7 +1337,7 @@ function showOnlineReadyMsg() {
 		if(isHiddenCheckbox.checked) {
 			readyMessage += " (Online status hidden)";
 		} else if(autoanswerCheckbox.checked) {
-			readyMessage += " (Autoanswer)";
+			readyMessage += " (Auto-Answer)";
 		}
 		showStatus(readyMessage,-1);
 	},300);
