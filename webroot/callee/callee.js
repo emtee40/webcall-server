@@ -1912,8 +1912,8 @@ function showWaitingCallers() {
 	if(waitingCallersElement) {
 		let waitingCallersTitleElement = document.getElementById('waitingCallersTitle');
 		if(waitingCallerSlice==null || waitingCallerSlice.length<=0) {
-			waitingCallersTitleElement.style,display = "none";
-			waitingCallersElement.style,display = "none";
+			waitingCallersTitleElement.style.display = "none";
+			waitingCallersElement.style.display = "none";
 			waitingCallersElement.innerHTML = "";
 			if(waitingCallersTitleElement) {
 				waitingCallersTitleElement.style.display = "none";
@@ -1922,7 +1922,7 @@ function showWaitingCallers() {
 		}
 
 		waitingCallersTitleElement.style.display = "block";
-		waitingCallersElement.style,display = "block";
+		waitingCallersElement.style.display = "block";
 		gLog('showWaitingCallers fkt waitingCallerSlice.length',waitingCallerSlice.length);
 		let timeNowSecs = Math.floor((Date.now()+500)/1000);
 		let str = "<table style='width:100%; border-collapse:separate; border-spacing:6px 2px; line-height:1.5em;'>"
