@@ -3497,7 +3497,7 @@ function openSettings() {
 function clearcache() {
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(Android.getVersionName()>="1.1.0") {
-			let wasConnected = true; //wsConn!=null;
+			let wasConnected = goOnlineSwitch.checked;
 			if(typeof Android.wsClosex !== "undefined" && Android.wsClosex !== null) {
 				Android.wsClosex();
 			} else if(typeof Android.wsClose !== "undefined" && Android.wsClose !== null) {
