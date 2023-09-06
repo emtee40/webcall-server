@@ -3260,6 +3260,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 			}
 
 			console.log('endWebRtcSession newPeerCon');
+// TODO if(goOnlineAfter)
 			if(newPeerCon("endWebRtcSession")) {
 				// fail
 				return;

@@ -1992,7 +1992,7 @@ function signalingCommand(message) {
 	if(tok.length>=2) {
 		payload = tok[1];
 	}
-	//console.log('signaling cmd',cmd);
+	console.log("...signaling cmd="+cmd);
 
 	if(cmd=="calleeAnswer") {
 		// callee.js has responded to our callerOffer
@@ -2139,7 +2139,7 @@ function signalingCommand(message) {
 			return
 		}
 
-		gLog("callee is answering call");
+		console.log("callee is answering call");
 		if(!localStream) {
 			// TODO no localStream OK in textmode (if muteMicElement && muteMicElement.checked)?
 			console.warn("cmd pickup no localStream");
@@ -2246,7 +2246,7 @@ function signalingCommand(message) {
 		let waitForRemoteStreamFunc = function() {
 			if(!remoteStream) {
 				waitLoopCount++;
-				gLog('waitForRemoteStreamFunc '+remoteStream+" "+waitLoopCount);
+				console.log('waitForRemoteStreamFunc '+remoteStream+" "+waitLoopCount);
 				if(waitLoopCount<=7) {
 					setTimeout(waitForRemoteStreamFunc, 300);
 					return;
@@ -2255,6 +2255,7 @@ function signalingCommand(message) {
 			console.log("# waitForRemoteStreamFunc force enableRemoteStream");
 			enableRemoteStream();
 		}
+		console.log('waitForRemoteStreamFunc start...');
 		waitForRemoteStreamFunc();
 
 		/*

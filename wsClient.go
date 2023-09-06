@@ -733,7 +733,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 
 		if !c.calleeInitReceived.Load() {
 			// on first init only
-			//fmt.Printf("%s (%s) init %s\n", c.connType, c.calleeID, c.RemoteAddr)
+			fmt.Printf("%s (%s) init %s\n", c.connType, c.calleeID, c.RemoteAddr)
 			c.hub.HubMutex.Lock()
 			c.hub.CallerClient = nil
 			c.hub.HubMutex.Unlock()
@@ -1334,16 +1334,16 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 	if cmd=="pickup" {
 		// "pickup" is sent by the callee client only
 		if !c.isConnectedToPeer.Load() {
-			if logWantedFor("login") {
+			//if logWantedFor("login") {
 				fmt.Printf("# %s (%s) pickup ignored no peerConnect %s\n",
 					c.connType, c.calleeID, c.RemoteAddr)
-			}
+			//}
 			return
 		}
 		if c.pickupSent.Load() {
 			// prevent sending 'pickup' twice
-			//fmt.Printf("# %s (%s) pickup ignored already sent %s\n",
-			//	c.connType, c.calleeID, c.RemoteAddr)
+			fmt.Printf("# %s (%s) pickup ignored, already sent %s\n",
+				c.connType, c.calleeID, c.RemoteAddr)
 			return
 		}
 
@@ -1362,13 +1362,14 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 			}
 			err := c.hub.CallerClient.Write(message)
 			if err != nil {
-				fmt.Printf("# %s (%s) send cancel msg to caller fail %v\n",
-					c.connType, c.calleeID, err)
+				fmt.Printf("# %s (%s) send cancel msg to caller fail %v\n", c.connType, c.calleeID, err)
 				c.hub.HubMutex.RUnlock()
 				c.hub.closePeerCon("forward pickup to caller "+err.Error())
 				return
 			}
 			c.pickupSent.Store(true)
+		} else {
+			fmt.Printf("# %s (%s) send cancel msg to caller fail: no c.hub.CallerClient\n", c.connType, c.calleeID)
 		}
 		c.hub.HubMutex.RUnlock()
 		c.hub.setDeadline(0,"pickup")

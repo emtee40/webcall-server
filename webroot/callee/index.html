@@ -26,18 +26,20 @@ body {
 /* Answer, Hang Up, TextChat, Send File */
 .answerButtons {
 	padding-top:10px;
-	padding-bottom:5px;
+	padding-bottom:15px;
 	display:none; /* grid */
-	grid-template-columns: 5fr 5fr 48px;
+	grid-template-columns: 5fr 5fr 36px;
+	column-gap:15px;
+	row-gap:20px;
 	max-width:420px;
-	_padding-right:20px;
+	padding-right:20px;
 }
 @media only screen and (min-width: 560px) {
 	.answerButtons {
 		display:none; /* grid */
-		grid-template-columns: 5fr 5fr 44px 5fr 5fr;
-		max-width:600px;
-		padding-right:0px;
+		grid-template-columns: 5fr 5fr 36px 5fr 5fr;
+		max-width:740px;
+		padding-right:20px;
 	}
 }
 
@@ -50,7 +52,7 @@ body {
 	font-size: 1.0em;
 	font-weight: 400;
 	font-family:sans-serif;
-	margin: 0.5em 0.8em 0.9em 0;
+	_margin: 0.5em 0em 0.9em 0;
 	padding: 0.3em 0.1em 0.4em 0.1em;
 	min-width: 100px;
 	max-width: 160px;
@@ -514,11 +516,11 @@ input:disabled + .slider {
     <div style="clear:all;height:8px; _background:#666;"></div>
 
 	<!-- turn on with "display:grid" -->
-	<div id="answerButtons" class="answerButtons">
+	<div id="answerButtons" class="answerButtons" _style="display:grid">
 		<button id="answerButton" class="mainbutton">Answer</button>
 		<button id="rejectButton" class="mainbutton">Hang Up</button>
 		                     <!-- src="red-gradient.svg" for testing -->
-		<img id="onlineIndicator" src="" style="width:42px; margin-left:-6px; margin-top:9px; user-select:none;">
+		<img id="onlineIndicator" src="" style="width:36px; margin-top:2px; user-select:none;">
 
 		<button id="chatButton" class="mainbutton">TextChat</button>
 		<label id="fileselectlabel" class="mainbutton" for="fileselect">

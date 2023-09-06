@@ -1570,7 +1570,7 @@ function peerConOntrack(track, streams) {
 //			if(!gentle) console.warn('peerCon.ontrack onunmute was already set');
 //			return;
 //		}
-		gLog('peerCon.ontrack set remoteVideoFrame.srcObject');
+		console.log('peerCon.ontrack set remoteVideoFrame.srcObject');
 //		if(remoteStream) {
 //			gLog('peerCon.ontrack onunmute have prev remoteStream');
 //			// TODO treat like localStream in gotStream() ? apparently not needed
