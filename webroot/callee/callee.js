@@ -1623,7 +1623,7 @@ function signalingCommand(message, comment) {
 		});
 
 	} else if(cmd=="callerInfo") {
-		console.log('cmd callerInfo payload=(%s)',payload);
+		console.log("cmd callerInfo payload=("+payload+")");
 		callerMsg = "";
 		let idxSeparator = payload.indexOf("\t");
 		if(idxSeparator<0) {
@@ -2798,7 +2798,7 @@ function pickup() {
 			return;
 		}
 		// all is well, no action needed
-	},1500);
+	},3500);
 }
 
 function pickup2() {
