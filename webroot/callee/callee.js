@@ -2924,6 +2924,7 @@ function pickup4(comment) {
 		// we auto-open the textbox bc the local mic is muted
 		console.log("pickup4 muteMicElement.checked -> enableDisableTextchat open");
 		enableDisableTextchat(true);
+// TODO must open textchat on the caller side - also mute the caller?
 	} else {
 		muteMic(false); // don't mute mic
 	}

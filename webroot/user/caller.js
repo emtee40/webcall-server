@@ -2240,19 +2240,19 @@ function signalingCommand(message) {
 			}
 		}
 
-		// we now wait up to 7x300ms for remoteStream before we continue with enableRemoteStream()
+		// we now wait up to 5x300ms for remoteStream before we continue with enableRemoteStream()
 		// remoteStream will arrive via: peerCon.ontrack onunmute
 		var waitLoopCount=0;
 		let waitForRemoteStreamFunc = function() {
 			if(!remoteStream) {
 				waitLoopCount++;
-				console.log('waitForRemoteStreamFunc '+remoteStream+" "+waitLoopCount);
-				if(waitLoopCount<=7) {
+				console.log('! waitForRemoteStreamFunc '+remoteStream+" "+waitLoopCount);
+				if(waitLoopCount<=5) {
+					console.log("# waitForRemoteStreamFunc force enableRemoteStream");
 					setTimeout(waitForRemoteStreamFunc, 300);
 					return;
 				}
 			}
-			console.log("# waitForRemoteStreamFunc force enableRemoteStream");
 			enableRemoteStream();
 		}
 		console.log('waitForRemoteStreamFunc start...');
