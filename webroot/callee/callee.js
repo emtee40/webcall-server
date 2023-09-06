@@ -1852,7 +1852,6 @@ function signalingCommand(message, comment) {
 	} else if(cmd=="textmode") {
 		textmode = payload;
 		console.log("textmode",textmode);
-
 		if(textmode=="true") {
 			if(muteMicElement.checked==false) {
 				muteMicElement.checked = true;
@@ -2309,6 +2308,7 @@ function hangup(mustDisconnect,dummy2,message) {
 
 	if(muteMicModified) {
 		muteMicElement.checked = false;
+		muteMic(false);
 		muteMicModified = false;
 	}
 
@@ -2924,7 +2924,8 @@ function pickup4(comment) {
 		// we auto-open the textbox bc the local mic is muted
 		console.log("pickup4 muteMicElement.checked -> enableDisableTextchat open");
 		enableDisableTextchat(true);
-// TODO must open textchat on the caller side - also mute the caller?
+		// open textchat and mute on the caller side
+		wsSend("textmode|true");
 	} else {
 		muteMic(false); // don't mute mic
 	}

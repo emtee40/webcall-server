@@ -74,6 +74,7 @@ var idSelectElement = null;
 var newline = String.fromCharCode(13, 10);
 var textchatOKfromOtherSide = false;
 var placeholderText = "";
+var	muteMicModified = false;
 
 var extMessage = function(e) {
 	// prevent an error on split() below when extensions emit unrelated, non-string 'message' events to the window
@@ -974,7 +975,7 @@ function onload3(comment) {
 			if(textchatOKfromOtherSide) {
 				// hide chat-button
 				chatButton.style.display = "none";
-				enableTextChat();
+				enableDisableTextchat(true);
 			} else {
 				setTimeout(function() {
 					//chatButton.style.display = "none";
@@ -2334,6 +2335,21 @@ function signalingCommand(message) {
 		gLog("stopCamDelivery");
 		connectLocalVideo(true);
 
+	} else if(cmd=="textmode") {
+		console.log("textmode="+payload);
+		if(payload=="true") {
+			//enableTextChat();
+			enableDisableTextchat(true);
+			// hide chat-button
+			chatButton.style.display = "none";
+			// mute mic
+			if(muteMicElement.checked==false) {
+				muteMicElement.checked = true;
+				muteMic(true);
+				// remember to turn muteMic off on hangup
+				muteMicModified = true;
+			}
+		}
 	} else {
 		console.log('# ignore incom cmd',cmd);
 	}
@@ -2799,6 +2815,13 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 	hangupButton.disabled = true;
 	//dialButton.disabled = false;
 	onlineIndicator.src="";
+
+	if(muteMicModified) {
+		console.log("hangup: undo muteMic");
+		muteMicElement.checked = false;
+		muteMic(false);
+		muteMicModified = false;
+	}
 
 	// offer store contact link (only if callerId and calleeID exist)
 	if(callerId!="" && calleeID!="" && callerHost!="" && callerHost!=location.host) {
