@@ -1544,7 +1544,7 @@ function signalingCommand(message, comment) {
 	if(tok.length>=2) {
 		payload = tok[1];
 	}
-	//gLog('signaling cmd '+cmd);
+	//console.log("---signaling cmd="+cmd+" payload="+payload);
 	//gLog('signaling payload '+payload);
 
 	if(cmd=="init") {
@@ -1851,7 +1851,7 @@ function signalingCommand(message, comment) {
 
 	} else if(cmd=="textmode") {
 		textmode = payload;
-		gLog("textmode",textmode);
+		console.log("textmode",textmode);
 
 		if(textmode=="true") {
 			if(muteMicElement.checked==false) {

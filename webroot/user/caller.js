@@ -1925,7 +1925,7 @@ function connectSignaling(message,openedFunc) {
 		wsUrl = wsUrl + "&ver="+clientVersion;
 	}
 
-	gLog('connectSignaling: wsUrl='+wsUrl);
+	console.log('connectSignaling: wsUrl='+wsUrl);
 	wsConn = new WebSocket(wsUrl);
 	wsConn.onopen = function () {
 		gLog('ws connection open '+calleeID);
