@@ -150,6 +150,9 @@ window.onload = function() {
 		return;
 	}
 
+	goOnlineSwitch.checked = false;
+	//console.log("onLoad goOnlineSwitch.checked="+goOnlineSwitch.checked);
+
 	window.onresize = (event) => {
 		//console.log("onresize "+window.innerHeight+" "+window.innerWidth);
 		if(window.innerWidth!=lastInnerWidth) {
