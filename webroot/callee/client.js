@@ -1756,7 +1756,7 @@ function dataChannelOnerror(event) {
 function hangupWithBusySound(mustDisconnectCallee,message) {
 	dialing = false;
 	console.log("hangupWithBusySound stopAllAudioEffects "+message+" mediaConnect="+mediaConnect);
-	stopAllAudioEffects("hangupWithBusySound");
+	stopAllAudioEffects("");
 //	if(peerCon && peerCon.iceConnectionState!="closed") {
 //	if(peerCon && mediaConnect) {
 		if(playDialSounds && busySignalSound!=null) {

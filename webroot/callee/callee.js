@@ -1753,7 +1753,7 @@ function signalingCommand(message, comment) {
 		console.log("cmd cancel payload=("+payload+") -> endWebRtcSession");
 
 		// end the p2p connection and re-init our server connection based on stat of goOnlineSwitch.checked
-		endWebRtcSession(true,goOnlineSwitch.checked,"cmd cancel"); // -> peerConCloseFunc
+		endWebRtcSession(false,goOnlineSwitch.checked,"cmd cancel"); // -> peerConCloseFunc
 
 	} else if(cmd=="clearcache") {
 		console.log("# cmd=='clearcache' (ignored)");
@@ -2394,6 +2394,9 @@ function prepareCallee(sendInitFlag,comment) {
 			// note: Android.isConnected() returns: 0=offline, 1=reconnector busy, 2=connected (wsClient!=null)
 			if(Android.isConnected()>0) {
 				console.log("prepareCallee isConnected()="+Android.isConnected()+" >0 (connected or connection)");
+				if(sendInitFlag) {
+					sendInit("prepareCallee <- "+comment);
+				}
 				getSettings(); // display ownID links
 				return;
 			}
@@ -2897,10 +2900,10 @@ function pickup4(comment) {
 		fileselectLabel.style.display = "block";
 	}
 
-	// hide clear cookie (while peer connected) - will be re-enabled in endWebRtcSession(
+	// hide clear cookie (while peer connected) - will be re-enabled from endWebRtcSession(
 	menuClearCookieElement.style.display = "none";
 
-	// hide clear cache on android (while peer connected) - will be re-enabled in endWebRtcSession()
+	// hide clear cache on android (while peer connected) - will be re-enabled from endWebRtcSession()
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
 			if(Android.getVersionName()>="1.1.0") {
@@ -3030,7 +3033,7 @@ function dataChannelOnmessage(event) {
 					dataChannel.close();
 					dataChannel = null;
 				}
-				hangupWithBusySound(true,"Disconnect by peer");
+				hangupWithBusySound(true,"disconnect by peer via datachl");
 			} else if(event.data.startsWith("textchatOK")) {
 				textchatOKfromOtherSide = true;
 			} else if(event.data.startsWith("msg|")) {
@@ -3181,9 +3184,15 @@ function stopAllAudioEffects(comment) {
 	}
 }
 
-var goOnlinePending = false;
+var endWebRtcPending = false;
 function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	// NOTE comment may be undefined
+	if(endWebRtcPending) {
+		console.log("! endWebRtcSession endWebRtcPending abort");
+		return;
+	}
+	endWebRtcPending = true;
+
 	console.log("endWebRtcSession discCaller="+disconnectCaller+
 				" onlAfter="+goOnlineAfter+" switch="+goOnlineSwitch.checked+" ("+comment+")");
 	pickupAfterLocalStream = false;
@@ -3259,15 +3268,17 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 				gLog('endWebRtcSession peerCon cleared');
 			}
 
-			console.log('endWebRtcSession newPeerCon');
-// TODO if(goOnlineAfter)
-			if(newPeerCon("endWebRtcSession")) {
-				// fail
-				return;
+			if(goOnlineAfter) {
+				console.log('endWebRtcSession newPeerCon');
+				if(newPeerCon("endWebRtcSession")) {
+					// fail
+					console.warn("# endWebRtcSession newPeerCon fail");
+					return;
+				}
 			}
 		};
 
-		if(rtcConnect && peerCon && peerCon.iceConnectionState!="closed") {
+		if(rtcConnect /*&& peerCon && peerCon.iceConnectionState!="closed"*/) {
 			gLog('endWebRtcSession getStatsPostCall');
 			peerCon.getStats(null).then((results) => {
 				getStatsPostCall(results);
@@ -3276,7 +3287,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 				console.log(err.message);
 				peerConCloseFunc();
 			});
-		} else if(peerCon && peerCon.iceConnectionState!="closed") {
+		} else /*if(peerCon && peerCon.iceConnectionState!="closed")*/ {
 			peerConCloseFunc();
 		}
 	}
@@ -3290,10 +3301,6 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		localStream = null;
 	}
 
-	if(typeof Android !== "undefined" && Android !== null) {
-		Android.peerDisConnect();
-	}
-
 	rtcConnect = false;
 	mediaConnect = false;
 	onlineIndicator.src="";
@@ -3301,59 +3308,59 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		vsendButton.style.display = "none";
 	}
 
-	// show clearCookie on android (after peer disconnect)
-	menuClearCookieElement.style.display = "block";
-
-	// show clearCache on android (after peer disconnect)
 	if(typeof Android !== "undefined" && Android !== null) {
+		Android.peerDisConnect();
 		if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
+			// show clearCache on android (after peer disconnect)
 			if(Android.getVersionName()>="1.1.0") {
 				menuClearCacheElement.style.display = "block";
 			}
 		}
 	}
 
-	console.log("endWebRtcSession wsConn="+(wsConn!=null)+" dataChl="+isDataChlOpen());
+	// show clearCookie on android (after peer disconnect)
+	menuClearCookieElement.style.display = "block";
 	fileselectLabel.style.display = "none";
 	progressSendElement.style.display = "none";
 	progressRcvElement.style.display = "none";
 	msgboxdiv.style.display = "none";
 	msgbox.innerHTML = "";
 
-	if(wsConn==null) {
+	console.log("endWebRtcSession wsConn="+(wsConn!=null)+" dataChl="+isDataChlOpen());
+	if(wsConn==null || !goOnlineAfter) {
 		showStatus("Offline");
 		// also hide ownlink
 		showVisualOffline();
 	} else {
 		// status: 'Ready to receive calls'
 		// we must do this here bc we receive no cmd==sessionId -> showOnlineReadyMsg()
-		showOnlineReadyMsg();
+		// BS! with goOnlineAfter we will get cmd==sessionId after prepareCallee(init=true)
+		// showOnlineReadyMsg();
 	}
 
 	if(!goOnlineAfter) {
 		// a hostConnection after peerDisconnect is not requested
 		// this occurs if the serverconnection was closed before also the peerConnection was ended
-		console.log("endWebRtcSession no goOnlineAfter");
-	} else if(goOnlinePending) {
-		console.log("endWebRtcSession goOnlineAfter, but goOnlinePending");
+		console.log("endWebRtcSession done, no goOnlineAfter");
+		endWebRtcPending = false;
 	} else {
 		// we want to keep callee online after peer connection is gone
 		// we just keep our wsConn alive, so no new login is needed
 		// (no new ws-hub will be created on the server side)
 
-		// goOnlinePending flag prevents secondary calls to goOnline
-		goOnlinePending = true;
-		console.log("endWebRtcSession auto prepareCallee() delayed...");
-		// TODO why exactly is this delay needed in goOnlineAfter?
+		console.log("endWebRtcSession prepareCallee() delayed...");
+		// why is this delay needed in goOnlineAfter?
+		// it was implemented as a measure against multiple, concurrent calls to endWebRtcSession()
+		// this way the 2nd and more calls will be chopped by endWebRtcPending
+		// but I don't see this happening anymore
 		setTimeout(function() {
-			console.log('endWebRtcSession auto prepareCallee()');
-			goOnlinePending = false;
-
 			//console.log("callee endWebRtcSession auto prepareCallee(): enable goonline");
 			// get peerCon ready for the next incoming call
 			// bc we are most likely still connected, prepareCallee() will just send "init"
 			prepareCallee(true,"endWebRtcSession");
-		},500);
+			console.log('endWebRtcSession done');
+			endWebRtcPending = false;
+		},200);
 	}
 }
 
