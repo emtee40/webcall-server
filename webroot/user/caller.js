@@ -1992,7 +1992,7 @@ function signalingCommand(message) {
 	if(tok.length>=2) {
 		payload = tok[1];
 	}
-	console.log("...signaling cmd="+cmd);
+	//console.log("...signaling cmd="+cmd);
 
 	if(cmd=="calleeAnswer") {
 		// callee.js has responded to our callerOffer
