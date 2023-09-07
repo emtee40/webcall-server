@@ -2818,9 +2818,6 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 	doneHangup = true;
 
 	gLog('hangup msg='+message+' '+mustDisconnectCallee);
-	if(message!="") {
-		showStatus(message);
-	}
 
 	stopTimer();
 
@@ -2828,67 +2825,6 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 	hangupButton.disabled = true;
 	//dialButton.disabled = false;
 	onlineIndicator.src="";
-
-	if(muteMicModified) {
-		console.log("hangup: undo muteMic");
-		muteMicElement.checked = false;
-		muteMic(false);
-		muteMicModified = false;
-	}
-
-	// offer store contact link (only if callerId and calleeID exist)
-	if(callerId!="" && calleeID!="" && callerHost!="" && callerHost!=location.host) {
-		let storeContactElement = document.getElementById("storeContact");
-		if(storeContactElement) {
-			let fullContactId = calleeID+"@@"+location.host;
-			if(calleeID.indexOf("@")>=0) {
-				fullContactId = calleeID+"@"+location.host;
-			}
-			//console.log("contactName (for storeContactLink)=("+contactName+")");
-			let storeContactLink = "https://"+callerHost+"/callee/contacts/store/?id="+callerId+
-				"&contactId="+fullContactId+"&contactName="+contactName+"&callerName="+callerName;
-			storeContactElement.innerHTML = "<a href='"+storeContactLink+"'>Store contact</a>";
-			// button will be removed in dialButtonClick()
-		}
-	}
-
-	// enable nicknameElement input form
-	let nicknameElement = document.getElementById("nickname");
-	if(nicknameElement) {
-		nicknameElement.disabled = false;
-	}
-
-	if(wsConn && wsConn.readyState==1) {
-		gLog('hangup mustDisc='+mustDisconnectCallee+' readyState='+wsConn.readyState+" mediaCon="+mediaConnect);
-		if(!mediaConnect) {
-			let msgboxText = cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen);
-			//gLog('msgboxText=('+msgboxText+')');
-			if(msgboxText!="") {
-				gLog('hangup wsSend msg=('+msgboxText+')');
-				wsSend("msg|"+msgboxText);
-			}
-		}
-		if(mustDisconnectCallee) {
-			// if hangup occurs while still ringing, send cancel
-			// before that: send msgbox text to server
-			gLog('hangup wsSend(cancel)');
-			wsSend("cancel|c");
-		}
-	}
-	if(wsConn) {
-		wsConn.close();
-		wsConn=null;
-	}
-
-	msgbox.value = "";
-	if(remoteVideoFrame) {
-		gLog('hangup shutdown remoteAV');
-		remoteVideoFrame.pause();
-		remoteVideoFrame.currentTime = 0;
-		remoteVideoFrame.srcObject = null;
-		remoteVideoHide();
-	}
-	remoteStream = null;
 
 	if(peerCon && peerCon.iceConnectionState!="closed") {
 		if(addedAudioTrack) {
@@ -2898,57 +2834,7 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 		} else {
 			gLog("hangup no addedAudioTrack for peerCon.removeTrack()");
 		}
-	}
 
-	if(videoEnabled) {
-		gLog("hangup no shutdown localAV bc videoEnabled",videoEnabled);
-	} else {
-		gLog("hangup shutdown localAV");
-		if(localStream) {
-			// stop all localStream tracks
-			localStream.getTracks().forEach(track => {
-				gLog('hangup stop localStream track.stop()',track);
-				track.stop(); 
-			});
-
-			// remove local mic from localStream
-			const audioTracks = localStream.getAudioTracks();
-			gLog('hangup remove local mic audioTracks.length',audioTracks.length);
-			if(audioTracks.length>0) {
-				gLog('hangup remove local mic removeTrack',audioTracks[0]);
-				audioTracks[0].stop();
-				localStream.removeTrack(audioTracks[0]);
-			}
-
-			// remove local vid from localStream
-			const videoTracks = localStream.getVideoTracks();
-			gLog('hangup remove local vid videoTracks.length '+videoTracks.length);
-			if(videoTracks.length>0) {
-				gLog('hangup remove local vid removeTrack',videoTracks[0]);
-				videoTracks[0].stop();
-				localStream.removeTrack(videoTracks[0]);
-			}
-		}
-		localVideoFrame.pause();
-		localVideoFrame.currentTime = 0;
-		localVideoFrame.srcObject = null;
-		localStream = null;
-	}
-
-	if(typeof Android !== "undefined" && Android !== null) {
-		Android.peerDisConnect();
-	}
-
-	mediaConnect = false;
-	rtcConnect = false;
-	if(vsendButton) {
-		vsendButton.style.display = "none";
-	}
-	vmonitor();
-	if(vsendButton)
-		vsendButton.classList.remove('blink_me')
-
-	if(peerCon && peerCon.iceConnectionState!="closed") {
 		let peerConCloseFunc = function() {
 			console.log("hangup: peerConClose");
 			if(mustDisconnectCallee) {
@@ -3028,6 +2914,120 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 			console.log("hangup: error="+err);
 			peerConCloseFunc();
 		});
+	}
+
+	if(typeof Android !== "undefined" && Android !== null) {
+		Android.peerDisConnect();
+	}
+
+	mediaConnect = false;
+	rtcConnect = false;
+	if(vsendButton) {
+		vsendButton.style.display = "none";
+	}
+	vmonitor();
+	if(vsendButton) {
+		vsendButton.classList.remove('blink_me')
+	}
+
+	if(message!="") {
+		showStatus(message);
+	}
+
+	// offer store contact link (only if callerId and calleeID exist)
+	if(callerId!="" && calleeID!="" && callerHost!="" && callerHost!=location.host) {
+		let storeContactElement = document.getElementById("storeContact");
+		if(storeContactElement) {
+			let fullContactId = calleeID+"@@"+location.host;
+			if(calleeID.indexOf("@")>=0) {
+				fullContactId = calleeID+"@"+location.host;
+			}
+			//console.log("contactName (for storeContactLink)=("+contactName+")");
+			let storeContactLink = "https://"+callerHost+"/callee/contacts/store/?id="+callerId+
+				"&contactId="+fullContactId+"&contactName="+contactName+"&callerName="+callerName;
+			storeContactElement.innerHTML = "<a href='"+storeContactLink+"'>Store contact</a>";
+			// button will be removed in dialButtonClick()
+		}
+	}
+
+	// enable nicknameElement input form
+	let nicknameElement = document.getElementById("nickname");
+	if(nicknameElement) {
+		nicknameElement.disabled = false;
+	}
+
+	if(wsConn && wsConn.readyState==1) {
+		gLog('hangup mustDisc='+mustDisconnectCallee+' readyState='+wsConn.readyState+" mediaCon="+mediaConnect);
+		if(!mediaConnect) {
+			let msgboxText = cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen);
+			//gLog('msgboxText=('+msgboxText+')');
+			if(msgboxText!="") {
+				gLog('hangup wsSend msg=('+msgboxText+')');
+				wsSend("msg|"+msgboxText);
+			}
+		}
+		if(mustDisconnectCallee) {
+			// if hangup occurs while still ringing, send cancel
+			// before that: send msgbox text to server
+			gLog('hangup wsSend(cancel)');
+			wsSend("cancel|c");
+		}
+	}
+	if(wsConn) {
+		wsConn.close();
+		wsConn=null;
+	}
+
+	if(muteMicModified) {
+		console.log("hangup: undo muteMic");
+		muteMicElement.checked = false;
+		muteMic(false);
+		muteMicModified = false;
+	}
+
+	msgbox.value = "";
+	if(remoteVideoFrame) {
+		gLog('hangup shutdown remoteAV');
+		remoteVideoFrame.pause();
+		remoteVideoFrame.currentTime = 0;
+		remoteVideoFrame.srcObject = null;
+		remoteVideoHide();
+	}
+	remoteStream = null;
+
+	if(videoEnabled) {
+		gLog("hangup no shutdown localAV bc videoEnabled",videoEnabled);
+	} else {
+		gLog("hangup shutdown localAV");
+		if(localStream) {
+			// stop all localStream tracks
+			localStream.getTracks().forEach(track => {
+				gLog('hangup stop localStream track.stop()',track);
+				track.stop(); 
+			});
+
+			// remove local mic from localStream
+			const audioTracks = localStream.getAudioTracks();
+			gLog('hangup remove local mic audioTracks.length',audioTracks.length);
+			if(audioTracks.length>0) {
+				gLog('hangup remove local mic removeTrack',audioTracks[0]);
+				audioTracks[0].stop();
+				localStream.removeTrack(audioTracks[0]);
+			}
+
+			// remove local vid from localStream
+			const videoTracks = localStream.getVideoTracks();
+			gLog('hangup remove local vid videoTracks.length '+videoTracks.length);
+			if(videoTracks.length>0) {
+				gLog('hangup remove local vid removeTrack',videoTracks[0]);
+				videoTracks[0].stop();
+				localStream.removeTrack(videoTracks[0]);
+			}
+		}
+		localVideoFrame.pause();
+		localVideoFrame.currentTime = 0;
+		localVideoFrame.srcObject = null;
+		localStream = null;
 	}
 
 	// TODO this is a good place to enable "store contact" button
