@@ -291,6 +291,9 @@ function prepareSettings(xhrresponse) {
 
 	if(typeof Android !== "undefined" && Android !== null) {
 		// running on Android
+		if(clientVersion >= "4.0.0" && Android.getVersionName() < "1.4.8") {
+			displayVersion += "Please upgrade to:<br><a href='/webcall/update/'>WebCall for Android v1.4.8+</a><br>";
+		}
 		displayVersion += "<table><tr><td style='padding: 0 20px 0 0'>WebCall for Android:</td><td>"+Android.getVersionName()+"</td></tr>";
 		if(calleeVersion!=clientVersion) {
 			displayVersion += "<tr><td>WebCall Core current:</td><td>"+calleeVersion+"</td></tr>"+
@@ -299,9 +302,6 @@ function prepareSettings(xhrresponse) {
 		} else {
 			displayVersion += "<tr><td>WebCall Core:</td><td>"+clientVersion+"</td></tr>"+
 			                  "<tr><td>WebView:</td><td>"+Android.webviewVersion()+"</td></tr></table>";
-		}
-		if(clientVersion >= "4.0.0" && Android.getVersionName() < "1.4.8") {
-			displayVersion += "<br>Please upgrade to:<br><a href='/webcall/update/'>WebCall for Android v1.4.8+</a>";
 		}
 	} else {
 		// running in browser
