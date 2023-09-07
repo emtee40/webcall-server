@@ -628,15 +628,17 @@ function goOnlineSwitchChange(comment) {
 		missedCallsElement.style.display = "none";
 
 		// callee going offline
-		if(typeof Android !== "undefined" && Android !== null) {
-			console.log("goOffline wsClose");
-			Android.wsClose(); // -> disconnectHost(true) -> statusMessage("Server disconnected") -> runJS("showStatus()")
-		} else {
-			console.log("goOffline wsConn.close()");
-			wsConn.close();
-			showStatus("WebCall server disconnected");
+		if(wsConn!=null) {
+			if(typeof Android !== "undefined" && Android !== null) {
+				console.log("goOffline wsClose");
+				Android.wsClose(); // -> disconnectHost(true) -> statusMessage("Server disconnected")
+			} else {
+				console.log("goOffline wsConn.close()");
+				wsConn.close();
+				showStatus("WebCall server disconnected");
+			}
+			wsConn=null;
 		}
-		wsConn=null;
 
 		iconContactsElement.style.display = "none";
 		//console.log("spinner off goOnlineSwitchChange");
