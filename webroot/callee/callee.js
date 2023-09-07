@@ -500,7 +500,7 @@ function enablePasswordForm() {
 	showStatus("Login "+calleeID+" ...",-1);
 	document.getElementById("current-password").value = "";
 	form.style.display = "block";
-	// disable switch + icons (re-enable in login())
+	// disable switch + icons (re-enable from login())
 	buttonRowElement.style.display = "none";
 	document.getElementById("username").focus();
 	//gLog("form username "+document.getElementById("username").value);
@@ -563,7 +563,6 @@ function goOnlineSwitchChange(comment) {
 		// goOnline
 		if(wsConn!=null) {
 			console.log('! goOnlineSwitchChange goOnline(), but wsConn!=null');
-//			return;
 		}
 		console.log('goOnlineSwitchChange goOnline()');
 		if(comment=="user button" || comment=="service") {
@@ -584,24 +583,10 @@ function goOnlineSwitchChange(comment) {
 
 	} else {
 		// goOffline
+		// must clear connectToServerIsWanted in service
 		if(wsConn==null) {
 			console.log('! goOnlineSwitchChange ->off but wsConn is already null');
-//			return;
 		}
-
-		/*
-		// if mediaConnect: popup yes/no dialog
-		if(peerCon!=null && mediaConnect) {
-			// keep switch in connected-state for until yes/no
-			goOnlineSwitch.checked = true;
-			console.log("! goOnlineSwitchChange mediaConnect");
-			let yesNoInner = "<div style='position:absolute; z-index:110; background:#45dd; color:#fff; padding:25px 25px; line-height:1.6em; border-radius:3px; cursor:pointer; min-width:300px; max-width:350px; top:40px; left:50%; transform:translate(-50%,0%);'><div style='font-weight:600;'>WARNING</div><br>"+
-	"Disconnecting WebCall server while in call, will prevent Trickle-ICE from gradually improving your P2P connection.<br><br>"+
-	"<a style='line-height:2.8em' onclick='history.back();'>Stay connected</a> &nbsp; &nbsp; "+
-	"<a onclick='goOffline(\"user button\");history.back();'>Disconnect</a></div>";
-			menuDialogOpen(dynDialog,0,yesNoInner);
-		} else
-		*/
 
 		console.log("goOnlineSwitchChange goOffline calleeID="+calleeID);
 
@@ -610,13 +595,6 @@ function goOnlineSwitchChange(comment) {
 
 		// render offline mode
 		showVisualOffline(comment);
-
-//		if(!peerCon || peerCon.iceConnectionState=="closed") {
-//		if(!peerCon || !mediaConnect) {
-		if(!mediaConnect /*&& !rtcConnect*/) {
-			// we are not peer connected, so we can create server-related status msgs
-			showStatus("Offline");
-		}
 
 		if(comment=="user button" || comment=="service") {
 			//goOnlineWanted = false;
@@ -652,10 +630,11 @@ function goOnlineSwitchChange(comment) {
 		// callee going offline
 		if(typeof Android !== "undefined" && Android !== null) {
 			console.log("goOffline wsClose");
-			Android.wsClose(); // -> disconnectHost(true) -> statusMessage("Offline") -> runJS("showStatus()")
+			Android.wsClose(); // -> disconnectHost(true) -> statusMessage("Server disconnected") -> runJS("showStatus()")
 		} else {
 			console.log("goOffline wsConn.close()");
 			wsConn.close();
+			showStatus("WebCall server disconnected");
 		}
 		wsConn=null;
 
@@ -706,7 +685,7 @@ function start() {
 	try {
 		getStream().then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 		//getStream() -> getUserMedia(constraints) -> gotStream2() -> prepareCallee()
-		// if wsSecret is set in prepareCallee(), it will call login()
+		// if wsSecret is set from prepareCallee(), it will call login()
 	} catch(ex) {
 		console.log("# ex while searching for audio devices "+ex.message);
 		divspinnerframe.style.display = "none";
@@ -867,7 +846,7 @@ function login(retryFlag,comment) {
 			// no use offering pw entry again at this point
 			goOffline("login");
 
-			// make sure our showStatus() comes after the one ("offline") from disconnectHost()
+			// make sure our showStatus() comes after the one ("WebCall server disconnected") from disconnectHost()
 			setTimeout(function() {
 				if(parts.length>=2) {
 					showStatus("Login "+parts[1]+" fail. Logged in from another device?",-1);
@@ -881,7 +860,7 @@ function login(retryFlag,comment) {
 
 			// loginStatus may be: "java.net.ConnectException: failed to connect to timur.mobi/66.228.46.43 (port 8443) from /:: (port 0): connect failed: ENETUNREACH (Network is unreachable)"
 			if(loginStatus!="") {
-				// make sure our showStatus() comes after the one ("offline") from disconnectHost()
+				// make sure our showStatus() comes after the one ("WebCall server disconnected") from disconnectHost()
 				setTimeout(function() {
 					showStatus("Status: "+loginStatus,-1);
 				},300);
@@ -1270,7 +1249,7 @@ function gotStream2() {
 		if(wsConn==null) {
 			// we are offline, this usually occurs onload in pure browser mode
 			console.log("gotStream2 wsConn==null, stay offline, no sendInit, standby");
-			showStatus("Offline",-1);
+			showStatus("WebCall server disconnected",-1);
 		} else {
 			console.log("gotStream2 wsConn!=null, turn goOnlineSwitch ON, sendInit, standby");
 			// we are connected to server already
@@ -1480,13 +1459,13 @@ function wsOnClose(evt) {
 			// onclose occured while we were trying to establish a ws-connection (but before getting connected)
 			console.log('wsOnClose failed to open');
 			if(!mediaConnect) {
-				showStatus("Offline (access problem)",-1);
+				showStatus("Server disconnected (access problem)",-1);
 			}
 		} else {
 			// onclose occured while were ws-connected
 			console.log('wsOnClose while being connected (we got disconected)');
 			if(!mediaConnect) {
-				showStatus("Offline (disconnect)",-1);
+				showStatus("WebCall server disconnected",-1);
 			}
 		}
 
@@ -2420,7 +2399,7 @@ function prepareCallee(sendInitFlag,comment) {
 			// fall through
 		} else {
 			// no Android service,fall through
-			console.log("! prepareCallee no Android service, fall through");
+			console.log("prepareCallee no Android service, fall through");
 			console.log("spinner on prepareCallee");
 			divspinnerframe.style.display = "block";
 		}
@@ -2434,8 +2413,8 @@ function prepareCallee(sendInitFlag,comment) {
 			showStatus("Connecting...",-1);
 		}
 		console.log("prepareCallee wsConn==null -> login()");
+		// login on success will call getSettings()
 		login(false,"prepareCallee");
-// TODO does not call getSettings() for ownID links?
 		return;
 	}
 
@@ -2443,9 +2422,9 @@ function prepareCallee(sendInitFlag,comment) {
 
 	console.log("spinner off prepareCallee");
 	divspinnerframe.style.display = "none";
-	if(sendInitFlag) {
-		sendInit("prepareCallee <- "+comment);
-	}
+//	if(sendInitFlag) {
+//		sendInit("prepareCallee <- "+comment);
+//	}
 	getSettings(); // display ownID links
 }
 
@@ -3216,7 +3195,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	divspinnerframe.style.display = "none";
 
 	if(wsConn==null) {
-		showStatus("Offline",-1);
+		showStatus("WebCall server disconnected",-1);
 	}
 
 	msgboxdiv.style.display = "none";
@@ -3335,7 +3314,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 
 	console.log("endWebRtcSession wsConn="+(wsConn!=null)+" dataChl="+isDataChlOpen());
 	if(wsConn==null || !goOnlineAfter) {
-		//showStatus("Offline");	// already done above
+		//showStatus("WebCall server disconnected");	// already done above
 		// also hide ownlink
 		showVisualOffline();
 	} else {
