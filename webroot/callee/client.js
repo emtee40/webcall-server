@@ -185,7 +185,8 @@ function showVideoResolutionRemote() {
 
 function muteMic(flag) {
 	if(!localStream) {
-		console.log("! muteMic "+flag+": no localStream");
+		// no problem: this happens when muteMic() is called in offline mode
+		console.log("muteMic "+flag+": no localStream");
 	} else {
 		const audioTracks = localStream.getAudioTracks();
 		if(!audioTracks[0]) {
@@ -1742,7 +1743,12 @@ function dataChannelOnclose(event) {
 }
 
 function dataChannelOnerror(event) {
-	console.log("# dataChannel.onerror="+event.error+" rtcConnect="+rtcConnect);
+	let errMsg = ""+event.error;
+	if(errMsg.indexOf("Close called")>=0) {
+		console.log("dataChannel closed called rtcConnect="+rtcConnect);
+	} else {
+		console.log("# dataChannel.onerror="+errMsg+" rtcConnect="+rtcConnect);
+	}
 	if(rtcConnect) {
 		// no need to showStatus() anything
 		hangup(true,true,"");
@@ -1868,11 +1874,14 @@ function clearcookie() {
 
 function enableDisableTextchat(force) {
 	if(!force && msgboxdiv.style.display=="block") {
+		// textchat close
 		console.log("textchat close");
 		msgboxdiv.style.display = "none";
 		textbox.style.display = "none";
 		return;
 	}
+
+	// textchat open
 	console.log("textchat open");
 	// hide chat-button
 	// msgbox NOT editable

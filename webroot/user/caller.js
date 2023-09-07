@@ -192,6 +192,7 @@ window.onload = function() {
 		calleeID = cleanStringParameter(id,true);
 	}
 
+	// if caller is started with ?text=true -> check muteMicElement
 	let text = getUrlParams("text");
 	if(typeof text!=="undefined" && text!="" && text!="undefined") {
 		let textArg = cleanStringParameter(text,true);
@@ -1769,6 +1770,8 @@ function notifyConnect(callerName,callerId,callerHost) {
 	goodbyMissedCall = "";
 	// notify calleeID (on behalf of callerId)
 	// NOTE this may take a while bc the server will have to post a direct msg
+
+	// if muteMicElement is checked -> request &text=true
 	var textModeArg = ""
 	if(muteMicElement && muteMicElement.checked) {
 		textModeArg = "&text=true";
@@ -1911,6 +1914,8 @@ function connectSignaling(message,openedFunc) {
 	if(callerHost!="") {
 		wsUrl += "&callerHost="+callerHost;
 	}
+
+	// if muteMicElement is checked -> request &text=true from callee
 	if(muteMicElement && muteMicElement.checked) {
 		wsUrl += "&text=true";
 	}
@@ -2170,13 +2175,15 @@ function signalingCommand(message) {
 				showStatus("Peer does not support textchat",4000);
 			}
 		}
+
+		// callee has accepted our call, if muteMicElement checked -> enable textchat
 		if(muteMicElement.checked) {
 			// we auto-open the textbox bc the caller requested textmode
 			console.log("muteMicElement.checked -> enableDisableTextchat");
 			enableDisableTextchat(true);
 		}
 
-		// mute mode handler
+		// start muteMicElement checked handler to mute/unmute the local mic
 		if(muteMicElement) {
 			muteMicElement.addEventListener('change', function() {
 				muteMic(this.checked);
@@ -2202,6 +2209,8 @@ function signalingCommand(message) {
 			}
 
 			mediaConnect = true;
+
+			// on start of fullConnect: un-mute mic if muteMicElement not checked
 			if(localStream) {
 				if(!muteMicElement || !muteMicElement.checked) {
 					const audioTracks = localStream.getAudioTracks();
@@ -2338,7 +2347,7 @@ function signalingCommand(message) {
 	} else if(cmd=="textmode") {
 		console.log("textmode="+payload);
 		if(payload=="true") {
-			//enableTextChat();
+			// callee is live-requestiong textmode: open Textchat + mute mic
 			enableDisableTextchat(true);
 			// hide chat-button
 			chatButton.style.display = "none";
@@ -2348,6 +2357,10 @@ function signalingCommand(message) {
 				muteMic(true);
 				// remember to turn muteMic off on hangup
 				muteMicModified = true;
+
+				// tell caller about textmode, requested by callee
+				let confirmDialog = "<div style='position:absolute; z-index:110; background:#45dd; color:#fff; padding:18px; line-height:1.4em; border-radius:3px; cursor:pointer; width:80%; max-width:600px; top:10px; left:50%; transform:translate(-50%,0%);'><div style='font-weight:600;'>WebCall TextChat</div><br><div>TextChat was requested by the other side. Your microphone is now muted.<br>You can un-mute and switch to voice telephony at any time.<br><br></div><div style='text-align:center;'><a onclick='history.back();'>OK</a></div></div>";
+				menuDialogOpen(dynDialog,0,confirmDialog);
 			}
 		}
 	} else {

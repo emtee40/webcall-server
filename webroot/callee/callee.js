@@ -2816,7 +2816,7 @@ function pickup2() {
 	setTimeout(function() {
 		if(!mediaConnect && rtcConnect && startWaitPickup4>startPickup) {
 			// abort waiting for pickup4
-			console.log("# pickup2 timer abort waiting for pickup4");
+			console.log("# pickup2 timer abort waiting for pickup4 "+startWaitPickup4);
 			hangup(true,false,"Pickup2 aborted on timeout");
 			return;
 		}
