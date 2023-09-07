@@ -185,7 +185,7 @@ function showVideoResolutionRemote() {
 
 function muteMic(flag) {
 	if(!localStream) {
-		console.log("# muteMic "+flag+": no localStream");
+		console.log("! muteMic "+flag+": no localStream");
 	} else {
 		const audioTracks = localStream.getAudioTracks();
 		if(!audioTracks[0]) {
