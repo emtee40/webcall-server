@@ -1611,8 +1611,10 @@ function signalingCommand(message, comment) {
 		peerCon.setLocalDescription(localDescription).then(() => {
 			console.log('callerAnswer setRemoteDescription');
 			peerCon.setRemoteDescription(callerDescription).then(() => {
-				console.log('callerAnswer setRemoteDescription done');
-				pickup4("cmd=callerAnswer");
+				console.log('callerAnswer setRemoteDescription done, mediaConnect='+mediaConnect);
+				if(!mediaConnect) {
+					pickup4("cmd=callerAnswer");
+				}
 			}, err => {
 				console.warn(`# callerAnswer Failed to set RemoteDescription`,err.message)
 				showStatus("Cannot set remoteDescr "+err.message);
@@ -2287,7 +2289,7 @@ function sendInit(comment) {
 function hangup(mustDisconnect,dummy2,message) {
 	// hide answerButtons, close msgbox, stop buttonBlinking, hide remoteVideo, stopAllAudioEffects(
 	// close the peer connection (the incomming call) via endWebRtcSession()
-	console.log("hangup: "+message);
+	console.log("hangup: '"+message+"' switch="+goOnlineSwitch.checked);
 	// NOTE: not all message strings are suited for users
 	showStatus(message,2000);
 	// expected followup-message "ready to receive calls" from showOnlineReadyMsg()
@@ -2865,7 +2867,7 @@ function pickup4(comment) {
 		}
 
 		// this should never happen
-		console.warn("# pickup4: NO LOCALSTREAM - ABORT PICKUP");
+		console.warn("# pickup4: NO LOCALSTREAM - ABORT PICKUP "+sinceStartPickup);
 		//stopAllAudioEffects("NO LOCALSTREAM ABORT PICKUP");
 		let mustGoOnlineAfter = goOnlineSwitch.checked;
 		endWebRtcSession(true,mustGoOnlineAfter,"NO LOCALSTREAM ABORT PICKUP"); // -> peerConCloseFunc
@@ -3213,7 +3215,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	console.log("spinner off endWebRtcSession");
 	divspinnerframe.style.display = "none";
 
-	if(!wsConn) {
+	if(wsConn==null) {
 		showStatus("Offline",-1);
 	}
 
@@ -3333,7 +3335,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 
 	console.log("endWebRtcSession wsConn="+(wsConn!=null)+" dataChl="+isDataChlOpen());
 	if(wsConn==null || !goOnlineAfter) {
-		showStatus("Offline");
+		//showStatus("Offline");	// already done above
 		// also hide ownlink
 		showVisualOffline();
 	} else {
@@ -3564,6 +3566,8 @@ function wakeGoOnlineNoInit() {
 function clearcookie2() {
 	console.log("clearcookie2 id=("+calleeID+")");
 	containerElement.style.filter = "blur(0.8px) brightness(60%)";
+
+// TODO: is this really needed?
 	goOnlineSwitch.checked = false;
 	goOnlineSwitchChange("clearcookie2");
 
