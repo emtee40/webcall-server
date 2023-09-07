@@ -639,7 +639,7 @@ function goOnlineSwitchChange(comment) {
 		wsConn=null;
 
 		iconContactsElement.style.display = "none";
-		console.log("spinner off goOnlineSwitchChange");
+		//console.log("spinner off goOnlineSwitchChange");
 		divspinnerframe.style.display = "none";
 	}
 }
@@ -790,7 +790,7 @@ function login(retryFlag,comment) {
 			}
 		}
 
-		console.log("spinner off login");
+		//console.log("spinner off login");
 		divspinnerframe.style.display = "none";
 
 		let mainLink = window.location.href;
@@ -877,7 +877,7 @@ function login(retryFlag,comment) {
 			showStatus("xhr error "+err,3000);
 		}
 
-		console.log("spinner off login error");
+		//console.log("spinner off login error");
 		divspinnerframe.style.display = "none";
 
 		waitingCallerSlice = null;
@@ -2275,7 +2275,7 @@ function hangup(mustDisconnect,dummy2,message) {
 	// showOnlineReadyMsg() is called in response to us calling sendInit() and the server responding with "sessionId|"
 	// hangup() -> endWebRtcSession() -> prepareCallee() -> sendInit() ... server "sessionId|" -> showOnlineReadyMsg()
 
-	console.log("spinner off hangup");
+	//console.log("spinner off hangup");
 	divspinnerframe.style.display = "none";
 	answerButtons.style.display = "none";
 	msgboxdiv.style.display = "none";
@@ -2386,7 +2386,7 @@ function prepareCallee(sendInitFlag,comment) {
 			}
 
 			// we are offline and (so far) not connecting
-			console.log("spinner on prepareCallee");
+			//console.log("spinner on prepareCallee");
 			divspinnerframe.style.display = "block";
 
 			if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
@@ -2400,7 +2400,7 @@ function prepareCallee(sendInitFlag,comment) {
 		} else {
 			// no Android service,fall through
 			console.log("prepareCallee no Android service, fall through");
-			console.log("spinner on prepareCallee");
+			//console.log("spinner on prepareCallee");
 			divspinnerframe.style.display = "block";
 		}
 	}
@@ -2420,7 +2420,7 @@ function prepareCallee(sendInitFlag,comment) {
 
 	console.log('prepareCallee have wsConn');
 
-	console.log("spinner off prepareCallee");
+	//console.log("spinner off prepareCallee");
 	divspinnerframe.style.display = "none";
 //	if(sendInitFlag) {
 //		sendInit("prepareCallee <- "+comment);
@@ -2435,7 +2435,7 @@ function newPeerCon(comment) {
 		console.log("newPeerCon("+comment+") new RTCPeerConnection ready");
 	} catch(ex) {
 		console.error("# newPeerCon("+comment+") RTCPeerConnection "+ex.message);
-		console.log("spinner off newPeerCon ex");
+		//console.log("spinner off newPeerCon ex");
 		divspinnerframe.style.display = "none";
 
 		// wrong: we need to make callee go offline, bc without a peerCon, it makes no sense to stay online
@@ -2753,7 +2753,7 @@ function pickup() {
 	answerButton.style.border = "1.2px solid #ccc";
 	answerButton.disabled = true;
 
-	console.log("spinner om pickup");
+	//console.log("spinner om pickup");
 	divspinnerframe.style.display = "block";
 
 	pickupAfterLocalStream = true; // getStream() -> gotStream() -> gotStream2() -> pickup2()
@@ -2787,7 +2787,7 @@ function pickup2() {
 	// here we add remoteStream, which should trigger onnegotiationneeded, createOffer, callerAnswer and pickup4()
 	if(!localStream) {
 		console.warn("# pickup2 no localStream");
-		console.log("spinner off pickup2 no localStrean");
+		//console.log("spinner off pickup2 no localStrean");
 		divspinnerframe.style.display = "none";
 		stopAllAudioEffects("pickup2 no localStream");
 		return;
@@ -2862,7 +2862,7 @@ function pickup4(comment) {
 	// android webview does this in 800-900ms
 
 	// end busy bee
-	console.log("spinner off pickup4");
+	//console.log("spinner off pickup4");
 	divspinnerframe.style.display = "none";
 
 	// this will make the caller unmute our mic on their side
@@ -3191,7 +3191,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	}
 	buttonBlinking = false;
 	answerButtons.style.display = "none";
-	console.log("spinner off endWebRtcSession");
+	//console.log("spinner off endWebRtcSession");
 	divspinnerframe.style.display = "none";
 
 	if(wsConn==null) {
@@ -3523,7 +3523,7 @@ function wakeGoOnline() {
 	wsOnOpen(); // green led
 	prepareCallee(true,"wakeGoOnline");   // wsSend("init|!")
 
-	console.log("spinner off wakeGoOnline");
+	//console.log("spinner off wakeGoOnline");
 	divspinnerframe.style.display = "none";
 	gLog("wakeGoOnline done");
 }
@@ -3537,7 +3537,7 @@ function wakeGoOnlineNoInit() {
 	wsOnOpen(); // green led
 	prepareCallee(false,"wakeGoOnlineNoInit");  // do NOT wsSend("init|!")
 
-	console.log("spinner off wakeGoOnlineNoInit");
+	//console.log("spinner off wakeGoOnlineNoInit");
 	divspinnerframe.style.display = "none";
 	gLog("wakeGoOnlineNoInit done");
 }
