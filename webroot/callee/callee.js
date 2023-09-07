@@ -2776,7 +2776,7 @@ function pickup() {
 		// if pickup() was called again, startPickup would be > startWaitPickup (our old copy)
 		if(pickupAfterLocalStream && rtcConnect && !mediaConnect && startWaitPickup>=startPickup) {
 			// abort waiting for pickup2 to be called
-			console.log("# pickup timer ended, abort waiting for pickup2 (no gotstream)");
+			console.log("# pickup timer ended (no gotstream) "+startWaitPickup+" "+startPickup);
 			hangup(true,false,"Pickup aborted on timeout");
 			return;
 		}
