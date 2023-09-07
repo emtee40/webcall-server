@@ -301,7 +301,7 @@ function prepareSettings(xhrresponse) {
 			                  "<tr><td>WebView:</td><td>"+Android.webviewVersion()+"</td></tr></table>";
 		}
 		if(clientVersion >= "4.0.0" && Android.getVersionName() < "1.4.8") {
-			displayVersion += "<br>Please upgrade to <a href='/webcall/update/'>WebCall for Android v1.4.8+</a>";
+			displayVersion += "<br>Please upgrade to:<br><a href='/webcall/update/'>WebCall for Android v1.4.8+</a>";
 		}
 	} else {
 		// running in browser
