@@ -563,7 +563,7 @@ function goOnlineSwitchChange(comment) {
 		// goOnline
 		if(wsConn!=null) {
 			console.log('! goOnlineSwitchChange goOnline(), but wsConn!=null');
-			return;
+//			return;
 		}
 		console.log('goOnlineSwitchChange goOnline()');
 		if(comment=="user button" || comment=="service") {
@@ -586,7 +586,7 @@ function goOnlineSwitchChange(comment) {
 		// goOffline
 		if(wsConn==null) {
 			console.log('! goOnlineSwitchChange ->off but wsConn is already null');
-			return;
+//			return;
 		}
 
 		/*
@@ -613,7 +613,7 @@ function goOnlineSwitchChange(comment) {
 
 //		if(!peerCon || peerCon.iceConnectionState=="closed") {
 //		if(!peerCon || !mediaConnect) {
-		if(!mediaConnect && !rtcConnect) {
+		if(!mediaConnect /*&& !rtcConnect*/) {
 			// we are not peer connected, so we can create server-related status msgs
 			showStatus("Offline");
 		}
