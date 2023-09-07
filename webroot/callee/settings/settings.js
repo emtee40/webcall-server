@@ -291,17 +291,17 @@ function prepareSettings(xhrresponse) {
 
 	if(typeof Android !== "undefined" && Android !== null) {
 		// running on Android
-		displayVersion += "<table>";
+		displayVersion += "<table style='line-height:1.2em;'>";
 		displayVersion += "<tr><td style='padding: 0 20px 0 0'>WebCall for Android:</td><td>"+Android.getVersionName()+"</td></tr>";
 
 		if(clientVersion >= "4.0.0" && Android.getVersionName() < "1.4.8") {
-			displayVersion += "<tr><td>Suggested upgrade:</td><td><a href='/webcall/update/'>v1.4.8+</a></td></tr>";
+			displayVersion += "<tr><td>Suggested upgrade:</td><td><a href='/webcall/update/'>1.4.8</a></td></tr>";
 		}
 
 		if(calleeVersion!=clientVersion) {
 			displayVersion += "<tr><td>WebCall Core current:</td><td>"+calleeVersion+"</td></tr>"+
-				              "<tr><td>WebCall Core online:</td><td>"+clientVersion+"</td></tr></table>"+
-				              "To update: <a href='' onclick='clearcache()'>Clear cache</a>";
+				              "<tr><td>WebCall Core online:</td><td>"+clientVersion+"</td></tr>"+
+		              "<tr><td>To update:</td><td><a href='' onclick='clearcache()'>Clear cache</a></td></tr></table>";
 		} else {
 			displayVersion += "<tr><td>WebCall Core:</td><td>"+clientVersion+"</td></tr>"+
 			                  "<tr><td>WebView:</td><td>"+Android.webviewVersion()+"</td></tr></table>";
@@ -311,8 +311,9 @@ function prepareSettings(xhrresponse) {
 		if(calleeVersion!=clientVersion) {
 			displayVersion = "<table><tr><td style='padding: 0 20px 0 0'>"+
 			                 "Current version:</td><td>"+calleeVersion+"</td></tr>"+
-			                 "<tr><td>Online version:</td><td>"+clientVersion+"</td></tr></table>"+
-			                 "To update: <a href='/webcall/more/#updatecallee' target='_blank'>Clear cache + reload</a>";
+			                 "<tr><td>Online version:</td><td>"+clientVersion+"</td></tr>"+
+			"<tr><td>To update:</td>"+
+        		"<td><a href='/webcall/more/#updatecallee' target='_blank'>reload page</a></td></tr></table>";
 		} else {
 			displayVersion = "WebCall: "+clientVersion;
 		}
