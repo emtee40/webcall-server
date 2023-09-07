@@ -291,10 +291,13 @@ function prepareSettings(xhrresponse) {
 
 	if(typeof Android !== "undefined" && Android !== null) {
 		// running on Android
+		displayVersion += "<table>";
+		displayVersion += "<tr><td style='padding: 0 20px 0 0'>WebCall for Android:</td><td>"+Android.getVersionName()+"</td></tr>";
+
 		if(clientVersion >= "4.0.0" && Android.getVersionName() < "1.4.8") {
-			displayVersion += "Please upgrade to:<br><a href='/webcall/update/'>WebCall for Android v1.4.8+</a><br>";
+			displayVersion += "<tr><td colspan='2'>Suggested upgrade:<br><a href='/webcall/update/'>WebCall for Android v1.4.8+</td></tr>";
 		}
-		displayVersion += "<table><tr><td style='padding: 0 20px 0 0'>WebCall for Android:</td><td>"+Android.getVersionName()+"</td></tr>";
+
 		if(calleeVersion!=clientVersion) {
 			displayVersion += "<tr><td>WebCall Core current:</td><td>"+calleeVersion+"</td></tr>"+
 				              "<tr><td>WebCall Core online:</td><td>"+clientVersion+"</td></tr></table>"+
