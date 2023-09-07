@@ -291,7 +291,7 @@ function prepareSettings(xhrresponse) {
 
 	if(typeof Android !== "undefined" && Android !== null) {
 		// running on Android
-		displayVersion += "<table style='line-height:1.3em;'>";
+		displayVersion += "<table style='line-height:1.2em;'>";
 		displayVersion += "<tr><td style='padding: 0 10px 0 0'>WebCall for Android:</td><td>"+Android.getVersionName()+"</td></tr>";
 
 		if(clientVersion >= "4.0.0" && Android.getVersionName() < "1.4.8") {
@@ -310,7 +310,7 @@ function prepareSettings(xhrresponse) {
 	} else {
 		// running in browser
 		if(calleeVersion!=clientVersion) {
-			displayVersion = "<table style='line-height:1.3em;'>"+
+			displayVersion = "<table style='line-height:1.2em;'>"+
 							 "<tr><td style='padding: 0 10px 0 0'>Current version:</td><td>"+calleeVersion+"</td></tr>"+
 			                 "<tr><td>Online version:</td><td>"+clientVersion+"</td></tr>"+
 					"<tr><td>To upgrade:</td>"+
