@@ -236,7 +236,7 @@ window.onload = function() {
 
 	isHiddenCheckbox.addEventListener('change', function() {
 		if(this.checked) {
-			gLog("isHiddenCheckbox checked");
+			gLog("hidden checked");
 			autoanswerCheckbox.checked = false;
 		}
 		wsSend("calleeHidden|"+this.checked);
@@ -1308,7 +1308,7 @@ function showOnlineReadyMsg() {
 				// calleeConnected() does 2 things:
 				// 1. postStatus("state","connected");
 				// 2. statusMessage(readyToReceiveCallsString,-1,true,false);
-				return;
+				//return;
 			}
 		}
 
