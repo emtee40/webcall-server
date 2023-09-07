@@ -2421,12 +2421,12 @@ function prepareCallee(sendInitFlag,comment) {
 	}
 
 	console.log('prepareCallee have wsConn');
-
 	//console.log("spinner off prepareCallee");
 	divspinnerframe.style.display = "none";
-//	if(sendInitFlag) {
-//		sendInit("prepareCallee <- "+comment);
-//	}
+	if(sendInitFlag) {
+		// will cause sessionId
+		sendInit("prepareCallee <- "+comment);
+	}
 	getSettings(); // display ownID links
 }
 
@@ -2748,7 +2748,7 @@ function pickup() {
 	// to pickup the incoming call, user has clicked the answer button, or the 3-button Notification dialog
 	// we call getStream() to get localStream, once avail pickup2() is called
 	startPickup = Date.now();
-	console.log("pickup -> open mic, startPickup=",startPickup);
+	console.log("pickup -> open mic, startPickup="+startPickup);
 
 	buttonBlinking = false;
 	answerButton.style.background = "#0000"; // .mainbutton background-color
@@ -2767,8 +2767,8 @@ function pickup() {
 // TODO not sure about this timeout function
 // if user must be asked for mic permission, that could take much longer than 1500ms
 	// pickup timer: in case getStream does NOT call pickup2() within a max duration -> hangup()
-	console.log("pickup waiting for pickup2...");
 	let startWaitPickup = Date.now();
+	console.log("pickup waiting for pickup2... "+startWaitPickup+" "+startPickup);
 	setTimeout(function() {
 		// if gotStream2() was called, pickupAfterLocalStream would be cleared
 		// if endWebRtcSession() was called rtcConnect would be false
