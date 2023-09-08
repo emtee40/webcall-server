@@ -13,7 +13,7 @@ window.onload = function() {
 	let id = getUrlParams("id");
 	if(typeof id!=="undefined" && id!="") {
 		urlId = id;
-		console.log('onload urlId='+urlId);
+		console.log('contacts onload urlId='+urlId);
 	}
 	if(document.cookie!="" && document.cookie.startsWith("webcallid=")) {
 		// cookie webcallid exists
@@ -179,8 +179,7 @@ function processContacts(xhrresponse) {
 			if(parts[1]!="") {
 				idOnly = idOnly+"@"+parts[1];
 			}
-			console.log("id="+id+" idOnly="+idOnly+" callerHost="+callerHost+
-						" location.host="+location.host);
+			//console.log("id="+id+" idOnly="+idOnly+" callerHost="+callerHost+" location.host="+location.host);
 			let idDisplay = id;
 			if(callerHost==location.host) {
 				idDisplay = idOnly;

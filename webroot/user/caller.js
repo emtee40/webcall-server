@@ -1662,12 +1662,12 @@ function goodby() {
 }
 
 function confirmNotifyConnect() {
-	console.log("confirmNotifyConnect callerName="+callerName+" callerId="+callerId+" callerHost="+callerHost);
+	//console.log("confirmNotifyConnect callerName="+callerName+" callerId="+callerId+" callerHost="+callerHost);
 	notifyConnect(callerName,callerId,location.host);
 }
 
 function submitFormDone(idx) {
-	console.log("submitFormDone() idx="+idx+" callerName="+callerName);
+	//console.log("submitFormDone() idx="+idx+" callerName="+callerName);
 	if(idx==1) {
 		// DialID: switch back to default container
 		calleeID = cleanStringParameter(enterIdValElement.value,true); // remove all white spaces
@@ -1695,13 +1695,12 @@ function submitFormDone(idx) {
 			let callUrl = "https://"+cleanStringParameter(enterDomainValElement.value,true)+"/user/"+calleeID+
 				"?callerId="+callerId + "&callerName="+callerName + "&callerHost="+callerHost +
 				"&contactName="+contactName+"&i="+randId;
-			console.log("submitFormDone callUrl("+callUrl+")");
 			if(playDialSounds==false) {
 				callUrl += "&ds=false";
 			}
 			var openOK = false;
 			try {
-				console.log("submitFormDone window.open "+callUrl);
+				//console.log("submitFormDone window.open "+callUrl);
 				// in WebCallAndroid: callUrl being opened will trigger onNewIntent()
 				openOK = window.open(callUrl, "");
 			} catch(e) {
@@ -1731,13 +1730,12 @@ function submitFormDone(idx) {
 			// the callee to call is hosted on the same server
 			enterIdElement.style.display = "none";
 			containerElement.style.display = "block";
-console.log("submitFormDone -> onload2 callerName="+callerName);
 			onload2();
 		}
 	} else if(idx==2) {
 		// get TextChat-msg from enterTextElement and send it via dataChannel
 		let text = cleanStringParameter(enterTextElement.value,false);
-		console.log("submitText text="+text);
+		//console.log("submitText text="+text);
 		if(dataChannel) {
 			dataChannel.send("msg|"+text);
 			// add text to msgbox
