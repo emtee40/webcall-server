@@ -727,9 +727,6 @@ function login(retryFlag,comment) {
 			// hide the form
 			form.style.display = "none";
 
-			// show muteMic checkbox
-//			muteMicDiv.style.display = "block";
-
 			if(parts.length>=2) {
 				talkSecs = parseInt(parts[1], 10);
 			}
@@ -873,7 +870,7 @@ function login(retryFlag,comment) {
 
 	}, function(errString,err) {
 		// errorFkt
-		console.log("# xhr error "+errString+" "+err);
+		console.log("# login xhr error "+errString+" "+err);
 		if(err==502 || errString.startsWith("fetch")) {
 			showStatus("No response from server",-1);
 		} else {
@@ -896,7 +893,7 @@ function login(retryFlag,comment) {
 		if(retryFlag) {
 			setTimeout(function() {
 				let delay = autoReconnectDelay + Math.floor(Math.random() * 10) - 5;
-				gLog('reconnecting in '+delay);
+				console.log('reconnecting in '+delay);
 				showStatus("Reconnecting...",-1);
 				missedCallsTitleElement.style.display = "none";
 				missedCallsElement.style.display = "none";
