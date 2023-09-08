@@ -137,7 +137,7 @@ function processContacts(xhrresponse) {
 		}
 		return 0;
 	});
-	//gLog('sorted results',entries);
+	console.log("===sorted results",entries);
 
 	// create display table
 	let remoteCallerIdMaxChar = 16;
@@ -150,14 +150,16 @@ function processContacts(xhrresponse) {
 	for(let entry of entries) {
 		let id = entry[0]; // just a local id, or id@host
 		let entry1 = entry[1];
+		console.log("===entry1="+entry1);
 
 		let tok = entry1.split("|");
 		let name = "none";
 		if(tok.length>0) name = tok[0]
 		let prefCallbackId = "";
-		if(tok.length>1) prefCallbackId = tok[1]
+		if(tok.length>1) prefCallbackId = tok[1];
 		let ourNickname = "";
-		if(tok.length>2) ourNickname = tok[2]
+		if(tok.length>2 && tok[2]!="true") ourNickname = tok[2];
+		console.log("===ourNickname="+ourNickname);
 
 		// left column: Name (edit)
 		dataBoxContent += "<tr><td><a onclick='edit(this,event,\""+id+"\",\""+name+"\")'>"+name+"</a></td>";
@@ -195,6 +197,7 @@ function processContacts(xhrresponse) {
 			if(ourNickname!="") {
 				if(args=="") args = "?callerName="+ourNickname;
 				else args += "&callerName="+ourNickname;
+				console.log("===ourNickname="+ourNickname+" args="+args);
 			}
 			if(dialsounds=="false") {
 				if(args=="") args = "?ds=false";

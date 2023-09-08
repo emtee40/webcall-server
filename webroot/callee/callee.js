@@ -563,8 +563,9 @@ function goOnlineSwitchChange(comment) {
 		// goOnline
 		if(wsConn!=null) {
 			console.log('! goOnlineSwitchChange goOnline(), but wsConn!=null');
+		} else {
+			console.log('goOnlineSwitchChange goOnline()');
 		}
-		console.log('goOnlineSwitchChange goOnline()');
 		if(comment=="user button" || comment=="service") {
 			// we need to add to window.location: "?auto=1" if it does not yet exist
 			let mySearch = window.location.search;
@@ -972,7 +973,7 @@ function getSettings() {
 				return;
 			}
 			let altIDs = xhr.responseText;
-			console.log("getsettings /getmapping altIDs="+altIDs);
+			//console.log("getsettings /getmapping altIDs="+altIDs);
 			if(altIDs!="") {
 				// parse altIDs, format: id,true,assign|id,true,assign|...
 				let tok = altIDs.split("|");
@@ -1013,7 +1014,7 @@ function getSettings() {
 	}, function(errString,errcode) {
 		// NOTE: errString=='timeout' may occur when the devive wakes from sleep
 		// this is why it uses gLog() instead of console.log()
-		gLog("# getsettings xhr error "+errString+" "+errcode);
+		console.log("# getsettings xhr error "+errString+" "+errcode);
 		getSettingDone();
 	});
 }
@@ -1193,16 +1194,17 @@ function showVisualOffline(comment) {
 
 function gotStream2() {
 	// we got the mic
-	// NOTE: this'if' used to be located after the Android check
-	if(pickupAfterLocalStream) {
-		console.log("gotStream2 -> pickupAfterLocalStream pickup2()");
+	// NOTE: this 'if' used to be located after the Android check
+	if(pickupAfterLocalStream) { // set by pickup()
+		// we got the mic while we are in the process of picking up an incoming call
+		console.log("gotStream2 -> pickup2()");
 		pickupAfterLocalStream = false;
 		pickup2();
 		return;
 	}
 
+	// we got the mic while we are getting ready to wait for incoming calls
 	console.log("gotStream2 goOnlineSwitch.checked="+goOnlineSwitch.checked);
-
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.calleeReady !== "undefined" && Android.calleeReady !== null) {
 			// service v1.1.5
@@ -1228,7 +1230,7 @@ function gotStream2() {
 		localStream = null;
 	}
 
-// TODO what does rtcConnect have to do with this?
+	// TODO what does rtcConnect have to do with this?
 	if(onGotStreamGoOnline /*&& !rtcConnect*/) {
 		// we start prepareCallee() bc auto=1 has set onGotStreamGoOnline in onLoad
 		// NOTE this works only for Android clients (and will not be enabled for pure browsing mode)
@@ -1247,18 +1249,18 @@ function gotStream2() {
 			prepareCallee(true,"gotStream2");
 		}
 	} else {
-		console.log("gotStream2 onGotStreamGoOnline="+onGotStreamGoOnline+" rtcConnect="+rtcConnect);
+		//console.log("gotStream2 onGotStreamGoOnline="+onGotStreamGoOnline+" rtcConnect="+rtcConnect);
 		if(wsConn==null) {
 			// we are offline, this usually occurs onload in pure browser mode
-			console.log("gotStream2 wsConn==null, stay offline, no sendInit, standby");
+			console.log("gotStream2 wsConn==null, stay offline, no sendInit");
 			showStatus("WebCall server disconnected",-1);
 		} else {
-			console.log("gotStream2 wsConn!=null, turn goOnlineSwitch ON, sendInit, standby");
+			console.log("gotStream2 wsConn!=null, goOnlineSwitch ON, sendInit");
 			// we are connected to server already
 			goOnlineSwitch.checked = true;
+			goOnlineSwitchChange("gotStream2 onGotStreamGoOnline");
 			// send init to request list of missedCalls
-			console.log("gotStream2 wsConn!=null, sendInit, standby");
-			sendInit("gotStream2 standby");
+			//sendInit("gotStream2");
 		}
 	}
 }
@@ -2775,9 +2777,9 @@ function pickup() {
 		// if pickup4() was called, mediaConnect would be set
 		// if pickup() was called again, startPickup would be > startWaitPickup (our old copy)
 		if(pickupAfterLocalStream && rtcConnect && !mediaConnect && startWaitPickup>=startPickup) {
-			// abort waiting for pickup2 to be called
-			console.log("# pickup timer ended (no gotstream) "+startWaitPickup+" "+startPickup);
-			hangup(true,false,"Pickup aborted on timeout");
+			// gotStream() -> gotStream2() -> pickup2() didn't happen
+			console.log("# pickup timeout (no gotstream) "+startWaitPickup+" "+startPickup);
+			hangup(true,false,"pickup timeout (no microphone)");
 			return;
 		}
 		// all is well, no action needed
@@ -2811,19 +2813,19 @@ function pickup2() {
 		console.log("# pickup2 no remoteStream");
 	}
 	console.log("pickup2 waiting for pickup4...");
-
-// TODO not sure this is really needed
+/*
 	// timer: if pickup4() is NOT called within a max duration -> hangup()
 	let startWaitPickup4 = Date.now();
 	setTimeout(function() {
 		if(!mediaConnect && rtcConnect && startWaitPickup4>startPickup) {
 			// abort waiting for pickup4
-			console.log("# pickup2 timer abort waiting for pickup4 "+startWaitPickup4);
-			hangup(true,false,"Pickup2 aborted on timeout");
+			console.log("# pickup timout (no mediaConnect) "+startWaitPickup4);
+			hangup(true,false,"pickup timeout (no mediaConnect)");
 			return;
 		}
 		// all is well, no action needed
 	},3500);
+*/
 }
 
 function pickup4(comment) {

@@ -157,7 +157,7 @@ function languageDefaults() {
 }
 
 window.onload = function() {
-	gLog("caller onload");
+	console.log("caller onload");
 	switchLanguage(navigator.language || navigator.userLanguage);
 	languageDefaults();
 
@@ -315,10 +315,12 @@ window.onload = function() {
 	// showMissedCalls hands over the default webcall nickname with this
 	callerName = "";
 	str = getUrlParams("callerName");
-	if(typeof str!=="undefined" && str!==null && str!=="" && str!="undefined" && str!=="null") {
+	if(typeof str!=="undefined" && str!=null && str!="" && str!="undefined" && str!="null") {
 		// this urlArg has a low priority
 		// will be overwritten by the contacts-entry for enterIdValElement.value (calleeID)
 		callerName = cleanStringParameter(str,true,"c1");
+		console.log("onload getUrlParams str=("+str+") callerName=("+callerName+") window.location.search=("+
+			window.location.search+")");
 	}
 
 	callerHost = location.host;
@@ -339,7 +341,7 @@ window.onload = function() {
 		contactName = cleanStringParameter(str,true,"c1");
 	}
 
-	gLog("onload urlParam callerId=("+callerId+") callerHost=("+callerHost+")"+
+	console.log("onload urlParam callerId=("+callerId+") callerHost=("+callerHost+")"+
 		 " callerName=("+callerName+") contactName=("+contactName+")");
 
 	cookieName = "";
@@ -411,7 +413,7 @@ window.onload = function() {
 					callerName = serverSettings.nickname; // user can modify this in UI
 
 					if(!calleeID.startsWith("answie") && !calleeID.startsWith("talkback")) {
-						console.log("set nickname form with callerName="+callerName);
+						console.log("onload set nickname form with callerName="+callerName);
 						let nicknameDivElement = document.getElementById("nicknameDiv");
 						let nicknameElement = document.getElementById("nickname");
 						if(nicknameElement) {
@@ -423,7 +425,7 @@ window.onload = function() {
 				}
 			}
 
-			gLog("onload callerId=("+callerId+") callerName=("+callerName+") from /getsettings");
+			console.log("onload callerId=("+callerId+") callerName=("+callerName+") from /getsettings");
 
 		}, function(errString,err) {
 			console.log("# onload xhr error "+errString+" "+err);
@@ -436,7 +438,7 @@ window.onload = function() {
 	// show dial-id dialog
 	// - if calleeID=="": called by dialpad icon from mainpage
 	// - if callerIdArg=="select": called by android client as a 1st step before calling a remote host user
-	gLog("onload show dial-id calleeID="+calleeID+" callerIdArg="+callerIdArg);
+	console.log("onload show dial-id calleeID="+calleeID+" callerIdArg="+callerIdArg);
 	if(calleeID=="" || callerIdArg=="select") {
 		containerElement.style.display = "none";
 		enterIdElement.style.display = "block";
@@ -652,7 +654,7 @@ function getContact(contactID) {
 					// will be shown (and can be edited) in final call-widget
 
 					if(!calleeID.startsWith("answie") && !calleeID.startsWith("talkback")) {
-						gLog("set nickname form with callerName="+callerName);
+						console.log("getContact set nickname form with callerName="+callerName);
 						let nicknameDivElement = document.getElementById("nicknameDiv");
 						let nicknameElement = document.getElementById("nickname");
 						nicknameElement.value = callerName;
@@ -684,7 +686,7 @@ function changeId(selectObject) {
 }
 
 function onload2() {
-	gLog("onload2");
+	console.log("onload2");
 	haveBeenWaitingForCalleeOnline=false;
 	altIdCount = 0;
 	checkServerMode(function(mode,msgString) {
@@ -695,7 +697,7 @@ function onload2() {
 
 			// enable nickname form (if not calling answie or talkback)
 			if(!calleeID.startsWith("answie") && !calleeID.startsWith("talkback")) {
-				console.log("set nickname with callerName="+callerName);
+				console.log("onload2 set nickname with callerName="+callerName);
 				let nicknameDivElement = document.getElementById("nicknameDiv");
 				let nicknameElement = document.getElementById("nickname");
 				nicknameElement.value = callerName;
@@ -1383,7 +1385,7 @@ function calleeOnlineAction(comment) {
 					msgbox.placeholder = placeholderText;
 					placeholderText = "";
 				}
-				gLog('callerName='+callerName);
+				console.log("calleeOnlineAction callerName="+callerName);
 				msgbox.onfocus = function() {
 					placeholderText = msgbox.placeholder;
 					msgbox.placeholder = "";
@@ -1661,12 +1663,12 @@ function goodby() {
 }
 
 function confirmNotifyConnect() {
-	gLog("callerName="+callerName+" callerId="+callerId+" callerHost="+callerHost);
+	console.log("confirmNotifyConnect callerName="+callerName+" callerId="+callerId+" callerHost="+callerHost);
 	notifyConnect(callerName,callerId,location.host);
 }
 
 function submitFormDone(idx) {
-	console.log("submitFormDone() idx="+idx);
+	console.log("submitFormDone() idx="+idx+" callerName="+callerName);
 	if(idx==1) {
 		// DialID: switch back to default container
 		calleeID = cleanStringParameter(enterIdValElement.value,true); // remove all white spaces
@@ -1694,12 +1696,13 @@ function submitFormDone(idx) {
 			let callUrl = "https://"+cleanStringParameter(enterDomainValElement.value,true)+"/user/"+calleeID+
 				"?callerId="+callerId + "&callerName="+callerName + "&callerHost="+callerHost +
 				"&contactName="+contactName+"&i="+randId;
+			console.log("submitFormDone callUrl("+callUrl+")");
 			if(playDialSounds==false) {
 				callUrl += "&ds=false";
 			}
 			var openOK = false;
 			try {
-				//console.log("submitFormDone window.open "+callUrl);
+				console.log("submitFormDone window.open "+callUrl);
 				// in WebCallAndroid: callUrl being opened will trigger onNewIntent()
 				openOK = window.open(callUrl, "");
 			} catch(e) {
@@ -1729,6 +1732,7 @@ function submitFormDone(idx) {
 			// the callee to call is hosted on the same server
 			enterIdElement.style.display = "none";
 			containerElement.style.display = "block";
+console.log("submitFormDone -> onload2 callerName="+callerName);
 			onload2();
 		}
 	} else if(idx==2) {
