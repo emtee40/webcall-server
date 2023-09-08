@@ -105,7 +105,7 @@ window.onload = function() {
 	fileSelectInit();
 	window.onhashchange = hashchange;
 
-	let dbg = getUrlParams("dbg");
+	let dbg = getUrlParams("dbg",true);
 	if(typeof dbg!=="undefined" && dbg!="" && dbg!="undefined") {
 		gentle = false;
 	}
@@ -172,7 +172,7 @@ window.onload = function() {
 	menuClearCookieElement.style.display = "block";
 
 	// if set will auto-login as callee
-	let auto = cleanStringParameter(getUrlParams("auto"),true,"auto");
+	let auto = cleanStringParameter(getUrlParams("auto",true),true,"auto");
 	if(auto) {
 		console.log("onload auto is set ("+auto+")");
 		// auto will cause onGotStreamGoOnline to be set below (for Android client only)

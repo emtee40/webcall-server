@@ -44,7 +44,7 @@ window.onload = function() {
 		return;
 	}
 
-	dialsounds = getUrlParams("ds");
+	dialsounds = getUrlParams("ds",true);
 	gLog('contacts onload calleeID='+calleeID+' dialsounds='+dialsounds);
 
 	hashcounter = 1;

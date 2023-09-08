@@ -1800,7 +1800,7 @@ function onkeydownFunc(evt) {
 	}
 }
 
-function getUrlParams(param) {
+function getUrlParams(param,truefalse) {
 	if(window.location.search!="") {
 		// skip questionmark
 		var query = window.location.search.substring(1);
@@ -1810,10 +1810,14 @@ function getUrlParams(param) {
 			if(seg[0] == param) {
 				if(typeof seg[1]!=="undefined" && seg[1]!="" && seg[1]!="null") {
 					let ret = decodeURIComponent(seg[1]);
-					//console.log("getUrlParams1 seg[1]="+seg[1]+" ret="+ret);
+console.log("getUrlParams1 seg[1]="+seg[1]+" ret="+ret);
 					return ret;
 				}
-				return "true";
+				if(typeof truefalse!=="undefined" && truefalse) {
+console.log("getUrlParams truefalse seg[1]="+seg[1]+" ret=TRUE");
+					return "true";
+				}
+				return "";
 			}
 		}
 	}

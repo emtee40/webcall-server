@@ -181,7 +181,7 @@ window.onload = function() {
 		return;
 	}
 
-	let dbg = getUrlParams("dbg");
+	let dbg = getUrlParams("dbg",true);
 	if(typeof dbg!=="undefined" && dbg!="" && dbg!="undefined") {
 		gentle = false;
 		console.log("dbgmode on");
@@ -206,7 +206,7 @@ window.onload = function() {
 	}
 
 	playDialSounds = true;
-	let ds = getUrlParams("ds");
+	let ds = getUrlParams("ds",true);
 	if(typeof ds!=="undefined" && ds!="" && ds!="undefined") {
 		if(ds=="false") {
 			playDialSounds = false;
@@ -314,8 +314,8 @@ window.onload = function() {
 
 	// showMissedCalls hands over the default webcall nickname with this
 	callerName = "";
-	str = getUrlParams("callerName");
-	if(typeof str!=="undefined" && str!=null && str!="" && str!="undefined" && str!="null") {
+	str = getUrlParams("callerName"); // window.location.search
+	if(typeof str!=="undefined" && str!=null && str!="" && str!="undefined" && str!="null" && str!="true") {
 		// this urlArg has a low priority
 		// will be overwritten by the contacts-entry for enterIdValElement.value (calleeID)
 		callerName = cleanStringParameter(str,true,"c1");
