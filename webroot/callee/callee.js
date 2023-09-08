@@ -1197,7 +1197,7 @@ function gotStream2() {
 	// NOTE: this 'if' used to be located after the Android check
 	if(pickupAfterLocalStream) { // set by pickup()
 		// we got the mic while we are in the process of picking up an incoming call
-		console.log("gotStream2 -> pickup2()");
+		console.log("gotStream2 -> pickup2() wsConn="+(wsConn!=null)+" switch="+goOnlineSwitch.checked)
 		pickupAfterLocalStream = false;
 		pickup2();
 		return;
@@ -2797,7 +2797,8 @@ function pickup2() {
 		return;
 	}
 
-	console.log("pickup2 gotStream "+(Date.now() - startPickup));
+	console.log("pickup2 gotStream "+(Date.now() - startPickup)+
+		" wsConn="+(wsConn!=null)+" switch="+goOnlineSwitch.checked);
 	// stop the ringing
 	//stopAllAudioEffects("pickup2");
 
@@ -2861,7 +2862,8 @@ function pickup4(comment) {
 
 	// full connect
 	mediaConnect = true;
-	console.log("pickup4 - mediaConnect ---------- "+comment+" "+(Date.now() - startPickup));
+	console.log("pickup4 - mediaConnect ---------- "+comment+" "+(Date.now() - startPickup)+
+		" wsConn="+(wsConn!=null)+" switch="+goOnlineSwitch.checked);
 	// desktop browser does this in 80-160ms
 	// android webview does this in 800-900ms
 
