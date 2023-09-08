@@ -1358,6 +1358,10 @@ function connectToWsServer(message,comment) {
 		//  service -> wsCli=connectHost(wsUrl) -> onOpen() -> runJS("wsOnOpen()",null) -> wsSendMessage("init|!")
 		// if service IS already connected:
 		//  service -> if activityWasDiscarded -> wakeGoOnlineNoInit()
+		if(wsConn!=null) {
+			//must turn on the switch
+			goOnline("user button");
+		}
 
 	} else {
 		if(!window["WebSocket"]) {
@@ -1386,7 +1390,7 @@ function wsOnOpen() {
 	tryingToOpenWebSocket = false;
 	// abort a possibly automatic/delayed reconnect process
 	wsAutoReconnecting = false;
-
+	
 	// we got a server connection; this should only take place if goOnlineSwitch was turned on before
 	// so it should be no harm to call goOnlne() and turn it on once more
 	// however, bc wsConn!=null the call to goOnlineSwitchChange() will be aborted
