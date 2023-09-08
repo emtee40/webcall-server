@@ -3543,6 +3543,15 @@ function wakeGoOnlineNoInit() {
 	wsOnOpen(); // green led
 	prepareCallee(false,"wakeGoOnlineNoInit");  // do NOT wsSend("init|!")
 
+	// if Android version < 1.4.8 -> showOnlineReadyMsg() (otherwise "Connecting..." may stick)
+	if(typeof Android !== "undefined" && Android !== null) {
+		if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
+			if(Android.getVersionName() < "1.4.8") {
+				showOnlineReadyMsg();
+			}
+		}
+	}
+
 	//console.log("spinner off wakeGoOnlineNoInit");
 	divspinnerframe.style.display = "none";
 	gLog("wakeGoOnlineNoInit done");
