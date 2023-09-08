@@ -157,7 +157,7 @@ function languageDefaults() {
 }
 
 window.onload = function() {
-	console.log("caller onload");
+	//console.log("caller onload");
 	switchLanguage(navigator.language || navigator.userLanguage);
 	languageDefaults();
 
@@ -319,8 +319,7 @@ window.onload = function() {
 		// this urlArg has a low priority
 		// will be overwritten by the contacts-entry for enterIdValElement.value (calleeID)
 		callerName = cleanStringParameter(str,true,"c1");
-		console.log("onload getUrlParams str=("+str+") callerName=("+callerName+") window.location.search=("+
-			window.location.search+")");
+		console.log("onload getUrlParams str=("+str+") callerName=("+callerName+")");
 	}
 
 	callerHost = location.host;

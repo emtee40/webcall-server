@@ -38,7 +38,7 @@ window.onload = function() {
 	}
 	if(calleeID!=urlId) {
 		// urlId is our 'real' calleeID, but an external cookie change brought a new calleeID
-		console.log('onload wrong cookie '+calleeID+' not '+urlId);
+		console.log("# onload wrong cookie "+calleeID+" not "+urlId);
 		//abortOnError("Error: wrong cookie");
 		databoxElement.innerHTML = "Error: wrong cookie";
 		return;
@@ -137,7 +137,7 @@ function processContacts(xhrresponse) {
 		}
 		return 0;
 	});
-	console.log("===sorted results",entries);
+	//console.log("sorted results",entries);
 
 	// create display table
 	let remoteCallerIdMaxChar = 16;
@@ -150,7 +150,7 @@ function processContacts(xhrresponse) {
 	for(let entry of entries) {
 		let id = entry[0]; // just a local id, or id@host
 		let entry1 = entry[1];
-		console.log("===entry1="+entry1);
+		//console.log("entry1="+entry1);
 
 		let tok = entry1.split("|");
 		let name = "none";
@@ -159,7 +159,7 @@ function processContacts(xhrresponse) {
 		if(tok.length>1) prefCallbackId = tok[1];
 		let ourNickname = "";
 		if(tok.length>2 && tok[2]!="true") ourNickname = tok[2];
-		console.log("===ourNickname="+ourNickname);
+		//console.log("ourNickname="+ourNickname);
 
 		// left column: Name (edit)
 		dataBoxContent += "<tr><td><a onclick='edit(this,event,\""+id+"\",\""+name+"\")'>"+name+"</a></td>";
@@ -197,7 +197,7 @@ function processContacts(xhrresponse) {
 			if(ourNickname!="") {
 				if(args=="") args = "?callerName="+ourNickname;
 				else args += "&callerName="+ourNickname;
-				console.log("===ourNickname="+ourNickname+" args="+args);
+				//console.log("ourNickname="+ourNickname+" args="+args);
 			}
 			if(dialsounds=="false") {
 				if(args=="") args = "?ds=false";
