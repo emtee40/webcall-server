@@ -1048,7 +1048,7 @@ function getSettingDone() {
 		if(typeof Android !== "undefined" && Android !== null) {
 			links += "<div><span class='callListTitle'>Your Webcall ID's:</span> <span style='font-size:0.9em;'>(long-tap to share)</span></div>";
 		} else {
-			links += "<div><span class='callListTitle'>Your Webcall ID's:</span> <span style='font-size:0.9em;'>(right-click to copy link)</span></div>";
+			links += "<div><span class='callListTitle'>Your Webcall ID's:</span> <span style='font-size:0.9em;'>(right-click to copy)</span></div>";
 		}
 
 		if(mainLinkDeactive) {
