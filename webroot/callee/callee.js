@@ -92,6 +92,7 @@ var	muteMicModified = false;
 var textchatOKfromOtherSide = false;
 var newestMissedCallBingClock = 0;
 var lastInnerWidth = 0;
+var spinnerStarting = false;
 
 window.onload = function() {
 	console.log("callee.js onload...");
@@ -312,6 +313,7 @@ window.onload = function() {
 			}
 
 			gLog('onload pw-entry is needed '+mode);
+			spinnerStarting = false;
 			divspinnerframe.style.display = "none";
 
 			onGotStreamGoOnline = true;
@@ -644,6 +646,7 @@ function goOnlineSwitchChange(comment) {
 
 		iconContactsElement.style.display = "none";
 		//console.log("spinner off goOnlineSwitchChange");
+		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 	}
 }
@@ -692,6 +695,7 @@ function start() {
 		// if wsSecret is set from prepareCallee(), it will call login()
 	} catch(ex) {
 		console.log("# ex while searching for audio devices "+ex.message);
+		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 	}
 }
@@ -792,6 +796,7 @@ function login(retryFlag,comment) {
 		}
 
 		//console.log("spinner off login");
+		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 
 		let mainLink = window.location.href;
@@ -879,6 +884,7 @@ function login(retryFlag,comment) {
 		}
 
 		//console.log("spinner off login error");
+		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 
 		waitingCallerSlice = null;
@@ -1408,6 +1414,7 @@ function wsOnOpen() {
 	// so prepareCallee() will NOT be called
 	//goOnline(false,"wsOnOpen");
 
+	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 	/*
 	window.addEventListener("beforeunload", function () {
@@ -2292,6 +2299,7 @@ function hangup(mustDisconnect,dummy2,message) {
 	// hangup() -> endWebRtcSession() -> prepareCallee() -> sendInit() ... server "sessionId|" -> showOnlineReadyMsg()
 
 	//console.log("spinner off hangup");
+	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 	answerButtons.style.display = "none";
 	msgboxdiv.style.display = "none";
@@ -2403,7 +2411,12 @@ function prepareCallee(sendInitFlag,comment) {
 
 			// we are offline and (so far) not connecting
 			//console.log("spinner on prepareCallee");
-			divspinnerframe.style.display = "block";
+			spinnerStarting = true;
+			setTimeout(function(oldWidth) {
+				if(spinnerStarting) {
+					divspinnerframe.style.display = "block";
+				}
+			},200,localVideoFrame.videoWidth);
 
 			if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
 				console.log("prepareCallee not connected/connecting -> call Android.jsGoOnline()");
@@ -2417,7 +2430,12 @@ function prepareCallee(sendInitFlag,comment) {
 			// no Android service,fall through
 			console.log("prepareCallee no Android service, fall through");
 			//console.log("spinner on prepareCallee");
-			divspinnerframe.style.display = "block";
+			spinnerStarting = true;
+			setTimeout(function(oldWidth) {
+				if(spinnerStarting) {
+					divspinnerframe.style.display = "block";
+				}
+			},200,localVideoFrame.videoWidth);
 		}
 	}
 
@@ -2436,6 +2454,7 @@ function prepareCallee(sendInitFlag,comment) {
 
 	console.log('prepareCallee have wsConn');
 	//console.log("spinner off prepareCallee");
+	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 	if(sendInitFlag) {
 		// will cause sessionId
@@ -2452,6 +2471,7 @@ function newPeerCon(comment) {
 	} catch(ex) {
 		console.error("# newPeerCon("+comment+") RTCPeerConnection "+ex.message);
 		//console.log("spinner off newPeerCon ex");
+		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 
 		// wrong: we need to make callee go offline, bc without a peerCon, it makes no sense to stay online
@@ -2816,6 +2836,7 @@ function pickup2() {
 	if(!localStream) {
 		console.warn("# pickup2 no localStream");
 		//console.log("spinner off pickup2 no localStrean");
+		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 		stopAllAudioEffects("pickup2 no localStream");
 		return;
@@ -2893,6 +2914,7 @@ function pickup4(comment) {
 
 	// end busy bee
 	//console.log("spinner off pickup4");
+	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 
 	// this will make the caller unmute our mic on their side
@@ -3222,6 +3244,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	buttonBlinking = false;
 	answerButtons.style.display = "none";
 	//console.log("spinner off endWebRtcSession");
+	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 
 	if(wsConn==null) {
@@ -3554,6 +3577,7 @@ function wakeGoOnline() {
 	prepareCallee(true,"wakeGoOnline");   // wsSend("init|!")
 
 	//console.log("spinner off wakeGoOnline");
+	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 	gLog("wakeGoOnline done");
 }
@@ -3577,6 +3601,7 @@ function wakeGoOnlineNoInit() {
 	}
 
 	//console.log("spinner off wakeGoOnlineNoInit");
+	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 	gLog("wakeGoOnlineNoInit done");
 }
