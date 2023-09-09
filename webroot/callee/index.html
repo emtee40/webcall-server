@@ -66,14 +66,18 @@ body {
 .iconbutton {
 	width:100%;
 	max-width:36px;
-	z-index:100; user-select:none; cursor:pointer;
 	opacity:0.8;
+	transition:all 300ms ease-out;
+	z-index:100; user-select:none; cursor:pointer;
 }
 
-.iconbutton:hover, .iconbutton:active {
+.iconbutton:hover {
 	opacity:1; 
 }
 
+.iconbutton:active {
+	opacity:0.2;
+}
 
 /* Answer, Hang Up, TextChat, Send File */
 .answerButtons {
@@ -441,21 +445,16 @@ input[type=submit]:focus {
 
 .slider {
 	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	border-radius: 30px;
-	box-shadow: 0 0 0 2.5px #ccc, 0 0 5px #ccc;
-	_box-shadow: 0 0 0 2.5px #3af, 0 0 4px #3af;
-	_background-color: #ccc;
+	top: 0; bottom: 0; left: 0; right: 0;
+	border-radius: 30px;                        /* round frame */
+	box-shadow: 0 0 0 2.5px #ccc, 0 0 5px #ccc; /* round frame */
 	cursor: pointer;
-	border: 4px solid transparent;
+	border: 4px solid transparent;				/* invisible inner frame */
 	overflow: hidden;
-	transition: 0.2s;
+	__transition: 0.2s;
 }
 
-.slider:before {
+.slider::before {
 	position: absolute;
 	content: "";
 	width: 100%;
@@ -466,21 +465,17 @@ input[type=submit]:focus {
 	transition: 0.2s;
 }
 
-input:checked + .slider:before {
+input:checked + .slider::before {
 	transform: translateX(30px); /*translateX(w-h)*/
-	_background-color: #7af;
-	_background-color: #27c;
-_background-color: #3af;
-	_background-color: #aaf;
-	_background-color: attr('data-before');
+	_background-color: #3af;
 }
 
+/*
 input:checked + .slider {
 	_box-shadow: 0 0 0 2.5px #ddd, 0 0 8px #ddd;
 	_background-color: #3af;
 	_background-color: #27c;
 }
-/*
 input:disabled + .slider {
 	background-color: #700;
 	box-shadow: 0 0 0 2.5px #333, 0 0 8px #333;
@@ -562,7 +557,7 @@ input:disabled + .slider {
 <div id="containerOuter">
 <div id="container">
 	<div class="buttonRow" id="buttonRow" >
-		<label class="switch" style="margin-top:5px;">
+		<label id="onlineLabel" class="switch" style="margin-top:5px;">
 			<input type="checkbox" id="onlineSwitch">
 			<span id="onlineSwitchSlider" class="slider"></span>
 		</label>
@@ -571,15 +566,7 @@ input:disabled + .slider {
 			<img id="peerConIndicator" src=""
 				 style="width:100%; position:absolute; top:50%; transform:translateY(-42%);">
 		</span>
-
-		<img id="menu"         onclick="menuDialogOpen(menuDialogElement,1)" src="menu.svg" class="iconbutton">
-		<img id="checkboxes"   onclick="openSlide()"        src="checkboxes.svg"  class="iconbutton">
-		<img id="dialpad"      onclick="openDialId('')"     src="dialpad.svg"     class="iconbutton">
-		<img id="iconContacts" onclick="openContacts()"     src="contacts.svg"    class="iconbutton" style="display:none;">
-		<img id="camera"       onclick="videoSwitch(false)" src="camera.svg"      class="iconbutton">
-		<img id="exclamation"  onclick=""                   src="exclamation.svg" class="iconbutton" style="display:none;">
 -->
-
 		<span class="icongrid">
 		<img id="menu"         onclick="menuDialogOpen(menuDialogElement,1)" src="menu.svg" class="iconbutton">
 		<img id="checkboxes"   onclick="openSlide()"        src="checkboxes.svg"  class="iconbutton">

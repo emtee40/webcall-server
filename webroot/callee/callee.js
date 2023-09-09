@@ -1,7 +1,6 @@
 // WebCall Copyright 2023 timur.mobi. All rights reserved.
 'use strict';
 const goOnlineSwitch = document.querySelector('input#onlineSwitch');
-//const goOnlineSwitchSlider = document.querySelector('input:checked + .slider:before');
 const answerButtons = document.getElementById('answerButtons');
 const answerButton = document.querySelector('button#answerButton');
 const rejectButton = document.querySelector('button#rejectButton');
@@ -586,17 +585,7 @@ function goOnlineSwitchChange(comment) {
 
 	} else {
 		// goOffline
-		// must clear connectToServerIsWanted in service
-		if(wsConn==null) {
-			console.log('! goOnlineSwitchChange ->off but wsConn is already null');
-		}
-
 		console.log("goOnlineSwitchChange goOffline calleeID="+calleeID);
-//		onlineIndicator.src="";
-//		goOnlineSwitchSlider.style.backgroundColor = "#0000";
-//		document.querySelector('input:checked + .slider:before').style.backgroundColor = "#0000";
-//		document.querySelector('.slider').style.boxShadow = "0 0 0 2.5px #ccc, 0 0 4px #ccc";
-		document.querySelector('input + .slider').style.backgroundColor = "#0000";
 
 		// abort a possibly running automatic/delayed reconnect process
 		wsAutoReconnecting = false;
@@ -639,6 +628,7 @@ function goOnlineSwitchChange(comment) {
 		if(wsConn!=null) {
 			if(typeof Android !== "undefined" && Android !== null) {
 				console.log("goOffline wsClose");
+				// clear connectToServerIsWanted in service
 				Android.wsClose(); // -> disconnectHost(true) -> statusMessage("Server disconnected")
 			} else {
 				console.log("goOffline wsConn.close()");
@@ -1180,10 +1170,9 @@ function showVisualOffline(comment) {
 	// NOOOO!! God forbid! we will reconnect as soon as possible, so the switch remains in online position
 	//goOffline("offlineAction");
 
-//	goOnlineSwitchSlider.style.backgroundColor = "#0000";
-//	document.querySelector('input:checked + .slider:before').style.backgroundColor = "#0000";
-//	document.querySelector('.slider').style.boxShadow = "0 0 0 2.5px #ccc, 0 0 4px #ccc";
-	document.querySelector('input + .slider').style.backgroundColor = "#0000";
+	// goOnlineSwitch slider with default color #ccc (disconnected)
+	document.head.appendChild(document.createElement("style")).innerHTML =
+		"input:checked + .slider::before {background: #ccc;}";
 
 	// hide missedCalls
 	missedCallsTitleElement.style.display = "none";
@@ -1335,17 +1324,10 @@ function showOnlineReadyMsg() {
 			readyMessage += " (Auto-Answer)";
 		}
 		showStatus(readyMessage,-1);
-//		onlineIndicator.src = "red-gradient.svg";
-		// same color as .checkbox:checked background-color
-//		goOnlineSwitchSlider.style.backgroundColor = "#27c";
-//		document.querySelector('input:checked + .slider:before').style.backgroundColor = "#27c";
-//		document.querySelector('.slider').selectedOptions[0].style.backgroundColor = "#27c";
-//		getComputedStyle(document.querySelector('.slider'), ':before').style.backgroundColor = "#27c";
-		console.log("###",getComputedStyle(document.querySelector('.slider'), ':before').getPropertyValue("background-color"));
-		//document.querySelector('.slider').setAttribute('data-before', "#3af");
-		//console.log("###",getComputedStyle(document.querySelector('.slider'), ':before').getPropertyValue("background-color"));
-		//document.querySelector('.slider').style.boxShadow = "0 0 0 2.5px #4cf, 0 0 6px #4cf";
-//		document.querySelector('input:checked + .slider').style.backgroundColor = "#06c";
+
+		// goOnlineSwitch slider with hi-lite color #3af (connected)
+		document.head.appendChild(document.createElement("style")).innerHTML =
+			"input:checked + .slider::before {background: #3af;}";
 
 	},300);
 }
