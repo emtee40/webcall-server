@@ -197,7 +197,8 @@ label {
 .checkbox:active, .checkbox:checked:active {
 }
 .checkbox:checked {
-	background-color: #3af;
+	_background-color: #4cf;
+	background-color: #06c;
 }
 
 .callListTitle {
@@ -354,7 +355,7 @@ input[type=submit]:focus {
 
 /* SVG top screen icon buttons */
 .iconbutton {
-	position:relative; float:right; width:30px; margin-left:17px; margin-right:17px; margin-top:6px;
+	position:relative; float:right; width:36px; margin-left:13px; margin-right:13px; margin-top:2px;
 	z-index:100; user-select:none; cursor:pointer; 
 	transition:all 300ms ease-out;
 	opacity:0.8; 
@@ -384,54 +385,61 @@ input[type=submit]:focus {
 
 /* online switch top left, css by Marcus Burnette https://codepen.io/mburnette/ */
 .switch input {
-  display: none;
+	display: none;
 }
 
 .switch {
-  display: inline-block;
-  width: 60px;
-  height: 30px;
-  margin: 4px;
-  position: relative;
+	display: inline-block;
+	width: 60px;
+	height: 30px;
+	margin: 4px;
+	position: relative;
 }
 
 .slider {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  border-radius: 30px;
-  box-shadow: 0 0 0 2px #ccc, 0 0 4px #ccc;
-  cursor: pointer;
-  border: 4px solid transparent;
-  overflow: hidden;
-  transition: 0.2s;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	border-radius: 30px;
+	box-shadow: 0 0 0 2.5px #ccc, 0 0 5px #ccc;
+	_box-shadow: 0 0 0 2.5px #3af, 0 0 4px #3af;
+	cursor: pointer;
+	border: 4px solid transparent;
+	overflow: hidden;
+	transition: 0.2s;
 }
 
 .slider:before {
-  position: absolute;
-  content: "";
-  width: 100%;
-  height: 100%;
-  background-color: #ccc;
-  border-radius: 30px;
-  transform: translateX(-30px); /*translateX(-(w-h))*/
-  transition: 0.2s;
+	position: absolute;
+	content: "";
+	width: 100%;
+	height: 100%;
+	background-color: #ccc;
+	border-radius: 30px;
+	transform: translateX(-30px); /*translateX(-(w-h))*/
+	transition: 0.2s;
 }
 
 input:checked + .slider:before {
-  transform: translateX(30px); /*translateX(w-h)*/
-  background-color: #7af;
+	transform: translateX(30px); /*translateX(w-h)*/
+	_background-color: #7af;
+	_background-color: #27c;
+	_background-color: #3af;
+	_background-color: #aaf;
+	_background-color: attr('data-before');
 }
 
 input:checked + .slider {
-  box-shadow: 0 0 0 2px #ddd, 0 0 8px #ddd;
+	_box-shadow: 0 0 0 2.5px #ddd, 0 0 8px #ddd;
+	_background-color: #3af;
+	_background-color: #27c;
 }
 /*
 input:disabled + .slider {
-  background-color: #700;
-  box-shadow: 0 0 0 2px #333, 0 0 8px #333;
+	background-color: #700;
+	box-shadow: 0 0 0 2.5px #333, 0 0 8px #333;
 }
 */
 
@@ -512,7 +520,7 @@ input:disabled + .slider {
 	<div class="buttonRow" id="buttonRow" >
 		<label class="switch" style="margin-top:8px;">
 			<input type="checkbox" id="onlineSwitch">
-			<span class="slider"></span>
+			<span id="onlineSwitchSlider" class="slider"></span>
 		</label>
 
 		<span style="position:relative; user-select:none;">
