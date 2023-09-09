@@ -1242,7 +1242,7 @@ function gotStream(stream) {
 	// now let's look at all the reasons NOT to add the videoTrack to peerCon
 	if(!videoEnabled) {
 		// disable all video tracks (do not show the video locally)
-		console.log("gotStream !videoEnabled -> stop video tracks");
+		gLog("gotStream !videoEnabled -> stop video tracks");
 		stream.getVideoTracks().forEach(function(track) {
 			console.log("gotStream !videoEnabled stop video track "+track);
 			track.stop();
@@ -1262,7 +1262,7 @@ function gotStream(stream) {
 		addedVideoTrack = peerCon.addTrack(localStream.getTracks()[1],localStream);
 	}
 
-	console.log("gotStream set localVideoFrame.srcObject");
+	gLog("gotStream set localVideoFrame.srcObject");
 	localVideoFrame.srcObject = localStream;
 	localVideoFrame.volume = 0;
 	localVideoFrame.muted = 0;
@@ -1651,7 +1651,6 @@ function showStatus(msg,timeoutMs) {
 		console.log("status: msg empty");
 		return;
 	}
-	//console.log("showStatus msg=("+msg+") timeoutMs="+timeoutMs);
 	if(showStatusTimeout!=null) {
 		//console.log("showStatus clearTimeout of prev");
 		clearTimeout(showStatusTimeout);
@@ -1664,6 +1663,8 @@ function showStatus(msg,timeoutMs) {
 	if(typeof timeoutMs!=="undefined") {
 		sleepMs = timeoutMs;
 	}
+	//console.log("showStatus msg=("+msg+") sleepMs="+sleepMs);
+
 	// msg may contain html, which we don't want to log
 	let idx = msg.indexOf("<");
 	if(idx>=0) {

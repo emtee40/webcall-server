@@ -702,6 +702,10 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 		fmt.Printf("# addMissedCall (%s) failed to read dbMissedCalls (%v) err=%v\n",
 			urlID, caller, err)
 	}
+	if urlID == caller.CallerID {
+		// don't store msg from self user
+		return err,missedCallsSlice
+	}
 	// make sure we never keep/show more than 10 missed calls
 	maxMissedCalls := 10
 	if len(missedCallsSlice) >= maxMissedCalls {

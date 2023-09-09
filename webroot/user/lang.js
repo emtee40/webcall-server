@@ -285,7 +285,7 @@ function switchLanguage(userLang) {
 		return;
 	}
 
-	console.log("myLang",myLang);
+	//console.log("myLang",myLang);
 }
 
 function lg(idStr) {

@@ -3226,7 +3226,7 @@ var endWebRtcPending = false;
 function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	// NOTE comment may be undefined
 	if(endWebRtcPending) {
-		console.log("! endWebRtcSession endWebRtcPending abort");
+		gLog("! endWebRtcSession endWebRtcPending abort");
 		return;
 	}
 	endWebRtcPending = true;

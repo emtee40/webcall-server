@@ -1322,7 +1322,7 @@ function calleeOnlineAction(comment) {
 	calleeOfflineElement.style.display = "none";
 
 	// now that we know callee is online, we load adapter-latest.js
-	console.log("load adapter...");
+	gLog("load adapter...");
 	loadJS("adapter-latest.js",function(){
 		if(!navigator.mediaDevices) {
 			console.warn("navigator.mediaDevices not available");
@@ -1836,7 +1836,7 @@ function gotStream2() {
 		connectSignaling("",dial); // when ws-connected to server, call dial() to call peer
 	} else {
 		// in caller we land here after audio/video was initialzed
-		console.log("gotStream2 !dialAfter");
+		gLog("gotStream2 !dialAfter");
 
 		if(videoEnabled) {
 			gLog("gotStream2 videoEnabled: no mute mic until dial");
@@ -1932,7 +1932,7 @@ function connectSignaling(message,openedFunc) {
 		wsUrl = wsUrl + "&ver="+clientVersion;
 	}
 
-	console.log('connectSignaling: wsUrl='+wsUrl);
+	gLog('connectSignaling: wsUrl='+wsUrl);
 	wsConn = new WebSocket(wsUrl);
 	wsConn.onopen = function () {
 		gLog('ws connection open '+calleeID);
