@@ -151,8 +151,12 @@ window.onload = function() {
 		return;
 	}
 
+	// FF needs checkbox resetting
 	goOnlineSwitch.checked = false;
 	//console.log("onLoad goOnlineSwitch.checked="+goOnlineSwitch.checked);
+	autoanswerlabel.checked = false;
+	//console.log("onLoad autoanswerlabel.checked="+autoanswerlabel.checked);
+	muteMiclabelElement.checked = false;
 
 	window.onresize = (event) => {
 		//console.log("onresize "+window.innerHeight+" "+window.innerWidth);
@@ -1327,7 +1331,8 @@ function showOnlineReadyMsg() {
 
 		// goOnlineSwitch slider with hi-lite color #3af (connected)
 		document.head.appendChild(document.createElement("style")).innerHTML =
-			"input:checked + .slider::before {background: #3af;}";
+			"input:checked + .slider::before {background: #4cf;}";
+			// should be same as .checkbox:checked background-color
 
 	},300);
 }
