@@ -596,7 +596,7 @@ function goOnlineSwitchChange(comment) {
 //		goOnlineSwitchSlider.style.backgroundColor = "#0000";
 //		document.querySelector('input:checked + .slider:before').style.backgroundColor = "#0000";
 //		document.querySelector('.slider').style.boxShadow = "0 0 0 2.5px #ccc, 0 0 4px #ccc";
-		document.querySelector('.slider').style.backgroundColor = "#0000";
+		document.querySelector('input + .slider').style.backgroundColor = "#0000";
 
 		// abort a possibly running automatic/delayed reconnect process
 		wsAutoReconnecting = false;
@@ -1183,7 +1183,7 @@ function showVisualOffline(comment) {
 //	goOnlineSwitchSlider.style.backgroundColor = "#0000";
 //	document.querySelector('input:checked + .slider:before').style.backgroundColor = "#0000";
 //	document.querySelector('.slider').style.boxShadow = "0 0 0 2.5px #ccc, 0 0 4px #ccc";
-	document.querySelector('.slider').style.backgroundColor = "#0000";
+	document.querySelector('input + .slider').style.backgroundColor = "#0000";
 
 	// hide missedCalls
 	missedCallsTitleElement.style.display = "none";
@@ -1345,7 +1345,7 @@ function showOnlineReadyMsg() {
 		//document.querySelector('.slider').setAttribute('data-before', "#3af");
 		//console.log("###",getComputedStyle(document.querySelector('.slider'), ':before').getPropertyValue("background-color"));
 		//document.querySelector('.slider').style.boxShadow = "0 0 0 2.5px #4cf, 0 0 6px #4cf";
-		document.querySelector('.slider').style.backgroundColor = "#06c";
+//		document.querySelector('input:checked + .slider').style.backgroundColor = "#06c";
 
 	},300);
 }
