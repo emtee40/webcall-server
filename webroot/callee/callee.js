@@ -4,7 +4,8 @@ const goOnlineSwitch = document.querySelector('input#onlineSwitch');
 const answerButtons = document.getElementById('answerButtons');
 const answerButton = document.querySelector('button#answerButton');
 const rejectButton = document.querySelector('button#rejectButton');
-const onlineIndicator = document.querySelector('img#onlineIndicator');
+//const onlineIndicator = document.querySelector('img#onlineIndicator');
+//const peerConIndicator = document.querySelector('img#peerConIndicator');
 const isHiddenCheckbox = document.querySelector('input#isHidden');
 const isHiddenlabel = document.querySelector('label#isHiddenlabel');
 const autoanswerCheckbox = document.querySelector('input#autoanswer');
@@ -590,6 +591,7 @@ function goOnlineSwitchChange(comment) {
 		}
 
 		console.log("goOnlineSwitchChange goOffline calleeID="+calleeID);
+//		onlineIndicator.src="";
 
 		// abort a possibly running automatic/delayed reconnect process
 		wsAutoReconnecting = false;
@@ -775,7 +777,7 @@ function login(retryFlag,comment) {
 			//gLog('playDialSounds='+playDialSounds);
 
 			// re-enable switch + icons
-			buttonRowElement.style.display = "block";
+			buttonRowElement.style.display = "grid";
 
 			// login success -> send "init|"
 			sendInit("xhr login success");
@@ -1323,6 +1325,7 @@ function showOnlineReadyMsg() {
 			readyMessage += " (Auto-Answer)";
 		}
 		showStatus(readyMessage,-1);
+//		onlineIndicator.src = "red-gradient.svg";
 	},300);
 }
 
@@ -2689,24 +2692,26 @@ function peerConnected3() {
 				//answerButton.style.background = "#b82a68";
 				answerButton.style.background = "#c13";
 				answerButton.style.border = "1.2px solid #c13";
+				answerButton.style.color = "#fff";
 
 				buttonBgHighlighted = true;
 				setTimeout(blinkButtonFunc, 500);
 			} else {
-				// blink off
-				//answerButton.style.background = "#04c";
-				answerButton.style.background = "#0000"; // .mainbutton background-color
-				answerButton.style.border = "1.2px solid #ccc";
-				buttonBgHighlighted = false;
 				if(!buttonBlinking || wsConn==null) {
 					console.log("peerConnected3 !buttonBlinking or !wsConn -> abort blinking");
 					//answerButton.style.background = "#04c";
 					return;
 				}
+				// blink off
+				//answerButton.style.background = "#04c";
+				answerButton.style.background = "#0000"; // .mainbutton background-color
+				answerButton.style.border = "1.2px solid #ccc";
+				buttonBgHighlighted = false;
 				gLog("peerConnected3 buttonBlinking...",dataChannel);
 				setTimeout(blinkButtonFunc, 500);
 			}
 		}
+		answerButton.textContent = "Answer";
 		blinkButtonFunc();
 
 		if(autoanswerCheckbox.checked) {
@@ -2750,13 +2755,23 @@ var startPickup;
 function pickup() {
 	// to pickup the incoming call, user has clicked the answer button, or the 3-button Notification dialog
 	// we call getStream() to get localStream, once avail pickup2() is called
+	if(mediaConnect) {
+		return;
+	}
+
 	startPickup = Date.now();
 	console.log("pickup -> open mic, startPickup="+startPickup);
 
 	buttonBlinking = false;
-	answerButton.style.background = "#0000"; // .mainbutton background-color
-	answerButton.style.border = "1.2px solid #ccc";
-	answerButton.disabled = true;
+//	// disable answer button
+//	answerButton.style.background = "#0000"; // .mainbutton background-color
+//	answerButton.style.border = "1.2px solid #ccc";
+//	answerButton.disabled = true;
+	// high-lite answer button
+	answerButton.style.background = "#c13";
+	answerButton.style.border = "1.2px solid #c13";
+	answerButton.textContent = "In Call";
+	answerButton.style.color = "#fff";
 
 	//console.log("spinner om pickup");
 	divspinnerframe.style.display = "block";
@@ -2876,7 +2891,7 @@ function pickup4(comment) {
 	// TODO could also use datachannel?
 	wsSend("pickup|!");
 
-	onlineIndicator.src="red-gradient.svg";
+//	peerConIndicator.src="red-gradient.svg";
 	chatButton.style.display = "block";
 
 	// filetransfer button (fileselectLabel) is still hidden
@@ -3296,7 +3311,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 
 	rtcConnect = false;
 	mediaConnect = false;
-	onlineIndicator.src="";
+//	peerConIndicator.src="";
 	if(vsendButton) {
 		vsendButton.style.display = "none";
 	}

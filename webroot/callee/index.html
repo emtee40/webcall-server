@@ -23,22 +23,37 @@ body {
 	scrollbar-width:none;
 }
 
+.buttonRow {
+	display:grid;
+	grid-template-columns: 80px 27px 8fr;
+	list-style-type:none;
+	padding-top:8px;
+	padding-bottom:14px;
+	_max-height:40px;
+}
+
 /* Answer, Hang Up, TextChat, Send File */
 .answerButtons {
 	padding-top:10px;
 	padding-bottom:15px;
 	display:none; /* grid */
-	grid-template-columns: 5fr 5fr 36px;
-	column-gap:15px;
-	row-gap:20px;
-	max-width:420px;
-	padding-right:20px;
+	grid-template-columns: 5fr 5fr;
+	column-gap:22px;
+	row-gap:22px;
+	max-width:360px;
+	padding-right:12px;
 }
 @media only screen and (min-width: 560px) {
 	.answerButtons {
 		display:none; /* grid */
-		grid-template-columns: 5fr 5fr 36px 5fr 5fr;
-		max-width:740px;
+		grid-template-columns: 5fr 5fr 5fr 5fr;
+		_grid-template-columns: repeat(auto-fill);
+		_grid-template-columns: none;
+		_grid-auto-columns: minmax(25%, 33%);
+		_grid-template-columns: minmax(25%, 33%);
+		_grid-template-columns: repeat(auto-fill, 130px);
+		_max-width:740px;
+		max-width:640px;
 		padding-right:20px;
 	}
 }
@@ -47,20 +62,19 @@ body {
 	background-color:#0000;
 	transition: all 200ms ease-in-out;
 	border: 1.2px solid #ccc;
-	border-radius:5px;
+	border-radius:6px;
 	color:#eee;
 	font-size: 1.0em;
 	font-weight: 400;
 	font-family:sans-serif;
-	_margin: 0.5em 0em 0.9em 0;
-	padding: 0.3em 0.1em 0.4em 0.1em;
-	min-width: 100px;
-	max-width: 160px;
-	outline:none;
-	text-align:center;
-	user-select:none;
-	cursor:pointer;
-	box-sizing:border-box;
+	padding: 0.4em 0.1em 0.4em 0.1em;
+	min-width: 115px;
+	_max-width: 180px;
+	outline: none;
+	text-align: center;
+	user-select: none;
+	cursor: pointer;
+	box-sizing: border-box;
 }
 /*
 .mainbutton:focus {
@@ -71,10 +85,11 @@ body {
 	background-color: #02a;
 	outline:none;
 }
+/*
 .mainbutton[disabled] {
 	color:#aaa;
 }
-
+*/
 @media (hover: hover) {
 	.mainbutton:hover {
 		background-color: #69f;
@@ -82,12 +97,25 @@ body {
 		outline:none;
 		color:#fff;
 	}
+/*
 	.mainbutton[disabled]:hover {
 		color:#aaa;
 	}
 	.mainbutton[disabled]:hover {
 		background-color:#04c;
 	}
+*/
+}
+
+.status {
+	padding-top: 12px;
+	padding-bottom: 12px;
+	width: 98%;
+	max-width: 570px;
+	transition: opacity 400ms ease-in-out;
+    color: #ccc;
+    font-weight: 600;
+    font-size: 1.1em;
 }
 
 /* hamburger menu buttons */
@@ -172,15 +200,6 @@ label {
 	background-color: #3af;
 }
 
-.status {
-	padding-top:12px;
-	padding-bottom:12px;
-	width:98%;
-	max-width:570px;
-	transition:opacity 400ms ease-in-out;
-    color:#ccc;
-    font-weight:600;
-}
 .callListTitle {
 	padding-top:14px;
 	font-size:0.9em;
@@ -416,14 +435,6 @@ input:disabled + .slider {
 }
 */
 
-.buttonRow {
-	display:grid;
-	grid-template-columns: 1fr 6fr;
-	list-style-type:none;
-	padding-top:10px;
-	padding-bottom:10px;
-	max-height:40px;
-}
 </style>
 </head>
 
@@ -498,11 +509,17 @@ input:disabled + .slider {
 
 <div id="containerOuter">
 <div id="container">
-	<div class="buttonRow" id="buttonRow">
+	<div class="buttonRow" id="buttonRow" >
 		<label class="switch" style="margin-top:8px;">
 			<input type="checkbox" id="onlineSwitch">
 			<span class="slider"></span>
 		</label>
+
+		<span style="position:relative; user-select:none;">
+			<!-- red-gradient.svg -->
+			<img id="peerConIndicator" src=""
+				 style="width:100%; position:absolute; top:50%; transform:translateY(-42%);">
+		</span>
 
 		<span>
 		<img id="menu"         onclick="menuDialogOpen(menuDialogElement,1)" src="menu.svg" class="iconbutton">
@@ -513,15 +530,12 @@ input:disabled + .slider {
 		<img id="exclamation"  onclick=""                   src="exclamation.svg" class="iconbutton" style="display:none;">
 		</span>
 	</div>
-    <div style="clear:all;height:8px; _background:#666;"></div>
+    <!--div style="clear:all;height:8px; _background:#666;"></div-->
 
 	<!-- turn on with "display:grid" -->
 	<div id="answerButtons" class="answerButtons" _style="display:grid">
 		<button id="answerButton" class="mainbutton">Answer</button>
 		<button id="rejectButton" class="mainbutton">Hang Up</button>
-		                     <!-- src="red-gradient.svg" for testing -->
-		<img id="onlineIndicator" src="" style="width:36px; margin-top:2px; user-select:none;">
-
 		<button id="chatButton" class="mainbutton">TextChat</button>
 		<label id="fileselectlabel" class="mainbutton" for="fileselect">
 			Send File
