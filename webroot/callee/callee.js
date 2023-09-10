@@ -1405,8 +1405,9 @@ function connectToWsServer(message,comment) {
 			// go full online to turn on the switch
 			goOnline("user button");
 		} else {
-			// just show ownlinks again; does not call prepareCalle (no init); does not call getSettings() (no xhr!)
+			// just show ownlinks again; do not call prepareCalle (no init); do not call getSettings() (no xhr!)
 			getSettingDone();
+			showMissedCalls();
 		}
 
 		//must turn on the goOnlineSwitch dot
