@@ -1395,13 +1395,18 @@ function connectToWsServer(message,comment) {
 	}
 
 	if(wsConn!=null) {
-		//must turn on the switch
-		goOnline("user button");
+		//may need to turn on the switch
+		if(!goOnlineSwitch.checked) {
+			goOnline("user button");
+		} else {
+			// must show ownlinks)
+			getSettingDone();
+		}
 
 		//must turn on the goOnlineSwitch dot
 		document.head.appendChild(document.createElement("style")).innerHTML =
 			"input:checked + .slider::before {background: #4cf;}";
-			// should be same as .checkbox:checked background-color
+			// same color as .checkbox:checked background-color
 	}
 
 	iconContactsElement.style.display = "block";
@@ -2255,12 +2260,13 @@ function wsSend(message) {
 			// currently not connected to webcall server
 			console.log('wsSend with wsConn==null -> connectToWsServer');
 			connectToWsServer(message,"andr wsConn==null");
-			// service -> connectHost(wsUrl) -> onOpen() -> runJS("wsOnOpen()",null) -> wsSendMessage(message)
+			// service -> connectHost(wsUrl) -> onOpen() -> wsSendMessage(message)
 		} else {
 			Android.wsSend(message);
 		}
 		return;
 	}
+
 	if(wsConn==null || wsConn.readyState!=1) {
 		// currently not connected to webcall server, so we need to connect
 		if(wsConn) {
@@ -2413,6 +2419,7 @@ function prepareCallee(sendInitFlag,comment) {
 				if(sendInitFlag) {
 					sendInit("prepareCallee <- "+comment);
 				}
+// TODO don't do xhr when in the bg
 				getSettings(); // display ownID links
 				return;
 			}
@@ -2468,6 +2475,7 @@ function prepareCallee(sendInitFlag,comment) {
 		// will cause sessionId
 		sendInit("prepareCallee <- "+comment);
 	}
+// TODO don't do xhr when in the bg
 	getSettings(); // display ownID links
 }
 
@@ -3596,7 +3604,8 @@ function wakeGoOnlineNoInit() {
 	// we only need to get wsConn, load audio files, stop spinner
 	// TODO do we need to call Android.calleeConnected() -> calleeIsConnected() ?
 	console.log("wakeGoOnlineNoInit start");
-	// TODO prepareCallee() will send init, which is not necessary
+	// TODO prepareCallee() will send init, which is not needed
+	// TODO we are likely in the bg or in deep sleep: prepareCallee() should not call getsettings() (avoid xhr!)
 	connectToWsServer('','wakeGoOnlineNoInit'); // get wsConn -> call goOnlne() -> prepareCallee()
 	wsOnOpen();
 	//prepareCallee(false,"wakeGoOnlineNoInit");  // do NOT wsSend("init|!")
