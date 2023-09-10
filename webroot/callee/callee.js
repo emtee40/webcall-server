@@ -969,9 +969,6 @@ function getSettings() {
 		api = apiPath+"/getmapping?id="+calleeID;
 		if(!gentle) console.log('request getmapping api',api);
 		ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
-			altIdArray = [];
-			altIdActive = [];
-			altLabel = [];
 			if(xhr.responseText.startsWith("error")) {
 				console.log("# /getmapping error("+xhr.responseText+")");
 				showStatus("Error: "+xhr.responseText.substring(5),-1);
@@ -981,6 +978,9 @@ function getSettings() {
 			//console.log("getsettings /getmapping altIDs="+altIDs);
 			if(altIDs!="") {
 				// parse altIDs, format: id,true,assign|id,true,assign|...
+				altIdArray = [];
+				altIdActive = [];
+				altLabel = [];
 				let tok = altIDs.split("|");
 				let count = tok.length;
 				for(var i=0; i<tok.length; i++) {
@@ -1352,7 +1352,7 @@ function connectToWsServer(message,comment) {
 	// but first, if a peerCon object was not yet created, create one
 	// A peerCon object is required to receive calls and it does not make sense to connect to webcall server
 	// if we then cannpt receive calls due to a local issue
-	console.log("connect to signaling server '"+comment+"' '"+message+"'");
+	console.log("connectToWsServer '"+comment+"' '"+message+"'");
     var wsUrl = wsAddr;
 
 	tryingToOpenWebSocket = true;
@@ -1397,9 +1397,14 @@ function connectToWsServer(message,comment) {
 	if(wsConn!=null) {
 		//may need to turn on the switch
 		if(!goOnlineSwitch.checked) {
+			// go full online to turn on the switch
+			goOnline("user button");
+		} else if(altIdArray.length<=0) {
+			// probably never called getSettings()
+			// go full online to turn on the switch
 			goOnline("user button");
 		} else {
-			// must show ownlinks)
+			// just show ownlinks again
 			getSettingDone();
 		}
 
