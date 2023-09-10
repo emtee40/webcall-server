@@ -182,6 +182,14 @@ window.onload = function() {
 	if(auto) {
 		console.log("onload auto is set ("+auto+")");
 		// auto will cause onGotStreamGoOnline to be set below (for Android client only)
+
+		console.log("### spinner on onload auto");
+		spinnerStarting = true;
+		setTimeout(function(oldWidth) {
+			if(spinnerStarting) {
+				divspinnerframe.style.display = "block";
+			}
+		},200,localVideoFrame.videoWidth);
 	} else {
 		gLog("onload auto is not set");
 	}
@@ -642,7 +650,7 @@ function goOnlineSwitchChange(comment) {
 		}
 
 		iconContactsElement.style.display = "none";
-		//console.log("spinner off goOnlineSwitchChange");
+		console.log("### spinner off goOnlineSwitchChange");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 	}
@@ -692,6 +700,7 @@ function start() {
 		// if wsSecret is set from prepareCallee(), it will call login()
 	} catch(ex) {
 		console.log("# ex while searching for audio devices "+ex.message);
+		console.log("### spinner off start");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 	}
@@ -719,6 +728,10 @@ function login(retryFlag,comment) {
 		// processData
 		let loginStatus = xhr.responseText;
 		console.log("login xhr loginStatus "+loginStatus);
+
+		console.log("### spinner off login");
+		spinnerStarting = false;
+		divspinnerframe.style.display = "none";
 
 		var parts = loginStatus.split("|");
 		if(parts[0].indexOf("wsid=")>=0) {
@@ -791,10 +804,6 @@ function login(retryFlag,comment) {
 				Android.activityToFront();
 			}
 		}
-
-		//console.log("spinner off login");
-		spinnerStarting = false;
-		divspinnerframe.style.display = "none";
 
 		let mainLink = window.location.href;
 		let idx = mainLink.indexOf("/calle");
@@ -880,7 +889,7 @@ function login(retryFlag,comment) {
 			showStatus("xhr error "+err,3000);
 		}
 
-		//console.log("spinner off login error");
+		console.log("### spinner off login error");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 
@@ -1106,6 +1115,10 @@ function getSettingDone() {
 		links += "</div>";
 		ownlinkElement.style.display = "block";
 		ownlinkElement.innerHTML = links;
+
+		console.log("### spinner off getSettingDone");
+		spinnerStarting = false;
+		divspinnerframe.style.display = "none";
 	}
 }
 
@@ -1407,7 +1420,7 @@ function connectToWsServer(message,comment) {
 		} else {
 			// just show ownlinks again; do not call prepareCalle (no init); do not call getSettings() (no xhr!)
 
-			//console.log("spinner on prepareCallee");
+			console.log("### spinner on connectToWsServer");
 			spinnerStarting = true;
 			setTimeout(function(oldWidth) {
 				if(spinnerStarting) {
@@ -1442,9 +1455,11 @@ function wsOnOpen() {
 	// however, bc wsConn!=null the call to goOnlineSwitchChange() will be aborted
 	// so prepareCallee() will NOT be called
 	//goOnline(false,"wsOnOpen");
-
+/*
+	console.log("### spinner off wsOnOpen");
 	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
+*/
 	/*
 	window.addEventListener("beforeunload", function () {
 		// prevent "try reconnect in..." after "wsConn close" on unload
@@ -2328,7 +2343,7 @@ function hangup(mustDisconnect,dummy2,message) {
 	// showOnlineReadyMsg() is called in response to us calling sendInit() and the server responding with "sessionId|"
 	// hangup() -> endWebRtcSession() -> prepareCallee() -> sendInit() ... server "sessionId|" -> showOnlineReadyMsg()
 
-	//console.log("spinner off hangup");
+	console.log("### spinner off hangup");
 	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 	answerButtons.style.display = "none";
@@ -2396,7 +2411,15 @@ function prepareCallee(sendInitFlag,comment) {
 	mediaConnectStartDate = 0;
 	addedAudioTrack = null;
 	addedVideoTrack = null;
-
+/*
+	console.log("### spinner on prepareCallee");
+	spinnerStarting = true;
+	setTimeout(function(oldWidth) {
+		if(spinnerStarting) {
+			divspinnerframe.style.display = "block";
+		}
+	},200,localVideoFrame.videoWidth);
+*/
 	if(!ringtoneSound) {
 		console.log('prepareCallee lazy load ringtoneSound');
 		ringtoneSound = new Audio('1980-phone-ringing.mp3');
@@ -2423,14 +2446,6 @@ function prepareCallee(sendInitFlag,comment) {
 	}
 
 	if(wsSecret=="") {
-		//console.log("spinner on prepareCallee");
-		spinnerStarting = true;
-		setTimeout(function(oldWidth) {
-			if(spinnerStarting) {
-				divspinnerframe.style.display = "block";
-			}
-		},200,localVideoFrame.videoWidth);
-
 		// in android mode, we want to do the same as tile does
 		//   and this is to call: webCallServiceBinder.goOnline() to start the reconnector
 		// this is what Android.jsGoOnline() allows us to do
@@ -2487,6 +2502,11 @@ function prepareCallee(sendInitFlag,comment) {
 			// only show server activity if we are not peer connected
 			showStatus("Connecting...",-1);
 		}
+/*
+		console.log("### spinner off prepareCallee2");
+		spinnerStarting = false;
+		divspinnerframe.style.display = "none";
+*/
 		console.log("prepareCallee wsConn==null -> login()");
 		// login on success will call getSettings()
 		login(false,"prepareCallee");
@@ -2501,6 +2521,7 @@ function prepareCallee(sendInitFlag,comment) {
 	}
 	getSettings(); // display ownID links
 
+	console.log("### spinner off prepareCallee");
 	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 }
@@ -2512,7 +2533,7 @@ function newPeerCon(comment) {
 		console.log("newPeerCon("+comment+") new RTCPeerConnection ready");
 	} catch(ex) {
 		console.error("# newPeerCon("+comment+") RTCPeerConnection "+ex.message);
-		//console.log("spinner off newPeerCon ex");
+		console.log("spinner off newPeerCon ex");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 
@@ -2843,7 +2864,7 @@ function pickup() {
 	answerButton.textContent = "In Call";
 	answerButton.style.color = "#fff";
 
-	//console.log("spinner om pickup");
+	console.log("### spinner om pickup");
 	divspinnerframe.style.display = "block";
 
 	pickupAfterLocalStream = true; // getStream() -> gotStream() -> gotStream2() -> pickup2()
@@ -2877,7 +2898,8 @@ function pickup2() {
 	// here we add remoteStream, which should trigger onnegotiationneeded, createOffer, callerAnswer and pickup4()
 	if(!localStream) {
 		console.warn("# pickup2 no localStream");
-		//console.log("spinner off pickup2 no localStrean");
+
+		console.log("### spinner off pickup2 no localStrean");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 		stopAllAudioEffects("pickup2 no localStream");
@@ -2955,7 +2977,7 @@ function pickup4(comment) {
 	// android webview does this in 800-900ms
 
 	// end busy bee
-	//console.log("spinner off pickup4");
+	console.log("### spinner off pickup4");
 	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 
@@ -3285,7 +3307,8 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	}
 	buttonBlinking = false;
 	answerButtons.style.display = "none";
-	//console.log("spinner off endWebRtcSession");
+
+	console.log("### spinner off endWebRtcSession");
 	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 
