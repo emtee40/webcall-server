@@ -587,6 +587,7 @@ function goOnlineSwitchChange(comment) {
 				history.replaceState("", document.title, window.location.pathname + mySearch);
 			}
 		}
+		// TODO when we are called from wakeGoOnlineNoInit() we don't need to send init
 		prepareCallee(true,comment);
 
 	} else {
@@ -660,7 +661,7 @@ function goOnline(initDummy,comment) {
 }
 
 function goOffline(comment) {
-	// called by ws engine wsOnOpen() and by our Android service
+	// called by ws engine ??? and by our Android service
 	// the new implementation makes sure that calling goOffline() does 100% the same as clicking the switch off
 	console.log("goOffline "+comment);
 	goOnlineSwitch.checked = false;
@@ -1180,7 +1181,7 @@ function showVisualOffline(comment) {
 	// NOOOO!! God forbid! we will reconnect as soon as possible, so the switch remains in online position
 	//goOffline("offlineAction");
 
-	// goOnlineSwitch slider with default color #ccc (disconnected)
+	//must turn off the goOnlineSwitch dot
 	document.head.appendChild(document.createElement("style")).innerHTML =
 		"input:checked + .slider::before {background: #ccc;}";
 
@@ -1335,7 +1336,7 @@ function showOnlineReadyMsg() {
 		}
 		showStatus(readyMessage,-1);
 
-		// goOnlineSwitch slider with hi-lite color #3af (connected)
+		//must turn on the goOnlineSwitch dot
 		document.head.appendChild(document.createElement("style")).innerHTML =
 			"input:checked + .slider::before {background: #4cf;}";
 			// should be same as .checkbox:checked background-color
@@ -1347,6 +1348,7 @@ let tryingToOpenWebSocket = false;
 let wsSendMessage = "";
 function connectToWsServer(message,comment) {
 	// main purpose of connectToWsServer() is to establish a ws-connection with webcall server
+	//   or get wsConn from service
 	// but first, if a peerCon object was not yet created, create one
 	// A peerCon object is required to receive calls and it does not make sense to connect to webcall server
 	// if we then cannpt receive calls due to a local issue
@@ -1375,10 +1377,6 @@ function connectToWsServer(message,comment) {
 		//  service -> wsCli=connectHost(wsUrl) -> onOpen() -> runJS("wsOnOpen()",null) -> wsSendMessage("init|!")
 		// if service IS already connected:
 		//  service -> if activityWasDiscarded -> wakeGoOnlineNoInit()
-		if(wsConn!=null) {
-			//must turn on the switch
-			goOnline("user button");
-		}
 
 	} else {
 		if(!window["WebSocket"]) {
@@ -1394,6 +1392,16 @@ function connectToWsServer(message,comment) {
 		wsConn.onerror = wsOnError;
 		wsConn.onclose = wsOnClose;
 		wsConn.onmessage = wsOnMessage;
+	}
+
+	if(wsConn!=null) {
+		//must turn on the switch
+		goOnline("user button");
+
+		//must turn on the goOnlineSwitch dot
+		document.head.appendChild(document.createElement("style")).innerHTML =
+			"input:checked + .slider::before {background: #4cf;}";
+			// should be same as .checkbox:checked background-color
 	}
 
 	iconContactsElement.style.display = "block";
@@ -1449,7 +1457,7 @@ function wsOnError2(str,code) {
 	} else if(typeof code!=="undefined" && code!=0) {
 		showStatus("wsError code="+code,-1);
 	} else {
-		showStatus("wsError unknown",-1);
+		//showStatus("wsError unknown",-1);
 	}
 
 	// for ff wake-from-sleep error (wss interrupted), code is not given here (but in wsOnClose())
@@ -3571,10 +3579,11 @@ function exit() {
 }
 
 function wakeGoOnline() {
+	// currently not used? maybe only by older apks
 	console.log("wakeGoOnline start");
 	connectToWsServer('','wakeGoOnline'); // get wsConn
-	wsOnOpen(); // green led
-	prepareCallee(true,"wakeGoOnline");   // wsSend("init|!")
+	wsOnOpen();
+	//prepareCallee(true,"wakeGoOnline");   // wsSend("init|!")
 
 	//console.log("spinner off wakeGoOnline");
 	spinnerStarting = false;
@@ -3587,9 +3596,10 @@ function wakeGoOnlineNoInit() {
 	// we only need to get wsConn, load audio files, stop spinner
 	// TODO do we need to call Android.calleeConnected() -> calleeIsConnected() ?
 	console.log("wakeGoOnlineNoInit start");
-	connectToWsServer('','wakeGoOnlineNoInit'); // get wsConn
-	wsOnOpen(); // green led
-	prepareCallee(false,"wakeGoOnlineNoInit");  // do NOT wsSend("init|!")
+	// TODO prepareCallee() will send init, which is not necessary
+	connectToWsServer('','wakeGoOnlineNoInit'); // get wsConn -> call goOnlne() -> prepareCallee()
+	wsOnOpen();
+	//prepareCallee(false,"wakeGoOnlineNoInit");  // do NOT wsSend("init|!")
 
 	// if Android version < 1.4.8 -> showOnlineReadyMsg() (otherwise "Connecting..." may stick)
 	if(typeof Android !== "undefined" && Android !== null) {
