@@ -568,11 +568,7 @@ function goOnlineSwitchChange(comment) {
 	console.log("goOnlineSwitchChange state="+goOnlineSwitch.checked+" "+comment);
 	if(goOnlineSwitch.checked) {
 		// goOnline
-		if(wsConn!=null) {
-			console.log('! goOnlineSwitchChange goOnline(), but wsConn!=null');
-		} else {
-			console.log('goOnlineSwitchChange goOnline()');
-		}
+		console.log("goOnlineSwitchChange goOnline, wsConn="+(wsConn!=null));
 		if(comment=="user button" || comment=="service") {
 			// we need to add to window.location: "?auto=1" if it does not yet exist
 			let mySearch = window.location.search;
@@ -1329,11 +1325,13 @@ function showOnlineReadyMsg() {
 		if(mediaConnect) {
 			readyMessage = "Call in progress";
 		}
+/*
 		if(isHiddenCheckbox.checked) {
 			readyMessage += " (Online status hidden)";
 		} else if(autoanswerCheckbox.checked) {
 			readyMessage += " (Auto-Answer)";
 		}
+*/
 		showStatus(readyMessage,-1);
 
 		//must turn on the goOnlineSwitch dot
@@ -1400,11 +1398,14 @@ function connectToWsServer(message,comment) {
 			// go full online to turn on the switch
 			goOnline("user button");
 		} else if(altIdArray.length<=0) {
-			// probably never called getSettings()
+			// probably never called getSettings() yet
+			// this can happen after Android clear cache
+			// (so even though connectToWsServer() may have been called by service -> wakeGoOnlineNoInit,
+			//  we are now in foreground and xhr is no problem)
 			// go full online to turn on the switch
 			goOnline("user button");
 		} else {
-			// just show ownlinks again
+			// just show ownlinks again; does not call prepareCalle (no init); does not call getSettings() (no xhr!)
 			getSettingDone();
 		}
 
@@ -2480,7 +2481,6 @@ function prepareCallee(sendInitFlag,comment) {
 		// will cause sessionId
 		sendInit("prepareCallee <- "+comment);
 	}
-// TODO don't do xhr when in the bg
 	getSettings(); // display ownID links
 }
 
