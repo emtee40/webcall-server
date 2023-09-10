@@ -1406,6 +1406,15 @@ function connectToWsServer(message,comment) {
 			goOnline("user button");
 		} else {
 			// just show ownlinks again; do not call prepareCalle (no init); do not call getSettings() (no xhr!)
+
+			//console.log("spinner on prepareCallee");
+			spinnerStarting = true;
+			setTimeout(function(oldWidth) {
+				if(spinnerStarting) {
+					divspinnerframe.style.display = "block";
+				}
+			},200,localVideoFrame.videoWidth);
+
 			getSettingDone();
 			showMissedCalls();
 		}
@@ -2414,6 +2423,14 @@ function prepareCallee(sendInitFlag,comment) {
 	}
 
 	if(wsSecret=="") {
+		//console.log("spinner on prepareCallee");
+		spinnerStarting = true;
+		setTimeout(function(oldWidth) {
+			if(spinnerStarting) {
+				divspinnerframe.style.display = "block";
+			}
+		},200,localVideoFrame.videoWidth);
+
 		// in android mode, we want to do the same as tile does
 		//   and this is to call: webCallServiceBinder.goOnline() to start the reconnector
 		// this is what Android.jsGoOnline() allows us to do
@@ -2430,7 +2447,7 @@ function prepareCallee(sendInitFlag,comment) {
 				getSettings(); // display ownID links
 				return;
 			}
-
+/*
 			// we are offline and (so far) not connecting
 			//console.log("spinner on prepareCallee");
 			spinnerStarting = true;
@@ -2439,7 +2456,7 @@ function prepareCallee(sendInitFlag,comment) {
 					divspinnerframe.style.display = "block";
 				}
 			},200,localVideoFrame.videoWidth);
-
+*/
 			if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
 				console.log("prepareCallee not connected/connecting -> call Android.jsGoOnline()");
 				Android.jsGoOnline();	// -> startReconnecter()
@@ -2451,6 +2468,7 @@ function prepareCallee(sendInitFlag,comment) {
 		} else {
 			// no Android service,fall through
 			console.log("prepareCallee no Android service, fall through");
+/*
 			//console.log("spinner on prepareCallee");
 			spinnerStarting = true;
 			setTimeout(function(oldWidth) {
@@ -2458,6 +2476,7 @@ function prepareCallee(sendInitFlag,comment) {
 					divspinnerframe.style.display = "block";
 				}
 			},200,localVideoFrame.videoWidth);
+*/
 		}
 	}
 
@@ -2476,13 +2495,14 @@ function prepareCallee(sendInitFlag,comment) {
 
 	console.log('prepareCallee have wsConn');
 	//console.log("spinner off prepareCallee");
-	spinnerStarting = false;
-	divspinnerframe.style.display = "none";
 	if(sendInitFlag) {
 		// will cause sessionId
 		sendInit("prepareCallee <- "+comment);
 	}
 	getSettings(); // display ownID links
+
+	spinnerStarting = false;
+	divspinnerframe.style.display = "none";
 }
 
 function newPeerCon(comment) {
@@ -3600,8 +3620,8 @@ function wakeGoOnline() {
 	//prepareCallee(true,"wakeGoOnline");   // wsSend("init|!")
 
 	//console.log("spinner off wakeGoOnline");
-	spinnerStarting = false;
-	divspinnerframe.style.display = "none";
+	//spinnerStarting = false;
+	//divspinnerframe.style.display = "none";
 	gLog("wakeGoOnline done");
 }
 
@@ -3626,8 +3646,8 @@ function wakeGoOnlineNoInit() {
 	}
 
 	//console.log("spinner off wakeGoOnlineNoInit");
-	spinnerStarting = false;
-	divspinnerframe.style.display = "none";
+	//spinnerStarting = false;
+	//divspinnerframe.style.display = "none";
 	gLog("wakeGoOnlineNoInit done");
 }
 
