@@ -704,6 +704,7 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 	}
 	if urlID == caller.CallerID {
 		// don't store msg from self user
+		fmt.Printf("addMissedCall (%s) not storing missedCalls from same ID (%s)\n", urlID, caller.CallerID)
 		return err,missedCallsSlice
 	}
 	// make sure we never keep/show more than 10 missed calls
