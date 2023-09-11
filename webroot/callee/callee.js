@@ -1116,10 +1116,11 @@ function getSettingDone() {
 		links += "</div>";
 		ownlinkElement.style.display = "block";
 		ownlinkElement.innerHTML = links;
-
+/'
 		console.log("### spinner off getSettingDone");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
+*/
 	}
 }
 
@@ -2434,15 +2435,7 @@ function prepareCallee(sendInitFlag,comment) {
 	mediaConnectStartDate = 0;
 	addedAudioTrack = null;
 	addedVideoTrack = null;
-/*
-	console.log("### spinner on prepareCallee");
-	spinnerStarting = true;
-	setTimeout(function(oldWidth) {
-		if(spinnerStarting) {
-			divspinnerframe.style.display = "block";
-		}
-	},200,localVideoFrame.videoWidth);
-*/
+
 	if(!ringtoneSound) {
 		console.log('prepareCallee lazy load ringtoneSound');
 		ringtoneSound = new Audio('1980-phone-ringing.mp3');
@@ -2507,7 +2500,7 @@ function prepareCallee(sendInitFlag,comment) {
 			// no Android service,fall through
 			console.log("prepareCallee no Android service, fall through");
 /*
-			//console.log("spinner on prepareCallee");
+			//console.log("spinner on prepareCallee brpwser mode");
 			spinnerStarting = true;
 			setTimeout(function(oldWidth) {
 				if(spinnerStarting) {
@@ -2525,11 +2518,7 @@ function prepareCallee(sendInitFlag,comment) {
 			// only show server activity if we are not peer connected
 			showStatus("Connecting...",-1);
 		}
-/*
-		console.log("### spinner off prepareCallee2");
-		spinnerStarting = false;
-		divspinnerframe.style.display = "none";
-*/
+
 		console.log("prepareCallee wsConn==null -> login()");
 		// login on success will call getSettings()
 		login(false,"prepareCallee");
