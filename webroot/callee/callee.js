@@ -1354,7 +1354,11 @@ function showOnlineReadyMsg() {
 			readyMessage += " (Auto-Answer)";
 		}
 */
-		showStatus(readyMessage,-1);
+		if(mediaConnect) {
+			// don't show "Call in progress"
+		} else {
+			showStatus(readyMessage,-1);
+		}
 
 		//must turn on the goOnlineSwitch dot
 		document.head.appendChild(document.createElement("style")).innerHTML =
