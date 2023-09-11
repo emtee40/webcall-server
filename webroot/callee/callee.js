@@ -1555,11 +1555,12 @@ function wsOnClose(evt) {
 		// if disconnect from server was caused by manual reload, we do nothing
 		console.log("wsOnClose with code 1001 'manual reload' (we do nothing)");
 		wsOnClose2();	// wsConn=null; showVisualOffline();
-s		// TODO goOnlineSwitch.checked = false like for 1006?
+		// TODO goOnlineSwitch.checked = false like for 1006?
 	} else if(errCode==1006) {
 		console.log("wsOnClose with code 1006 'unusual clientside error' (we do nothing)");
 		wsOnClose2();	// wsConn=null; showVisualOffline();
 		goOnlineSwitch.checked = false;
+		showStatus("",-1);
 		// TODO: ??? goOnlineSwitchChange("wsOnClose");
 	} else {
 		if(tryingToOpenWebSocket) {

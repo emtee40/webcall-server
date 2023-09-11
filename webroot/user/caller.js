@@ -863,7 +863,7 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElement) {
 					let active = cleanStringParameter(tok2[1],true);
 					let assign = cleanStringParameter(tok2[2],true);
 					if(assign=="") {
-						assign = "none";
+//						assign = "none";
 					}
 					if(id==callerId) {
 						preselectIndex = i;
@@ -879,7 +879,8 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElement) {
 			}
 			let idOptionAnon = document.createElement('option');
 			idOptionAnon.text = "(incognito)";
-			idOptionAnon.value = "none";
+//			idOptionAnon.value = "none";
+			idOptionAnon.value = "";
 			idSelectElement.appendChild(idOptionAnon);
 			altIdCount++;
 		}
