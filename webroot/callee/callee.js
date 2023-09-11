@@ -2884,16 +2884,15 @@ function pickup() {
 	startPickup = Date.now();
 	console.log("pickup -> open mic, startPickup="+startPickup);
 
+	// stop blinking, disable answer button
 	buttonBlinking = false;
-//	// disable answer button
 	answerButton.style.background = "#0000"; // .mainbutton background-color
 	answerButton.style.border = "1.2px solid #ccc";
 	answerButton.disabled = true;
 
-	// high-lite rejectButton
-	rejectButton.style.background = "#b02";
-	rejectButton.style.border = "1.2px solid #b02";
-//	rejectButton.style.color = "#fff";
+	// rejectButton red high-lite
+	rejectButton.style.background = "#a01";
+	rejectButton.style.border = "1.2px solid #a01";
 	callScreenType.innerHTML = "In call";
 
 	console.log("### spinner om pickup");
