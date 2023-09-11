@@ -1116,7 +1116,7 @@ function getSettingDone() {
 		links += "</div>";
 		ownlinkElement.style.display = "block";
 		ownlinkElement.innerHTML = links;
-/'
+/*
 		console.log("### spinner off getSettingDone");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
