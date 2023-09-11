@@ -2727,8 +2727,8 @@ function peerConnected3() {
 		return;
 	}
 
-// tmtmtm callScreen
 	// success: data channel is available
+	// callScreen
 	console.log("peerConnected3: got data channel after "+sinceStartWaitConnect);
 	// scroll to top
 	window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2737,6 +2737,10 @@ function peerConnected3() {
 	callScreenType.innerHTML = "Incoming call";
 	answerButton.disabled = false;
 	rejectButton.disabled = false;
+
+	// rejectButton default look
+	rejectButton.style.background = "#0000"; // .mainbutton background-color
+	rejectButton.style.border = "1.2px solid #ccc";
 
 //	answerButtons.style.gridTemplateColumns = "5fr 5fr";
 	chatButton.style.display = "none";
