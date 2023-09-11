@@ -2810,8 +2810,9 @@ function peerConnected3() {
 			if(!buttonBgHighlighted && buttonBlinking) {
 				// blink on
 				//answerButton.style.background = "#b82a68";
-				answerButton.style.background = "#c13";
-				answerButton.style.border = "1.2px solid #c13";
+				//answerButton.style.background = "#c13";
+				answerButton.style.background = "#0a1";
+				answerButton.style.border = "1.2px solid #0a1";
 				answerButton.style.color = "#fff";
 
 				buttonBgHighlighted = true;
@@ -2826,6 +2827,7 @@ function peerConnected3() {
 				//answerButton.style.background = "#04c";
 				answerButton.style.background = "#0000"; // .mainbutton background-color
 				answerButton.style.border = "1.2px solid #ccc";
+				answerButton.style.color = "#eee";
 				buttonBgHighlighted = false;
 				gLog("peerConnected3 buttonBlinking...",dataChannel);
 				setTimeout(blinkButtonFunc, 500);
@@ -2887,6 +2889,7 @@ function pickup() {
 	answerButton.style.background = "#0000"; // .mainbutton background-color
 	answerButton.style.border = "1.2px solid #ccc";
 	answerButton.disabled = true;
+
 	// high-lite rejectButton
 	rejectButton.style.background = "#b02";
 	rejectButton.style.border = "1.2px solid #b02";
