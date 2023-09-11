@@ -2132,7 +2132,9 @@ function showMissedCalls() {
 		for(var i=0; i<missedCallsSlice.length; i++) {
 			str += "<tr>"
 			let waitingSecs = timeNowSecs - missedCallsSlice[i].CallTime;
-
+			if(waitingSecs<0) {
+				waitingSecs = 0;
+			}
 			// split waitingTimeString by days, hours, min
 			let waitingTimeString = ""+waitingSecs+"s";
 			if(waitingSecs>50) {
