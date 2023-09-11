@@ -1226,6 +1226,10 @@ function gotStream2() {
 		return;
 	}
 
+	console.log("### spinner off gotStream2");
+	spinnerStarting = false;
+	divspinnerframe.style.display = "none";
+
 	// we got the mic while we are getting ready to wait for incoming calls
 	console.log("gotStream2 goOnlineSwitch.checked=="+goOnlineSwitch.checked);
 	if(typeof Android !== "undefined" && Android !== null) {
@@ -1273,10 +1277,11 @@ function gotStream2() {
 		}
 	} else {
 		//console.log("gotStream2 onGotStreamGoOnline="+onGotStreamGoOnline+" rtcConnect="+rtcConnect);
+/*
 		console.log("### spinner off gotStream2 no onGotStreamGoOnline");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
-
+*/
 		if(wsConn==null) {
 			// we are offline, this usually occurs onload in pure browser mode
 			console.log("gotStream2 wsConn==null, stay offline, no sendInit");
