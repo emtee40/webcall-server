@@ -1440,7 +1440,7 @@ function connectToWsServer(message,comment) {
 */
 		} else {
 			// just show ownlinks again; do not call prepareCalle (no init); do not call getSettings() (no xhr!)
-
+/*
 			console.log("### spinner on connectToWsServer");
 			spinnerStarting = true;
 			setTimeout(function(oldWidth) {
@@ -1448,7 +1448,7 @@ function connectToWsServer(message,comment) {
 					divspinnerframe.style.display = "block";
 				}
 			},200,localVideoFrame.videoWidth);
-
+*/
 			if(typeof Android !== "undefined" && Android !== null) {
 				getSettings();
 			} else {
@@ -2740,7 +2740,7 @@ function peerConnected3() {
 	// in showPeerUserData() we display peerUserData in the callScreen
 	// instead of listOfClientIps (???)
 	//gLog('peerConnected3 accept incoming call?',listOfClientIps,dataChannel);
-	showStatus("Incoming call",-1);
+	showStatus("");
 	peerCon.getStats(null).then((results) => getStatsCandidateTypes(results,"Incoming", ""),
 		err => console.log(err.message)); // -> wsSend("log|callee Incoming p2p/p2p")
 
@@ -3076,10 +3076,11 @@ function pickup4(comment) {
 		} else {
 			// send "log|connected" to server
 			console.log("pickup4 send log|connected");
-
+/*
 			callScreen.style.display = "block";
 			callScreenType.innerHTML = "Outgoing call";
 			showStatus("Outgoing call",-1);
+*/
 			peerCon.getStats(null)
 			.then((results) => getStatsCandidateTypes(results,"Connected","E2EE"),
 				err => console.log(err.message));
