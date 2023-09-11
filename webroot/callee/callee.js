@@ -1,6 +1,9 @@
 // WebCall Copyright 2023 timur.mobi. All rights reserved.
 'use strict';
 const goOnlineSwitch = document.querySelector('input#onlineSwitch');
+const callScreen = document.getElementById('callScreen');
+const callScreenType = document.getElementById('callScreenType');
+const callScreenPeerData = document.getElementById('callScreenPeerData');
 const answerButtons = document.getElementById('answerButtons');
 const answerButton = document.querySelector('button#answerButton');
 const rejectButton = document.querySelector('button#rejectButton');
@@ -2374,7 +2377,8 @@ function hangup(mustDisconnect,dummy2,message) {
 	console.log("### spinner off hangup");
 	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
-	answerButtons.style.display = "none";
+//	answerButtons.style.display = "none";
+	callScreen.style.display = "none";
 	msgboxdiv.style.display = "none";
 	msgbox.value = "";
 	textbox.style.display = "none";
@@ -2720,20 +2724,24 @@ function peerConnected3() {
 		return;
 	}
 
-	// success: data channel is available !!!!!!!!!!!!!!!!
+// tmtmtm callScreen
+	// success: data channel is available
 	console.log("peerConnected3: got data channel after "+sinceStartWaitConnect);
 	// scroll to top
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 	// show Answer + Reject buttons (handlers below)
-	answerButtons.style.display = "grid";
+//	answerButtons.style.display = "grid";
+	callScreen.style.display = "block";
+	callScreenType.innerHTML = "Incoming call";
 	answerButton.disabled = false;
 	chatButton.style.display = "none";
 	fileselectLabel.style.display = "none";
 
+	// in showPeerUserData() we display peerUserData in the callScreen
 	// instead of listOfClientIps (???)
 	//gLog('peerConnected3 accept incoming call?',listOfClientIps,dataChannel);
-	peerCon.getStats(null)
-	.then((results) => getStatsCandidateTypes(results,"Incoming", ""),
+	showStatus("Incoming call",-1);
+	peerCon.getStats(null).then((results) => getStatsCandidateTypes(results,"Incoming", ""),
 		err => console.log(err.message)); // -> wsSend("log|callee Incoming p2p/p2p")
 
 	// only show msgbox if not empty
@@ -3068,6 +3076,10 @@ function pickup4(comment) {
 		} else {
 			// send "log|connected" to server
 			console.log("pickup4 send log|connected");
+
+			callScreen.style.display = "block";
+			callScreenType.innerHTML = "Outgoing call";
+			showStatus("Outgoing call",-1);
 			peerCon.getStats(null)
 			.then((results) => getStatsCandidateTypes(results,"Connected","E2EE"),
 				err => console.log(err.message));
@@ -3136,8 +3148,14 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 		// result: callers UA added with smaller font
 	}
 
-	showStatus(showMsg,-1);
-	// TODO create Android notification message?
+	showPeerUserData(showMsg);
+}
+
+function showPeerUserData(peerUserData) {
+	console.log("showPeerUserData="+peerUserData);
+//	showStatus(peerUserData,-1);
+	// we display peerUserData in the callScreen
+	callScreenPeerData.innerHTML = peerUserData;
 }
 
 function dataChannelOnmessage(event) {
@@ -3322,7 +3340,8 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		remoteStream = null;
 	}
 	buttonBlinking = false;
-	answerButtons.style.display = "none";
+//	answerButtons.style.display = "none";
+	callScreen.style.display = "none";
 
 	console.log("### spinner off endWebRtcSession");
 	spinnerStarting = false;

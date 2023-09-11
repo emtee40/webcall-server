@@ -80,28 +80,35 @@ body {
 }
 
 /* Answer, Hang Up, TextChat, Send File */
+.callScreen {
+	margin: 0 auto;
+	padding-top:10px;
+	padding-bottom:15px;
+	max-width:360px;
+	padding-left:12px;
+	padding-right:12px;
+	background-color: navy;
+}
 .answerButtons {
 	padding-top:10px;
 	padding-bottom:15px;
-	display:none; /* grid */
+	display:grid;
 	grid-template-columns: 5fr 5fr;
 	column-gap:22px;
 	row-gap:22px;
-	max-width:360px;
-	padding-right:12px;
+	width:100%;
+	_max-width:360px;
+	_padding-right:12px;
 }
 @media only screen and (min-width: 560px) {
-	.answerButtons {
-		display:none; /* grid */
-		grid-template-columns: 5fr 5fr 5fr 5fr;
-		_grid-template-columns: repeat(auto-fill);
-		_grid-template-columns: none;
-		_grid-auto-columns: minmax(25%, 33%);
-		_grid-template-columns: minmax(25%, 33%);
-		_grid-template-columns: repeat(auto-fill, 130px);
-		_max-width:740px;
+	.callScreen {
 		max-width:640px;
 		padding-right:20px;
+	}
+	.answerButtons {
+		grid-template-columns: 5fr 5fr 5fr 5fr;
+		_max-width:640px;
+		_padding-right:20px;
 	}
 }
 
@@ -578,14 +585,18 @@ input:disabled + .slider {
     <!--div style="clear:all;height:8px; _background:#666;"></div-->
 
 	<!-- turn on with "display:grid" -->
-	<div id="answerButtons" class="answerButtons" _style="display:grid">
-		<button id="answerButton" class="mainbutton">Answer</button>
-		<button id="rejectButton" class="mainbutton">Hang Up</button>
-		<button id="chatButton" class="mainbutton">TextChat</button>
-		<label id="fileselectlabel" class="mainbutton" for="fileselect">
-			Send File
-			<input id="fileselect" type="file" style="display:none"></input>
-		</label>
+	<div id="callScreen" class="callScreen" style="display:none">
+		<div id="callScreenType" style="text-align:center;padding:20px;">---</div>
+		<div id="callScreenPeerData" style="text-align:center;padding:20px;">---</div>
+		<div id="answerButtons" class="answerButtons">
+			<button id="answerButton" class="mainbutton">Answer</button>
+			<button id="rejectButton" class="mainbutton">Hang Up</button>
+			<button id="chatButton" class="mainbutton">TextChat</button>
+			<label id="fileselectlabel" class="mainbutton" for="fileselect">
+				Send File
+				<input id="fileselect" type="file" style="display:none"></input>
+			</label>
+		</div>
 	</div>
 
 	<div id="status" class="status" style="display:none"></div>
