@@ -1357,6 +1357,9 @@ function showOnlineReadyMsg() {
 			"input:checked + .slider::before {background: #4cf;}";
 			// should be same as .checkbox:checked background-color
 
+		console.log("### spinner off showOnlineReadyMsg");
+		spinnerStarting = false;
+		divspinnerframe.style.display = "none";
 	},300);
 }
 
@@ -1535,7 +1538,7 @@ function wsOnClose(evt) {
 		// if disconnect from server was caused by manual reload, we do nothing
 		console.log("wsOnClose with code 1001 'manual reload' (we do nothing)");
 		wsOnClose2();	// wsConn=null; showVisualOffline();
-		// TODO goOnlineSwitch.checked = false like below?
+s		// TODO goOnlineSwitch.checked = false like for 1006?
 	} else if(errCode==1006) {
 		console.log("wsOnClose with code 1006 'unusual clientside error' (we do nothing)");
 		wsOnClose2();	// wsConn=null; showVisualOffline();
@@ -2482,16 +2485,16 @@ function prepareCallee(sendInitFlag,comment) {
 				getSettings(); // display ownID links
 				return;
 			}
-/*
+
 			// we are offline and (so far) not connecting
-			//console.log("spinner on prepareCallee");
+			console.log("spinner on prepareCallee Android.isConnected()<=0");
 			spinnerStarting = true;
 			setTimeout(function(oldWidth) {
 				if(spinnerStarting) {
 					divspinnerframe.style.display = "block";
 				}
 			},200,localVideoFrame.videoWidth);
-*/
+
 			if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
 				console.log("prepareCallee not connected/connecting -> call Android.jsGoOnline()");
 				Android.jsGoOnline();	// -> startReconnecter()
