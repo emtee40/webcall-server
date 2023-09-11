@@ -1355,7 +1355,7 @@ function showOnlineReadyMsg() {
 		}
 */
 		if(mediaConnect) {
-			// don't show "Call in progress"
+			// do not show "Call in progress"
 		} else {
 			showStatus(readyMessage,-1);
 		}
@@ -2381,7 +2381,6 @@ function hangup(mustDisconnect,dummy2,message) {
 	console.log("### spinner off hangup");
 	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
-//	answerButtons.style.display = "none";
 	callScreen.style.display = "none";
 	msgboxdiv.style.display = "none";
 	msgbox.value = "";
@@ -2734,10 +2733,12 @@ function peerConnected3() {
 	// scroll to top
 	window.scrollTo({ top: 0, behavior: 'smooth' });
 	// show Answer + Reject buttons (handlers below)
-//	answerButtons.style.display = "grid";
 	callScreen.style.display = "block";
 	callScreenType.innerHTML = "Incoming call";
 	answerButton.disabled = false;
+	rejectButton.disabled = false;
+
+//	answerButtons.style.gridTemplateColumns = "5fr 5fr";
 	chatButton.style.display = "none";
 	fileselectLabel.style.display = "none";
 
@@ -2883,14 +2884,14 @@ function pickup() {
 
 	buttonBlinking = false;
 //	// disable answer button
-//	answerButton.style.background = "#0000"; // .mainbutton background-color
-//	answerButton.style.border = "1.2px solid #ccc";
-//	answerButton.disabled = true;
-	// high-lite answer button
-	answerButton.style.background = "#c13";
-	answerButton.style.border = "1.2px solid #c13";
-	answerButton.textContent = "In Call";
-	answerButton.style.color = "#fff";
+	answerButton.style.background = "#0000"; // .mainbutton background-color
+	answerButton.style.border = "1.2px solid #ccc";
+	answerButton.disabled = true;
+	// high-lite rejectButton
+	rejectButton.style.background = "#b02";
+	rejectButton.style.border = "1.2px solid #b02";
+//	rejectButton.style.color = "#fff";
+	callScreenType.innerHTML = "In call";
 
 	console.log("### spinner om pickup");
 	divspinnerframe.style.display = "block";
@@ -3014,6 +3015,8 @@ function pickup4(comment) {
 	wsSend("pickup|!");
 
 //	peerConIndicator.src="red-gradient.svg";
+// TODO only if: screen and (min-width: 560px)
+//	answerButtons.style.gridTemplateColumns = "5fr 5fr 5fr 5fr";
 	chatButton.style.display = "block";
 
 	// filetransfer button (fileselectLabel) is still hidden
@@ -3080,13 +3083,8 @@ function pickup4(comment) {
 		} else {
 			// send "log|connected" to server
 			console.log("pickup4 send log|connected");
-/*
-			callScreen.style.display = "block";
-			callScreenType.innerHTML = "Outgoing call";
-			showStatus("Outgoing call",-1);
-*/
 			peerCon.getStats(null)
-			.then((results) => getStatsCandidateTypes(results,"Connected","E2EE"),
+			.then((results) => getStatsCandidateTypes(results,"Connected","e2ee"),
 				err => console.log(err.message));
 
 			chatButton.onclick = function() {
@@ -3121,22 +3119,22 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 
 	if(eventString2!="") {
 		msg = msg + " "+eventString2;
-		// result: "p2p/p2p E2EE"
+		// result: "p2p/p2p e2ee"
 	}
 
 	if(textmode=="true") {
 		msg = msg + " TextMode";
-		// result: "p2p/p2p E2EE TextMode"
+		// result: "p2p/p2p e2ee TextMode"
 	}
 
 	// we rather show callerID and/or callerName if they are avail, instead of listOfClientIps
 	if(callerName!="" || callerID!="") {
 		if(callerName=="" || callerName.toLowerCase()==callerID.toLowerCase()) {
 			msg = callerID +" "+ msg;
-			// result: "nnnnnnnnnnn p2p/p2p E2EE TextMode"
+			// result: "nnnnnnnnnnn p2p/p2p e2ee TextMode"
 		} else {
 			msg = callerName +" "+ callerID +" "+ msg;
-			// result: "Nickname nnnnnnnnnnn p2p/p2p E2EE TextMode"
+			// result: "Nickname nnnnnnnnnnn p2p/p2p e2ee TextMode"
 		}
 	} else if(listOfClientIps!="") {
 		msg = listOfClientIps+" "+msg;
@@ -3149,7 +3147,7 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 
 	let showMsg = msg;
 	if(otherUA!="") {
-		showMsg += "<div style='font-size:0.8em;margin-top:8px;color:#aac;'>"+otherUA+"</div>";
+		showMsg += "<div style='font-size:0.8em;margin-top:8px;color:#ccc;'>"+otherUA+"</div>";
 		// result: callers UA added with smaller font
 	}
 
@@ -3345,7 +3343,6 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		remoteStream = null;
 	}
 	buttonBlinking = false;
-//	answerButtons.style.display = "none";
 	callScreen.style.display = "none";
 
 	console.log("### spinner off endWebRtcSession");
