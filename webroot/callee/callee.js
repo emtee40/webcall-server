@@ -154,7 +154,7 @@ window.onload = function() {
 
 	// FF needs checkbox resetting
 	goOnlineSwitch.checked = false;
-	//console.log("onLoad goOnlineSwitch.checked="+goOnlineSwitch.checked);
+	console.log("onLoad goOnlineSwitch.checked="+goOnlineSwitch.checked);
 	autoanswerlabel.checked = false;
 	//console.log("onLoad autoanswerlabel.checked="+autoanswerlabel.checked);
 	muteMiclabelElement.checked = false;
@@ -320,7 +320,7 @@ window.onload = function() {
 				return;
 			}
 
-			gLog('onload pw-entry is needed '+mode);
+			console.log('onload pw-entry is needed '+mode);
 			spinnerStarting = false;
 			divspinnerframe.style.display = "none";
 
@@ -751,8 +751,9 @@ function login(retryFlag,comment) {
 			if(parts.length>=4) {
 				serviceSecs = parseInt(parts[3], 10);
 			}
-			console.log('login outboundIP '+outboundIP);
+			console.log('login success outboundIP='+outboundIP);
 
+// TODO???
 			getSettings();
 			/*
 			if(!pushRegistration) {
@@ -1222,7 +1223,7 @@ function gotStream2() {
 	}
 
 	// we got the mic while we are getting ready to wait for incoming calls
-	console.log("gotStream2 goOnlineSwitch.checked="+goOnlineSwitch.checked);
+	console.log("gotStream2 goOnlineSwitch.checked=="+goOnlineSwitch.checked);
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.calleeReady !== "undefined" && Android.calleeReady !== null) {
 			// service v1.1.5
@@ -1268,6 +1269,10 @@ function gotStream2() {
 		}
 	} else {
 		//console.log("gotStream2 onGotStreamGoOnline="+onGotStreamGoOnline+" rtcConnect="+rtcConnect);
+		console.log("### spinner off gotStream2 no onGotStreamGoOnline");
+		spinnerStarting = false;
+		divspinnerframe.style.display = "none";
+
 		if(wsConn==null) {
 			// we are offline, this usually occurs onload in pure browser mode
 			console.log("gotStream2 wsConn==null, stay offline, no sendInit");
@@ -1395,7 +1400,7 @@ function connectToWsServer(message,comment) {
 			showStatus("No websocket support");
 			return;
 		}
-	    console.log('connectSig: open ws connection... '+calleeID+' '+wsUrl);
+	    console.log('connectToWsServer: open ws connection... '+calleeID+' '+wsUrl);
 
 		// get ready for a new websocket connection with webcall server
 		wsConn = new WebSocket(wsUrl);
@@ -1407,16 +1412,25 @@ function connectToWsServer(message,comment) {
 
 	if(wsConn!=null) {
 		//may need to turn on the switch
+		console.log("connectToWsServer got wsConn");
 		if(!goOnlineSwitch.checked) {
 			// go full online to turn on the switch
-			goOnline("user button");
+			goOnline(false,"user button");
+/* tmtmtm
+// in browser mode, immediatel after login (where getSettings() was called just now but no response yet)
+// login -> getSettings() -> sendInit() -> wsSend("init|") 
+//       -> connectToWsServer() -> connectToWsServer got wsConn -> goOnline()
+// but goOnline() can start a forever loop
+// if(altIdArray.length<=0) is not enough
+
 		} else if(altIdArray.length<=0) {
 			// probably never called getSettings() yet
 			// this can happen after Android clear cache
 			// (so even though connectToWsServer() may have been called by service -> wakeGoOnlineNoInit,
 			//  we are now in foreground and xhr is no problem)
 			// go full online to turn on the switch
-			goOnline("user button");
+			goOnline(false,"user button");
+*/
 		} else {
 			// just show ownlinks again; do not call prepareCalle (no init); do not call getSettings() (no xhr!)
 
@@ -1519,8 +1533,14 @@ function wsOnClose(evt) {
 	console.log("wsOnClose ID="+calleeID+" code="+errCode, evt);
 	if(errCode==1001) {
 		// if disconnect from server was caused by manual reload, we do nothing
-		console.log("wsOnClose with code 1001 'nanual reload' (we do nothing)");
-		wsConn=null;
+		console.log("wsOnClose with code 1001 'manual reload' (we do nothing)");
+		wsOnClose2();	// wsConn=null; showVisualOffline();
+		// TODO goOnlineSwitch.checked = false like below?
+	} else if(errCode==1006) {
+		console.log("wsOnClose with code 1006 'unusual clientside error' (we do nothing)");
+		wsOnClose2();	// wsConn=null; showVisualOffline();
+		goOnlineSwitch.checked = false;
+		// TODO: ??? goOnlineSwitchChange("wsOnClose");
 	} else {
 		if(tryingToOpenWebSocket) {
 			// onclose occured while we were trying to establish a ws-connection (but before getting connected)
@@ -1563,7 +1583,7 @@ function wsOnClose2() {
 	// if goOnlineSwitch.checked stays true, a reconnect may take place shortly
 	console.log("wsOnClose2 "+calleeID);
 	wsConn=null;
-	showVisualOffline();
+	showVisualOffline("wsOnClose2");
 	stopAllAudioEffects("wsOnClose");
 }
 
@@ -2495,7 +2515,7 @@ function prepareCallee(sendInitFlag,comment) {
 		}
 	}
 
-	if(wsConn==null /*|| wsConn.readyState!=1*/) {
+	if(wsConn==null || wsConn.readyState!=1) {
 		// this basically says: if prepareCallee() is called when we are NOT connected to the server,
 		// try to login now using cookie or wsSecret (from login form)
 		if(!mediaConnect) {
@@ -3434,7 +3454,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	if(wsConn==null || !goOnlineAfter) {
 		//showStatus("WebCall server disconnected");	// already done above
 		// also hide ownlink
-		showVisualOffline();
+		showVisualOffline("endWebRtcSession wsConn==null or no goOnlineAfter");
 	} else {
 		// status: 'Ready to receive calls'
 		// we must do this here bc we receive no cmd==sessionId -> showOnlineReadyMsg()
