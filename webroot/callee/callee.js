@@ -1446,7 +1446,11 @@ function connectToWsServer(message,comment) {
 				}
 			},200,localVideoFrame.videoWidth);
 
-			getSettingDone();
+			if(typeof Android !== "undefined" && Android !== null) {
+				getSettings();
+			} else {
+				getSettingDone();
+			}
 			showMissedCalls();
 		}
 
