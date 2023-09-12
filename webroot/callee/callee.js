@@ -1384,9 +1384,15 @@ function connectToWsServer(message,comment) {
 	// but first, if a peerCon object was not yet created, create one
 	// A peerCon object is required to receive calls and it does not make sense to connect to webcall server
 	// if we then cannpt receive calls due to a local issue
-	console.log("connectToWsServer '"+comment+"' '"+message+"'");
-    var wsUrl = wsAddr;
 
+	if(wsAddr=="") {
+		// NOTE: Android.wsOpen() only needs wsAddr if it is not yet connected
+		console.log("! connectToWsServer '"+comment+"' '"+message+"' wsAddr missing");
+	} else {
+		console.log("connectToWsServer '"+comment+"' '"+message+"' wsAddr="+wsAddr);
+	}
+
+	var wsUrl = wsAddr;
 	tryingToOpenWebSocket = true;
 	// wsSendMessage will be sent as soon as we are connected
 	wsSendMessage = message;
@@ -2332,6 +2338,7 @@ function wsSend(message) {
 	if(typeof Android !== "undefined" && Android !== null) {
 		if(wsConn==null) {
 			// currently not connected to webcall server
+// TODO we can't call connectToWsServer() without having ever done a login()
 			console.log('wsSend with wsConn==null -> connectToWsServer');
 			connectToWsServer(message,"andr wsConn==null");
 			// service -> connectHost(wsUrl) -> onOpen() -> wsSendMessage(message)
@@ -2449,7 +2456,7 @@ function prepareCallee(sendInitFlag,comment) {
 	//    if wsSecret is given (from basepage form) and we are not yet connected, try login()
 	//    else if sendInitFlag is set, call sendInit
 	//    finally call getSettings()
-	console.log("prepareCallee");
+	console.log("prepareCallee "+comment+" wsConn=="+(wsConn!=null));
 	rtcConnectStartDate = 0;
 	mediaConnectStartDate = 0;
 	addedAudioTrack = null;
@@ -2489,7 +2496,7 @@ function prepareCallee(sendInitFlag,comment) {
 		if(typeof Android !== "undefined" && Android !== null) {
 			// note: Android.isConnected() returns: 0=offline, 1=reconnector busy, 2=connected (wsClient!=null)
 			if(Android.isConnected()>0) {
-				console.log("prepareCallee isConnected()="+Android.isConnected()+" >0 (connected or connection)");
+				console.log("prepareCallee isConnected()="+Android.isConnected()+" >0 (connected or connecting)");
 				if(sendInitFlag) {
 					sendInit("prepareCallee <- "+comment);
 				}
@@ -2538,7 +2545,12 @@ function prepareCallee(sendInitFlag,comment) {
 			showStatus("Connecting...",-1);
 		}
 
-		console.log("prepareCallee wsConn==null -> login()");
+		let wsConnReadyState = -1;
+		if(wsConn!=null) {
+			// 0=connecting, 1=ready, 2=closing, 3=closed
+			wsConnReadyState = wsConn.readyState;
+		}
+		console.log("prepareCallee wsConn=="+(wsConn!=null)+" state="+wsConnReadyState+" -> login()");
 		// login on success will call getSettings()
 		login(false,"prepareCallee");
 		return;
@@ -3497,26 +3509,26 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		// a hostConnection after peerDisconnect is not requested
 		// this occurs if the serverconnection was closed before also the peerConnection was ended
 		console.log("endWebRtcSession done, no goOnlineAfter");
-		endWebRtcPending = false;
 	} else {
 		// we want to keep callee online after peer connection is gone
 		// we just keep our wsConn alive, so no new login is needed
 		// (no new ws-hub will be created on the server side)
-
-		console.log("endWebRtcSession prepareCallee() delayed...");
-		// why is this delay needed in goOnlineAfter?
-		// it was implemented as a measure against multiple, concurrent calls to endWebRtcSession()
-		// this way the 2nd and more calls will be chopped by endWebRtcPending
-		// but I don't see this happening anymore
-		setTimeout(function() {
-			//console.log("callee endWebRtcSession auto prepareCallee(): enable goonline");
-			// get peerCon ready for the next incoming call
-			// bc we are most likely still connected, prepareCallee() will just send "init"
-			prepareCallee(true,"endWebRtcSession");
-			console.log('endWebRtcSession done');
-			endWebRtcPending = false;
-		},200);
+		console.log("endWebRtcSession prepareCallee() wsConn="+(wsConn!=null));
+		// get peerCon ready for the next incoming call
+		// bc we are most likely still connected, prepareCallee() will just send "init"
+		prepareCallee(true,"endWebRtcSession");
 	}
+
+	// why is this delay needed in goOnlineAfter?
+	// it was implemented as a measure against multiple, concurrent calls to endWebRtcSession()
+	// this way the 2nd and more calls will be chopped by endWebRtcPending
+	setTimeout(function() {
+		//console.log("callee endWebRtcSession auto prepareCallee(): enable goonline");
+		// get peerCon ready for the next incoming call
+		// bc we are most likely still connected, prepareCallee() will just send "init"
+		console.log('endWebRtcSession done');
+		endWebRtcPending = false;
+	},200);
 }
 
 function getCookieSupport() {
