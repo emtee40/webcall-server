@@ -183,6 +183,7 @@ function showVideoResolutionRemote() {
 	}
 }
 
+// called by the Android service
 function muteMic(flag) {
 	if(!localStream) {
 		// no problem: this happens when muteMic() is called in offline mode

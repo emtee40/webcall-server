@@ -96,6 +96,7 @@ var textchatOKfromOtherSide = false;
 var newestMissedCallBingClock = 0;
 var lastInnerWidth = 0;
 var spinnerStarting = false;
+var mappingFetched = false;
 
 window.onload = function() {
 	console.log("callee.js onload...");
@@ -984,6 +985,7 @@ function getSettings() {
 				return;
 			}
 			let altIDs = xhr.responseText;
+			mappingFetched = true;
 			//console.log("getsettings /getmapping altIDs="+altIDs);
 			if(altIDs!="") {
 				// parse altIDs, format: id,true,assign|id,true,assign|...
@@ -1022,7 +1024,7 @@ function getSettings() {
 			getSettingDone();
 
 		}, function(errString,errcode) {
-			console.log("# getsettings xhr err "+errString+" "+errcode);
+			console.log("# getmapping xhr err "+errString+" "+errcode);
 			getSettingDone();
 		});
 	}, function(errString,errcode) {
@@ -1434,9 +1436,9 @@ function connectToWsServer(message,comment) {
 
 	if(wsConn!=null) {
 		//may need to turn on the switch
-		console.log("connectToWsServer got wsConn");
 		if(!goOnlineSwitch.checked) {
 			// go full online to turn on the switch
+			console.log("connectToWsServer got wsConn, goOnlineSwitch off");
 			goOnline(false,"user button");
 /* tmtmtm
 // in browser mode, immediatel after login (where getSettings() was called just now but no response yet)
@@ -1455,18 +1457,30 @@ function connectToWsServer(message,comment) {
 */
 		} else {
 			// just show ownlinks again; do not call prepareCalle (no init); do not call getSettings() (no xhr!)
-/*
-			console.log("### spinner on connectToWsServer");
-			spinnerStarting = true;
-			setTimeout(function(oldWidth) {
-				if(spinnerStarting) {
-					divspinnerframe.style.display = "block";
+
+			// getSettings() xhr may not be executed if JS/webview in background or if android is in deep sleep
+			// otherwise we may get "# getsettings xhr error timeout 25000"
+			var mustFetchMapping = false;
+			if(!mappingFetched) {
+				mustFetchMapping = true;
+			}
+			if(mustFetchMapping) {
+				// don't do it if android is in sleep mode or webview not in front
+				if(typeof Android !== "undefined" && Android !== null) {
+					// is activityVisible?
+					if(Android.isActivityInteractive()) {
+						// it is OK to have mustFetchMapping==true
+					} else {
+						console.log("! connectToWsServer got wsConn, goOnlineSwitch on, !activityVisible");
+						mustFetchMapping = false;
+					}
 				}
-			},200,localVideoFrame.videoWidth);
-*/
-			if(typeof Android !== "undefined" && Android !== null) {
+			}
+			if(mustFetchMapping) {
+				console.log("connectToWsServer got wsConn, goOnlineSwitch on -> getSettings()");
 				getSettings();
 			} else {
+				console.log("connectToWsServer got wsConn, goOnlineSwitch on -> getSettingDone()");
 				getSettingDone();
 			}
 			showMissedCalls();
@@ -1476,6 +1490,8 @@ function connectToWsServer(message,comment) {
 		document.head.appendChild(document.createElement("style")).innerHTML =
 			"input:checked + .slider::before {background: #4cf;}";
 			// same color as .checkbox:checked background-color
+	} else {
+		console.log("! connectToWsServer no wsConn");
 	}
 
 	iconContactsElement.style.display = "block";
@@ -1612,6 +1628,10 @@ function wsOnClose2() {
 	wsConn=null;
 	showVisualOffline("wsOnClose2");
 	stopAllAudioEffects("wsOnClose");
+
+	console.log("### spinner off wsOnClose2");
+	spinnerStarting = false;
+	divspinnerframe.style.display = "none";
 }
 
 function wsOnMessage(evt) {
@@ -1946,14 +1966,17 @@ function signalingCommand(message, comment) {
 
 	} else if(cmd=="textmode") {
 		textmode = payload;
-		console.log("textmode",textmode);
 		if(textmode=="true") {
+			console.log("cmd==textmode set");
 			if(muteMicElement.checked==false) {
 				muteMicElement.checked = true;
 				// if we change the state of the muteMic checkbox here, we need to auto-change it back on hangup
 				// only then do we ever auto-change the state of this checkbox
 				muteMicModified = true;
+				console.log("cmd==textmode set, muteMicElement.checked");
 			}
+		} else {
+			console.log("cmd==textmode not set "+textmode);
 		}
 
 	} else if(cmd=="rtcNegotiate") {
@@ -2097,25 +2120,29 @@ function showMissedCalls() {
 		nextDrawDelay = 10000;
 		skipRender = true;
 	}
-	if(missedCallsSlice==null || missedCallsSlice.length<=0) {
-		//console.log("! showMissedCalls skip: missedCallsSlice==null");
-		missedCallsTitleElement.style.display = "none";
-		missedCallsElement.style.display = "none";
-		missedCallsElement.innerHTML = "";
-		skipRender = true;
+	if(!skipRender) {
+		if(missedCallsSlice==null || missedCallsSlice.length<=0) {
+			//console.log("! showMissedCalls skip: missedCallsSlice==null");
+			missedCallsTitleElement.style.display = "none";
+			missedCallsElement.style.display = "none";
+			missedCallsElement.innerHTML = "";
+			skipRender = true;
+		}
 	}
 
-	// if activity is paused, skip to setTimeout
-	if(typeof Android !== "undefined" && Android !== null) {
-		if(typeof Android.isActivityInteractive !== "undefined" && Android.isActivityInteractive !== null) {
-			if(Android.isActivityInteractive()) {
-				//console.log("showMissedCalls activity is interactive");
+	if(!skipRender) {
+		// if activity is paused, skip to setTimeout
+		if(typeof Android !== "undefined" && Android !== null) {
+			if(typeof Android.isActivityInteractive !== "undefined" && Android.isActivityInteractive !== null) {
+				if(Android.isActivityInteractive()) {
+					//console.log("showMissedCalls activity is interactive");
+				} else {
+					skipRender = true;
+					//console.log("! showMissedCalls skip: activity not interactive");
+				}
 			} else {
-				skipRender = true;
-				//console.log("! showMissedCalls skip: activity not interactive");
+				//console.log("showMissedCalls activity isActivityInteractive unavailable");
 			}
-		} else {
-			//console.log("showMissedCalls activity isActivityInteractive unavailable");
 		}
 	}
 
@@ -2506,7 +2533,7 @@ function prepareCallee(sendInitFlag,comment) {
 			}
 
 			// we are offline and (so far) not connecting
-			console.log("spinner on prepareCallee Android.isConnected()<=0");
+			console.log("### spinner on prepareCallee Android.isConnected()<=0");
 			spinnerStarting = true;
 			setTimeout(function(oldWidth) {
 				if(spinnerStarting) {
@@ -2526,7 +2553,7 @@ function prepareCallee(sendInitFlag,comment) {
 			// no Android service,fall through
 			console.log("prepareCallee no Android service, fall through");
 /*
-			//console.log("spinner on prepareCallee brpwser mode");
+			//console.log("### spinner on prepareCallee brpwser mode");
 			spinnerStarting = true;
 			setTimeout(function(oldWidth) {
 				if(spinnerStarting) {
@@ -2557,12 +2584,11 @@ function prepareCallee(sendInitFlag,comment) {
 	}
 
 	console.log('prepareCallee have wsConn');
-	//console.log("spinner off prepareCallee");
 	if(sendInitFlag) {
 		// will cause sessionId
 		sendInit("prepareCallee <- "+comment);
 	}
-	getSettings(); // display ownID links
+	getSettings(); // -> getSettingsDone() to display ownID links
 
 	console.log("### spinner off prepareCallee");
 	spinnerStarting = false;
@@ -2576,7 +2602,7 @@ function newPeerCon(comment) {
 		console.log("newPeerCon("+comment+") new RTCPeerConnection ready");
 	} catch(ex) {
 		console.error("# newPeerCon("+comment+") RTCPeerConnection "+ex.message);
-		console.log("spinner off newPeerCon ex");
+		console.log("### spinner off newPeerCon ex");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 
@@ -3041,8 +3067,6 @@ function pickup4(comment) {
 	wsSend("pickup|!");
 
 //	peerConIndicator.src="red-gradient.svg";
-// TODO only if: screen and (min-width: 560px)
-//	answerButtons.style.gridTemplateColumns = "5fr 5fr 5fr 5fr";
 	chatButton.style.display = "block";
 
 	// filetransfer button (fileselectLabel) is still hidden
@@ -3687,9 +3711,16 @@ function exit() {
 		// wait for pulldown menu to close
 		setTimeout(function() {
 			// ask yes/no
+/*
 			let yesNoInner = "<div style='position:absolute; z-index:110; background:#45dd; color:#fff; padding:20px 20px; line-height:1.6em; border-radius:3px; cursor:pointer; min-width:240px; top:40px; left:50%; transform:translate(-50%,0%);'><div style='font-weight:600;'>Exit?</div><br>"+
 			"WebCall will shut down. You will need to restart the app to receive calls.<br><br>"+
 			"<a onclick='Android.wsExit();history.back();'>Exit!</a> &nbsp; &nbsp; <a onclick='history.back();'>Cancel</a></div>";
+*/
+			let yesNoInner = "<div style='position:absolute; z-index:110; background:#45dd; color:#fff; padding:20px 20px; line-height:1.6em; border-radius:3px; cursor:pointer; min-width:240px; top:40px; left:50%; transform:translate(-50%,0%);'><div style='font-weight:600;'>Exit?</div><br>"+
+			"WebCall will be closed and will stop running in the background until you restart it. You can restart the app without being asked for your password. (Unless you clear the cookie.)<br><br>"+
+			"<a onclick='Android.wsExit();history.back();'>Exit!</a> &nbsp; &nbsp; <a onclick='history.back();'>Cancel</a></div>";
+
+
 			menuDialogOpen(dynDialog,0,yesNoInner);
 		},300);
 	} else {
@@ -3705,7 +3736,7 @@ function wakeGoOnline() {
 	wsOnOpen();
 	//prepareCallee(true,"wakeGoOnline");   // wsSend("init|!")
 
-	//console.log("spinner off wakeGoOnline");
+	//console.log("### spinner off wakeGoOnline");
 	//spinnerStarting = false;
 	//divspinnerframe.style.display = "none";
 	gLog("wakeGoOnline done");
@@ -3731,7 +3762,7 @@ function wakeGoOnlineNoInit() {
 		}
 	}
 
-	//console.log("spinner off wakeGoOnlineNoInit");
+	//console.log("### spinner off wakeGoOnlineNoInit");
 	//spinnerStarting = false;
 	//divspinnerframe.style.display = "none";
 	gLog("wakeGoOnlineNoInit done");
