@@ -3716,7 +3716,7 @@ function exit() {
 			"WebCall will shut down. You will need to restart the app to receive calls.<br><br>"+
 			"<a onclick='Android.wsExit();history.back();'>Exit!</a> &nbsp; &nbsp; <a onclick='history.back();'>Cancel</a></div>";
 */
-			let yesNoInner = "<div style='position:absolute; z-index:110; background:#45dd; color:#fff; padding:20px 20px; line-height:1.6em; border-radius:3px; cursor:pointer; min-width:240px; top:40px; left:50%; transform:translate(-50%,0%);'><div style='font-weight:600;'>Exit?</div><br>"+
+			let yesNoInner = "<div style='position:absolute; z-index:110; background:#45dd; color:#fff; padding:15px 15px; line-height:1.4em; border-radius:3px; cursor:pointer; min-width:240px; top:30px; left:50%; transform:translate(-50%,0%);'><div style='font-weight:600;'>Exit?</div><br>"+
 			"WebCall will be closed and will stop running in the background until you restart it. You can restart the app without being asked for your password. (Unless you clear the cookie.)<br><br>"+
 			"<a onclick='Android.wsExit();history.back();'>Exit!</a> &nbsp; &nbsp; <a onclick='history.back();'>Cancel</a></div>";
 
