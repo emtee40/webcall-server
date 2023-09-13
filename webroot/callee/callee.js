@@ -1259,7 +1259,7 @@ function gotStream2() {
 		localStream = null;
 	}
 
-	// TODO what does rtcConnect have to do with this?
+// TODO what does rtcConnect have to do with this?
 	if(onGotStreamGoOnline /*&& !rtcConnect*/) {
 		// we start prepareCallee() bc auto=1 has set onGotStreamGoOnline in onLoad
 		// NOTE this works only for Android clients (and will not be enabled for pure browsing mode)
@@ -1279,11 +1279,6 @@ function gotStream2() {
 		}
 	} else {
 		//console.log("gotStream2 onGotStreamGoOnline="+onGotStreamGoOnline+" rtcConnect="+rtcConnect);
-/*
-		console.log("### spinner off gotStream2 no onGotStreamGoOnline");
-		spinnerStarting = false;
-		divspinnerframe.style.display = "none";
-*/
 		if(wsConn==null) {
 			// we are offline, this usually occurs onload in pure browser mode
 			console.log("gotStream2 wsConn==null, stay offline, no sendInit");
@@ -1293,8 +1288,6 @@ function gotStream2() {
 			// we are connected to server already
 			goOnlineSwitch.checked = true;
 			goOnlineSwitchChange("gotStream2 onGotStreamGoOnline");
-			// send init to request list of missedCalls
-			//sendInit("gotStream2");
 		}
 	}
 }
@@ -1389,7 +1382,7 @@ function connectToWsServer(message,comment) {
 
 	if(wsAddr=="") {
 		// NOTE: Android.wsOpen() only needs wsAddr if it is not yet connected
-		console.log("! connectToWsServer '"+comment+"' '"+message+"' wsAddr missing");
+		console.log("connectToWsServer '"+comment+"' '"+message+"' wsAddr missing");
 	} else {
 		console.log("connectToWsServer '"+comment+"' '"+message+"' wsAddr="+wsAddr);
 	}
@@ -1468,11 +1461,13 @@ function connectToWsServer(message,comment) {
 				// don't do it if android is in sleep mode or webview not in front
 				if(typeof Android !== "undefined" && Android !== null) {
 					// is activityVisible?
-					if(Android.isActivityInteractive()) {
-						// it is OK to have mustFetchMapping==true
-					} else {
-						console.log("! connectToWsServer got wsConn, goOnlineSwitch on, !activityVisible");
-						mustFetchMapping = false;
+					if(typeof Android.isActivityInteractive !== "undefined" && Android.isActivityInteractive !== null) {
+						if(Android.isActivityInteractive()) {
+							// it is OK to have mustFetchMapping==true
+						} else {
+							console.log("! connectToWsServer got wsConn, goOnlineSwitch on, !activityVisible");
+							mustFetchMapping = false;
+						}
 					}
 				}
 			}
@@ -1650,7 +1645,7 @@ var startIncomingCall;
 function signalingCommand(message, comment) {
 	// either called by wsOnMessage() (ws engine) or by wsOnMessage2() (Android service)
 	// to push msgs from WebCall server to be processed in JS
-	//console.log("signalingCommand "+message+" comment="+comment);
+	console.log("signalingCommand "+message+" comment="+comment);
 	let tok = message.split("|");
 	let cmd = tok[0];
 	let payload = "";
@@ -2622,7 +2617,7 @@ function newPeerCon(comment) {
 		// don't warn on 701 (chrome "701 STUN allocate request timed out")
 		// 400 = bad request
 		if(e.errorCode==701) {
-			console.log("# peerCon onicecandidateerror " + e.errorCode+" "+e.errorText+" "+e.url,-1);
+			//console.log("# peerCon onicecandidateerror " + e.errorCode+" "+e.errorText+" "+e.url,-1);
 		} else {
 			console.log("# peerCon onicecandidateerror " + e.errorCode+" "+e.errorText,-1);
 		}
