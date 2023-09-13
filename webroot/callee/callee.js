@@ -2635,12 +2635,12 @@ function newPeerCon(comment) {
 			console.log('! peerCon onnegotiationneeded deny: no peerCon');
 			return;
 		}
-/*
+
 		if(!rtcConnect) {
-			console.log('! peerCon onnegotiationneeded deny: no rtcConnect');
-			return;
+			console.log('! (skip) peerCon onnegotiationneeded deny: no rtcConnect');
+			//return;
 		}
-*/
+
 		try {
 			// this will trigger g and send hostCandidate's to the client
 			console.log("peerCon onnegotiationneeded createOffer");

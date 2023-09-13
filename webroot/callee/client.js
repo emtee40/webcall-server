@@ -1697,7 +1697,7 @@ function showStatus(msg,timeoutMs) {
 		showStatusTimeout = setTimeout(function() {
 			// msg here is the old msg, but showStatusMsg might be different by now
 			if(msg==showStatusMsg) {
-				console.log("showStatus start opacityTransition msg="+msg);
+				//console.log("showStatus start opacityTransition msg="+msg);
 				let opacityTransitioned = function() {
 					// this occurs after the opacity-transition time of 600ms
 					gLog("showStatus opacityTransitioned msg="+msg+" statusMsg="+showStatusMsg);
@@ -1705,7 +1705,7 @@ function showStatus(msg,timeoutMs) {
 						// still showing the old msg: clear it
 						// NOTE: if we assign an empty string, status line will collaps vertically
 						//statusLine.innerHTML = "&nbsp;";
-						console.log("showStatus opacityTransitioned ended");
+						//console.log("showStatus opacityTransitioned ended");
 					} else {
 						// we are already showing a newer status msg: don't clear it
 					}
