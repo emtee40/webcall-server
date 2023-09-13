@@ -734,9 +734,9 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 		if !c.calleeInitReceived.Load() {
 			// on first init only
 			fmt.Printf("%s (%s) init %s\n", c.connType, c.calleeID, c.RemoteAddr)
-			c.hub.HubMutex.Lock()
-			c.hub.CallerClient = nil
-			c.hub.HubMutex.Unlock()
+//			c.hub.HubMutex.Lock()
+//			c.hub.CallerClient = nil
+//			c.hub.HubMutex.Unlock()
 
 			c.calleeInitReceived.Store(true)
 			c.hub.CalleeLogin.Store(true)
@@ -1059,7 +1059,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 			c.hub.CallerClient.calleeAnswerReceived <- struct{}{}
 		} else {
 			if logWantedFor("wsclose") {
-			  fmt.Printf("%s (%s) calleeAnswer no c.hub.CallerClient %s\n", c.connType, c.calleeID, c.RemoteAddr)
+				fmt.Printf("%s (%s) calleeAnswer no c.hub.CallerClient %s\n", c.connType, c.calleeID, c.RemoteAddr)
 			}
 		}
 		// must still forward calleeAnswer to caller (see below: cmd/payload to other client)
@@ -1619,6 +1619,8 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 						c.hub.closePeerCon("fw msg to caller "+err.Error())
 						return
 					}
+				} else {
+					fmt.Printf("# %s (%s) fw msg to CallerClient==nil\n", c.connType, c.calleeID)
 				}
 			} else {
 				// c is caller
@@ -1632,6 +1634,8 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 						c.hub.closeCallee("fw msg to callee: "+err.Error())
 						return
 					}
+				} else {
+					fmt.Printf("# %s (%s) fw msg to CalleeClient==nil\n", c.connType, c.calleeID)
 				}
 			}
 			c.hub.HubMutex.RUnlock()

@@ -83,7 +83,7 @@ func runTurnServer() {
 				maxTalkSecsIfNoP2pTmp := maxTalkSecsIfNoP2p
 				readConfigLock.RUnlock()
 
-				if timeSinceFirstFound.Seconds() <= float64(maxTalkSecsIfNoP2pTmp) {
+				if maxTalkSecsIfNoP2pTmp<=0 || timeSinceFirstFound.Seconds() <= float64(maxTalkSecsIfNoP2pTmp) {
 					foundIp = true
 					foundCalleeId = turnCallee.CalleeID
 					foundByMap = true

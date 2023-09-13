@@ -97,6 +97,7 @@ var newestMissedCallBingClock = 0;
 var lastInnerWidth = 0;
 var spinnerStarting = false;
 var mappingFetched = false;
+var startedWithRinging = false;
 
 window.onload = function() {
 	console.log("callee.js onload...");
@@ -698,6 +699,16 @@ function start() {
 		showOnlineReadyMsg();
 	}
 
+//tmtmtm if isRinging(): callee.js was started with a call already waiting
+// to be quicker, lets skip getStream() and jump straight to processWebRtcMessages
+	if(typeof Android.wsClearCookies !== "undefined" && Android.wsClearCookies !== null) {
+		if(Android.isRinging()) {
+			console.log("--------- start isRinging skip getStream()");
+			startedWithRinging = true;
+			// will be evaluated in showOnlineReadyMsg()
+			return;
+		}
+	}
 	try {
 		getStream().then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 		//getStream() -> getUserMedia(constraints) -> gotStream2() -> prepareCallee()
@@ -1335,11 +1346,17 @@ function showOnlineReadyMsg() {
 		console.log("showOnlineReadyMsg");
 		if(typeof Android !== "undefined" && Android !== null) {
 			if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
+				// Android.calleeConnected() does not do a lot
 				Android.calleeConnected();
 				// calleeConnected() does 2 things:
 				// 1. postStatus("state","connected");
 				// 2. statusMessage(readyToReceiveCallsString,-1,true,false);
 				//return;
+				if(startedWithRinging) {
+					startedWithRinging = false;
+					Android.calleeReady();
+					showStatus("Incoming call...",-1);
+				}
 			}
 		}
 
@@ -1641,12 +1658,16 @@ function wsOnMessage2(str, comment) {
 	signalingCommand(str, comment);
 }
 
-var startIncomingCall;
+var startIncomingCall = 0;
+var signalingCommandCount = 0;
 function signalingCommand(message, comment) {
 	// either called by wsOnMessage() (ws engine) or by wsOnMessage2() (Android service)
 	// to push msgs from WebCall server to be processed in JS
-	// OUT-COMMENT THIS LINE TO LOG ALL callerCandidates
-	//console.log("signalingCommand "+message+" comment="+comment);
+	// OUTCOMMENT THIS LINE TO LOG ALL callerCandidates
+	signalingCommandCount++;
+	if(!rtcConnect) {
+		console.log("signalingCommand "+message+" comment="+comment+" xcount="+signalingCommandCount);
+	}
 	let tok = message.split("|");
 	let cmd = tok[0];
 	let payload = "";
@@ -2401,6 +2422,7 @@ function wsSend(message) {
 
 function sendInit(comment) {
 	console.log("sendInit() from: "+comment);
+	signalingCommandCount = 0;
 	wsSend("init|"+comment); // -> connectToWsServer()
 	// server will respond to this with "sessionId|(serverVersion)"
 	// when we receive "sessionId|", we call showOnlineReadyMsg() and Android.calleeConnected()
@@ -2615,9 +2637,11 @@ function newPeerCon(comment) {
 
 	peerCon.onicecandidate = e => onIceCandidate(e,"calleeCandidate");
 	peerCon.onicecandidateerror = function(e) {
-		// don't warn on 701 (chrome "701 STUN allocate request timed out")
-		// 400 = bad request
 		if(e.errorCode==701) {
+			// don't warn on 701 (chrome "701 STUN allocate request timed out")
+			//console.log("# peerCon onicecandidateerror " + e.errorCode+" "+e.errorText+" "+e.url,-1);
+		} else if(e.errorCode==400) {
+			// don't warn on 400 = bad request
 			//console.log("# peerCon onicecandidateerror " + e.errorCode+" "+e.errorText+" "+e.url,-1);
 		} else {
 			console.log("# peerCon onicecandidateerror " + e.errorCode+" "+e.errorText,-1);

@@ -1,6 +1,6 @@
 // WebCall Copyright 2023 timur.mobi. All rights reserved.
 'use strict';
-const clientVersion = '4.0.0-beta15';
+const clientVersion = '4.0.0-beta16';
 
 const avSelect = document.querySelector("select#avSelect");
 const vresDialogElement = document.getElementById('vresDialog');
@@ -785,11 +785,12 @@ function onIceCandidate(event,myCandidateName) {
 		console.log("# onIce "+myCandidateName+" readyS!=1 "+event.candidate.address+" "+wsConn.readyState);
 	} else {
 		onIceCandidates++;
-		gLog("onIce "+myCandidateName+" wsSend "+event.candidate.address+" "+onIceCandidates);
+		let jsonString = JSON.stringify(event.candidate);
+		gLog("onIce "+myCandidateName+" wsSend "+jsonString+" "+onIceCandidates);
 		// 300ms delay to prevent "cmd "+myCandidateName+" no peerCon.remoteDescription" on other side
 		setTimeout(function() {
 			if(!doneHangup) {
-				wsSend(myCandidateName+"|"+JSON.stringify(event.candidate));
+				wsSend(myCandidateName+"|"+jsonString);
 			}
 		},300);
 	}

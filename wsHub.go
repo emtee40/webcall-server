@@ -263,6 +263,9 @@ func (h *Hub) closeCaller(cause string) {
 	if h.CallerClient!=nil {
 		h.CallerClient.Close(cause)
 		// this will prevent NO PEERCON after hangup or after calls shorter than 10s
+		if logWantedFor("wsclose") {
+			fmt.Printf("%s (%s) closeCaller\n", h.CalleeClient.connType, h.CalleeClient.calleeID)
+		}
 		h.CallerClient = nil
 	}
 	h.HubMutex.Unlock()
