@@ -2635,10 +2635,9 @@ function newPeerCon(comment) {
 			console.log('! peerCon onnegotiationneeded deny: no peerCon');
 			return;
 		}
-
 		if(!rtcConnect) {
-			console.log('! (skip) peerCon onnegotiationneeded deny: no rtcConnect');
-			//return;
+			console.log('! peerCon onnegotiationneeded deny: no rtcConnect');
+			return;
 		}
 
 		try {
