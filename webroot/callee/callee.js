@@ -1645,7 +1645,8 @@ var startIncomingCall;
 function signalingCommand(message, comment) {
 	// either called by wsOnMessage() (ws engine) or by wsOnMessage2() (Android service)
 	// to push msgs from WebCall server to be processed in JS
-	console.log("signalingCommand "+message+" comment="+comment);
+	// OUT-COMMENT THIS LINE TO LOG ALL callerCandidates
+	//console.log("signalingCommand "+message+" comment="+comment);
 	let tok = message.split("|");
 	let cmd = tok[0];
 	let payload = "";
@@ -2634,10 +2635,12 @@ function newPeerCon(comment) {
 			console.log('! peerCon onnegotiationneeded deny: no peerCon');
 			return;
 		}
+/*
 		if(!rtcConnect) {
 			console.log('! peerCon onnegotiationneeded deny: no rtcConnect');
 			return;
 		}
+*/
 		try {
 			// this will trigger g and send hostCandidate's to the client
 			console.log("peerCon onnegotiationneeded createOffer");
