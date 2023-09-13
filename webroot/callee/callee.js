@@ -702,13 +702,16 @@ function start() {
 //tmtmtm if isRinging(): callee.js was started with a call already waiting
 // to be quicker, lets skip getStream() and jump straight to processWebRtcMessages
 	if(typeof Android.wsClearCookies !== "undefined" && Android.wsClearCookies !== null) {
-		if(Android.isRinging()) {
-			console.log("--------- start isRinging skip getStream()");
-			startedWithRinging = true;
-			// will be evaluated in showOnlineReadyMsg()
-			return;
+		if(typeof Android.isRinging !== "undefined" && Android.isRinging !== null) {
+			if(Android.isRinging()) {
+				console.log("--------- start isRinging skip getStream()");
+				startedWithRinging = true;
+				// will be evaluated in showOnlineReadyMsg()
+				return;
+			}
 		}
 	}
+
 	try {
 		getStream().then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 		//getStream() -> getUserMedia(constraints) -> gotStream2() -> prepareCallee()
