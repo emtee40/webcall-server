@@ -2020,7 +2020,7 @@ function signalingCommand(message) {
 				gLog("xhr setcontact OK "+xhr.responseText);
 			}, errorAction2);
 		} else {
-			console.log('signalingCommand no store contact',contactAutoStore,cookieName,calleeID);
+			//console.log('signalingCommand no store contact',contactAutoStore,cookieName,calleeID);
 		}
 
 		if(!peerCon || peerCon.iceConnectionState=="closed") {
@@ -2028,18 +2028,18 @@ function signalingCommand(message) {
 			return;
 		}
 		let hostDescription = JSON.parse(payload);
-		gLog("calleeAnswer setLocalDescription (onIceCandidates="+onIceCandidates+")");
+		//console.log("calleeAnswer setLocalDescription (onIceCandidates="+onIceCandidates+")");
 		// setLocalDescription will cause "onsignalingstate have-local-offer"
 		peerCon.setLocalDescription(localDescription).then(() => {
-			gLog('calleeAnswer setRemoteDescription');
+			//console.log('calleeAnswer setRemoteDescription');
 			peerCon.setRemoteDescription(hostDescription).then(() => {
-				gLog('calleeAnswer setRemoteDescription done');
+				console.log("calleeAnswer setRemoteDescription done");
 			}, err => {
 				console.warn("calleeAnswer setRemoteDescription fail",err)
 				showStatus("Cannot set remoteDescr "+err);
 			});
 		}, err => {
-			console.warn("calleeAnswer setLocalDescription fail",err)
+			console.warn("# calleeAnswer setLocalDescription fail",err)
 			showStatus("Cannot set localDescr"+err);
 		});
 
@@ -2049,7 +2049,7 @@ function signalingCommand(message) {
 		console.log('calleeOffer setRemoteDescription');
 
 		peerCon.setRemoteDescription(hostDescription).then(() => {
-			console.log('calleeOffer setRemoteDescription done');
+			console.log("calleeOffer setRemoteDescription done");
 
 			if(hostDescription.type == "offer") {
 				console.log('calleeOffer received offer createAnswer');
@@ -2094,51 +2094,53 @@ function signalingCommand(message) {
 		// see: https://stackoverflow.com/questions/61292934/webrtc-operationerror-unknown-ufrag
 		calleeCandidate.usernameFragment = null;
 
-		var addIceCalleeCandidate = function(calleeCandidate) {
+		var addIceCalleeCandidate = function(calleeCandidate,loop) {
 			if(calleeCandidate.candidate==null) {
 				if(!gentle) console.warn('calleeCandidate.candidate==null');
 				return
 			}
 
-			//gLog('calleeCandidate',calleeCandidate.candidate);
-
 			let tok = calleeCandidate.candidate.split(' ');
-			if(tok.length>=5) {
-				let address = tok[4];
-				if(tok.length>=10 && tok[8]=="raddr" && tok[9]!="" && tok[9].length>=7 && tok[9]!="0.0.0.0") {
-					address = tok[9];
-				}
-				gLog('calleeCandidate addIce',address,calleeCandidate.candidate);
-				// "Failed to execute 'addIceCandidate' on 'RTCPeerConnection'"
-				// may happen if peerCon.setRemoteDescription is not finished yet
-				if(!peerCon || peerCon.iceConnectionState=="closed") {
-					console.warn('cmd calleeCandidate abort no peerCon');
-					return;
-				}
-				if(!peerCon.remoteDescription) {
-					// this happens bc setRemoteDescription may take a while
-					gLog("cmd calleeCandidate !peerCon.remoteDescription",
-						calleeCandidate.candidate);
-					setTimeout(addIceCalleeCandidate,100,calleeCandidate);
-					return;
-				}
-				if(!peerCon.remoteDescription.type) {
-					gLog("cmd calleeCandidate !peerCon.remoteDescription.type",
-						calleeCandidate.candidate);
-					setTimeout(addIceCalleeCandidate,100,calleeCandidate);
-					return;
-				}
-				peerCon.addIceCandidate(calleeCandidate).catch(e => {
-					console.error("addIce calleeCandidate",e,payload);
-					showStatus("RTC error "+e);
-				});
-			} else {
+			if(tok.length<5) {
 				if(calleeCandidate.candidate!="") {
-					console.warn("cmd calleeCandidate format err",calleeCandidate.candidate);
+					console.warn("# cmd calleeCandidate format err",calleeCandidate.candidate);
 				}
+				return;
 			}
+			let address = tok[4];
+			if(tok.length>=10 && tok[8]=="raddr" && tok[9]!="" && tok[9].length>=7 && tok[9]!="0.0.0.0") {
+				address = tok[9];
+			}
+			console.log("calleeCandidate",address,calleeCandidate.candidate);
+			// "Failed to execute 'addIceCandidate' on 'RTCPeerConnection'"
+			// may happen if peerCon.setRemoteDescription is not finished yet
+			if(!peerCon || peerCon.iceConnectionState=="closed") {
+				console.warn("# cmd calleeCandidate abort no peerCon");
+				return;
+			}
+			if(!peerCon.remoteDescription) {
+				// this happens bc setRemoteDescription may take a while
+				if(loop<6) {
+					//console.warn("! cmd calleeCandidate !peerCon.remoteDescription "+loop,calleeCandidate.candidate);
+					setTimeout(addIceCalleeCandidate,100,calleeCandidate,loop+1);
+				} else {
+					console.warn("# cmd calleeCandidate !peerCon.remoteDescription "+loop,
+						calleeCandidate.candidate);
+				}
+				return;
+			}
+			if(!peerCon.remoteDescription.type) {
+				console.warn("# cmd calleeCandidate !peerCon.remoteDescription.type "+loop,
+					calleeCandidate.candidate);
+				setTimeout(addIceCalleeCandidate,100,calleeCandidate,loop+1);
+				return;
+			}
+			peerCon.addIceCandidate(calleeCandidate).catch(e => {
+				console.error("# addIce calleeCandidate",e,payload);
+				showStatus("RTC error "+e);
+			});
 		}
-		addIceCalleeCandidate(calleeCandidate);
+		addIceCalleeCandidate(calleeCandidate,1);
 
 	} else if(cmd=="pickup") {
 		// callee has picked up the call
@@ -2311,7 +2313,7 @@ function signalingCommand(message) {
 
 	} else if(cmd=="ring") {
 		earlyRing = true;
-		console.log('cmd ring (earlyRing)');
+		console.log("cmd ring");
 		showStatus(lg("ringingText"),-1); // Ringing...
 	} else if(cmd=="sessionDuration") {
 		// longest possible call duration
@@ -2515,7 +2517,7 @@ function dial2() {
 
 			peerCon.setLocalDescription(localDescription).then(() => {
 				if(doneHangup) {
-					console.log('# peerCon onnegotiationneeded deny send: doneHangup');
+					console.log('! peerCon onnegotiationneeded deny doneHangup sent');
 				} else if(!rtcConnect && !dialing) {
 					console.log('# onnegotiationneeded deny send: !rtcConnect && !dialing');
 				} else if(isDataChlOpen()) {

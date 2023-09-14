@@ -764,10 +764,12 @@ function menuDialogClose() {
 }
 
 function onIceCandidate(event,myCandidateName) {
+	// this is used by both peers
 	if(doneHangup) {
 		console.log('# onIce ignored after doneHangup '+JSON.stringify(event.candidate));
 		return;
 	}
+	// fw the iceCandidates ('calleeCandidate') we got from the webrtc engine to the other peer
 	if(event.candidate==null) {
 		// ICE gathering has finished
 		gLog('onIce end of candidates');
@@ -776,7 +778,7 @@ function onIceCandidate(event,myCandidateName) {
 		// console.log('# onIce skip event.candidate.address==null '+JSON.stringify(event.candidate));
 	} else if(isDataChlOpen()) {
 		onIceCandidates++;
-		console.log("onIce "+myCandidateName+" dataChl doneHangup="+doneHangup);
+		console.log("----- onIce "+myCandidateName+" dataChl doneHangup="+doneHangup);
 		dataChannel.send("cmd|"+myCandidateName+"|"+JSON.stringify(event.candidate));
 	} else if(wsConn==null) {
 		console.log("# onIce "+myCandidateName+": wsConn==null "+event.candidate.address+" "+onIceCandidates);
@@ -786,13 +788,13 @@ function onIceCandidate(event,myCandidateName) {
 	} else {
 		onIceCandidates++;
 		let jsonString = JSON.stringify(event.candidate);
-		gLog("onIce "+myCandidateName+" wsSend "+jsonString+" "+onIceCandidates);
-		// 300ms delay to prevent "cmd "+myCandidateName+" no peerCon.remoteDescription" on other side
-		setTimeout(function() {
-			if(!doneHangup) {
+		//console.log("----- onIce "+myCandidateName+" wsSend "+jsonString+" "+onIceCandidates);
+		// 300ms delay to prevent "cmd "+myCandidateName+" !peerCon.remoteDescription" on other side
+		//setTimeout(function() {
+		//	if(!doneHangup) {
 				wsSend(myCandidateName+"|"+jsonString);
-			}
-		},300);
+		//	}
+		//},300);
 	}
 }
 

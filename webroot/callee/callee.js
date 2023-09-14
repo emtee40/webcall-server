@@ -1706,10 +1706,10 @@ function signalingCommand(message, comment) {
 					'useinbandfec=1;usedtx=1;stereo=1;maxaveragebitrate='+bitrate+';');
 				peerCon.setLocalDescription(localDescription).then(() => {
 					if(isDataChlOpen()) {
-						console.log('calleeAnswer localDescription set -> signal via dataChl');
+						console.log("calleeAnswer localDescription set -> signal via dataChl");
 						dataChannel.send("cmd|calleeAnswer|"+JSON.stringify(localDescription));
 					} else {
-						console.log('calleeAnswer localDescription set -> signal via wsSend');
+						console.log("calleeAnswer localDescription set -> signal via wsSend");
 						wsSend("calleeAnswer|"+JSON.stringify(localDescription));
 					}
 				}, err => console.error(`# Failed to set local descr: ${err.toString()}`));
@@ -1783,8 +1783,7 @@ function signalingCommand(message, comment) {
 
 		// peerCon.addIceCandidate(callerCandidate)
 		callerCandidate.usernameFragment = null;
-		let addIceReloopCounter=0;
-		var addIceCallerCandidate = function(callerCandidate) {
+		var addIceCallerCandidate = function(callerCandidate,loop) {
 			if(!peerCon || peerCon.iceConnectionState=="closed") {
 				console.log("# cmd callerCandidate abort no peerCon");
 				// TODO shall we not move stopAllAudioEffects() into endWebRtcSession() ?
@@ -1795,18 +1794,17 @@ function signalingCommand(message, comment) {
 				return;
 			}
 			if(!peerCon.remoteDescription) {
-				addIceReloopCounter++;
-				if(addIceReloopCounter<6) {
-					console.warn("cmd callerCandidate !peerCon.remoteDescription "+addIceReloopCounter);
-					setTimeout(addIceCallerCandidate,500,callerCandidate);
+				if(loop<6) {
+					//console.log("! cmd callerCandidate !peerCon.remoteDescription "+loop);
+					setTimeout(addIceCallerCandidate,100,callerCandidate,loop+1);
 				} else {
-					console.warn("abort cmd callerCandidate !peerCon.remoteDescription");
+					console.warn("# abort cmd callerCandidate !peerCon.remoteDescription");
 				}
 				return;
 			}
 			let tok = callerCandidate.candidate.split(' ');
 			if(tok.length<5) {
-				console.warn("cmd callerCandidate format err",payload);
+				console.warn("# cmd callerCandidate format err",payload);
 				return;
 			}
 			let address = tok[4];
@@ -1827,7 +1825,7 @@ function signalingCommand(message, comment) {
 // candidate:1151307505 1 tcp 1518280447 192.168.3.209 9 typ host tcptype active generation 0 ufrag /RrR network-id 1
 // candidate:2337567925 1 udp 1686052607 37.201.195.49 47218 typ srflx raddr 192.168.3.209 rport 19890 generation 0 ufrag /RrR network-id 1 L1451
 // candidate:240334351 1 udp 41885439 66.228.46.43 50178 typ relay raddr 37.201.195.49 rport 47218 generation 0 ufrag /RrR network-id 1
-			gLog("peerCon.addIceCandidate accept address="+address+" "+callerCandidate.candidate);
+			console.log("peerCon.addIceCandidate accept "+loop+" address="+address+" "+callerCandidate.candidate);
 			if(address.indexOf(":")>=0
 					|| address==outboundIP
 					|| address.endsWith(".local")
@@ -1842,11 +1840,11 @@ function signalingCommand(message, comment) {
 				}
 			}
 			peerCon.addIceCandidate(callerCandidate).catch(e => {
-				console.error("addIce callerCandidate",e.message,payload);
+				console.error("# addIce callerCandidate",e.message,payload);
 				showStatus("rtc error "+e.message);
 			});
 		}
-		addIceCallerCandidate(callerCandidate);
+		addIceCallerCandidate(callerCandidate,1);
 
 	} else if(cmd=="cancel") {
 		// this is a remote cancel (from server or from peer)
@@ -1985,7 +1983,7 @@ function signalingCommand(message, comment) {
 				console.log("cmd==textmode set, muteMicElement.checked");
 			}
 		} else {
-			console.log("cmd==textmode not set "+textmode);
+			//console.log("cmd==textmode not set "+textmode);
 		}
 
 	} else if(cmd=="rtcNegotiate") {
