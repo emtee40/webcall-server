@@ -2590,14 +2590,14 @@ function dial2() {
 					mediaConnectStartDate = 0;
 
 					// set goodbyTextMsg (including msgbox text) to be evaluated in goodby
-//					goodbyTextMsg = calleeID+"|"+callerName+"|"+callerId+
-//							"|"+Math.floor(Date.now()/1000)+"|"+msgbox.value.substring(0,300)
+					//goodbyTextMsg = calleeID+"|"+callerName+"|"+callerId+
+					//		"|"+Math.floor(Date.now()/1000)+"|"+msgbox.value.substring(0,300)
 					goodbyTextMsg = cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen)
 					gLog('set goodbyTextMsg='+goodbyTextMsg);
 
-					showStatus(lg("ringingText"),-1); // Ringing...
+					//showStatus(lg("ringingText"),-1); // Ringing...
 					onlineIndicator.src="green-gradient.svg";
-					console.log('peerCon rtcCon done');
+					//console.log('peerCon rtcCon done');
 				}
 				dialing = false;
 			}
