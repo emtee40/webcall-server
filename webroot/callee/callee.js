@@ -655,7 +655,7 @@ function goOnlineSwitchChange(comment) {
 		}
 
 		iconContactsElement.style.display = "none";
-		console.log("### spinner off goOnlineSwitchChange");
+		//console.log("### spinner off goOnlineSwitchChange");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 	}
@@ -699,14 +699,13 @@ function start() {
 		showOnlineReadyMsg();
 	}
 
-//tmtmtm if isRinging(): callee.js was started with a call already waiting
-// to be quicker, lets skip getStream() and jump straight to processWebRtcMessages
+	// if isRinging(): callee.js was started with a call already waiting
+	// to be quicker, lets skip getStream() and jump straight to processWebRtcMessages
 	if(typeof Android.wsClearCookies !== "undefined" && Android.wsClearCookies !== null) {
 		if(typeof Android.isRinging !== "undefined" && Android.isRinging !== null) {
 			if(Android.isRinging()) {
-				console.log("--------- start isRinging skip getStream()");
-				startedWithRinging = true;
-				// will be evaluated in showOnlineReadyMsg()
+				console.log("start isRinging skip getStream()");
+				startedWithRinging = true; // will be evaluated in showOnlineReadyMsg()
 				return;
 			}
 		}
@@ -718,7 +717,7 @@ function start() {
 		// if wsSecret is set from prepareCallee(), it will call login()
 	} catch(ex) {
 		console.log("# ex while searching for audio devices "+ex.message);
-		console.log("### spinner off start");
+		//console.log("### spinner off start");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 	}
@@ -747,7 +746,7 @@ function login(retryFlag,comment) {
 		let loginStatus = xhr.responseText;
 		console.log("login xhr loginStatus "+loginStatus);
 
-		console.log("### spinner off login");
+		//console.log("### spinner off login");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 
@@ -908,7 +907,7 @@ function login(retryFlag,comment) {
 			showStatus("xhr error "+err,3000);
 		}
 
-		console.log("### spinner off login error");
+		//console.log("### spinner off login error");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 
@@ -1135,11 +1134,6 @@ function getSettingDone() {
 		links += "</div>";
 		ownlinkElement.style.display = "block";
 		ownlinkElement.innerHTML = links;
-/*
-		console.log("### spinner off getSettingDone");
-		spinnerStarting = false;
-		divspinnerframe.style.display = "none";
-*/
 	}
 }
 
@@ -1242,7 +1236,7 @@ function gotStream2() {
 		return;
 	}
 
-	console.log("### spinner off gotStream2");
+	//console.log("### spinner off gotStream2");
 	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 
@@ -1385,7 +1379,7 @@ function showOnlineReadyMsg() {
 			"input:checked + .slider::before {background: #4cf;}";
 			// should be same as .checkbox:checked background-color
 
-		console.log("### spinner off showOnlineReadyMsg");
+		//console.log("### spinner off showOnlineReadyMsg");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 	},300);
@@ -1526,11 +1520,6 @@ function wsOnOpen() {
 	// however, bc wsConn!=null the call to goOnlineSwitchChange() will be aborted
 	// so prepareCallee() will NOT be called
 	//goOnline(false,"wsOnOpen");
-/*
-	console.log("### spinner off wsOnOpen");
-	spinnerStarting = false;
-	divspinnerframe.style.display = "none";
-*/
 	/*
 	window.addEventListener("beforeunload", function () {
 		// prevent "try reconnect in..." after "wsConn close" on unload
@@ -1644,7 +1633,7 @@ function wsOnClose2() {
 	showVisualOffline("wsOnClose2");
 	stopAllAudioEffects("wsOnClose");
 
-	console.log("### spinner off wsOnClose2");
+	//console.log("### spinner off wsOnClose2");
 	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 }
@@ -1669,7 +1658,7 @@ function signalingCommand(message, comment) {
 	// OUTCOMMENT THIS LINE TO LOG ALL callerCandidates
 	signalingCommandCount++;
 	if(!rtcConnect) {
-		console.log("signalingCommand "+message+" comment="+comment+" xcount="+signalingCommandCount);
+		//console.log("signalingCommand "+message+" comment="+comment+" xcount="+signalingCommandCount);
 	}
 	let tok = message.split("|");
 	let cmd = tok[0];
@@ -2441,7 +2430,7 @@ function hangup(mustDisconnect,dummy2,message) {
 	// showOnlineReadyMsg() is called in response to us calling sendInit() and the server responding with "sessionId|"
 	// hangup() -> endWebRtcSession() -> prepareCallee() -> sendInit() ... server "sessionId|" -> showOnlineReadyMsg()
 
-	console.log("### spinner off hangup");
+	//console.log("### spinner off hangup");
 	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 	callScreen.style.display = "none";
@@ -2611,7 +2600,7 @@ function prepareCallee(sendInitFlag,comment) {
 	}
 	getSettings(); // -> getSettingsDone() to display ownID links
 
-	console.log("### spinner off prepareCallee");
+	//console.log("### spinner off prepareCallee");
 	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 }
@@ -2623,7 +2612,7 @@ function newPeerCon(comment) {
 		console.log("newPeerCon("+comment+") new RTCPeerConnection ready");
 	} catch(ex) {
 		console.error("# newPeerCon("+comment+") RTCPeerConnection "+ex.message);
-		console.log("### spinner off newPeerCon ex");
+		//console.log("### spinner off newPeerCon ex");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 
@@ -3004,7 +2993,7 @@ function pickup2() {
 	if(!localStream) {
 		console.warn("# pickup2 no localStream");
 
-		console.log("### spinner off pickup2 no localStrean");
+		//console.log("### spinner off pickup2 no localStrean");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
 		stopAllAudioEffects("pickup2 no localStream");
@@ -3082,7 +3071,7 @@ function pickup4(comment) {
 	// android webview does this in 800-900ms
 
 	// end busy bee
-	console.log("### spinner off pickup4");
+	//console.log("### spinner off pickup4");
 	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 
@@ -3419,7 +3408,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	buttonBlinking = false;
 	callScreen.style.display = "none";
 
-	console.log("### spinner off endWebRtcSession");
+	//console.log("### spinner off endWebRtcSession");
 	spinnerStarting = false;
 	divspinnerframe.style.display = "none";
 
