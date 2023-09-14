@@ -2311,6 +2311,7 @@ function signalingCommand(message) {
 
 	} else if(cmd=="ring") {
 		earlyRing = true;
+		console.log('cmd ring (earlyRing)');
 		showStatus(lg("ringingText"),-1); // Ringing...
 	} else if(cmd=="sessionDuration") {
 		// longest possible call duration
@@ -2596,6 +2597,7 @@ function dial2() {
 
 					showStatus(lg("ringingText"),-1); // Ringing...
 					onlineIndicator.src="green-gradient.svg";
+					console.log('peerCon rtcCon done');
 				}
 				dialing = false;
 			}
