@@ -778,9 +778,10 @@ function onIceCandidate(event,myCandidateName) {
 		// console.log('# onIce skip event.candidate.address==null '+JSON.stringify(event.candidate));
 	} else if(isDataChlOpen()) {
 		onIceCandidates++;
-		//console.log(myCandidateName+" via dataChl");
-		console.log(onIceCandidates+" dataChl "+event.candidate.address);
-		dataChannel.send("cmd|"+myCandidateName+"|"+JSON.stringify(event.candidate));
+		let jsonString = JSON.stringify(event.candidate);
+		//console.log(myCandidateName+" dataChl "+onIceCandidates+" "+jsonString);
+		//console.log(myCandidateName+" dataChl "+onIceCandidates+" "+event.candidate.address);
+		dataChannel.send("cmd|"+myCandidateName+"|"+jsonString);
 	} else if(wsConn==null) {
 		console.log("# onIce "+myCandidateName+": wsConn==null "+event.candidate.address+" "+onIceCandidates);
 	} else if(typeof wsConn.readyState !== "undefined" && wsConn.readyState!=1) {
@@ -790,13 +791,8 @@ function onIceCandidate(event,myCandidateName) {
 		onIceCandidates++;
 		let jsonString = JSON.stringify(event.candidate);
 		//console.log(myCandidateName+" wsSend "+onIceCandidates+" "+jsonString);
-		console.log(myCandidateName+" wsSend "+onIceCandidates+" "+event.candidate.address);
-		// 300ms delay to prevent "cmd "+myCandidateName+" !peerCon.remoteDescription" on other side
-		//setTimeout(function() {
-		//	if(!doneHangup) {
-				wsSend(myCandidateName+"|"+jsonString);
-		//	}
-		//},300);
+		//console.log(myCandidateName+" wsSend "+onIceCandidates+" "+event.candidate.address);
+		wsSend(myCandidateName+"|"+jsonString);
 	}
 }
 

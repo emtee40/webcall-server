@@ -2113,7 +2113,7 @@ function signalingCommand(message) {
 			}
 
 			//console.log("calleeCandidate",address,calleeCandidate.candidate);
-			console.log("calleeCandidate "+loop+" "+address);
+			//console.log("calleeCandidate "+loop+" "+address);
 
 			// "Failed to execute 'addIceCandidate' on 'RTCPeerConnection'"
 			// may happen if peerCon.setRemoteDescription is not finished yet
