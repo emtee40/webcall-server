@@ -1335,7 +1335,7 @@ function calleeOnlineAction(comment) {
 			return;
 		}
 
-		console.log("adapter loaded "+dialAfterCalleeOnline);
+		console.log("adapter loaded, dialAfter="+dialAfterCalleeOnline);
 		if(dialAfterCalleeOnline) {
 			// autodial after detected callee is online
 			// normally set by gotStream, if dialAfterLocalStream was set (by dialButton.onclick)
@@ -2111,7 +2111,10 @@ function signalingCommand(message) {
 			if(tok.length>=10 && tok[8]=="raddr" && tok[9]!="" && tok[9].length>=7 && tok[9]!="0.0.0.0") {
 				address = tok[9];
 			}
-			console.log("calleeCandidate",address,calleeCandidate.candidate);
+
+			//console.log("calleeCandidate",address,calleeCandidate.candidate);
+			console.log("calleeCandidate "+loop+" "+address);
+
 			// "Failed to execute 'addIceCandidate' on 'RTCPeerConnection'"
 			// may happen if peerCon.setRemoteDescription is not finished yet
 			if(!peerCon || peerCon.iceConnectionState=="closed") {
@@ -2121,7 +2124,7 @@ function signalingCommand(message) {
 			if(!peerCon.remoteDescription) {
 				// this happens bc setRemoteDescription may take a while
 				if(loop<6) {
-					//console.warn("! cmd calleeCandidate !peerCon.remoteDescription "+loop,calleeCandidate.candidate);
+					//console.log("! cmd calleeCandidate !peerCon.remoteDescription "+loop,calleeCandidate.candidate);
 					setTimeout(addIceCalleeCandidate,100,calleeCandidate,loop+1);
 				} else {
 					console.warn("# cmd calleeCandidate !peerCon.remoteDescription "+loop,
@@ -2130,9 +2133,13 @@ function signalingCommand(message) {
 				return;
 			}
 			if(!peerCon.remoteDescription.type) {
-				console.warn("# cmd calleeCandidate !peerCon.remoteDescription.type "+loop,
-					calleeCandidate.candidate);
-				setTimeout(addIceCalleeCandidate,100,calleeCandidate,loop+1);
+				if(loop<6) {
+				  //console.log("! cmd calleeCandidate !peerCon.remoteDescription.type "+loop, calleeCandidate.candidate);
+					setTimeout(addIceCalleeCandidate,100,calleeCandidate,loop+1);
+				} else {
+					console.warn("# cmd calleeCandidate !peerCon.remoteDescription.type "+loop,
+						calleeCandidate.candidate);
+				}
 				return;
 			}
 			peerCon.addIceCandidate(calleeCandidate).catch(e => {
@@ -2546,7 +2553,7 @@ function dial2() {
 		let connection = event.target;
 		console.log("peerCon onicegatheringstatechange "+connection.iceGatheringState);
 		if(connection.iceGatheringState=="complete") {
-			console.log("peerCon onIceCandidates="+onIceCandidates);
+			console.log("peerCon onIceCandidates from callee "+onIceCandidates);
 		}
 	}
 	peerCon.onsignalingstatechange = event => {
@@ -2558,7 +2565,7 @@ function dial2() {
 	peerCon.onconnectionstatechange = event => {
 		connectionstatechangeCounter++;
 		if(!peerCon || peerCon.iceConnectionState=="closed") {
-			gLog("peerCon onconnectionstatechange !peerCon "+peerCon.connectionState);
+			console.log("# peerCon onconnectionstatechange !peerCon "+peerCon.connectionState);
 			hangupWithBusySound(true,"Peer connection closed");
 			return;
 		}
@@ -2582,11 +2589,11 @@ function dial2() {
 		} else if(peerCon.connectionState=="connected") {
 			// if we see this despite being mediaConnect already, it is caused by createDataChannel
 			if(doneHangup) {
-				console.log('peerCon rtcCon after doneHangup - ignore');
+				console.log("# rtcConnect after doneHangup - ignore");
 			} else {
-				console.log('peerCon rtcCon');
 				if(!rtcConnect && !mediaConnect) {
 					// caller just now got peer-connected to callee; callee starts ringing now
+					console.log('rtcConnect');
 					rtcConnect = true;
 					rtcConnectStartDate = Date.now();
 					mediaConnectStartDate = 0;
@@ -2597,9 +2604,8 @@ function dial2() {
 					goodbyTextMsg = cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen)
 					gLog('set goodbyTextMsg='+goodbyTextMsg);
 
-					//showStatus(lg("ringingText"),-1); // Ringing...
+					showStatus(lg("ringingText"),-1); // Ringing...
 					onlineIndicator.src="green-gradient.svg";
-					//console.log('peerCon rtcCon done');
 				}
 				dialing = false;
 			}

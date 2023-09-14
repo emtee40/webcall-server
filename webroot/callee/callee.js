@@ -1825,7 +1825,9 @@ function signalingCommand(message, comment) {
 // candidate:1151307505 1 tcp 1518280447 192.168.3.209 9 typ host tcptype active generation 0 ufrag /RrR network-id 1
 // candidate:2337567925 1 udp 1686052607 37.201.195.49 47218 typ srflx raddr 192.168.3.209 rport 19890 generation 0 ufrag /RrR network-id 1 L1451
 // candidate:240334351 1 udp 41885439 66.228.46.43 50178 typ relay raddr 37.201.195.49 rport 47218 generation 0 ufrag /RrR network-id 1
-			console.log("peerCon.addIceCandidate accept "+loop+" address="+address+" "+callerCandidate.candidate);
+			//console.log("peerCon.addIceCandidate "+loop+" address="+address+" "+callerCandidate.candidate);
+			console.log("callerCandidate "+loop+" "+address);
+
 			if(address.indexOf(":")>=0
 					|| address==outboundIP
 					|| address.endsWith(".local")

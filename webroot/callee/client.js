@@ -764,7 +764,7 @@ function menuDialogClose() {
 }
 
 function onIceCandidate(event,myCandidateName) {
-	// this is used by both peers
+	// onIceCandidate is used by both clients
 	if(doneHangup) {
 		console.log('# onIce ignored after doneHangup '+JSON.stringify(event.candidate));
 		return;
@@ -778,7 +778,8 @@ function onIceCandidate(event,myCandidateName) {
 		// console.log('# onIce skip event.candidate.address==null '+JSON.stringify(event.candidate));
 	} else if(isDataChlOpen()) {
 		onIceCandidates++;
-		console.log("----- onIce "+myCandidateName+" dataChl doneHangup="+doneHangup);
+		//console.log(myCandidateName+" via dataChl");
+		console.log(onIceCandidates+" dataChl "+event.candidate.address);
 		dataChannel.send("cmd|"+myCandidateName+"|"+JSON.stringify(event.candidate));
 	} else if(wsConn==null) {
 		console.log("# onIce "+myCandidateName+": wsConn==null "+event.candidate.address+" "+onIceCandidates);
@@ -788,7 +789,8 @@ function onIceCandidate(event,myCandidateName) {
 	} else {
 		onIceCandidates++;
 		let jsonString = JSON.stringify(event.candidate);
-		//console.log("----- onIce "+myCandidateName+" wsSend "+jsonString+" "+onIceCandidates);
+		//console.log(myCandidateName+" wsSend "+onIceCandidates+" "+jsonString);
+		console.log(myCandidateName+" wsSend "+onIceCandidates+" "+event.candidate.address);
 		// 300ms delay to prevent "cmd "+myCandidateName+" !peerCon.remoteDescription" on other side
 		//setTimeout(function() {
 		//	if(!doneHangup) {
