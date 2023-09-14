@@ -701,7 +701,7 @@ function start() {
 
 	// if isRinging(): callee.js was started with a call already waiting
 	// to be quicker, lets skip getStream() and jump straight to processWebRtcMessages
-	if(typeof Android.wsClearCookies !== "undefined" && Android.wsClearCookies !== null) {
+	if(typeof Android !== "undefined" && Android !== null) {
 		if(typeof Android.isRinging !== "undefined" && Android.isRinging !== null) {
 			if(Android.isRinging()) {
 				console.log("start isRinging skip getStream()");
