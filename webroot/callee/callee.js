@@ -1569,25 +1569,26 @@ function wsOnError2(str,code) {
 
 function wsOnClose(evt) {
 	// on disconnect from server, called by wsConn.onclose
-	// evt.code = 1001 (manual reload)
+	// evt.code = 1000 (indicates a normal closure, when we goOffline, or server forced disconnect - no reconnect)
+	// evt.code = 1001 (manual reload FF - no reconnect)
+	// evt.code = 1002 (an endpoint is terminating the connection due to a protocol error)
 	// evt.code = 1005 (No Status Received)
-	// evt.code = 1006 (unusual clientside error)
+	// evt.code = 1006 (unusual clientside error - must reload)
 	let errCode = 0;
 	if(typeof evt!=="undefined" && evt!=null && evt!="undefined") {
 		errCode = evt.code;
 	}
 	console.log("wsOnClose ID="+calleeID+" code="+errCode, evt);
-	if(errCode==1001) {
+	if(errCode==1000) {
+		console.log("wsOnClose with code 1000 'normal closure' (we do nothing)");
+		wsOnClose2();	// wsConn=null; showVisualOffline();
+		//goOnlineSwitch.checked = false;
+		//showStatus("",-1); // "Offline" ?
+	} else if(errCode==1001) {
 		// if disconnect from server was caused by manual reload, we do nothing
 		console.log("wsOnClose with code 1001 'manual reload' (we do nothing)");
 		wsOnClose2();	// wsConn=null; showVisualOffline();
 		// TODO goOnlineSwitch.checked = false like for 1006?
-	} else if(errCode==1000) {
-		console.log("wsOnClose with code 1000 'unusual clientside error' (we do nothing)");
-		wsOnClose2();	// wsConn=null; showVisualOffline();
-		goOnlineSwitch.checked = false;
-		showStatus("",-1);
-		// TODO: ??? goOnlineSwitchChange("wsOnClose");
 	} else {
 		if(tryingToOpenWebSocket) {
 			// onclose occured while we were trying to establish a ws-connection (but before getting connected)
