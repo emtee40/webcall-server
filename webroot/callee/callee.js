@@ -2861,7 +2861,7 @@ function peerConnected3() {
 						console.warn("# peerConnected3 ringtone play error",error.message);
 					});
 				} else {
-					console.warn("# peerConnected3 ringtone play NOT started",
+					console.log("! peerConnected3 ringtone play NOT started",
 						ringtoneSound.paused,ringtoneIsPlaying);
 				}
 			}
