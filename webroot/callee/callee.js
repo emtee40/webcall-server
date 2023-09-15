@@ -1582,8 +1582,8 @@ function wsOnClose(evt) {
 		console.log("wsOnClose with code 1001 'manual reload' (we do nothing)");
 		wsOnClose2();	// wsConn=null; showVisualOffline();
 		// TODO goOnlineSwitch.checked = false like for 1006?
-	} else if(errCode==1006) {
-		console.log("wsOnClose with code 1006 'unusual clientside error' (we do nothing)");
+	} else if(errCode==1000) {
+		console.log("wsOnClose with code 1000 'unusual clientside error' (we do nothing)");
 		wsOnClose2();	// wsConn=null; showVisualOffline();
 		goOnlineSwitch.checked = false;
 		showStatus("",-1);
