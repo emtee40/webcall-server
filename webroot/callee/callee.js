@@ -1287,8 +1287,10 @@ function gotStream2() {
 		//console.log("gotStream2 onGotStreamGoOnline="+onGotStreamGoOnline+" rtcConnect="+rtcConnect);
 		if(wsConn==null) {
 			// we are offline, this usually occurs onload in pure browser mode
+			// we turn the switch off bc in pure browser mode the user needs to click to start
 			console.log("gotStream2 wsConn==null, stay offline, no sendInit");
 			showStatus("WebCall server disconnected",-1);
+			goOnlineSwitch.checked = false;
 		} else {
 			console.log("gotStream2 wsConn!=null, goOnlineSwitch ON, sendInit");
 			// we are connected to server already
@@ -2133,7 +2135,7 @@ function showMissedCalls() {
 	}
 	if(!skipRender) {
 		if(missedCallsSlice==null || missedCallsSlice.length<=0) {
-			console.log("showMissedCalls empty skip");
+			//console.log("showMissedCalls empty skip");
 			missedCallsTitleElement.style.display = "none";
 			missedCallsElement.style.display = "none";
 			missedCallsElement.innerHTML = "";
