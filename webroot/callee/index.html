@@ -564,12 +564,7 @@ input:disabled + .slider {
 			<input type="checkbox" id="onlineSwitch">
 			<span id="onlineSwitchSlider" class="slider"></span>
 		</label>
-<!--
-		<span style="position:relative; user-select:none;">
-			<img id="peerConIndicator" src=""
-				 style="width:100%; position:absolute; top:50%; transform:translateY(-42%);">
-		</span>
--->
+
 		<span class="icongrid">
 		<img id="menu"         onclick="menuDialogOpen(menuDialogElement,1)" src="menu.svg" class="iconbutton">
 		<img id="checkboxes"   onclick="openSlide()"        src="checkboxes.svg"  class="iconbutton">
@@ -654,7 +649,7 @@ input:disabled + .slider {
 
 	<div id="ownlink" style="opacity:0.9; padding-top:10px; padding-bottom:10px; display:none;"></div>
 
-	<div id="missedCallsTitle" class="callListTitle" style="display:none;">Missed calls:</div>
+	<div id="missedCallsTitle" class="callListTitle" onClick="clrMissedCalls();" style="display:none;">Missed calls:</div>
 	<div id="missedCalls" class="callList" style="display:none;"></div>
 
 	<div id="timer" class="timer">4:32</div>

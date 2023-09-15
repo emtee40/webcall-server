@@ -7,8 +7,6 @@ const callScreenPeerData = document.getElementById('callScreenPeerData');
 const answerButtons = document.getElementById('answerButtons');
 const answerButton = document.querySelector('button#answerButton');
 const rejectButton = document.querySelector('button#rejectButton');
-//const onlineIndicator = document.querySelector('img#onlineIndicator');
-//const peerConIndicator = document.querySelector('img#peerConIndicator');
 const isHiddenCheckbox = document.querySelector('input#isHidden');
 const isHiddenlabel = document.querySelector('label#isHiddenlabel');
 const autoanswerCheckbox = document.querySelector('input#autoanswer');
@@ -1951,19 +1949,23 @@ function signalingCommand(message, comment) {
 		missedCallsSlice = null;
 		if(payload.length>0) {
 			missedCallsSlice = JSON.parse(payload);
-			console.log('cmd missedCallsSlice elements='+missedCallsSlice.length);
-			// beep when there is a new missedCall entry
-			if(missedCallsSlice!=null && missedCallsSlice.length>0) {
-				// OK, there is at least one entry
-				if(newestMissedCallBingClock==0) {
-					// the first time (right after start, when newestMissedCallBingClock==0) we do not beep
-					// we only take the time of the newest missedCall entry
-					newestMissedCallBingClock = missedCallsSlice[missedCallsSlice.length-1].CallTime;
-					// from now we will check if the newest entry is newer than newestMissedCallBingClock
-				} else if(missedCallsSlice[missedCallsSlice.length-1].CallTime > newestMissedCallBingClock) {
-					newestMissedCallBingClock = missedCallsSlice[missedCallsSlice.length-1].CallTime;
-					console.log("beep newestMissedCallBingClock="+newestMissedCallBingClock);
-					soundBeep();
+			if(missedCallsSlice==null) {
+				console.log('cmd missedCallsSlice empty list');
+			} else {
+				console.log('cmd missedCallsSlice elements='+missedCallsSlice.length);
+				// beep when there is a new missedCall entry
+				if(missedCallsSlice!=null && missedCallsSlice.length>0) {
+					// OK, there is at least one entry
+					if(newestMissedCallBingClock==0) {
+						// the first time (right after start, when newestMissedCallBingClock==0) we do not beep
+						// we only take the time of the newest missedCall entry
+						newestMissedCallBingClock = missedCallsSlice[missedCallsSlice.length-1].CallTime;
+						// from now we will check if the newest entry is newer than newestMissedCallBingClock
+					} else if(missedCallsSlice[missedCallsSlice.length-1].CallTime > newestMissedCallBingClock) {
+						newestMissedCallBingClock = missedCallsSlice[missedCallsSlice.length-1].CallTime;
+						console.log("beep newestMissedCallBingClock="+newestMissedCallBingClock);
+						soundBeep();
+					}
 				}
 			}
 		}
@@ -2131,7 +2133,7 @@ function showMissedCalls() {
 	}
 	if(!skipRender) {
 		if(missedCallsSlice==null || missedCallsSlice.length<=0) {
-			//console.log("! showMissedCalls skip: missedCallsSlice==null");
+			console.log("showMissedCalls empty skip");
 			missedCallsTitleElement.style.display = "none";
 			missedCallsElement.style.display = "none";
 			missedCallsElement.innerHTML = "";
@@ -3079,7 +3081,6 @@ function pickup4(comment) {
 	// TODO could also use datachannel?
 	wsSend("pickup|!");
 
-//	peerConIndicator.src="red-gradient.svg";
 	chatButton.style.display = "block";
 
 	// filetransfer button (fileselectLabel) is still hidden
@@ -3507,7 +3508,6 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 
 	rtcConnect = false;
 	mediaConnect = false;
-//	peerConIndicator.src="";
 	if(vsendButton) {
 		vsendButton.style.display = "none";
 	}
@@ -3789,5 +3789,21 @@ function clearcookie2() {
 		history.back();
 	}
 	clearcookie();
+}
+
+function clrMissedCalls() {
+	console.log("clrMissedCalls");
+	let yesNoInner = "<div style='position:absolute; z-index:110; background:#45dd; color:#fff; padding:20px 20px; line-height:1.4em; border-radius:3px; cursor:pointer; min-width:280px; top:30px; left:50%; transform:translate(-50%,0%);'>"+
+	"<div style='font-weight:600;'>Clear Missed calls?</div><br>"+
+	"Do you want to remove all of your Missed calls?<br><br>"+
+	"<a onclick='clrMissedCalls2();history.back();'>Clear</a> &nbsp; &nbsp; &nbsp; "+
+		"<a onclick='history.back();'>Cancel</a></div>";
+
+	menuDialogOpen(dynDialog,0,yesNoInner);
+}
+
+function clrMissedCalls2() {
+	console.log("clrMissedCalls2");
+	wsSend("deleteMissedCall|all");
 }
 

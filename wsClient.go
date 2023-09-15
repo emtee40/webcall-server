@@ -1291,6 +1291,33 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 		if len(missedCallsSlice)>0 {
 			//fmt.Printf("serveWs deleteMissedCall (%s) found %d entries\n",
 			//	c.calleeID, len(missedCallsSlice))
+			if callerAddrPortPlusCallTime=="all" {
+				missedCallsSlice = nil
+				err := kvCalls.Put(dbMissedCalls, c.calleeID, missedCallsSlice, false)
+				if err!=nil {
+					fmt.Printf("# serveWs deleteMissedCall (%s) fail store dbMissedCalls\n", c.calleeID)
+				}
+				// send modified missedCallsSlice to callee
+				json, err := json.Marshal(missedCallsSlice)
+				if err != nil {
+					fmt.Printf("# serveWs deleteMissedCall (%s) failed json.Marshal\n", c.calleeID)
+				} else {
+					//fmt.Printf("deleteMissedCall send missedCallsSlice %s\n", c.calleeID)
+					c.hub.HubMutex.RLock()
+					if c.hub.CalleeClient!=nil {
+						err = c.Write([]byte("missedCalls|"+string(json)))
+						if err != nil {
+							fmt.Printf("# %s (%s) send missedCalls fail %v\n",
+								c.connType, c.calleeID, err)
+							c.hub.HubMutex.RUnlock()
+							c.hub.closeCallee("send missedCalls to callee: "+err.Error())
+							return
+						}
+					}
+					c.hub.HubMutex.RUnlock()
+				}
+				return
+			}
 			// search for callerIP:port + CallTime == callerAddrPortPlusCallTime
 			for idx := range missedCallsSlice {
 				//id := fmt.Sprintf("%s_%d",missedCallsSlice[idx].AddrPort,missedCallsSlice[idx].CallTime)
