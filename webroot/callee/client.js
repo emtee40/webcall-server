@@ -1650,7 +1650,7 @@ function showStatus(msg,timeoutMs) {
 		return;
 	}
 	if(msg=="") {
-		console.log("status: msg empty");
+		//console.log("status: msg empty");
 		return;
 	}
 	if(showStatusTimeout!=null) {
