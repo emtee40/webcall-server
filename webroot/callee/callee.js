@@ -88,7 +88,7 @@ var altIdArray = [];
 var altIdActive = [];
 var altLabel = [];
 var newline = String.fromCharCode(13, 10);
-var textmode="";
+var textmode = false;
 var	muteMicModified = false;
 var textchatOKfromOtherSide = false;
 var newestMissedCallBingClock = 0;
@@ -1983,8 +1983,8 @@ function signalingCommand(message, comment) {
 		gLog("otherUA",otherUA);
 
 	} else if(cmd=="textmode") {
-		textmode = payload;
-		if(textmode=="true") {
+		if(payload=="true") {
+			textmode = true;
 			console.log("cmd==textmode set");
 			if(muteMicElement.checked==false) {
 				muteMicElement.checked = true;
@@ -1994,6 +1994,7 @@ function signalingCommand(message, comment) {
 				console.log("cmd==textmode set, muteMicElement.checked");
 			}
 		} else {
+			textmode = false;
 			//console.log("cmd==textmode not set "+textmode);
 		}
 
@@ -2449,7 +2450,7 @@ function hangup(mustDisconnect,dummy2,message) {
 	textbox.value = "";
 
 	buttonBlinking = false;
-	textmode = "";
+	textmode = false;
 	textchatOKfromOtherSide = false;
 
 	if(muteMicModified) {
@@ -3129,10 +3130,11 @@ function pickup4(comment) {
 		muteMic(false); // don't mute mic
 	}
 
-	if(textmode=="true") {
+	if(textmode) {
 		// we auto-open the textbox bc the caller requested textmode
 		console.log("pickup4 textmode -> enableDisableTextchat open");
 		enableDisableTextchat(true);
+		muteMic(true); // mute mic
 	}
 
 	mediaConnectStartDate = Date.now();
@@ -3193,7 +3195,7 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 		// result: "p2p/p2p e2ee"
 	}
 
-	if(textmode=="true") {
+	if(textmode) {
 		msg = msg + " TextMode";
 		// result: "p2p/p2p e2ee TextMode"
 	}
@@ -3751,6 +3753,13 @@ function wakeGoOnline() {
 	wsOnOpen();
 	//prepareCallee(true,"wakeGoOnline");   // wsSend("init|!")
 
+	if(typeof Android !== "undefined" && Android !== null) {
+		if(typeof Android.isTextmode !== "undefined" && Android.isTextmode !== null) {
+			textmode = Android.isTextmode();
+			console.log("wakeGoOnline isTextmode="+textmode);
+		}
+	}
+
 	//console.log("### spinner off wakeGoOnline");
 	//spinnerStarting = false;
 	//divspinnerframe.style.display = "none";
@@ -3768,8 +3777,12 @@ function wakeGoOnlineNoInit() {
 	wsOnOpen();
 	//prepareCallee(false,"wakeGoOnlineNoInit");  // do NOT wsSend("init|!")
 
-	// if Android version < 1.4.8 -> showOnlineReadyMsg() (otherwise "Connecting..." may stick)
 	if(typeof Android !== "undefined" && Android !== null) {
+		if(typeof Android.isTextmode !== "undefined" && Android.isTextmode !== null) {
+			textmode = Android.isTextmode();
+			console.log("wakeGoOnlineNoInit isTextmode="+textmode);
+		}
+		// if Android version < 1.4.8 -> showOnlineReadyMsg() (otherwise "Connecting..." may stick)
 		if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
 			if(Android.getVersionName() < "1.4.8") {
 				showOnlineReadyMsg();
