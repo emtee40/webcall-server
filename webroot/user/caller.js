@@ -1241,16 +1241,16 @@ function checkCalleeOnline(waitForCallee,comment) {
 	if(callerId!=="") {
 		api += "&callerId="+callerId;
 	}
-	if(typeof Android !== "undefined" && Android !== null) {
-		if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
-			api = api + "&ver="+Android.getVersionName();
-		}
-		if(typeof Android.webviewVersion !== "undefined" && Android.webviewVersion !== null) {
-			api = api + "_" + Android.webviewVersion() +"_"+ clientVersion;
-		}
-	} else {
+//	if(typeof Android !== "undefined" && Android !== null) {
+//		if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
+//			api = api + "&ver="+Android.getVersionName();
+//		}
+//		if(typeof Android.webviewVersion !== "undefined" && Android.webviewVersion !== null) {
+//			api = api + "_" + Android.webviewVersion() +"_"+ clientVersion;
+//		}
+//	} else {
 		api = api + "&ver="+clientVersion;
-	}
+//	}
 	gLog("checkCalleeOnline api="+api+" ("+comment+")");
 	xhrTimeout = 30*1000;
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
@@ -1922,16 +1922,16 @@ function connectSignaling(message,openedFunc) {
 		wsUrl += "&text=true";
 	}
 
-	if(typeof Android !== "undefined" && Android !== null) {
-		if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
-			wsUrl = wsUrl + "&ver="+Android.getVersionName();
-		}
-		if(typeof Android.webviewVersion !== "undefined" && Android.webviewVersion !== null) {
-			wsUrl = wsUrl + "_" + Android.webviewVersion() +"_"+ clientVersion;
-		}
-	} else {
+//	if(typeof Android !== "undefined" && Android !== null) {
+//		if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
+//			wsUrl = wsUrl + "&ver="+Android.getVersionName();
+//		}
+//		if(typeof Android.webviewVersion !== "undefined" && Android.webviewVersion !== null) {
+//			wsUrl = wsUrl + "_" + Android.webviewVersion() +"_"+ clientVersion;
+//		}
+//	} else {
 		wsUrl = wsUrl + "&ver="+clientVersion;
-	}
+//	}
 
 	gLog('connectSignaling: wsUrl='+wsUrl);
 	wsConn = new WebSocket(wsUrl);
