@@ -2711,7 +2711,7 @@ function dataChannelOnmessage(event) {
 				var fileDescr = event.data.substring(5);
 
 				if(fileDescr=="end-send") {
-					gLog("file transmit aborted by sender");
+					console.log("file transmit aborted by sender");
 					progressRcvElement.style.display = "none";
 					if(fileReceivedSize < fileSize) {
 						showStatus("file transmit aborted by sender");
@@ -2721,7 +2721,7 @@ function dataChannelOnmessage(event) {
 					return;
 				}
 				if(fileDescr=="end-rcv") {
-					gLog("file send aborted by receiver");
+					console.log("file send aborted by receiver");
 					showStatus("file send aborted by receiver");
 					fileSendAbort = true;
 					progressSendElement.style.display = "none";
@@ -2742,7 +2742,7 @@ function dataChannelOnmessage(event) {
 					progressRcvBar.max = fileSize;
 					progressRcvElement.style.display = "block";
 				}
-				gLog("file receive",fileName,fileSize);
+				console.log("file="+fileName+" size="+fileSize);
 				fileReceivedSize = 0;
 				fileReceiveBuffer = [];
 				fileReceiveStartDate = Date.now();
@@ -2751,7 +2751,7 @@ function dataChannelOnmessage(event) {
 		}
 	} else {
 		if(fileReceiveAbort) {
-			gLog("file receive abort");
+			console.log("file receive abort");
 			fileReceivedSize = 0;
 			fileReceiveBuffer = [];
 			return;
@@ -2772,7 +2772,7 @@ function dataChannelOnmessage(event) {
 			fileReceiveSinceStartSecs = sinceStartSecs;
 		}
 		if(fileReceivedSize === fileSize) {
-			gLog("file receive complete");
+			console.log("file receive complete");
 			const receivedBlob = new Blob(fileReceiveBuffer);
 			fileReceiveBuffer = [];
 			progressRcvElement.style.display = "none";
