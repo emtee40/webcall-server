@@ -38,7 +38,7 @@ func httpServer() {
 
 	http.HandleFunc("/callee/", substituteUserNameHandler)
 	http.HandleFunc("/user/", substituteUserNameHandler)
-	http.HandleFunc("/button/", substituteUserNameHandler)
+//	http.HandleFunc("/button/", substituteUserNameHandler)
 
 	readConfigLock.RLock()
 	embeddedFsShouldBeUsed = false
@@ -194,6 +194,7 @@ func httpServer() {
 func substituteUserNameHandler(w http.ResponseWriter, r *http.Request) {
 	// serve file - if file does not exist, serve index.html
 	urlPath := r.URL.Path
+	//fmt.Printf("substituteUserNameHandler header=(%v) userAgent=(%s)\n",r.Header,r.UserAgent())
 
 	remoteAddrWithPort := r.RemoteAddr
 	if strings.HasPrefix(remoteAddrWithPort,"[::1]") {
