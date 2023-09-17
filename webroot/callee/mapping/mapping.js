@@ -132,7 +132,7 @@ function displayMapping() {
 		dataBoxContent += "<tr style='color:#7c0;font-weight:600;font-size:0.9em;user-select:none;'><td>ID (right click)</td><td>Label</td></tr>";
 
 		// main callee id
-		dataBoxContent += "<tr><td><a href='/user/"+calleeID+"' onclick='clickID("+calleeID+");return false;'>"+calleeID+"</a></td>" + "<td>(Main-ID)</td></tr>";
+		dataBoxContent += "<tr><td><a href='/user/"+calleeID+"' onclick='clickID(\""+calleeID+"\");return false;'>"+calleeID+"</a></td>" + "<td>(Main-ID)</td></tr>";
 
 		// parse altIDs, format: id,true,assign|id,true,assign|...
 		let tok = altIDs.split("|");
@@ -165,7 +165,7 @@ function displayMapping() {
 					assign = assign.substring(0,10);
 				}
 				dataBoxContent += "<tr>"+
-				    "<td><a href='" +mainLink +id + "' onclick='clickID("+id+");return false;'>"+id+"</a></td>"+
+				    "<td><a href='" +mainLink +id + "' onclick='clickID(\""+id+"\");return false;'>"+id+"</a></td>"+
 				    "<td><a onclick='edit(this,event,\""+id+"\",\""+assign+"\")'>"+ assign +"</a></td>"+
 				    "<td align='right'><a onclick='remove("+i+",\""+id+"\")' style='font-weight:600;'>X</a></td></tr>";
 			}
@@ -189,7 +189,7 @@ function displayMapping() {
 
 function clickID(id) {
 	// prevent click-open id-link
-	gLog('clickID='+id);
+	console.log('clickID='+id);
 }
 
 function add() {
