@@ -1267,7 +1267,7 @@ function gotStream(stream) {
 	gLog("gotStream set localVideoFrame.srcObject");
 	localVideoFrame.srcObject = localStream;
 	localVideoFrame.volume = 0;
-	localVideoFrame.muted = 0;
+	localVideoFrame.muted = 1;
 	if(videoEnabled) {
 		vmonitor();
 	}
