@@ -30,7 +30,7 @@ func httpLogin(w http.ResponseWriter, r *http.Request, urlID string, dialID stri
 		clientVersion = url_arg_array[0]
 	}
 	wcVer := r.Header.Get("X-WcVer")
-	if wcVer=="" {
+	if wcVer=="" && clientVersion!="" {
 		// for apk versionName < 1.4.8
 		wcVer = clientVersion
 	}
