@@ -3266,15 +3266,17 @@ function dataChannelOnmessage(event) {
 					msgbox.scrollTop = msgbox.scrollHeight-1;
 					soundKeyboard();
 				}
+
 			} else if(event.data.startsWith("cmd|")) {
 				let subCmd = event.data.substring(4);
 				//console.log("dataChannel.onmessage fw to signalingCommand() "+subCmd);
 				signalingCommand(subCmd,"dataChl");
+
 			} else if(event.data.startsWith("file|")) {
 				var fileDescr = event.data.substring(5);
 
 				if(fileDescr=="end-send") {
-					gLog("file transmit aborted by sender");
+					console.log("file transmit aborted by sender");
 					progressRcvElement.style.display = "none";
 					if(fileReceivedSize < fileSize) {
 						showStatus("File transmit aborted by sender");
@@ -3284,7 +3286,7 @@ function dataChannelOnmessage(event) {
 					return;
 				}
 				if(fileDescr=="end-rcv") {
-					gLog("file send aborted by receiver");
+					console.log("file send aborted by receiver");
 					showStatus("File send aborted by receiver");
 					fileSendAbort = true;
 					progressSendElement.style.display = "none";
@@ -3305,6 +3307,7 @@ function dataChannelOnmessage(event) {
 					progressRcvBar.max = fileSize;
 					progressRcvElement.style.display = "block";
 				}
+				console.log("file="+fileName+" size="+fileSize);
 				fileReceivedSize = 0;
 				fileReceiveBuffer = [];
 				fileReceiveStartDate = Date.now();
@@ -3313,7 +3316,7 @@ function dataChannelOnmessage(event) {
 		}
 	} else {
 		if(fileReceiveAbort) {
-			gLog("file receive abort");
+			console.log("file receive abort");
 			fileReceivedSize = 0;
 			fileReceiveBuffer = [];
 			return;
@@ -3334,7 +3337,7 @@ function dataChannelOnmessage(event) {
 			fileReceiveSinceStartSecs = sinceStartSecs;
 		}
 		if(fileReceivedSize === fileSize) {
-			gLog("file receive complete");
+			console.log("file receive complete");
 			const receivedBlob = new Blob(fileReceiveBuffer);
 			fileReceiveBuffer = [];
 			progressRcvElement.style.display = "none";
@@ -3400,7 +3403,7 @@ var endWebRtcPending = false;
 function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	// NOTE comment may be undefined
 	if(endWebRtcPending) {
-		gLog("! endWebRtcSession endWebRtcPending abort");
+		console.log("! endWebRtcSession endWebRtcPending abort");
 		return;
 	}
 	endWebRtcPending = true;

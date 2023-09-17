@@ -2319,9 +2319,13 @@ function signalingCommand(message) {
 		}
 
 	} else if(cmd=="ring") {
-		earlyRing = true;
-		console.log("cmd ring");
-		showStatus(lg("ringingText"),-1); // Ringing...
+		if(!rtcConnect) {
+			earlyRing = true;
+			console.log("cmd ring");
+			showStatus(lg("ringingText"),-1); // Ringing...
+		} else {
+			console.log("cmd ring, but already rtcConnect");
+		}
 	} else if(cmd=="sessionDuration") {
 		// longest possible call duration
 		sessionDuration = parseInt(payload);
