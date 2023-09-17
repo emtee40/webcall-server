@@ -275,8 +275,9 @@ func serve(w http.ResponseWriter, r *http.Request, tls bool) {
 			}
 		}
 	}
-	//fmt.Printf("serve (%s) callerID=%s callerName=%s auto=%s ver=%s\n",
-	//	wsClientData.calleeID, callerIdLong, callerName, auto, clientVersion)
+
+	//fmt.Printf("serve (%s) callerID=%s callerName=%s auto=%s ver=%s/%s\n",
+	//	wsClientData.calleeID, callerIdLong, callerName, auto, wsClientData.clientVersion, clientVersion)
 
 	client.clientVersion = wsClientData.clientVersion
 	if clientVersion!="" {

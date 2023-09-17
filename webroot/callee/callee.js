@@ -729,16 +729,20 @@ function login(retryFlag,comment) {
 	if(mid!="") {
 		api += "&mid="+mid;
 	}
-	if(typeof Android !== "undefined" && Android !== null) {
-		if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
-			api = api + "&ver="+Android.getVersionName();
-		}
-		if(typeof Android.webviewVersion !== "undefined" && Android.webviewVersion !== null) {
-			api = api + "_" + Android.webviewVersion() +"_"+ clientVersion;
-		}
-	} else {
+
+//	if(typeof Android !== "undefined" && Android !== null) {
+//		if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
+//			api = api + "&ver="+Android.getVersionName();
+//		}
+//		if(typeof Android.webviewVersion !== "undefined" && Android.webviewVersion !== null) {
+//			api = api + "_" + Android.webviewVersion() +"_"+ clientVersion;
+//		}
+//		api = api + "_"+ clientVersion;
+//	} else {
 		api = api + "&ver="+clientVersion;
-	}
+//	}
+	console.log("login api="+api);
+
 	ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 		// processData
 		let loginStatus = xhr.responseText;
