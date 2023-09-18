@@ -1701,9 +1701,13 @@ function submitFormDone(idx) {
 			}
 			var openOK = false;
 			try {
-				//console.log("submitFormDone window.open "+callUrl);
+				console.log("submitFormDone window.open "+callUrl);
 				// in WebCallAndroid: callUrl being opened will trigger onNewIntent()
 				openOK = window.open(callUrl, "");
+				//console.log("submitFormDone window.open "+callUrl+" done");
+				// callUrl has been opened in a separate tab (browser) or in the secondary webview
+				// we can close contacts now (but only if we have been called from contacts)
+				//history.back(); // close contacts
 			} catch(e) {
 				// if we end here, the domain cannot be reached, so we don't do window.open()
 				console.log("# submitFormDone window.open("+callUrl+") ex="+e);
@@ -3063,7 +3067,6 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 }
 
 function clearForm(idx) {
-	console.log("clearForm "+idx);
 	if(idx==3) {
 		enterIdValElement.value = "";
 		setTimeout(function() {
@@ -3074,6 +3077,8 @@ function clearForm(idx) {
 		setTimeout(function() {
 			   enterDomainValElement.focus();
 		},400);
+	} else {
+		console.log("clearForm unused "+idx);
 	}
 }
 

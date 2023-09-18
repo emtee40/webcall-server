@@ -175,7 +175,7 @@ function processContacts(xhrresponse) {
 				idOnly = idOnly+"@"+parts[1];
 			}
 			if(callerHost==location.host) {
-				console.log("SURPRISE callerHost==location.host");
+				//console.log("SURPRISE callerHost==location.host "+id+" locHost="+location.host);
 				id = idOnly;
 				parts = id.split("@");
 			}
