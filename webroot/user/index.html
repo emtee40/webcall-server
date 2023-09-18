@@ -21,6 +21,27 @@ body {
 	font-weight:300;
 	margin:0;
 }
+
+h1 {
+	font-size:1.4em;
+	font-weight:600;
+	user-select:none;
+	margin-block-start:0;
+	margin-block-end:0;
+	_margin-bottom:4px;
+	line-height:1.3em;
+}
+
+.answerButtons {
+	display:grid;
+	grid-template-columns: 1fr 1fr 30px;
+	column-gap: 12px;
+	list-style-type:none;
+	max-width:360px;
+	padding-top:26px;
+	padding-bottom:10px;
+}
+/*
 button, button:focus {
 	background-color:#04c;
 	transition: background-color 200ms;
@@ -58,6 +79,54 @@ button[disabled] {
 		font-weight:600;
 	}
 }
+*/
+
+.mainbutton, .mainbutton:focus {
+	background-color:#0000;
+	transition: all 200ms ease-in-out;
+	border: 1.3px solid #ddd;
+	border-radius:6px;
+	color:#fff;
+	font-size: 1.1em;
+	font-weight: 400;
+	font-family:sans-serif;
+	padding: 0.4em 0.1em 0.4em 0.1em;
+	min-width: 100px;
+	_max-width: 150px;
+	outline: none;
+	text-align: center;
+	user-select: none;
+	cursor: pointer;
+	box-sizing: border-box;
+}
+.mainbutton:active {
+	background-color: #02a;
+	outline:none;
+}
+.mainbutton[disabled] {
+	opacity:0.7;
+}
+.mainbutton:focus {
+	color: #fff;
+}
+@media (hover: hover) {
+	.mainbutton:hover {
+		background-color: #69f;
+		border: 1.2px solid #69f;
+		outline:none;
+		color:#fff;
+	}
+/*
+	.mainbutton[disabled]:hover {
+		color:#aaa;
+	}
+	.mainbutton[disabled]:hover {
+		background-color:#04c;
+	}
+*/
+}
+
+
 
 .menuButton, menuButton:focus {
 	color:white;
@@ -101,15 +170,6 @@ div#enterId {
 	padding: 0.5em;
 	margin: 0.5em;
 }
-h1 {
-	font-size:1.7em;
-	font-weight:600;
-	user-select:none;
-	margin-block-start:0;
-	margin-block-end:0;
-	margin-bottom:6px;
-	line-height:1.3em;
-}
 a, a:link, a:visited, a:active {
     color:#ddd;
 	font-weight:600;
@@ -145,7 +205,7 @@ a, a:link, a:visited, a:active {
 .status {
 	padding-top:12px;
 	padding-bottom:12px;
-	_padding-left:2px;
+	padding-left:px;
 	width:98%;
 	max-width:520px;
     _font-size:1.1em;
@@ -156,31 +216,38 @@ a, a:link, a:visited, a:active {
 }
 
 .msgbox {
-	font-size:1.2em;
-	margin-top:0;
+	font-size:1.0em;
+	_margin-top:0;
 	width:95%;
 	max-width:550px;
 	height:3.8em;
 	padding:10px;
-	background-image: linear-gradient(#12b,#25f);
-	border:none;
-	border-radius:3px;
-	color:#fff;
+	_background-image: linear-gradient(#12b,#25f);
+	background-color:#0000;
+	_border:none;
+	_border-radius:3px;
+	border: 1.3px solid #bbb;
+	border-radius:6px;
+	color:#eee;
 	outline:none;
 	overflow-y:auto;
 	scrollbar-color: #119 #25f;
+	margin-top:10px;
 }
 textarea::placeholder {
-  color: #fff;
+  color: #ddd;
 }
 
 .select {
 	margin-top:8px;
 	margin-right:5px;
-	background-color:#04c;
-	color:#ccc;
-	font-size:1.2em;
-	border:none;
+	_background-color:#04c;
+	_border:none;
+	background-color:#0000;
+	border: 1.3px solid #bbb;
+	border-radius:6px;
+	color:#ddd;
+	font-size:1.0em;
     padding: 0.3em 0.5em 0.2em 0.5em;
 	width:350px;
 	max-width:94%;
@@ -189,8 +256,8 @@ textarea::placeholder {
 }
 select:focus {
 	outline:none;
-	background-color: #6c6;
-	color:#000;
+	_background-color: #6c6;
+	_color:#000;
 }
 .timer {
 	position:absolute;
@@ -290,6 +357,26 @@ input[type=submit]:focus {
 	0% { transform: rotate(0deg); }
 	100% { transform: rotate(360deg); }
 }
+
+.nickname {
+	margin-top:12px;
+	margin-left:2px;
+	font-size:1.1em;
+	padding-right:20px;
+	float:left;
+}
+.nicknameForm {
+	_background:#04e;
+	_border:none;
+	border: 1.3px solid #bbb;
+	border-radius:6px;
+	background:#0000;
+	outline:none;
+	padding:0.2em;
+	color:#ddd;
+	font-size:1.0em;
+}
+
 .mirrorvideo {
 	/* suggested by Konsthol */
 	transform: scale(-1, 1);
@@ -385,24 +472,26 @@ input[type=submit]:focus {
 			to enable Call button
 		</div>
 
-		<div style="display:grid; grid-template-columns: 1fr 1fr 30px; list-style-type:none; max-width:320px;">
-			<button id="callButton" class="callbutton">Call</button>
-			<button id="hangupButton" disabled>Hang Up</button>
+		<div class="answerButtons">
+			<button id="callButton" _class="callbutton" class="mainbutton">Call</button>
+			<button id="hangupButton" class="mainbutton" disabled>Hang Up</button>
 			<img id="onlineIndicator" src="" style="width:28px; margin:0.6em 0 0 0; user-select:none;">
 		</div>
 
-		<select id="avSelect" class="select" onchange="getStream(this)"></select>
+		<div id="status" class="status"></div>
 
-		<!-- idSelect: visible only if more than one id-mapping is specified -->
-		<label class="formlabel" id="idSelectLabel" for="idSelect" style="margin-left:0;display:none;">
-			<select id="idSelect" class="select" onchange="changeId(this)" style="margin-top:12px;"></select>
+		<label class="formlabel" id="avSelectLabel" for="idSelect" style="margin-left:0;margin-top:6px;_display:none;">
+			<select id="avSelect" class="select" onchange="getStream(this)"></select>
+		</label>
+
+		<label class="formlabel" id="idSelectLabel" for="idSelect" style="margin-left:0;margin-top:6px;display:none;">
+			<select id="idSelect" class="select" onchange="changeId(this)" style=""></select>
 		</label>
 
 		<div>
-			<span id="nicknameDiv" style="margin-top:12px;margin-left:2px;font-size:1.1em;padding-right:20px;float:left;display:none;">
+			<span id="nicknameDiv" class="nickname" style="display:none;">
 				<label for="nickname" id="nicknameLabel" style="display:inline-block;margin-right:3px;">Nickname:</label>
-				<input id='nickname' type='text' size='9' maxlength='9' value=''
-					style="background:#04e;border:none;outline:none;padding:0.3em;color:#ddd;font-size:1.0em;">
+				<input id='nickname' class="nicknameForm" type='text' size='9' maxlength='9' value=''>
 			</span>
 
 			<span id="muteMicDiv" style="white-space: nowrap;">
@@ -414,8 +503,6 @@ input[type=submit]:focus {
 	</div>
 	<div id="calleeOffline" style="display:none">
 	</div>
-
-	<div id="status" class="status"></div>
 
 	<div id="msgboxdiv" style="padding-top:10px;padding-bottom:10px;display:none;">
 		<textarea id="msgbox" class="msgbox" spellcheck="false""></textarea>

@@ -1138,7 +1138,7 @@ function gotDevices(deviceInfos) {
 			if(deviceInfo.kind === 'audioinput') {
 				let deviceInfoLabel = deviceInfo.label;
 				if(deviceInfoLabel=="Default") {
-					deviceInfoLabel="Audio Default";
+					deviceInfoLabel="Audio Playback Device (Default)";
 				} else if(deviceInfoLabel) {
 					deviceInfoLabel = "Audio "+deviceInfoLabel
 				}

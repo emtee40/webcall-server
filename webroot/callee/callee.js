@@ -3403,13 +3403,15 @@ var endWebRtcPending = false;
 function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	// NOTE comment may be undefined
 	if(endWebRtcPending) {
-		console.log("! endWebRtcSession endWebRtcPending abort");
+		console.log("! endWebRtcSession endWebRtcPending abort ("+comment+")");
 		return;
 	}
-	endWebRtcPending = true;
 
+	endWebRtcPending = true;
 	console.log("endWebRtcSession discCaller="+disconnectCaller+
 				" onlAfter="+goOnlineAfter+" switch="+goOnlineSwitch.checked+" ("+comment+")");
+	stopAllAudioEffects("endWebRtcSession");
+
 	pickupAfterLocalStream = false;
 	if(remoteVideoFrame) {
 		remoteVideoFrame.pause();
@@ -3438,7 +3440,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	if(autoPlaybackAudioSource) {
 		autoPlaybackAudioSource.disconnect();
 		if(autoPlaybackAudioSourceStarted) {
-			gLog("endWebRtcSession autoPlayback stop "+autoPlaybackFile);
+			console.log("endWebRtcSession autoPlayback stop "+autoPlaybackFile);
 			autoPlaybackAudioSource.stop();
 			autoPlaybackAudioSourceStarted = false;
 		}
@@ -3510,7 +3512,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	}
 
 	if(localStream && !videoEnabled) {
-		gLog('endWebRtcSession clear localStream');
+		console.log('endWebRtcSession close localStream');
 		const audioTracks = localStream.getAudioTracks();
 		audioTracks[0].enabled = false; // mute mic
 		localStream.getTracks().forEach(track => { track.stop(); });

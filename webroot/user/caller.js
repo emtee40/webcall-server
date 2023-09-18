@@ -116,7 +116,8 @@ function languageDefaults() {
 		connectingText = str;
 	}
 
-	str = lg("msgbox");
+//	str = lg("msgbox");
+	str = lg("greetingMessage");
 	if(typeof str !== "undefined" && str!="") {
 		msgbox.placeholder = str;
 	}
@@ -887,9 +888,11 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElement) {
 
 		if(altIdCount>1) {
 			// enable idSelectElement
-			idSelectLabelElement.style.display = "block";
-			if(preselectIndex>=0) {
-				idSelectElement.selectedIndex = preselectIndex+1;
+			if(idSelectLabelElement!=null) {
+				idSelectLabelElement.style.display = "block";
+				if(preselectIndex>=0) {
+					idSelectElement.selectedIndex = preselectIndex+1;
+				}
 			}
 		}
 
@@ -1377,7 +1380,7 @@ function calleeOnlineAction(comment) {
 							"The first six seconds of the call will be recorded (red led) "+
 							"and then immediately played back to you (green led).",-1);
 			} else {
-				showStatus(lg("greetingMessage"),-1);
+//				showStatus(lg("greetingMessage"),-1);
 				msgboxdiv.style.display = "block";
 				msgbox.value = "";
 				msgbox.readOnly = false;

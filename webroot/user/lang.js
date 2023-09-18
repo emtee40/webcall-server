@@ -7,11 +7,11 @@ var langMap = {
 "en": {
 	"dialButton"			: "Dial",
 	"hangupButton"			: "Hangup",
-	"greetingMessage"		: "Greeting message (optional):",
+	"greetingMessage"		: "Greeting message (optional)",
 	"connectingText"		: "Connecting P2P...",
 	"ringingText"			: "Ringing...",
 	"hangingUpText"			: "Hanging up...",
-	"msgbox"				: "(Your message)",
+	"msgbox"				: "(Greeting message)",
 	"nicknameLabel"			: "Nickname:",
 	"callstatsLabel"		: "Call stats",
 	"fullscreenLabel"		: "Fullscreen",
@@ -35,7 +35,7 @@ var langMap = {
 "de": {
 	"dialButton"			: "Anwählen",
 	"hangupButton"			: "Auflegen",
-	"greetingMessage"		: "Gruß-Nachricht (optional):",
+	"greetingMessage"		: "Gruß-Nachricht (optional)",
 	"connectingText"		: "Verbinde P2P...",
 	"ringingText"			: "Klingeln...",
 	"hangingUpText"			: "Auflegen...",
@@ -63,7 +63,7 @@ var langMap = {
 "es": {
 	"dialButton"			: "Llame a",
 	"hangupButton"			: "Colgar",
-	"greetingMessage"		: "Mensaje de saludo (opcional):",
+	"greetingMessage"		: "Mensaje de saludo (opcional)",
 	"connectingText"		: "Conexión P2P...",
 	"ringingText"			: "Timbre...",
 	"hangingUpText"			: "Colgar...",
@@ -91,7 +91,7 @@ var langMap = {
 "it": {
 	"dialButton"			: "Chiamata",
 	"hangupButton"			: "Riattacca",
-	"greetingMessage"		: "Messaggio di saluto (opzionale):",
+	"greetingMessage"		: "Messaggio di saluto (opzionale)",
 	"connectingText"		: "Collegamento P2P...",
 	"ringingText"			: "Suoneria...",
 	"hangingUpText"			: "Appendere...",
@@ -119,7 +119,7 @@ var langMap = {
 "fr": {
 	"dialButton"			: "Composer",
 	"hangupButton"			: "Déconnexion",
-	"greetingMessage"		: "Message d'accueil (optionnel):",
+	"greetingMessage"		: "Message d'accueil (optionnel)",
 	"connectingText"		: "Connexion P2P...",
 	"ringingText"			: "Sonnerie...",
 	"hangingUpText"			: "Raccrocher...",
@@ -147,7 +147,7 @@ var langMap = {
 "pt-PT": {
 	"dialButton"			: "Chamada",
 	"hangupButton"			: "Desligar",
-	"greetingMessage"		: "Mensagem de saudação (opcional):",
+	"greetingMessage"		: "Mensagem de saudação (opcional)",
 	"connectingText"		: "Ligando P2P...",
 	"ringingText"			: "Anelar...",
 	"hangingUpText"			: "Desligar...",
@@ -175,7 +175,7 @@ var langMap = {
 "pt-BR": {
 	"dialButton"			: "Chamar",
 	"hangupButton"			: "Desligar",
-	"greetingMessage"		: "Mensagem de saudação (opcional):",
+	"greetingMessage"		: "Mensagem de saudação (opcional)",
 	"connectingText"		: "Conectando P2P...",
 	"ringingText"			: "Tocando...",
 	"hangingUpText"			: "Desligando...",
@@ -203,7 +203,7 @@ var langMap = {
 "cs-CS": {
 	"dialButton"			: "Vytočit",
 	"hangupButton"			: "Položit",
-	"greetingMessage"		: "Pozdrav (nepovinné):",
+	"greetingMessage"		: "Pozdrav (nepovinné)",
 	"connectingText"		: "Vytáčení...",
 	"ringingText"			: "Vyzvánění...",
 	"hangingUpText"			: "Pokládání...",
@@ -231,7 +231,7 @@ var langMap = {
 "el": {
 	"dialButton"			: "Κάλεσε",
 	"hangupButton"			: "Κλείσε",
-	"greetingMessage"		: "Μήνυμα καλωσορίσματος (προαιρετικό):",
+	"greetingMessage"		: "Μήνυμα καλωσορίσματος (προαιρετικό)",
 	"connectingText"		: "Σύνδεση P2P...",
 	"ringingText"			: "Χτυπάει...",
 	"hangingUpText"			: "Τερματισμός κλήσης...",
