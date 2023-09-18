@@ -82,7 +82,7 @@ button[disabled] {
 */
 
 .mainbutton, .mainbutton:focus {
-	background-color:#0000;
+	background-color:#0002;
 	transition: all 200ms ease-in-out;
 	border: 1.3px solid #ddd;
 	border-radius:6px;
@@ -104,11 +104,13 @@ button[disabled] {
 	outline:none;
 }
 .mainbutton[disabled] {
-	opacity:0.7;
+	opacity:0.8;
 }
+/*
 .mainbutton:focus {
 	color: #fff;
 }
+*/
 @media (hover: hover) {
 	.mainbutton:hover {
 		background-color: #69f;
@@ -116,17 +118,35 @@ button[disabled] {
 		outline:none;
 		color:#fff;
 	}
-/*
-	.mainbutton[disabled]:hover {
-		color:#aaa;
+	.mainbuttonGreen:hover {
+		background-color: #0a2;
+		border: 1.2px solid #0a2;
 	}
+	.mainbuttonRed:hover {
+		background-color: #a02;
+		border: 1.2px solid #a02;
+	}
+
 	.mainbutton[disabled]:hover {
+		_color:#aaa;
 		background-color:#04c;
 	}
-*/
+	.mainbuttonGreen[disabled]:hover {
+		background-color: #0a2b;
+	}
+	.mainbuttonRed[disabled]:hover {
+		background-color: #a02b;
+	}
 }
 
+.mainbuttonGreen:active {
+	background-color: #0a2;
+	_background-color:#0c59
+}
 
+.mainbuttonRed:active {
+	background-color: #a02;
+}
 
 .menuButton, menuButton:focus {
 	color:white;
@@ -220,15 +240,15 @@ a, a:link, a:visited, a:active {
 	_margin-top:0;
 	width:95%;
 	max-width:550px;
-	height:3.8em;
+	height:6.2em;
 	padding:10px;
 	_background-image: linear-gradient(#12b,#25f);
-	background-color:#0000;
+	background-color:#0002;
 	_border:none;
 	_border-radius:3px;
 	border: 1.3px solid #bbb;
 	border-radius:6px;
-	color:#eee;
+	color:#fff;
 	outline:none;
 	overflow-y:auto;
 	scrollbar-color: #119 #25f;
@@ -243,17 +263,23 @@ textarea::placeholder {
 	margin-right:5px;
 	_background-color:#04c;
 	_border:none;
-	background-color:#0000;
+	background-color:#0002;
 	border: 1.3px solid #bbb;
 	border-radius:6px;
-	color:#ddd;
+	color:#eee;
 	font-size:1.0em;
     padding: 0.3em 0.5em 0.2em 0.5em;
 	width:350px;
 	max-width:94%;
 	outline:none;
 	user-select:none;
+	cursor: pointer;
 }
+.select > option {
+	background:#000c;
+	color:#ddd;
+}
+
 select:focus {
 	outline:none;
 	_background-color: #6c6;
@@ -365,16 +391,24 @@ input[type=submit]:focus {
 	padding-right:20px;
 	float:left;
 }
+.nicknameLabel {
+	display:inline-block;
+	margin-right:3px;
+	font-size:0.9em;
+}
 .nicknameForm {
 	_background:#04e;
 	_border:none;
 	border: 1.3px solid #bbb;
 	border-radius:6px;
-	background:#0000;
+	background:#0002;
 	outline:none;
-	padding:0.2em;
+	padding:0.1em;
+	padding-left:0.3em;
 	color:#ddd;
 	font-size:1.0em;
+	-webkit-appearance: none;
+	appearance: none;
 }
 
 .mirrorvideo {
@@ -473,8 +507,8 @@ input[type=submit]:focus {
 		</div>
 
 		<div class="answerButtons">
-			<button id="callButton" _class="callbutton" class="mainbutton">Call</button>
-			<button id="hangupButton" class="mainbutton" disabled>Hang Up</button>
+			<button id="callButton" class="mainbutton mainbuttonGreen" _style="background-color:#0c59;">Call</button>
+			<button id="hangupButton" class="mainbutton mainbuttonRed" disabled>Hang Up</button>
 			<img id="onlineIndicator" src="" style="width:28px; margin:0.6em 0 0 0; user-select:none;">
 		</div>
 
@@ -490,7 +524,7 @@ input[type=submit]:focus {
 
 		<div>
 			<span id="nicknameDiv" class="nickname" style="display:none;">
-				<label for="nickname" id="nicknameLabel" style="display:inline-block;margin-right:3px;">Nickname:</label>
+				<label for="nickname" id="nicknameLabel" class="nicknameLabel">Nickname:</label>
 				<input id='nickname' class="nicknameForm" type='text' size='9' maxlength='9' value=''>
 			</span>
 
@@ -526,10 +560,10 @@ input[type=submit]:focus {
 		<progress id="fileProgressRcv" max="0" value="0" style="width:100%" onclick="stopProgressRcv()"></progress>
 	</div>
 
-	<div id="storeContact" style="margin-top:16px;"></div>
+	<div id="storeContact" style="_padding-top:16px;"></div>
 
 	<div id="timer" class="timer">0:00</div>
-	<div style="opacity:0.7;margin-top:20px;user-select:none;">WebCall by <a href="https://timur.mobi/webcall">timur.mobi</a></div>
+	<div style="opacity:0.7;margin-top:10px;user-select:none;">WebCall by <a href="https://timur.mobi/webcall">timur.mobi</a></div>
 </div>
 
 <!-- dial-id -->

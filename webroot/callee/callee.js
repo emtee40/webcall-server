@@ -1610,7 +1610,7 @@ function wsOnClose(evt) {
 
 		wsOnClose2();	// wsConn=null; showVisualOffline();
 
-		if(!tryingToOpenWebSocket && goOnlineSwitch.checked && errCode==1006) {
+		if(!tryingToOpenWebSocket && goOnlineSwitch.checked /*&& errCode==1006*/) {
 			// we got disconnected (were connected already), we want to be connected and we got a 1006
 			// this offline was not user-triggered or intended; we need to get back online
 			// (callee on chrome needs the following for reconnect after wake-from-sleep)
@@ -2584,7 +2584,7 @@ function prepareCallee(sendInitFlag,comment) {
 		}
 	}
 
-	if(wsConn==null || wsConn.readyState!=1) {
+	if(wsConn==null || (wsConn.readyState!=1 && typeof wsConn.readyState !=="undefined")) {
 		// this basically says: if prepareCallee() is called when we are NOT connected to the server,
 		// try to login now using cookie or wsSecret (from login form)
 		if(!mediaConnect) {
