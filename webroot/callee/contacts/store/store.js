@@ -109,13 +109,12 @@ window.onload = function() {
 		gLog("request /setcontact api="+api);
 		ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 			gLog("xhr /setcontact OK "+xhr.responseText);
-			displayString += "Contact stored"+
-				"<br><br><a href='..'>Open Contacts</a>";
+// TODO the assumption that /callee/contacts/ is loaded and we can go back - IS NOT ALWAYS TRUE
+			displayString += "Contact stored" /*+ "<br><br><a href='..'>Open Contacts</a>"*/;
 			databoxElement.innerHTML = displayString;
 		}, function(errString,err) {
 			errorAction(errString,err);
-			displayString += "Failed to store contact: "+errString+
-				"<br><br><a href='..'>Open Contacts</a>";
+			displayString += "Failed to store contact: "+errString /*+ "<br><br><a href='..'>Open Contacts</a>"*/;
 			databoxElement.innerHTML = displayString;
 		});
 	}, errorAction);

@@ -2380,7 +2380,7 @@ function signalingCommand(message) {
 			}
 		}
 	} else {
-		console.log('# ignore incom cmd',cmd);
+		//console.log("# ignore incom cmd='"+cmd+"'");
 	}
 }
 
