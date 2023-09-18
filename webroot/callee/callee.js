@@ -3661,36 +3661,35 @@ function openDialId(userId) {
 	gLog('openDialId url='+url);
 	// 4th parameter 'dontIframeOnload':
 	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
-	iframeWindowOpen(url,false,"height:95%;max-height:600px;max-width:500px;",true);
+	iframeWindowOpen(url,false,"height:95%;max-height:780px;",true);
 }
 
 function openDialRemote(url) {
 	gLog('openDialUrl',url);
 	// 4th parameter 'dontIframeOnload':
 	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
-	iframeWindowOpen(url,false,"height:460px;max-width:480px;",true);
+	iframeWindowOpen(url,false,"height:95%;max-height:780px;",true);
 }
 function openDialRemotex(url,evt) {
 	gLog('openDialUrl',url);
 	evt.preventDefault();
 	// 4th parameter 'dontIframeOnload':
 	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
-	iframeWindowOpen(url,false,"height:460px;max-width:480px;",true);
+	iframeWindowOpen(url,false,"height:95%;max-height:780px;",true);
 }
 
 function openDialUrl(url) {
 	gLog('openDialUrl',url);
 	// 4th parameter 'dontIframeOnload':
 	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
-	iframeWindowOpen(url,false);
+	iframeWindowOpen(url,false,"height:95%;max-height:780px;",true);
 }
 function openDialUrlx(url,evt) {
 	gLog('openDialUrl',url);
 	evt.preventDefault();
 	// 4th parameter 'dontIframeOnload':
 	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
-//	iframeWindowOpen(url,false);
-	iframeWindowOpen(url,false,"height:95vh;",true);
+	iframeWindowOpen(url,false,"height:95%;max-height:780px;",true);
 }
 
 
