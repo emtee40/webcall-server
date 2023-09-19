@@ -18,7 +18,7 @@ const statusLine = document.getElementById('status');
 const textbox = document.getElementById('textbox');
 const timerElement = document.querySelector('div#timer');
 const calleeOfflineElement = document.getElementById("calleeOffline");
-const onlineIndicator = document.querySelector('img#onlineIndicator');
+//const onlineIndicator = document.querySelector('img#onlineIndicator');
 const calleeMode = false;
 const msgBoxMaxLen = 137;
 
@@ -213,6 +213,16 @@ window.onload = function() {
 			playDialSounds = false;
 		}
 		gLog("dialsounds="+playDialSounds);
+	}
+
+	if(playDialSounds) {
+		if(!dtmfDialingSound) {
+			// TODO why can we not do this?
+			//if(playDialSounds) {
+				console.log('load dtmfDialingSound');
+				dtmfDialingSound = new Audio('dtmf-dial.mp3');
+			//}
+		}
 	}
 
 	if(localVideoFrame)
@@ -411,7 +421,7 @@ window.onload = function() {
 				if(callerName=="") { // TODO prefer getUrlParams over settings? yes, may come from missedcalls
 					//console.log("callerName = serverSettings.nickname "+serverSettings.nickname);
 					callerName = serverSettings.nickname; // user can modify this in UI
-
+/* will be done in onload2
 					if(!calleeID.startsWith("answie") && !calleeID.startsWith("talkback")) {
 						console.log("onload set nickname form with callerName="+callerName);
 						let nicknameDivElement = document.getElementById("nicknameDiv");
@@ -422,6 +432,7 @@ window.onload = function() {
 						nicknameDivElement.style.display = "block";
 						// callername will be fetched from form in checkCalleeOnline()
 					}
+*/
 				}
 			}
 
@@ -953,11 +964,13 @@ function onload3(comment) {
 			//dialButton.innerHTML = "Call "+calleeIdTitle;
 		}
 		dialButton.onclick = dialButtonClick;
+//		dialButton.focus();
+//		console.log("----- onload3 dialButton focused");
 	}
 	if(hangupButton) {
 		hangupButton.onclick = function() {
-			dialButton.style.backgroundColor = "";
-			hangupButton.style.backgroundColor = "";
+//			dialButton.style.backgroundColor = "";
+//			hangupButton.style.backgroundColor = "";
 			let msg = lg("hangingUpText");
 			//console.log(msg);
 			if(mediaConnect) {
@@ -972,7 +985,7 @@ function onload3(comment) {
 				}
 				hangup(true,true,msg);
 			}
-			// focus back to background, so that esc-key via onkeydown works
+			// focus back to background, so that esc-key via onkeydown will work
 			hangupButton.blur();
 		};
 	}
@@ -1029,27 +1042,35 @@ function dialButtonClick2() {
 	mediaConnectStartDate = 0;
 	connectionstatechangeCounter = 0;
 
-	if(!notificationSound) {
-		gLog('dialButton lazy load notificationSound');
-		notificationSound = new Audio("notification.mp3");
+	if(playDialSounds) {
+		if(!dtmfDialingSound) {
+			// TODO why can we not do this?
+			//if(playDialSounds) {
+				console.log('load dtmfDialingSound');
+				dtmfDialingSound = new Audio('dtmf-dial.mp3');
+			//}
+		}
 	}
-	if(!dtmfDialingSound) {
-		// TODO why can we not do this?
-		//if(playDialSounds) {
-			gLog('dialButton lazy load dtmfDialingSound');
-			dtmfDialingSound = new Audio('dtmf-dial.mp3');
-		//}
+	if(!notificationSound) {
+		console.log('load notificationSound');
+		notificationSound = new Audio("notification.mp3");
+		if(!notificationSound) {
+			console.warn('# load notificationSound fail');
+		}
 	}
 	if(!busySignalSound) {
-		gLog('dialButton lazy load busySignalSound');
+		console.log('load busySignalSound');
 		busySignalSound = new Audio('busy-signal.mp3');
+		if(!busySignalSound) {
+			console.warn('# load busySignalSound fail');
+		}
 	}
 
 	if(dialButton.disabled) {
 		// prevent multiple checkCalleeOnline()
 		return;
 	}
-	dialButton.disabled = true;
+//	dialButton.disabled = true;
 	//hangupButton.disabled = false;
 	msgboxdiv.style.display = "none";
 
@@ -1315,7 +1336,9 @@ function calleeOnlineAction(comment) {
 	if(haveBeenWaitingForCalleeOnline) {
 		haveBeenWaitingForCalleeOnline = false;
 		if(notificationSound) {
-			notificationSound.play().catch(function(error) { });
+			notificationSound.play().catch(function(error) {
+				console.warn("# calleeOnlineAction notificationSound err="+error);
+			});
 		} else {
 			console.log("calleeOnlineAction no notificationSound");
 		}
@@ -1657,10 +1680,14 @@ function goodby() {
 	}
 	goodbyDone = true;
 
-	if(wsConn!=null) {
+	if(wsConn) {
 		// only peerDisConnect() if this session has established a wsConn
 		if(typeof Android !== "undefined" && Android !== null) {
 			Android.peerDisConnect();
+		}
+		if(wsConn) {
+			wsConn.close();
+			wsConn=null;
 		}
 	}
 }
@@ -1837,6 +1864,9 @@ function errorAction(errString,errcode) {
 }
 
 function gotStream2() {
+//	dialButton.focus();
+//	console.log("----- gotStream2 dialButton focused");
+
 	if(dialAfterLocalStream) {
 		// dialAfterLocalStream was set by calleeOnlineAction() -> dialAfterCalleeOnline
 		console.log("gotStream2 dialAfter connectSignaling()");
@@ -1911,7 +1941,7 @@ function connectSignaling(message,openedFunc) {
 		gLog('connectSignaling: no wsAddr for callee='+calleeID);
 		return;
 	}
-	gLog('connectSignaling: open ws connection '+calleeID+' '+wsAddr);
+	console.log('connectSignaling: open ws connection '+calleeID+' '+wsAddr);
 	let tryingToOpenWebSocket = true;
     var wsUrl = wsAddr;
 	if(callerId!="") {
@@ -1995,7 +2025,7 @@ function connectSignaling(message,openedFunc) {
 		}
 		wsConn = null;
 		if(!mediaConnect) {
-			onlineIndicator.src="";
+//			onlineIndicator.src="";
 		}
 	};
 }
@@ -2176,7 +2206,7 @@ function signalingCommand(message) {
 
 		// hide msgbox
 		msgboxdiv.style.display = "none";
-		onlineIndicator.src="red-gradient.svg";
+//		onlineIndicator.src="red-gradient.svg";
 
 /* TODO somewhere
 		if(!calleeID.startsWith("answie"))  {
@@ -2223,10 +2253,14 @@ function signalingCommand(message) {
 				// enable (un-mute) remoteStream
 				gLog('set remoteVideoFrame '+remoteStream);
 				remoteVideoFrame.srcObject = remoteStream;
-				remoteVideoFrame.play().catch(function(error) {	});
+				remoteVideoFrame.play().catch(function(error) {
+					console.warn("# enableRemoteStream remoteVideoFrame err="+error);
+				});
 			}
 
 			mediaConnect = true;
+			console.log("mediaConnect stop dialing");
+			dialing = false;
 
 			// on start of fullConnect: un-mute mic if muteMicElement not checked
 			if(localStream) {
@@ -2315,9 +2349,11 @@ function signalingCommand(message) {
 					}
 					// make sure server will generate a missed call
 					wsSend("cancel|");
+/*
 					wsConn.close();
 					// wsConn=null prevents hangup() from generating a return cancel msg
 					wsConn=null;
+*/
 				}
 				hangupWithBusySound(false,"Peer has disconnected");
 			},250);
@@ -2393,7 +2429,11 @@ function signalingCommand(message) {
 
 function wsSend(message) {
 	if(wsConn==null || wsConn.readyState!=1) {
-		gLog('wsSend connectSignaling() '+message);
+		if(wsConn==null) {
+			console.log('wsSend wsConn==null -> connectSignaling() '+message);
+		} else {
+			console.log('wsSend wsConn.readyState=="+wsConn.readyState+" -> connectSignaling() '+message);
+		}
 		connectSignaling(message,null);
 	} else {
 		wsConn.send(message);
@@ -2410,7 +2450,7 @@ function dial() {
 		return;
 	}
 
-	gLog('dial');
+	console.log('dial...');
 	otherUA = "";
 	dialing = true;
 	rtcConnect = false;
@@ -2418,6 +2458,7 @@ function dial() {
 
 	if(playDialSounds) {
 		// postpone dialing, so we can start dialsound before
+		console.log('playDialTone start loop...');
 		setTimeout(function() {
 			if(doneHangup) {
 				gLog('abort post playDialSound dial2()');
@@ -2428,31 +2469,41 @@ function dial() {
 		},1500);
 
 		let loop = 0;
-		var playDialSound = function() {
+		var playDialTone = function() {
+			if(!dialing) {
+				console.log('playDialTone abort no dialing');
+				return;
+			}
+			if(doneHangup) {
+				console.log('playDialTone abort doneHangup');
+				return;
+			}
 			if(!wsConn) {
-				gLog('playDialSound abort no wsConn');
+				console.log('playDialTone abort no wsConn');
 				return;
 			}
 			if(mediaConnect) {
-				gLog('playDialSound abort is mediaConnect');
+				console.log('playDialTone abort is mediaConnect');
 				return;
 			}
-			if(dtmfDialingSound==null) {
-				gLog('playDialSound abort no dtmfDialingSound');
+			if(!dtmfDialingSound) {
+				console.log('# playDialTone abort no dtmfDialingSound');
 				return;
 			}
-			gLog('DialSound play()');
+			console.log('playDialTone...');
 			if(loop>0) {
 				dtmfDialingSound.currentTime = 2;
 			}
 			loop++;
+			dtmfDialingSound.volume = 0.5;
+			dtmfDialingSound.onended = playDialTone;
 			dtmfDialingSound.play().catch(function(error) {
-				//console.log("# DialSound err="+error);
+				// "The play() request was interrupted by a call to pause()."
+				console.log("# playDialTone err="+error);
 				showStatus("Error DialSound "+error,-1);
 			});
-			dtmfDialingSound.onended = playDialSound;
 		}
-		playDialSound();
+		playDialTone();
 
 	} else {
 		dial2();
@@ -2467,13 +2518,13 @@ function dial2() {
 		progressRcvElement.style.display = "none";
 	}
 
-	onlineIndicator.src="";
+//	onlineIndicator.src="";
 	doneHangup = false;
 	candidateResultGenerated = false;
 	candidateArray = [];
 	candidateResultString = "";
 	dialDate = Date.now();
-	gLog('dial2 dialDate='+dialDate);
+	console.log('dial2 dialDate='+dialDate);
 
 
 	// show connectingText with additional dots - in case we don't get a quick peerConnect
@@ -2482,7 +2533,6 @@ function dial2() {
 	setTimeout(function(lastDialDate) {
 		if(dialDate==lastDialDate && !doneHangup && !rtcConnect && !earlyRing) { // still the same call after 3s?
 			showStatus(connectingText+"...",-1); // "Connecting P2P......"
-//			showStatus(lg("ringingText"),-1); // Ringing...
 		}
 	},3000,dialDate);
 
@@ -2494,6 +2544,7 @@ function dial2() {
 		gLog("dial peerCon = new RTCPeerConnection");
 		peerCon = new RTCPeerConnection(ICE_config);
 		hangupButton.disabled = false;
+		dialButton.disabled = true;
 	} catch(ex) {
 		console.error("RTCPeerConnection "+ex.message);
 		var statusMsg = "RTCPeerConnection "+ex.message;
@@ -2616,10 +2667,11 @@ function dial2() {
 					gLog('set goodbyTextMsg='+goodbyTextMsg);
 
 					showStatus(lg("ringingText"),-1); // Ringing...
-					onlineIndicator.src="green-gradient.svg";
+//					onlineIndicator.src="green-gradient.svg";
 				}
-				dialing = false;
 			}
+//			console.log("rtcConnect stop dialing");
+//			dialing = false;
 		}
 	}
 	if(!localStream) {
@@ -2847,7 +2899,7 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 	localDescription = null;
 	hangupButton.disabled = true;
 	//dialButton.disabled = false;
-	onlineIndicator.src="";
+//	onlineIndicator.src="";
 
 	if(peerCon && peerCon.iceConnectionState!="closed") {
 		if(addedAudioTrack) {
@@ -2980,7 +3032,7 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 	}
 
 	if(wsConn && wsConn.readyState==1) {
-		gLog('hangup mustDisc='+mustDisconnectCallee+' readyState='+wsConn.readyState+" mediaCon="+mediaConnect);
+		console.log('hangup mustDisc='+mustDisconnectCallee+' readyState='+wsConn.readyState+" mediaCon="+mediaConnect);
 		if(!mediaConnect) {
 			let msgboxText = cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen);
 			//gLog('msgboxText=('+msgboxText+')');
@@ -2996,10 +3048,12 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 			wsSend("cancel|c");
 		}
 	}
+/*
 	if(wsConn) {
 		wsConn.close();
 		wsConn=null;
 	}
+*/
 
 	if(muteMicModified) {
 		console.log("hangup: undo muteMic");

@@ -84,7 +84,7 @@ button[disabled] {
 .mainbutton, .mainbutton:focus {
 	background-color:#0002;
 	transition: all 200ms ease-in-out;
-	border: 1.3px solid #ddd;
+	border: 2.7px solid #ddd;
 	border-radius:6px;
 	color:#fff;
 	font-size: 1.1em;
@@ -105,38 +105,64 @@ button[disabled] {
 }
 .mainbutton[disabled] {
 	opacity:0.8;
+	background-color:#0002;
+	border: 2.7px solid #ddd;
 }
-/*
-.mainbutton:focus {
-	color: #fff;
+
+.mainbuttonGreen {
+	background-color: #0a2c;
+	border: 2.7px solid #0a2c;
 }
-*/
+
+.mainbuttonRed {
+	background-color: #a02c;
+	border: 2.7px solid #a02c;
+}
+
+.mainbuttonGreen[disabled] {
+	opacity:0.8;
+	background-color:#0002;
+	border: 2.7px solid #ddda;
+}
+
+.mainbuttonRed[disabled] {
+	opacity:0.8;
+	background-color:#0002;
+	border: 2.7px solid #ddda;
+}
+
 @media (hover: hover) {
 	.mainbutton:hover {
 		background-color: #69f;
-		border: 1.2px solid #69f;
+		border: 2.7px solid #69f;
 		outline:none;
 		color:#fff;
 	}
 	.mainbuttonGreen:hover {
-		background-color: #0a2;
-		border: 1.2px solid #0a2;
+		background-color: #0b4;
+		border: 2.7px solid #0b4;
 	}
 	.mainbuttonRed:hover {
-		background-color: #a02;
-		border: 1.2px solid #a02;
+		background-color: #b04;
+		border: 2.7px solid #b04;
 	}
 
 	.mainbutton[disabled]:hover {
 		_color:#aaa;
-		background-color:#04c;
+		_background-color:#04c;
+		background-color:#0002;
+		border: 2.7px solid #ddd;
 	}
+/*
 	.mainbuttonGreen[disabled]:hover {
-		background-color: #0a2b;
+		_background-color: #0a2b;
+		background-color:#0002;
 	}
 	.mainbuttonRed[disabled]:hover {
-		background-color: #a02b;
+		_background-color: #a02b;
+		background-color:#0002;
 	}
+*/
 }
 
 .mainbuttonGreen:active {
