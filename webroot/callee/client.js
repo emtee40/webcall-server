@@ -85,7 +85,7 @@ function setVideoConstraintsGiven() {
 	// build userMediaConstraints.video from constraintString + myUserMediaDeviceId
 	let tmpConstraints = constraintString;
 	if(myUserMediaDeviceId && myUserMediaDeviceId!="default") {
-		gLog('setVideoConstraintsGiven myUserMediaDeviceId',myUserMediaDeviceId);
+		console.log('setVideoConstraintsGiven avSelect myUserMediaDeviceId',myUserMediaDeviceId);
 		tmpConstraints += ',"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
 	} else {
 		// desktop chromium doesn't like 'exact' 'user'
@@ -990,7 +990,7 @@ function getStream(selectObject) {
 			if(avSelect.options[i].value == selectObject.value) {
 				// found deviceId
 				myUserMediaDeviceId = selectObject.value;
-				gLog('getStream avSelect deviceId '+myUserMediaDeviceId);
+				console.log('getStream avSelect deviceId '+myUserMediaDeviceId);
 
 				if(avSelect.options[i].label.startsWith("Audio")) {
 					if(videoEnabled) {
@@ -1186,7 +1186,7 @@ var addedVideoTrack = null;
 function gotStream(stream) {
 	// add localStream audioTrack and (possibly) localStream videoTrack to peerCon using peerCon.addTrack()
 	// then activate localVideoFrame with localStream
-	//console.log("gotStream set localStream");
+	console.log("gotStream set localStream");
 	if(localStream) {
 		// stop all tracks on previous localStream
 		const allTracks = localStream.getTracks();

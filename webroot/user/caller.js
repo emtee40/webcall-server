@@ -1289,6 +1289,7 @@ function calleeOnlineStatus(onlineStatus,waitForCallee) {
 		return;
 	}
 	console.log("calleeOnlineStatus "+onlineStatus+" "+waitForCallee);
+
 	// onlineStatus should be something like "127.0.0.1:8071?wsid=4054932942" (aka wsAddr)
 	if(onlineStatus!="" && onlineStatus.indexOf("wsid=")>=0) {
 		// callee is available/online
@@ -1333,6 +1334,7 @@ function calleeOnlineStatus(onlineStatus,waitForCallee) {
 
 function calleeOnlineAction(comment) {
 	console.log('calleeOnlineAction='+comment+' dialAfterCalleeOnline='+dialAfterCalleeOnline);
+
 	if(haveBeenWaitingForCalleeOnline) {
 		haveBeenWaitingForCalleeOnline = false;
 		if(notificationSound) {
@@ -1368,10 +1370,11 @@ function calleeOnlineAction(comment) {
 			dialAfterCalleeOnline = false;
 
 			if(localStream) {
+				console.log('calleeOnlineAction localStream -> connectSignaling()');
 				connectSignaling("",dial); // when ws-connected to server, call dial() to call peer
 			} else {
-				gLog('callee is online dialAfterLocalStream');
 				dialAfterLocalStream = true;
+				console.log('calleeOnlineAction no localStream dialAfterLocalStream');
 				/*
 				if(typeof Android !== "undefined" && Android !== null) {
 					// remote audio will be played back on earpiece (if available) instead of speakerphone
@@ -1911,7 +1914,7 @@ function gotStream2() {
 				localStream.removeTrack(videoTracks[0]);
 			}
 
-			localStream = null;
+//			localStream = null;
 		}
 	}
 }
@@ -2459,6 +2462,7 @@ function dial() {
 	if(playDialSounds) {
 		// postpone dialing, so we can start dialsound before
 		console.log('playDialTone start loop...');
+
 		setTimeout(function() {
 			if(doneHangup) {
 				gLog('abort post playDialSound dial2()');
