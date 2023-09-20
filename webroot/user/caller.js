@@ -390,7 +390,7 @@ window.onload = function() {
 			// xhrresponse can contain random html
 			if(xhrresponse.indexOf("<html")>=0 || xhrresponse.indexOf("<head")>=0) {
 				console.log("# xhr /getsettings received garbage "+xhr.status);
-				showStatus("error xhr getsettings",-1);
+				showStatus("error xhr getsettings",-1,true);
 				return;
 			}
 			var serverSettings = JSON.parse(xhrresponse);
@@ -615,7 +615,7 @@ function getContact(contactID) {
 				// xhrresponse can contain random html
 				if(xhrresponse.indexOf("<html")>=0 || xhrresponse.indexOf("<head")>=0) {
 					console.log("# xhr /getcontacts received garbage "+xhr.status);
-					showStatus("error xhr getcontacts",-1);
+					showStatus("error xhr getcontacts",-1,true);
 					return;
 				}
 
@@ -857,7 +857,7 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElement) {
 			// xhrresponse can contain random html
 			if(xhrresponse.indexOf("<html")>=0 || xhrresponse.indexOf("<head")>=0) {
 				console.log("# xhr /getmapping received garbage "+xhr.status);
-				showStatus("error xhr getmapping",-1);
+				showStatus("error xhr getmapping",-1,true);
 				return;
 			}
 			let idOption = document.createElement('option');
@@ -999,7 +999,7 @@ function onload3(comment) {
 			} else {
 				setTimeout(function() {
 					//chatButton.style.display = "none";
-					showStatus(lg("peerNoTextChat"),4000);
+					showStatus(lg("peerNoTextChat"),4000,false);
 				},500);
 			}
 		}
@@ -1037,7 +1037,7 @@ function dialButtonClick2() {
 
 	console.log("dialButtonClick calleeID="+calleeID+" callerId="+callerId+" callerName="+callerName);
 
-	showStatus(connectingText,-1); // "Connecting P2P..."
+	showStatus(connectingText,-1,false); // "Connecting P2P..."
 	doneHangup = false;
 	onIceCandidates = 0;
 	rtcConnectStartDate = 0;
@@ -1246,7 +1246,7 @@ function checkServerMode(callback) {
 		// xhrresponse can contain random html
 		if(xhrresponse.indexOf("<html")>=0 || xhrresponse.indexOf("<head")>=0) {
 			console.log("# xhr /mode received garbage "+xhr.status);
-			showStatus("error xhr mode",-1);
+			showStatus("error xhr mode",-1,true);
 			return;
 		}
 		if(xhrresponse.startsWith("normal")) {
@@ -1328,7 +1328,7 @@ function calleeOnlineStatus(onlineStatus,waitForCallee) {
 
 // TODO ???
 	if(onlineStatus=="error") {
-		showStatus("Error: ID not found",-1)
+		showStatus("Error: user ID not found",-1,true)
 		waitForCallee = false;
 	}
 	// switch to offline mode and (if waitForCallee is set) check if calleeID can be notified
@@ -1360,7 +1360,7 @@ function calleeOnlineAction(comment) {
 		if(!navigator.mediaDevices) {
 			console.warn("navigator.mediaDevices not available");
 			if(calleeOnlineElement) {
-				showStatus("navigator.mediaDevices not available",-1);
+				showStatus("navigator.mediaDevices not available",-1,true);
 			} else {
 				alert("navigator.mediaDevices not available");
 			}
@@ -1410,14 +1410,13 @@ function calleeOnlineAction(comment) {
 			// so we display a message to prepare the caller hitting the call button manually
 			if(calleeID.startsWith("answie"))  {
 				msgboxdiv.style.display = "none";
-				showStatus(lg("digAnswMachine"),-1);
+				showStatus(lg("digAnswMachine"),-1,false);
 			} else if(calleeID.startsWith("talkback")) {
 				msgboxdiv.style.display = "none";
 				showStatus( "Talkback service let's you test your microphone audio quality. "+
 							"The first six seconds of the call will be recorded (red led) "+
-							"and then immediately played back to you (green led).",-1);
+							"and then immediately played back to you.",-1,false);
 			} else {
-//				showStatus(lg("greetingMessage"),-1);
 				msgboxdiv.style.display = "block";
 				msgbox.value = "";
 				msgbox.readOnly = false;
@@ -1488,7 +1487,7 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 			// callee temporarily offline: have caller wait for callee
 			var offlineFor = parseInt(onlineStatus.substring(12),10);
 
-			showStatus(lg("tryingToFind")+" "+calleeID+". "+lg("thisCanTakeSomeTime"),-1);
+			showStatus(lg("tryingToFind")+" "+calleeID+". "+lg("thisCanTakeSomeTime"),-1,false);
 
 			if(divspinnerframe) {
 				divspinnerframe.style.display = "block";
@@ -1525,7 +1524,7 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 						calleeOnlineElement.style.display = "block";
 						calleeOfflineElement.style.display = "none";
 
-						showStatus("Enter text message before the call (optional):",-1);
+//						showStatus("Enter text message before the call (optional):",-1,false);
 						msgboxdiv.style.display = "block";
 						msgbox.readOnly = false;
 						if(placeholderText!="") {
@@ -1575,7 +1574,7 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 				// errcode 504 = timeout
 				console.log('online: callee could not be reached. xhr err',errString,errcode);
 				// TODO if xhr /online failed, does it make sense to try xhr /missedCall ?
-				showStatus("Unable to reach "+calleeID+".<br>Please try again later.",-1);
+				showStatus("Unable to reach "+calleeID+".<br>Please try again later.",-1,false);
 				//wsSend("missedcall|"+goodbyMissedCall); // this is not possible here
 				if(goodbyMissedCall!="") {
 					let api = apiPath+"/missedCall?id="+goodbyMissedCall;
@@ -1640,7 +1639,7 @@ function calleeNotificationAction() {
 				msg += "<br><br><a onclick='history.back();'>"+lg("noIHaveToGo")+"</a>";
 			}
 
-			showStatus(msg,-1);
+			showStatus(msg,-1,false);
 			goodbyMissedCall = calleeID+"|"+callerName+"|"+callerId+
 				"|"+Math.floor(Date.now()/1000)+
 				"|"+cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen)+
@@ -1651,7 +1650,7 @@ function calleeNotificationAction() {
 		}
 		// calleeID can NOT be notified
 		showStatus(calleeID+" is not available at this time. "+
-			"<a href='javascript:window.location.href=window.location.href'>"+lg("PleaseTryAgainALittle")+"</a>",-1);
+		  "<a href='javascript:window.location.href=window.location.href'>"+lg("PleaseTryAgainALittle")+"</a>",-1,false);
 	}, // xhr error
 		errorAction
 		// TODO errorAction will switch back
@@ -1812,7 +1811,7 @@ function notifyConnect(callerName,callerId,callerHost) {
 	if(contactName!="" && contactName!="unknown") {
 		name = contactName+" ("+calleeID+")";
 	}
-	showStatus(lg("TryingToGet")+" "+name+" "+lg("onThePhonePleaseWait"),-1);
+	showStatus(lg("TryingToGet")+" "+name+" "+lg("onThePhonePleaseWait"),-1,false);
 
 	if(divspinnerframe) {
 		divspinnerframe.style.display = "block";
@@ -1845,7 +1844,7 @@ function notifyConnect(callerName,callerId,callerHost) {
 			return;
 		}
 		gLog('notify: callee could not be reached (%s)',xhr.responseText);
-		//showStatus("Sorry! Unable to reach "+calleeID+".<br>Please try again a little later.",-1);
+		//showStatus("Sorry! Unable to reach "+calleeID+".<br>Please try again a little later.",-1,false);
 		let name = calleeID;
 		if(contactName!="" && contactName!="unknown") {
 			name = contactName+" ("+calleeID+")";
@@ -1871,9 +1870,9 @@ function notifyConnect(callerName,callerId,callerHost) {
 function errorAction(errString,errcode) {
 	console.log("# errorAction "+errString+" "+errcode);
 	if(errString.startsWith("fetch")) {
-		showStatus("No response from signaling server",-1);
+		showStatus("No response from signaling server",-1,true);
 	} else {
-		showStatus("error xhr "+errString,-1);
+		showStatus("error xhr "+errString,-1,true);
 	}
 }
 
@@ -1942,13 +1941,13 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 	if(otherUA!="") {
 		msg += "<div style='font-size:0.8em;margin-top:10px;color:#aac;'>UA: "+otherUA+"</div>";
 	}
-	showStatus(msg,-1);
+	showStatus(msg,0,true);
 }
 
 function connectSignaling(message,openedFunc) {
 	if(!window["WebSocket"]) {
 		console.error('connectSignaling: no WebSocket support');
-		showStatus("No WebSocket support");
+		showStatus("No WebSocket support",0,true);
 		return;
 	}
 	if(wsAddr=="") {
@@ -2011,9 +2010,9 @@ function connectSignaling(message,openedFunc) {
 		// this can also mean that callee has gone offline recently and that wsAddr is now outdated
 		// should this generate a /missedcall? no, bc we continue in onClose()
 		if(evt && evt.data) {
-			showStatus("connect error "+evt.data);
+			showStatus("connect error "+evt.data,0,true);
 		} else {
-			showStatus("connect error");
+			showStatus("connect error",0,true);
 		}
 		wsAddr = "";
 		stopAllAudioEffects();
@@ -2087,11 +2086,11 @@ function signalingCommand(message) {
 				console.log("calleeAnswer setRemoteDescription done");
 			}, err => {
 				console.warn("calleeAnswer setRemoteDescription fail",err)
-				showStatus("Cannot set remoteDescr "+err);
+				showStatus("Error: Cannot set remoteDescr "+err,0,true);
 			});
 		}, err => {
 			console.warn("# calleeAnswer setLocalDescription fail",err)
-			showStatus("Cannot set localDescr"+err);
+			showStatus("Error: Cannot set localDescr"+err,0,true);
 		});
 
 	} else if(cmd=="calleeOffer") {
@@ -2123,7 +2122,7 @@ function signalingCommand(message) {
 					}, err => console.error(`# Failed to set local descr: ${err.toString()}`));
 				}, err => {
 					console.warn("# calleeOffer failed to createAnswer",err)
-					showStatus("Failed to createAnswer",8000);
+					showStatus("Error: Failed to createAnswer",0,true);
 				});
 			} else {
 				console.log("# calleeOffer received no offer:",hostDescription.type);
@@ -2131,7 +2130,7 @@ function signalingCommand(message) {
 
 		}, err => {
 			console.warn("# calleeOffer setRemoteDescription fail",err)
-			showStatus("Cannot set remoteDescr "+err);
+			showStatus("Error: Cannot set remoteDescr "+err,0,true);
 		});
 
 	} else if(cmd=="calleeCandidate") {
@@ -2195,7 +2194,7 @@ function signalingCommand(message) {
 			}
 			peerCon.addIceCandidate(calleeCandidate).catch(e => {
 				console.error("# addIce calleeCandidate",e,payload);
-				showStatus("RTC error "+e);
+				showStatus("RTC error "+e,0,true);
 			});
 		}
 		addIceCalleeCandidate(calleeCandidate,1);
@@ -2470,7 +2469,7 @@ function dial() {
 	// start dialing: playDialSound and prepare to stop sound on mediaConnect
 	if(!localStream) {
 		console.warn('dial abort no localStream');
-		showStatus("Dialup canceled");
+		showStatus("Dialing canceled",0,true);
 		hangupWithBusySound(true,"no localStream");
 		return;
 	}
@@ -2526,7 +2525,7 @@ function dial() {
 			dtmfDialingSound.play().catch(function(error) {
 				// "The play() request was interrupted by a call to pause()."
 				console.log("# playDialTone err="+error);
-				showStatus("Error DialSound "+error,-1);
+				showStatus("Error: DialSound "+error,-1,true);
 			});
 		}
 		playDialTone();
@@ -2596,7 +2595,7 @@ function dial2() {
 		if(typeof Android !== "undefined" && Android !== null) {
 			statusMsg += " <a href='https://timur.mobi/webcall/android/#webview'>More info</a>";
 		}
-		showStatus(statusMsg);
+		showStatus(statusMsg,0,true);
 
 		stopAllAudioEffects();
 		hangup(true,false,"WebRTC error");
@@ -2612,7 +2611,7 @@ function dial2() {
 			//console.log("# peerCon onicecandidateerror", e.errorCode, e.errorText, e.url);
 		} else {
 			if(!gentle) console.warn("peerCon onicecandidateerror", e.errorCode, e.errorText, e.url);
-			showStatus("iceCandidate error "+e.errorCode+" "+e.errorText,-1);
+			showStatus("Error: iceCandidate "+e.errorCode+" "+e.errorText,0,true);
 		}
 	}
 	peerCon.ontrack = ({track, streams}) => peerConOntrack(track, streams);
@@ -2812,7 +2811,7 @@ function dataChannelOnmessage(event) {
 					console.log("file transmit aborted by sender");
 					progressRcvElement.style.display = "none";
 					if(fileReceivedSize < fileSize) {
-						showStatus("file transmit aborted by sender");
+						showStatus("file transmit aborted by sender",-1);
 					}
 					fileReceivedSize = 0;
 					fileReceiveBuffer = [];
@@ -2820,7 +2819,7 @@ function dataChannelOnmessage(event) {
 				}
 				if(fileDescr=="end-rcv") {
 					console.log("file send aborted by receiver");
-					showStatus("file send aborted by receiver");
+					showStatus("file send aborted by receiver",-1);
 					fileSendAbort = true;
 					progressSendElement.style.display = "none";
 					if(fileselectLabel && mediaConnect && isDataChlOpen() && isP2pCon()) {
@@ -2829,7 +2828,9 @@ function dataChannelOnmessage(event) {
 					return;
 				}
 
-				showStatus("",-1);
+				if(!showStatusCurrentHighPrio) {
+					showStatus("",0);
+				}
 				fileReceiveAbort = false;
 				// parse: "file|"+file.name+","+file.size+","+file.type+","+file.lastModified);
 				let tok = fileDescr.split(",");
@@ -3162,7 +3163,9 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 		},1500);
 	} else {
 		// TODO doing this could clear prev err msgs
-		//showStatus("");
+		if(!showStatusCurrentHighPrio) {
+			showStatus("");
+		}
 	}
 }
 

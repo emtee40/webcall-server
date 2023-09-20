@@ -227,19 +227,19 @@ function fileSelectInit() {
 				const files = fileSelectElement.files;
 				const file = files.item(0);
 				if(file==null) {
-					showStatus("error: file==null",-1);
+					showStatus("error: file==null",-1,true);
 					return;
 				}
 				if(!isDataChlOpen()) {
-					showStatus("error: no dataChannel",-1);
+					showStatus("error: no dataChannel",-1,true);
 					return;
 				}
 				if(file.name=="") {
-					showStatus("error: empty file.name",-1);
+					showStatus("error: empty file.name",-1,true);
 					return;
 				}
 				if(file.size<=0) {
-					showStatus("error: file.size <= 0",-1);
+					showStatus("error: file.size <= 0",-1,true);
 					return;
 				}
 				if(file.size>=500*1024*1024) {
@@ -543,7 +543,7 @@ function openPostCallStats() {
 
 function stopProgressSend() {
 	console.log("stopProgressSend");
-	showStatus("sendFile aborted");
+	showStatus("sendFile aborted",-1);
 	fileSendAbort = true;
 	progressSendElement.style.display = "none";
 	if(isDataChlOpen()) {
@@ -558,7 +558,7 @@ function stopProgressSend() {
 
 function stopProgressRcv() {
 	console.log("stopProgressRcv");
-	showStatus("receiveFile aborted");
+	showStatus("receiveFile aborted",-1);
 	fileReceiveAbort = true;
 	progressRcvElement.style.display = "none";
 	if(isDataChlOpen()) {
@@ -1082,7 +1082,7 @@ function getStream(selectObject,comment) {
 					localVideoMsgElement.style.opacity = 0.9;
 				}
 			}
-			showStatus("Error getStream "+err.message); // undo "Connecting..."
+			showStatus("Error getStream "+err.message,0,true); // undo "Connecting..."
 			if(typeof dialButton!=="undefined" && dialButton) {
 				dialButton.disabled = false;
 				hangupButton.disabled = true;
@@ -1663,8 +1663,15 @@ function hashchange() {
 
 var showStatusTimeout = null;
 var showStatusMsg = "";
-function showStatus(msg,timeoutMs) {
+var showStatusCurrentHighPrio = 0;
+function showStatus(msg, timeoutMs, prio) {
 	statusLine.style.display = "none";
+	showStatusMsg = msg;
+	if(typeof prio=="undefined") {
+		showStatusCurrentHighPrio = false;
+	} else {
+		showStatusCurrentHighPrio = prio;
+	}
 	if(typeof msg=="undefined" || msg==null) {
 		console.log("status: msg undefined");
 		return;
@@ -1682,8 +1689,11 @@ function showStatus(msg,timeoutMs) {
 	}
 
 	let sleepMs = 2500;
-	if(typeof timeoutMs!=="undefined") {
+	if(typeof timeoutMs!=="undefined" && timeoutMs>=0) {
 		sleepMs = timeoutMs;
+	}
+	if(prio) {
+		sleepMs = -1;
 	}
 	//console.log("showStatus msg=("+msg+") sleepMs="+sleepMs);
 
@@ -1695,7 +1705,6 @@ function showStatus(msg,timeoutMs) {
 		console.log("showStatus("+msg+") "+sleepMs);
 	}
 
-	showStatusMsg = msg;
 	statusLine.style.opacity = 0;
 	statusLine.innerHTML = msg;
 	statusLine.style.opacity = 1;

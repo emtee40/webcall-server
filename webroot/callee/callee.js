@@ -103,7 +103,7 @@ window.onload = function() {
 	if(!navigator.mediaDevices) {
 		console.warn("navigator.mediaDevices not available");
 		showVisualOffline("onload mediaDevices not found");
-		showStatus("MediaDevices not found",-1);
+		showStatus("MediaDevices not found",0,true);
 		return;
 	}
 
@@ -143,7 +143,7 @@ window.onload = function() {
 			}
 		}
 
-		showStatus("calleeID missing in URL",-1);
+		showStatus("calleeID missing in URL",-1,true);
 		return;
 	}
 	document.title = "Callee "+calleeID;
@@ -544,7 +544,7 @@ function submitFormDone(idx) {
 		var valuePw = cleanStringParameter(document.getElementById("current-password").value,true,"pw");
 		if(valuePw.length < 6) {
 			formPw.focus();
-			showStatus("Password must be six or more characters long",-1);
+			showStatus("Password must be six or more characters long",-1,true);
 			return;
 		}
 		wsSecret = valuePw;
@@ -647,7 +647,7 @@ function goOnlineSwitchChange(comment) {
 			} else {
 				console.log("goOffline wsConn.close()");
 				wsConn.close();
-				showStatus("WebCall server disconnected");
+				showStatus("WebCall server disconnected",0,true);
 			}
 			wsConn=null;
 		}
@@ -846,7 +846,7 @@ function login(retryFlag,comment) {
 		if(parts[0]=="notregistered") {
 			wsSecret = "";
 			showStatus( "Unknown callee ID "+calleeID+"<br>"+
-						"<a href='/callee/register'>Register a new ID</a>",-1);
+						"<a href='/callee/register'>Register a new ID</a>",0,true);
 
 			form.style.display = "none";
 			goOffline("login notregistered");
@@ -866,10 +866,10 @@ function login(retryFlag,comment) {
 				}
 			}
 		} else if(parts[0]=="busy") {
-			showStatus("User is busy",-1);
+			showStatus("User is busy",-1,true);
 			form.style.display = "none";
 		} else if(parts[0]=="errorWrongCookie") {
-			showStatus("Error: "+parts[0].substring(5),-1);
+			showStatus("Error: "+parts[0].substring(5),-1,true);
 		} else if(parts[0]=="error") {
 			// parts[0] "error" = "wrong pw", "pw has less than 6 chars" or "empty pw"
 			// offer pw entry again
@@ -887,9 +887,9 @@ function login(retryFlag,comment) {
 			// make sure our showStatus() comes after the one ("WebCall server disconnected") from disconnectHost()
 			setTimeout(function() {
 				if(parts.length>=2) {
-					showStatus("Login "+parts[1]+" fail. Logged in from another device?",-1);
+					showStatus("Login "+parts[1]+" fail. Logged in from another device?",-1,true);
 				} else {
-					showStatus("Login fail, logged in from another device?",-1);
+					showStatus("Login fail, logged in from another device?",-1,true);
 				}
 			},300);
 			form.style.display = "none";
@@ -900,7 +900,7 @@ function login(retryFlag,comment) {
 			if(loginStatus!="") {
 				// make sure our showStatus() comes after the one ("WebCall server disconnected") from disconnectHost()
 				setTimeout(function() {
-					showStatus("Status: "+loginStatus,-1);
+					showStatus("Status: "+loginStatus,3000);
 				},300);
 			}
 			form.style.display = "none";
@@ -1311,7 +1311,7 @@ function gotStream2() {
 			// we are offline, this usually occurs onload in pure browser mode
 			// we turn the switch off bc in pure browser mode the user needs to click to start
 			console.log("gotStream2 wsConn==null, stay offline, no sendInit");
-			showStatus("WebCall server disconnected",-1);
+			showStatus("WebCall server disconnected",-1,true);
 			goOnlineSwitch.checked = false;
 		} else {
 			console.log("gotStream2 wsConn!=null, goOnlineSwitch ON, sendInit");
@@ -1334,7 +1334,9 @@ function delayedWsAutoReconnect(reconPauseSecs) {
 	let startPauseDate = Date.now();
 	setTimeout(function() {
 		console.log("delayedWsAutoReconnect action");
-		showStatus("",-1);
+		if(!showStatusCurrentHighPrio) {
+			showStatus("",-1);
+		}
 		// don't proceed if the user has clicked on anything; in particular goOnline
 		if(startPauseDate < lastUserActionDate) {
 			// lastUserActionDate set by goOnlineSwitch.onchange()
@@ -1393,7 +1395,7 @@ function showOnlineReadyMsg() {
 		if(mediaConnect) {
 			// do not show "Call in progress"
 		} else {
-			showStatus(readyMessage,-1);
+			showStatus(readyMessage,-1,true);
 		}
 
 		//must turn on the goOnlineSwitch dot
@@ -1450,7 +1452,7 @@ function connectToWsServer(message,comment) {
 	} else {
 		if(!window["WebSocket"]) {
 			console.error('connectSig: no WebSocket support');
-			showStatus("No websocket support");
+			showStatus("Error: Your platform does not offer websocket support",0,true);
 			return;
 		}
 	    console.log('connectToWsServer: open ws connection... '+calleeID+' '+wsUrl);
@@ -1605,7 +1607,9 @@ function wsOnClose(evt) {
 		console.log("wsOnClose with code 1000 'normal closure' (we do nothing)");
 		wsOnClose2();	// wsConn=null; showVisualOffline();
 		//goOnlineSwitch.checked = false;
-		//showStatus("",-1); // "Offline" ?
+		if(!showStatusCurrentHighPrio) {
+			showStatus("",0); // "Offline" ?
+		}
 	} else if(errCode==1001) {
 		// if disconnect from server was caused by manual reload, we do nothing
 		console.log("wsOnClose with code 1001 'manual reload' (we do nothing)");
@@ -1616,13 +1620,13 @@ function wsOnClose(evt) {
 			// onclose occured while we were trying to establish a ws-connection (but before getting connected)
 			console.log('wsOnClose failed to open');
 			if(!mediaConnect) {
-				showStatus("Server disconnected (access problem)",-1);
+				showStatus("Server disconnected (access problem)",-1,true);
 			}
 		} else {
 			// onclose occured while were ws-connected
 			console.log('wsOnClose while being connected (we got disconected)');
 			if(!mediaConnect) {
-				showStatus("WebCall server disconnected",-1);
+				showStatus("WebCall server disconnected",-1,true);
 			}
 		}
 
@@ -1738,11 +1742,11 @@ function signalingCommand(message, comment) {
 				}, err => console.error(`# Failed to set local descr: ${err.toString()}`));
 			}, err => {
 				console.warn("# failed to createAnswer "+err.message)
-				showStatus("Failed to create answer",8000);
+				showStatus("Error: Failed to create WebRTC answer",8000,true);
 			});
 		}, err => {
 			console.warn('callerOffer failed to set RemoteDescription',err.message,callerDescription)
-			showStatus("Failed to set remoteDescription",8000);
+			showStatus("Error: Failed to set WebRTC remoteDescription",8000,true);
 		});
 
 	} else if(cmd=="callerAnswer") {
@@ -1762,11 +1766,11 @@ function signalingCommand(message, comment) {
 				}
 			}, err => {
 				console.warn(`# callerAnswer Failed to set RemoteDescription`,err.message)
-				showStatus("Cannot set remoteDescr "+err.message);
+				showStatus("Error: Failed to set WebRTC remoteDescr "+err.message,0,true);
 			});
 		}, err => {
 			console.warn("# callerAnswer setLocalDescription fail",err.message)
-			showStatus("Cannot set localDescr"+err.message);
+			showStatus("Error: Failed to set WebRTC localDescr"+err.message,0,true);
 		});
 
 	} else if(cmd=="callerInfo") {
@@ -1866,7 +1870,7 @@ function signalingCommand(message, comment) {
 			}
 			peerCon.addIceCandidate(callerCandidate).catch(e => {
 				console.error("# addIce callerCandidate",e.message,payload);
-				showStatus("rtc error "+e.message);
+				showStatus("Error RTC "+e.message,0,true);
 			});
 		}
 		addIceCallerCandidate(callerCandidate,1);
@@ -1913,9 +1917,9 @@ function signalingCommand(message, comment) {
 		// this is currently used to make Android users aware of new releases and Websocket communication issues
 		if(typeof Android !== "undefined" && Android !== null) {
 			if(payload!="") {
-				console.log("cmd=='status' showStatus("+payload+")");
+				console.log("cmd=='status' payload=("+payload+")");
 				setTimeout(function() {
-					showStatus(payload,-1);
+					showStatus(payload,-1,true);
 				},1000);
 			} else {
 				console.log("# cmd=='clearcache' ignored (no payload)");
@@ -2453,7 +2457,7 @@ function hangup(mustDisconnect,dummy2,message) {
 	// close the peer connection (the incomming call) via endWebRtcSession()
 	console.log("hangup: '"+message+"' switch="+goOnlineSwitch.checked);
 	// NOTE: not all message strings are suited for users
-	showStatus(message,2000);
+	showStatus(message,-1);
 	// expected followup-message "ready to receive calls" from showOnlineReadyMsg()
 	// showOnlineReadyMsg() is called in response to us calling sendInit() and the server responding with "sessionId|"
 	// hangup() -> endWebRtcSession() -> prepareCallee() -> sendInit() ... server "sessionId|" -> showOnlineReadyMsg()
@@ -2647,11 +2651,11 @@ function newPeerCon(comment) {
 		// wrong: we need to make callee go offline, bc without a peerCon, it makes no sense to stay online
 		//   showVisualOffline("err on newPeerCon() "+ex.message);
 		// right: we need to make callee aware that without a peerCon ready, it makes no sense to stay online
-		var statusMsg = "You cannot receive p2p calls. RTCPeerConnection "+ex.message;
+		var statusMsg = "Error: Your device cannot receive p2p calls. RTCPeerConnection "+ex.message;
 		if(typeof Android !== "undefined" && Android !== null) {
 			statusMsg += " <a href='https://timur.mobi/webcall/android/#webview'>More info</a>";
 		}
-		showStatus(statusMsg);
+		showStatus(statusMsg,0,true);
 		return true;
 	};
 
@@ -2836,7 +2840,9 @@ function peerConnected3() {
 	// in showPeerUserData() we display peerUserData in the callScreen
 	// instead of listOfClientIps (???)
 	//gLog('peerConnected3 accept incoming call?',listOfClientIps,dataChannel);
-	showStatus("");
+	if(!showStatusCurrentHighPrio) {
+		showStatus("",0);
+	}
 	peerCon.getStats(null).then((results) => getStatsCandidateTypes(results,"Incoming", ""),
 		err => console.log(err.message)); // -> wsSend("log|callee Incoming p2p/p2p")
 
@@ -3310,7 +3316,7 @@ function dataChannelOnmessage(event) {
 					console.log("file transmit aborted by sender");
 					progressRcvElement.style.display = "none";
 					if(fileReceivedSize < fileSize) {
-						showStatus("File transmit aborted by sender");
+						showStatus("File transmit aborted by sender",-1);
 					}
 					fileReceivedSize = 0;
 					fileReceiveBuffer = [];
@@ -3318,7 +3324,7 @@ function dataChannelOnmessage(event) {
 				}
 				if(fileDescr=="end-rcv") {
 					console.log("file send aborted by receiver");
-					showStatus("File send aborted by receiver");
+					showStatus("File send aborted by receiver",-1);
 					fileSendAbort = true;
 					progressSendElement.style.display = "none";
 					if(fileselectLabel && mediaConnect && isDataChlOpen() && isP2pCon()) {
@@ -3327,7 +3333,9 @@ function dataChannelOnmessage(event) {
 					return;
 				}
 
-				showStatus("",-1);
+				if(!showStatusCurrentHighPrio) {
+					showStatus("",-1);
+				}
 				fileReceiveAbort = false;
 				// parse: "file|"+file.name+","+file.size+","+file.type+","+file.lastModified);
 				let tok = fileDescr.split(",");
@@ -3459,7 +3467,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	divspinnerframe.style.display = "none";
 
 	if(wsConn==null) {
-		showStatus("WebCall server disconnected",-1);
+		showStatus("WebCall server disconnected",-1,true);
 	}
 
 	msgboxdiv.style.display = "none";
