@@ -3179,6 +3179,8 @@ function pickup4(comment) {
 		Android.peerConnect();
 	}
 
+	showStatus("",0,false);
+
 	setTimeout(function() {
 		if(videoEnabled && !addLocalVideoEnabled) {
 			console.log("pickup4 full mediaConnect, blink vsendButton");
