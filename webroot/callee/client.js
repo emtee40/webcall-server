@@ -980,14 +980,16 @@ function getStream(selectObject,comment) {
 	//if(!gentle) {
 	const supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
 	console.log('getStream supportedConstraints',supportedConstraints);
-//	console.log('getStream myUserMediaDeviceId='+myUserMediaDeviceId+" comment="+comment);
+	console.log('getStream myUserMediaDeviceId='+myUserMediaDeviceId+" comment="+comment);
 	//}
 
+/*
 	if(typeof myUserMediaDeviceId !== "undefined" && myUserMediaDeviceId!=null && myUserMediaDeviceId!="default") {
 		console.log('getStream set avSelect.value='+myUserMediaDeviceId+" and skip manual select");
 		avSelect.value = myUserMediaDeviceId;
 		selectObject = false; // no selection
 	}
+*/
 
 	if(selectObject) {
 		console.log("===getStream avSelect=== comment="+comment);

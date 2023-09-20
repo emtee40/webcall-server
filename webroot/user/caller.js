@@ -1700,7 +1700,7 @@ function goodby() {
 		}
 		if(wsConn) {
 			wsConn.close();
-			wsConn=null;
+			wsConn = null;
 		}
 	}
 }
@@ -2374,11 +2374,10 @@ function signalingCommand(message) {
 					}
 					// make sure server will generate a missed call
 					wsSend("cancel|");
-/*
+
 					wsConn.close();
 					// wsConn=null prevents hangup() from generating a return cancel msg
 					wsConn=null;
-*/
 				}
 				hangupWithBusySound(false,"Peer has disconnected");
 			},250);
