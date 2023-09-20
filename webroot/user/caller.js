@@ -233,6 +233,7 @@ window.onload = function() {
 	let fullscreenDiv = document.getElementById('fullscreenDiv');
 	if(typeof Android !== "undefined" && Android !== null) {
 		fullscreenDiv.style.display = "none";
+		avSelect.style.display = "none";
 	}
 
 	// requestFullscreen and exitFullscreen are not supported in iOS (will abort JS without err-msg)
