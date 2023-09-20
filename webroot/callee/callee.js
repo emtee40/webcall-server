@@ -382,7 +382,7 @@ function videoOn() {
 	vmonitor();
 
 	// switch avSelect.selectedIndex to 1st video option
-	getStream().then(() => navigator.mediaDevices.enumerateDevices())
+	getStream(false,"videoOn").then(() => navigator.mediaDevices.enumerateDevices())
 	.then((deviceInfos) => {
 		gotDevices(deviceInfos);
 
@@ -395,7 +395,7 @@ function videoOn() {
 					if(optionElements[i].text.startsWith("Video")) {
 						gLog("videoOn avSelect.selectedIndex set "+i);
 						avSelect.selectedIndex = i;
-						getStream(optionElements[i]);
+						getStream(optionElements[i],"videoOn2");
 						break;
 					}
 				}
@@ -458,14 +458,14 @@ function videoOff() {
 			if(optionElements[i].text.startsWith("Audio")) {
 				gLog("videoOff avSelect idx "+i);
 				avSelect.selectedIndex = i;
-				getStream(optionElements[i]);
+				getStream(optionElements[i],"videoOff");
 				break;
 			}
 		}
 		if(rtcConnect) {
 			// activate selected device
 			gLog("videoOff rtcConnect getStream()");
-			getStream();
+			getStream(false,"videoOff2");
 		}
 	}
 }
@@ -710,7 +710,7 @@ function start() {
 	}
 
 	try {
-		getStream().then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
+		getStream(false,"start").then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 		//getStream() -> getUserMedia(constraints) -> gotStream2() -> prepareCallee()
 		// if wsSecret is set from prepareCallee(), it will call login()
 	} catch(ex) {
@@ -2022,7 +2022,7 @@ function signalingCommand(message, comment) {
 		if(isDataChlOpen()) {
 			pickupAfterLocalStream = true;
 			// getStream() -> gotStream() -> gotStream2() -> pickup2() -> "calleeDescriptionUpd"
-			getStream();
+			getStream(false,"rtcNegotiate");
 		}
 
 	} else if(cmd=="rtcVideoOff") {
@@ -2986,18 +2986,18 @@ function pickup() {
 	rejectButton.style.border = "1.2px solid #a01";
 	callScreenType.innerHTML = "In call";
 
-	console.log("### spinner om pickup");
+	// stop ringing
+	stopAllAudioEffects("pickup");
+
+	console.log("### spinner on pickup");
 	divspinnerframe.style.display = "block";
 
 	pickupAfterLocalStream = true; // getStream() -> gotStream() -> gotStream2() -> pickup2()
-	getStream();
+	getStream(false,"pickup");
 
-	// stop the ringing
-	stopAllAudioEffects("pickup");
-
-// TODO not sure about this timeout function
-// if user must be asked for mic permission, that could take much longer than 1500ms
 	// pickup timer: in case getStream does NOT call pickup2() within a max duration -> hangup()
+	// TODO not sure about this timeout duration
+	// if user must be asked for mic permission, that could take much longer
 	let startWaitPickup = Date.now();
 	console.log("pickup waiting for pickup2... "+startWaitPickup+" "+startPickup);
 	setTimeout(function() {
@@ -3005,13 +3005,22 @@ function pickup() {
 		// if endWebRtcSession() was called rtcConnect would be false
 		// if pickup4() was called, mediaConnect would be set
 		// if pickup() was called again, startPickup would be > startWaitPickup (our old copy)
-		if(pickupAfterLocalStream && rtcConnect && !mediaConnect && startWaitPickup>=startPickup) {
+
+		// NOTE pickupAfterLocalStream is cleared by gotStream2() when it calls pickup2()
+		// mediaConnect may still fail (pickup4 never called)
+		if(/*pickupAfterLocalStream &&*/ rtcConnect && !mediaConnect && startWaitPickup>=startPickup) {
 			// gotStream() -> gotStream2() -> pickup2() didn't happen
 			console.log("# pickup timeout (no gotstream) "+startWaitPickup+" "+startPickup);
+			//console.log("### spinner off pickup");
+			spinnerStarting = false;
+			divspinnerframe.style.display = "none";
+
 			hangup(true,false,"pickup timeout (no microphone)");
 			return;
 		}
 		// all is well, no action needed
+		console.log("pickup post timer looks OK "+
+			pickupAfterLocalStream+" "+rtcConnect+" "+mediaConnect+" "+startWaitPickup+" "+startPickup);
 	},3500);
 }
 
@@ -3030,21 +3039,25 @@ function pickup2() {
 
 	console.log("pickup2 gotStream "+(Date.now() - startPickup)+
 		" wsConn="+(wsConn!=null)+" switch="+goOnlineSwitch.checked);
-	// stop the ringing
-	//stopAllAudioEffects("pickup2");
 
 	if(typeof Android !== "undefined" && Android !== null) {
 		Android.callPickedUp(); // audioToSpeakerSet() + callPickedUpFlag=true (needed for callInProgress())
 	}
 
 	if(remoteStream) {
-		gLog('pickup2 peerCon start remoteVideoFrame');
+		console.log('pickup2 peerCon start remoteVideoFrame');
 		remoteVideoFrame.srcObject = remoteStream;
 		remoteVideoFrame.play().catch(function(error) {	});
 	} else {
-		console.log("# pickup2 no remoteStream");
+		// TODO is this really an error? I don't think so
+		console.log("! pickup2 no remoteStream");
 	}
+
+	// pickup4 should be called via cmd=="callerAnswer"
+	// TODO: if pickup4 is not called, callee will keep on spinning and caller will keep on saying "Ringing..."
+	// the timer in pickup() is supposed to resolve this
 	console.log("pickup2 waiting for pickup4...");
+
 /*
 	// timer: if pickup4() is NOT called within a max duration -> hangup()
 	let startWaitPickup4 = Date.now();

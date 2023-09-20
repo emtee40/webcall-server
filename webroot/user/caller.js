@@ -1024,6 +1024,7 @@ function dialButtonClick() {
 		return;
 	}
 	*/
+
 	dialButtonClick2();
 }
 
@@ -1041,6 +1042,14 @@ function dialButtonClick2() {
 	rtcConnectStartDate = 0;
 	mediaConnectStartDate = 0;
 	connectionstatechangeCounter = 0;
+
+	if(localStream) {
+		const audioTracks = localStream.getAudioTracks();
+		console.log('dialButtonClick2 audioTracks.len='+audioTracks.length);
+	} else {
+		// this is expected when we clear it in gotStream2()
+		console.log('! dialButtonClick2 !localStream');
+	}
 
 	if(playDialSounds) {
 		if(!dtmfDialingSound) {
@@ -1118,7 +1127,7 @@ function videoOn() {
 	localVideoFrame.muted = 1;
 
 	// switch avSelect.selectedIndex to 1st video option
-	getStream().then(() => navigator.mediaDevices.enumerateDevices()).then((deviceInfos) => {
+	getStream(false,"videoon").then(() => navigator.mediaDevices.enumerateDevices()).then((deviceInfos) => {
 		gotDevices(deviceInfos);
 		let optionElements = Array.from(avSelect);
 		gLog("videoOn avSelect len",optionElements.length);
@@ -1126,7 +1135,7 @@ function videoOn() {
 			// avSelect.selectedIndex <- 1st video device
 			for(let i=0; i<optionElements.length; i++) {
 				if(optionElements[i].text.startsWith("Video")) {
-					gLog("videoOn avSelect idx",i);
+					console.log("videoOn avSelect selectedIndex="+i);
 					avSelect.selectedIndex = i;
 					break;
 				}
@@ -1149,7 +1158,7 @@ function videoOn() {
 function videoOff() {
 	// disable local video (but if rtcConnect, keep local mic on)
 	gLog("videoOff");
-	myUserMediaDeviceId = null;
+//	myUserMediaDeviceId = null;
 	localVideoHide();
 	if(localStream) {
 		// stop streaming video track
@@ -1215,7 +1224,7 @@ function videoOff() {
 		// avSelect.selectedIndex <- 1st audio device
 		for(let i=0; i<optionElements.length; i++) {
 			if(optionElements[i].text.startsWith("Audio")) {
-				gLog("videoOff avSelect idx",i);
+				console.log("videoOff avSelect selectedIndex="+i);
 				avSelect.selectedIndex = i;
 				break;
 			}
@@ -1223,7 +1232,7 @@ function videoOff() {
 		if(rtcConnect) {
 			// if still peer connected, activate the selected audio device
 			// TODO not sure this is needed
-			getStream();
+			getStream(false,"videoOff");
 		}
 	}
 }
@@ -1265,16 +1274,8 @@ function checkCalleeOnline(waitForCallee,comment) {
 	if(callerId!=="") {
 		api += "&callerId="+callerId;
 	}
-//	if(typeof Android !== "undefined" && Android !== null) {
-//		if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
-//			api = api + "&ver="+Android.getVersionName();
-//		}
-//		if(typeof Android.webviewVersion !== "undefined" && Android.webviewVersion !== null) {
-//			api = api + "_" + Android.webviewVersion() +"_"+ clientVersion;
-//		}
-//	} else {
-		api = api + "&ver="+clientVersion;
-//	}
+	api = api + "&ver="+clientVersion;
+
 	gLog("checkCalleeOnline api="+api+" ("+comment+")");
 	xhrTimeout = 30*1000;
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
@@ -1317,7 +1318,8 @@ function calleeOnlineStatus(onlineStatus,waitForCallee) {
 				console.warn("navigator.mediaDevices not available");
 				// TODO no visible warning?
 			} else {
-				getStream().then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
+				getStream(false,"calleeOnlineStatus").then(() =>
+					navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 				// -> getUserMedia -> gotStream -> checkCalleeOnline -> ajax -> calleeOnlineStatus
 			}
 		});
@@ -1351,6 +1353,7 @@ function calleeOnlineAction(comment) {
 	calleeOfflineElement.style.display = "none";
 
 	// now that we know callee is online, we load adapter-latest.js
+// TODO tmtmtm load every time?
 	gLog("load adapter...");
 	loadJS("adapter-latest.js",function(){
 		if(!navigator.mediaDevices) {
@@ -1370,11 +1373,16 @@ function calleeOnlineAction(comment) {
 			dialAfterCalleeOnline = false;
 
 			if(localStream) {
-				console.log('calleeOnlineAction localStream -> connectSignaling()');
+// if we DO NOT clear localStream in gotStream2() (to keep the audio-channel-select) we end up here
+// but shortly after we get "# dial2 no audioTracks"
+				const audioTracks = localStream.getAudioTracks();
+				console.log('calleeOnlineAction localStream -> connectSignaling() audioTracks.len='+audioTracks.length);
 				connectSignaling("",dial); // when ws-connected to server, call dial() to call peer
 			} else {
+// if we DO clear localStream in gotStream2() (to keep the audio-channel-select) we end up here
+// and shortly after we can make a call
 				dialAfterLocalStream = true;
-				console.log('calleeOnlineAction no localStream dialAfterLocalStream');
+				console.log('calleeOnlineAction noLocalStream dialAfterLocalStream -> getStream(avSelect)');
 				/*
 				if(typeof Android !== "undefined" && Android !== null) {
 					// remote audio will be played back on earpiece (if available) instead of speakerphone
@@ -1382,7 +1390,8 @@ function calleeOnlineAction(comment) {
 					Android.prepareDial();
 				}
 				*/
-				getStream().then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
+				getStream(false,"calleeOnlineAction").then(() =>
+					navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 				// and bc of dialAfterLocalStream also: -> gotStream -> gotStream2 -> connectSignaling
 			}
 		} else {
@@ -1394,7 +1403,8 @@ function calleeOnlineAction(comment) {
 			}
 			*/
 
-			getStream().then(() => navigator.mediaDevices.enumerateDevices()).then(gotDevices);
+			getStream(false,"calleeOnlineAction2").then(() =>
+				navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 
 			// so we display a message to prepare the caller hitting the call button manually
 			if(calleeID.startsWith("answie"))  {
@@ -1867,8 +1877,7 @@ function errorAction(errString,errcode) {
 }
 
 function gotStream2() {
-//	dialButton.focus();
-//	console.log("----- gotStream2 dialButton focused");
+	console.log("----- gotStream2 audioTracks len="+localStream.getAudioTracks().length);
 
 	if(dialAfterLocalStream) {
 		// dialAfterLocalStream was set by calleeOnlineAction() -> dialAfterCalleeOnline
@@ -1877,16 +1886,16 @@ function gotStream2() {
 		connectSignaling("",dial); // when ws-connected to server, call dial() to call peer
 	} else {
 		// in caller we land here after audio/video was initialzed
-		gLog("gotStream2 !dialAfter");
+		console.log("gotStream2 !dialAfter");
 
 		if(videoEnabled) {
-			gLog("gotStream2 videoEnabled: no mute mic until dial");
+			console.log("gotStream2 videoEnabled: no mute mic until dial");
 		} else if(!localStream) {
 			console.log("# gotStream2 !localStream: no mute mic until dial");
 		} else if(rtcConnect) {
-			gLog("gotStream2 rtcConnect: no mute mic until dial");
+			console.log("gotStream2 rtcConnect: no mute mic until dial");
 		} else {
-			gLog("gotStream2 mute mic until dial");
+			console.log("gotStream2 mute mic until dial");
 
 			// disable local mic until we start dialing
 			localStream.getTracks().forEach(track => {
@@ -1895,7 +1904,7 @@ function gotStream2() {
 			});
 
 			const audioTracks = localStream.getAudioTracks();
-			gLog('gotStream2 removeTrack local mic audioTracks.length',audioTracks.length);
+			console.log('gotStream2 removeTrack local mic audioTracks.length='+audioTracks.length);
 			if(audioTracks.length>0) {
 				gLog('gotStream2 removeTrack local mic',audioTracks[0]);
 				// TODO would it be enough to do this?
@@ -1914,7 +1923,8 @@ function gotStream2() {
 				localStream.removeTrack(videoTracks[0]);
 			}
 
-//			localStream = null;
+// TODO does this cause the audio-selector to reset?
+			localStream = null;
 		}
 	}
 }
@@ -2262,15 +2272,27 @@ function signalingCommand(message) {
 			}
 
 			mediaConnect = true;
-			console.log("mediaConnect stop dialing");
+			console.log("mediaConnect (set dialing=false)");
 			dialing = false;
 
 			// on start of fullConnect: un-mute mic if muteMicElement not checked
 			if(localStream) {
 				if(!muteMicElement || !muteMicElement.checked) {
 					const audioTracks = localStream.getAudioTracks();
-					audioTracks[0].enabled = true;
+					if(audioTracks==null) {
+						// severe
+						console.log("# on mediaConnect audioTracks==null, cannot enable mic");
+					} else if(!audioTracks[0]) {
+						// severe
+						console.log("# on mediaConnect audioTracks[0]==null, cannot enable mic");
+					} else {
+						audioTracks[0].enabled = true;
+						console.log("on mediaConnect enabled mic");
+					}
 				}
+			} else {
+				// severe
+				console.log("# on mediaConnect no localStream");
 			}
 			if(vsendButton) {
 				vsendButton.style.display = "inline-block";
@@ -2470,7 +2492,7 @@ function dial() {
 				gLog('post playDialSound dial2()...');
 				dial2();
 			}
-		},1500);
+		},500);
 
 		let loop = 0;
 		var playDialTone = function() {
@@ -2530,6 +2552,26 @@ function dial2() {
 	dialDate = Date.now();
 	console.log('dial2 dialDate='+dialDate);
 
+	if(!localStream) {
+		console.log('# dial2 localStream');
+		//showStatus("Dialup canceled (no localStream)");
+		stopAllAudioEffects();
+		hangup(true,false,"no localStream");
+		return;
+	}
+	const audioTracks = localStream.getAudioTracks();
+	if(audioTracks.length<=0) {
+		console.log('# dial2 no audioTracks');
+		//showStatus("Dialup canceled (no mic)");
+		stopAllAudioEffects();
+		hangup(true,false,"no mic");
+		return;
+	}
+
+	if(typeof myUserMediaDeviceId !== "undefined" && myUserMediaDeviceId!=null && myUserMediaDeviceId!="default") {
+		console.log('dial2 set avSelect.value='+myUserMediaDeviceId);
+		avSelect.value = myUserMediaDeviceId;
+	}
 
 	// show connectingText with additional dots - in case we don't get a quick peerConnect
 	// when this msg shows up, either peerCon is really slow, or there is a webrtc problem
@@ -2540,17 +2582,16 @@ function dial2() {
 		}
 	},3000,dialDate);
 
-
 	addedAudioTrack = null;
 	addedVideoTrack = null;
 	onIceCandidates = 0;
 	try {
-		gLog("dial peerCon = new RTCPeerConnection");
+		console.log("dial2 peerCon = new RTCPeerConnection");
 		peerCon = new RTCPeerConnection(ICE_config);
 		hangupButton.disabled = false;
 		dialButton.disabled = true;
 	} catch(ex) {
-		console.error("RTCPeerConnection "+ex.message);
+		console.error("# RTCPeerConnection "+ex.message);
 		var statusMsg = "RTCPeerConnection "+ex.message;
 		if(typeof Android !== "undefined" && Android !== null) {
 			statusMsg += " <a href='https://timur.mobi/webcall/android/#webview'>More info</a>";
@@ -2678,28 +2719,22 @@ function dial2() {
 //			dialing = false;
 		}
 	}
-	if(!localStream) {
-		showStatus("Dialup canceled");
-		return;
-	}
+
 	// add selected local audioTrack (audio input / mic) to peerCon
-	const audioTracks = localStream.getAudioTracks();
-	if(audioTracks.length>0) {
-		if(mediaConnect) {
-			if(!muteMicElement || !muteMicElement.checked) {
-				audioTracks[0].enabled = true; // unmute
-				gLog('peerCon addTrack local audio input',audioTracks[0]);
-			}
-		} else {
-			audioTracks[0].enabled = false; // mute
-			gLog('peerCon addTrack local mute audio input',audioTracks[0]);
+	if(mediaConnect) {
+		if(!muteMicElement || !muteMicElement.checked) {
+			audioTracks[0].enabled = true; // unmute
+			console.log('dial2 addTrack local audio input',audioTracks[0]);
 		}
-		addedAudioTrack = peerCon.addTrack(audioTracks[0],localStream);
+	} else {
+		audioTracks[0].enabled = false; // mute
+		console.log('dial2 addTrack local mute audio input',audioTracks[0]);
 	}
+	addedAudioTrack = peerCon.addTrack(audioTracks[0],localStream);
 
 	createDataChannel();
 
-	gLog('dial peerCon.createOffer');
+	gLog('dial2 peerCon.createOffer');
 	peerCon.createOffer().then((desc) => {
 		localDescription = desc;
 		localDescription.sdp = maybePreferCodec(localDescription.sdp, 'audio', 'send', "opus");
@@ -3010,7 +3045,7 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 	}
 
 	if(message!="") {
-		showStatus(message);
+		showStatus(message,-1);
 	}
 
 	// offer store contact link (only if callerId and calleeID exist)
@@ -3110,8 +3145,8 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 		localVideoFrame.srcObject = null;
 
 // tmtmtm
-//		console.log('hangup -> localStream = null');
-//		localStream = null;
+		console.log('hangup set localStream=null');
+		localStream = null;
 	}
 
 	// TODO this is a good place to enable "store contact" button
@@ -3126,7 +3161,8 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 			dialButton.disabled = false;
 		},1500);
 	} else {
-		showStatus("");
+		// TODO doing this could clear prev err msgs
+		//showStatus("");
 	}
 }
 

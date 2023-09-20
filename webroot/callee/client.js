@@ -105,7 +105,7 @@ function setVideoConstraintsLow() {
 	let tmpConstraints = setVideoConstraintsGiven();
 	gLog('setVideoConstraintsLow', tmpConstraints);
 	userMediaConstraints.video = JSON.parse(tmpConstraints);
-	getStream();
+	getStream(false,"setVideoConstraintsLow");
 }
 
 function setVideoConstraintsMid() {
@@ -117,7 +117,7 @@ function setVideoConstraintsMid() {
 	let tmpConstraints = setVideoConstraintsGiven();
 	gLog('setVideoConstraintsMid', tmpConstraints);
 	userMediaConstraints.video = JSON.parse(tmpConstraints);
-	getStream();
+	getStream(false,"setVideoConstraintsMid");
 }
 
 function setVideoConstraintsHigh() {
@@ -129,7 +129,7 @@ function setVideoConstraintsHigh() {
 	let tmpConstraints = setVideoConstraintsGiven();
 	gLog('setVideoConstraintsHigh', tmpConstraints);
 	userMediaConstraints.video = JSON.parse(tmpConstraints);
-	getStream();
+	getStream(false,"setVideoConstraintsHigh");
 }
 
 function setVideoConstraintsHD() {
@@ -142,7 +142,7 @@ function setVideoConstraintsHD() {
 	let tmpConstraints = setVideoConstraintsGiven();
 	gLog('setVideoConstraintsHD', tmpConstraints);
 	userMediaConstraints.video = JSON.parse(tmpConstraints);
-	getStream();
+	getStream(false,"setVideoConstraintsHD");
 }
 
 function showVideoToast(toastElement,w,h) {
@@ -969,10 +969,10 @@ function iframeWindowClose() {
 
 let lastGoodMediaConstraints;
 let lastGoodAvSelectIndex;
-let myUserMediaConstraints;
-function getStream(selectObject) {
+let myUserMediaConstraints = "default";
+function getStream(selectObject,comment) {
 	if(!navigator || !navigator.mediaDevices) {
-		console.log("getStream no access navigator.mediaDevices");
+		console.log("getStream no access navigator.mediaDevices, comment="+comment);
 		alert("getStream no access navigator.mediaDevices");
 		return;
 	}
@@ -980,18 +980,25 @@ function getStream(selectObject) {
 	//if(!gentle) {
 	const supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
 	console.log('getStream supportedConstraints',supportedConstraints);
-	console.log('getStream myUserMediaDeviceId='+myUserMediaDeviceId);
+//	console.log('getStream myUserMediaDeviceId='+myUserMediaDeviceId+" comment="+comment);
 	//}
 
+	if(typeof myUserMediaDeviceId !== "undefined" && myUserMediaDeviceId!=null && myUserMediaDeviceId!="default") {
+		console.log('getStream set avSelect.value='+myUserMediaDeviceId+" and skip manual select");
+		avSelect.value = myUserMediaDeviceId;
+		selectObject = false; // no selection
+	}
+
 	if(selectObject) {
-		console.log('===getStream avSelect===');
+		console.log("===getStream avSelect=== comment="+comment);
 		// selectObject is (only) set if user operates avSelect manually
 		// parse for deviceId (selectObject.value in avSelect.options)
 		for(var i = avSelect.options.length - 1; i >= 0; i--) {
 			if(avSelect.options[i].value == selectObject.value) {
 				// found deviceId
+// TODO selectObject.value may have resetted itself to "default"
 				myUserMediaDeviceId = selectObject.value;
-				console.log('getStream avSelect deviceId '+myUserMediaDeviceId);
+				console.log('getStream avSelect myUserMediaDeviceId='+myUserMediaDeviceId);
 
 				if(avSelect.options[i].label.startsWith("Audio")) {
 					if(videoEnabled) {
@@ -1187,10 +1194,10 @@ var addedVideoTrack = null;
 function gotStream(stream) {
 	// add localStream audioTrack and (possibly) localStream videoTrack to peerCon using peerCon.addTrack()
 	// then activate localVideoFrame with localStream
-	console.log('getStream myUserMediaDeviceId='+myUserMediaDeviceId);
+	console.log('gotStream myUserMediaDeviceId='+myUserMediaDeviceId);
 
 	if(!localStream) {
-		console.log("gotStream no localStream (no stop all tracks)");
+		console.log("gotStream no old localStream (no stop all tracks)");
 	} else if(localStream==stream) {
 		console.log("gotStream localStream same as stream (no stop all tracks)");
 	} else {
@@ -1230,6 +1237,7 @@ function gotStream(stream) {
 	}
 
 	const audioTracks = localStream.getAudioTracks();
+	console.log("gotStream got audioTracks len="+audioTracks.length);
 	if(!mediaConnect) {
 		console.log('gotStream mute loc audio inp '+audioTracks[0]);
 		audioTracks[0].enabled = false;
@@ -1274,7 +1282,7 @@ function gotStream(stream) {
 		addedVideoTrack = peerCon.addTrack(localStream.getTracks()[1],localStream);
 	}
 
-	gLog("gotStream set localVideoFrame.srcObject");
+	console.log("gotStream set localVideoFrame.srcObject, audioTracks len="+localStream.getAudioTracks().length);
 	localVideoFrame.srcObject = localStream;
 	localVideoFrame.volume = 0;
 	localVideoFrame.muted = 1;
@@ -1311,7 +1319,7 @@ function connectLocalVideo(forceOff) {
 				vsendButton.style.color = "#ff0";
 			}
 			pickupAfterLocalStream = true; // will cause: pickup2()
-			getStream(); // -> gotStream() -> gotStream2() -> pickup2(): "calleeDescriptionUpd"
+			getStream(false,"connectLocalVideo"); // ->gotStream() ->gotStream2() ->pickup2(): "calleeDescriptionUpd"
 		} else {
 			console.log("# connectLocalVideo no dataChannel");
 		}
@@ -1365,7 +1373,7 @@ function vmonitor() {
 		constraintString = defaultConstraintString;
 		setVideoConstraintsGiven();
 
-		getStream(); // -> gotStream() -> gotStream2()
+		getStream(false,"vmonitor"); // -> gotStream() -> gotStream2()
 		return;
 		// vmonitor will be called again, but then with localStream
 	}
@@ -1660,7 +1668,7 @@ function showStatus(msg,timeoutMs) {
 		return;
 	}
 	if(msg=="") {
-		//console.log("status: msg empty");
+		console.log("status: msg empty");
 		return;
 	}
 	if(showStatusTimeout!=null) {
