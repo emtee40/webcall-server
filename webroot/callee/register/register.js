@@ -171,6 +171,12 @@ function submitForm(theForm) {
 			}
 		}
 		if(!gentle) console.log('register via api='+api);
+		let postData = "pw="+valuePw;
+		if(typeof Android !== "undefined" && Android !== null) {
+			if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
+				Android.postRequestData(postData);
+			}
+		}
 		ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 			if(xhr.responseText=="OK") {
 				// ID is registered; offer the link
@@ -194,7 +200,7 @@ function submitForm(theForm) {
 				console.log('response:',xhr.responseText);
 				showStatus("Sorry, it is not possible to register your ID right now. Please try again a little later.",-1);
 			}
-		}, errorAction, "pw="+valuePw);
+		}, errorAction, postData);
 	},2000);
 }
 

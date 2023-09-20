@@ -294,6 +294,12 @@ console.log('submitPw valuePw',valuePw);	// TODO remove
 			//api = api + "&ver="+clientVersion;
 		}
 		if(!gentle) console.log('submitPw ajax',api);
+		let postData = "pw="+valuePw;
+		if(typeof Android !== "undefined" && Android !== null) {
+			if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
+				Android.postRequestData(postData);
+			}
+		}
 		ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 			// only if we get back "OK" do we continue with:
 			if(xhr.responseText=="OK") {
@@ -352,7 +358,7 @@ console.log('submitPw valuePw',valuePw);	// TODO remove
 		}, function(errString,err) {
 			console.warn('# xhr error',errString,err);
 			showStatus("Error "+errString+". Registration not possible at this time. Please try again later. Thank you.<br><br>",-1);
-		}, "pw="+valuePw);
+		}, postData);
 	} else if(type==1) {
 		// let user set mastodonUserID as alt-id for ID (11-digit)
 		// hand over:
@@ -372,6 +378,12 @@ console.log('submitPw valuePw',valuePw);	// TODO remove
 			//api = api + "&ver="+clientVersion;
 		}
 		if(!gentle) console.log('submitPw ajax',api);
+		let postData = "pw="+valuePw;
+		if(typeof Android !== "undefined" && Android !== null) {
+			if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
+				Android.postRequestData(postData);
+			}
+		}
 		ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 			// only if we get back "OK" do we continue with:
 			if(xhr.responseText=="OK") {
@@ -391,7 +403,7 @@ console.log('submitPw valuePw',valuePw);	// TODO remove
 		}, function(errString,err) {
 			console.warn('# xhr error',errString,err);
 			showStatus("Error "+errString+". storeAltId not possible at this time. Please try again later. Thank you.<br><br>",-1);
-		}, "pw="+valuePw);
+		}, postData);
 	}
 }
 

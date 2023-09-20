@@ -978,8 +978,9 @@ function getStream(selectObject) {
 	}
 
 	//if(!gentle) {
-	//	const supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
-	//	gLog('getStream supportedConstraints',supportedConstraints);
+	const supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
+	console.log('getStream supportedConstraints',supportedConstraints);
+	console.log('getStream myUserMediaDeviceId='+myUserMediaDeviceId);
 	//}
 
 	if(selectObject) {
@@ -994,7 +995,7 @@ function getStream(selectObject) {
 
 				if(avSelect.options[i].label.startsWith("Audio")) {
 					if(videoEnabled) {
-						gLog('getStream avSelect audio: videoOff');
+						console.log('getStream avSelect audio: videoOff');
 						videoOff();
 					}
 				} else if(avSelect.options[i].label.startsWith("Video")) {
@@ -1003,7 +1004,7 @@ function getStream(selectObject) {
 						tmpConstraints += ',"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
 					}
 					tmpConstraints = "{"+tmpConstraints+"}";
-					gLog('getStream avSelect video '+tmpConstraints);
+					console.log('getStream avSelect video ',tmpConstraints);
 					userMediaConstraints.video = JSON.parse(tmpConstraints);
 				}
 				break;
@@ -1045,7 +1046,7 @@ function getStream(selectObject) {
 		localStream = null;
 	}
 
-	console.log("getStream set getUserMedia "+myUserMediaConstraints);
+	console.log("getStream set getUserMedia ",myUserMediaConstraints);
 	let saveWorkingConstraints = JSON.parse(JSON.stringify(myUserMediaConstraints));
 	return navigator.mediaDevices.getUserMedia(myUserMediaConstraints)
 		.then(function(stream) {
@@ -1186,11 +1187,16 @@ var addedVideoTrack = null;
 function gotStream(stream) {
 	// add localStream audioTrack and (possibly) localStream videoTrack to peerCon using peerCon.addTrack()
 	// then activate localVideoFrame with localStream
-	console.log("gotStream set localStream");
-	if(localStream) {
+	console.log('getStream myUserMediaDeviceId='+myUserMediaDeviceId);
+
+	if(!localStream) {
+		console.log("gotStream no localStream (no stop all tracks)");
+	} else if(localStream==stream) {
+		console.log("gotStream localStream same as stream (no stop all tracks)");
+	} else {
 		// stop all tracks on previous localStream
 		const allTracks = localStream.getTracks();
-		//gLog("gotStream stop previous localStream len",allTracks.length);
+		console.log("gotStream stop previous localStream len",allTracks.length);
 		allTracks.forEach(track => {
 			track.stop();
 		});
@@ -1216,8 +1222,12 @@ function gotStream(stream) {
 	}
 	addedVideoTrack = null;
 
-	localStream = stream;
-	console.log("gotStream got localStream "+(localStream!=null));
+	if(localStream==stream) {
+		console.log("gotStream localStream==stream (no set localStream)");
+	} else if(stream) {
+		localStream = stream;
+		console.log("gotStream got new localStream "+(localStream!=null));
+	}
 
 	const audioTracks = localStream.getAudioTracks();
 	if(!mediaConnect) {

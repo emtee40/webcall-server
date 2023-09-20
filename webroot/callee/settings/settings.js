@@ -572,6 +572,12 @@ function submitForm(autoclose) {
 
 		let api = apiPath+"/setsettings?id="+calleeID;
 		if(!gentle) console.log('request setsettings api='+api);
+		let postData = newSettings;
+		if(typeof Android !== "undefined" && Android !== null) {
+			if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
+				Android.postRequestData(postData);
+			}
+		}
 		ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 			if(!gentle) console.log('data posted',newSettings);
 			if(autoclose) {
@@ -582,7 +588,7 @@ function submitForm(autoclose) {
 			if(autoclose) {
 				exitPage();
 			}
-		}, newSettings);
+		}, postData);
 	}
 
 	store();

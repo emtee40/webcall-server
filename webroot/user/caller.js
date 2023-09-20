@@ -3108,7 +3108,10 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 		localVideoFrame.pause();
 		localVideoFrame.currentTime = 0;
 		localVideoFrame.srcObject = null;
-		localStream = null;
+
+// tmtmtm
+//		console.log('hangup -> localStream = null');
+//		localStream = null;
 	}
 
 	// TODO this is a good place to enable "store contact" button

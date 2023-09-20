@@ -383,6 +383,12 @@ function storeData(successFkt,failFkt) {
 	// store string 'altIDs' into db
 	let api = apiPath+"/setmapping?id="+calleeID;
 	if(!gentle) console.log('/setmapping api',api);
+	let postData = altIDs;
+	if(typeof Android !== "undefined" && Android !== null) {
+		if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
+			Android.postRequestData(postData);
+		}
+	}
 	ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log('# /setmapping err='+xhr.responseText);
@@ -393,7 +399,7 @@ function storeData(successFkt,failFkt) {
 	}, function(errString,err) {
 		console.log("# storeData xhr error "+errString+" "+err);
 		failFkt(errString+" "+err);
-	},altIDs);
+	},postData);
 }
 
 function checkCookie() {
