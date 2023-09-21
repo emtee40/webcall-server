@@ -2090,7 +2090,7 @@ function signalingCommand(message) {
 			});
 		}, err => {
 			console.warn("# calleeAnswer setLocalDescription fail",err)
-			showStatus("Error: Cannot set localDescr"+err,0,true);
+			showStatus("Error: Cannot set localDescr "+err,0,true);
 		});
 
 	} else if(cmd=="calleeOffer") {

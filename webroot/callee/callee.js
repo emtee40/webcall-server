@@ -180,6 +180,10 @@ window.onload = function() {
 
 	menuClearCookieElement.style.display = "block";
 
+	if(typeof Android !== "undefined" && Android !== null) {
+		avSelect.style.display = "none";
+	}
+
 	// if set will auto-login as callee
 	let auto = cleanStringParameter(getUrlParams("auto",true),true,"auto");
 	if(auto) {
@@ -3673,6 +3677,9 @@ function slideTransitioned() {
 }
 
 var slideRevealDivHeight = 123;
+if(typeof Android !== "undefined" && Android !== null) {
+	slideRevealDivHeight = 72;
+}
 function openSlide() {
 	if(!slideOpen) {
 		// close->-open
