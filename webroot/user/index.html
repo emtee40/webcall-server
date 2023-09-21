@@ -28,7 +28,8 @@ h1 {
 	user-select:none;
 	margin-block-start:0;
 	margin-block-end:0;
-	_margin-bottom:4px;
+	padding-top:1px;
+	padding-bottom:4px;
 	line-height:1.3em;
 }
 
@@ -38,8 +39,8 @@ h1 {
 	column-gap: 12px;
 	list-style-type:none;
 	max-width:360px;
-	padding-top:26px;
-	padding-bottom:10px;
+	padding-top:12px;
+	padding-bottom:12px;
 }
 /*
 button, button:focus {
@@ -249,11 +250,11 @@ a, a:link, a:visited, a:active {
 }
 
 .status {
-	padding-top:12px;
-	padding-bottom:12px;
-	padding-left:px;
+	padding-top:8px;
+	padding-bottom:8px;
+	padding-left:1px;
 	width:98%;
-	height:20px;
+	min-height:24px;
 	max-width:520px;
     _font-size:1.1em;
 	_line-height:1.3em;
@@ -264,15 +265,11 @@ a, a:link, a:visited, a:active {
 
 .msgbox {
 	font-size:1.0em;
-	_margin-top:0;
 	width:95%;
 	max-width:550px;
 	height:6.2em;
-	padding:10px;
-	_background-image: linear-gradient(#12b,#25f);
+	padding:16px;
 	background-color:#0002;
-	_border:none;
-	_border-radius:3px;
 	border: 1.3px solid #bbb;
 	border-radius:6px;
 	color:#fff;
@@ -416,6 +413,8 @@ input[type=submit]:focus {
 	margin-left:2px;
 	font-size:1.1em;
 	padding-right:20px;
+	padding-top:1px;
+	padding-bottom:2px;
 	float:left;
 }
 .nicknameLabel {
@@ -522,34 +521,36 @@ input[type=submit]:focus {
 <div id="container">
 	<img id="menu" onclick="menuDialogOpen(menuDialogElement,1)" class="iconbutton"src="menu.svg" _style="position:relative; float:right; width:25px; margin-top:6px; margin-right:10px; margin-left:22px; z-index:100; user-select:none; cursor:pointer;">
 	<img id="camera" class="iconbutton" src="camera.svg" _style="position:relative; float:right; width:30px; margin-top:5.5px; margin-left:22px; z-index:100; user-select:none; cursor:pointer; transition:opacity 500ms;" onclick="videoSwitch(false)">
+	<div style="clear:both"></div>
 
 	<h1 id="title">WebCall</h1>
-	<div id="calleeOnline" style="display:none">
-		<!-- code: visible only if no cookie avail -->
-		<div id="codeDiv" style="margin-bottom:12px;margin-left:2px;font-size:1.1em;color:#ff0;display:none;">
-			<label id="codeLabel" for="code" style="display:inline-block;">Enter xxx:</label>
-			<input id="code" type="text" size='3' maxlength="3" value=""
-				style="background:#04e;border:none;outline:none;padding:0.3em;margin-right:4px;color:#ddd;font-size:1.0em;width:50px;">
-			to enable Call button
-		</div>
 
+	<!-- code: visible only if no cookie avail -->
+	<div id="codeDiv" style="margin-bottom:12px;margin-left:2px;font-size:1.1em;color:#ff0;display:none;">
+		<label id="codeLabel" for="code" style="display:inline-block;">Enter xxx:</label>
+		<input id="code" type="text" size='3' maxlength="3" value=""
+			style="background:#04e;border:none;outline:none;padding:0.3em;margin-right:4px;color:#ddd;font-size:1.0em;width:50px;">
+		to enable Call button
+	</div>
+
+	<div id="status" class="status"></div>
+
+	<div id="calleeOnline" style="display:none">
 		<div class="answerButtons">
 			<button id="callButton" class="mainbutton mainbuttonGreen" _style="background-color:#0c59;">Call</button>
 			<button id="hangupButton" class="mainbutton mainbuttonRed" disabled>Hang Up</button>
 			<img id="onlineIndicator" src="" style="width:28px; margin:0.6em 0 0 0; user-select:none;">
 		</div>
 
-		<div id="status" class="status"></div>
+		<label class="formlabel" id="avSelectLabel" for="idSelect" style="margin-left:0;margin-top:6px;">
+			<select id="avSelect" class="select" onchange="getStream(this,'html')"></select>
+		</label>
 
-		<div _style="padding-top:2px;">
-			<label class="formlabel" id="avSelectLabel" for="idSelect" style="margin-left:0;margin-top:6px;">
-				<select id="avSelect" class="select" onchange="getStream(this,'html')"></select>
-			</label>
+		<label class="formlabel" id="idSelectLabel" for="idSelect" style="margin-left:0;margin-top:6px;display:none;">
+			<select id="idSelect" class="select" onchange="changeId(this)" style=""></select>
+		</label>
 
-			<label class="formlabel" id="idSelectLabel" for="idSelect" style="margin-left:0;margin-top:6px;display:none;">
-				<select id="idSelect" class="select" onchange="changeId(this)" style=""></select>
-			</label>
-
+		<div>
 			<span id="nicknameDiv" class="nickname" style="display:none;">
 				<label for="nickname" id="nicknameLabel" class="nicknameLabel">Nickname:</label>
 				<input id='nickname' class="nicknameForm" type='text' size='9' maxlength='9' value=''>
@@ -560,22 +561,22 @@ input[type=submit]:focus {
 				<label class="menulabel" id="muteMiclabel" for="muteMic">Mic muted</label>
 			</span>
 		</div>
-		<div style="clear:both"></div>
+
+		<div id="msgboxdiv" style="display:none;">
+			<textarea id="msgbox" class="msgbox" spellcheck="false" maxlength="125"></textarea>
+			<div id="textbox" style="display:none;">
+				<form action="javascript:;" onsubmit="submitFormDone(2)">
+					<input name="enterText" id="enterText" type="text" class="formtext"
+						   style="width:95%; max-width:550px;">
+					<input type="submit" name="Submit" id="submitText" value="" style="display:none">
+				</form>
+			</div>
+		</div>
+		<button id="chatButton" style="display:none; margin-top:4px; padding-top:4px; padding-bottom:3px;">TextChat</button>
 	</div>
+
 	<div id="calleeOffline" style="display:none">
 	</div>
-
-	<div id="msgboxdiv" style="padding-top:10px;padding-bottom:10px;display:none;">
-		<textarea id="msgbox" class="msgbox" spellcheck="false" maxlength="125"></textarea>
-		<div id="textbox" style="display:none;">
-			<form action="javascript:;" onsubmit="submitFormDone(2)">
-				<input name="enterText" id="enterText" type="text" class="formtext" style="width:97%; max-width:550px;">
-				<input type="submit" name="Submit" id="submitText" value="" style="display:none">
-			</form>
-		</div>
-	</div>
-	<button id="chatButton" style="display:none; margin-top:4px; padding-top:4px; padding-bottom:3px;">TextChat</button>
-
 
 	<div id="progressSend" style="width:95%;_max-width:360px;display:none;">
 		<div id="progressSendLabel">sending:</div>
@@ -590,7 +591,8 @@ input[type=submit]:focus {
 	<div id="storeContact" style="_padding-top:16px;"></div>
 
 	<div id="timer" class="timer">0:00</div>
-	<div style="opacity:0.7;margin-top:10px;user-select:none;">WebCall by <a href="https://timur.mobi/webcall">timur.mobi</a></div>
+
+	<div style="opacity:0.7;padding-top:10px;user-select:none;">WebCall by <a href="https://timur.mobi/webcall">timur.mobi</a></div>
 </div>
 
 <!-- dial-id -->

@@ -1524,7 +1524,6 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 						calleeOnlineElement.style.display = "block";
 						calleeOfflineElement.style.display = "none";
 
-//						showStatus("Enter text message before the call (optional):",-1,false);
 						msgboxdiv.style.display = "block";
 						msgbox.readOnly = false;
 						if(placeholderText!="") {
@@ -1574,7 +1573,7 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 				// errcode 504 = timeout
 				console.log('online: callee could not be reached. xhr err',errString,errcode);
 				// TODO if xhr /online failed, does it make sense to try xhr /missedCall ?
-				showStatus("Unable to reach "+calleeID+".<br>Please try again later.",-1,false);
+				showStatus("Unable to reach "+calleeID+".<br>Please try again later.",-1,true);
 				//wsSend("missedcall|"+goodbyMissedCall); // this is not possible here
 				if(goodbyMissedCall!="") {
 					let api = apiPath+"/missedCall?id="+goodbyMissedCall;
@@ -1639,7 +1638,7 @@ function calleeNotificationAction() {
 				msg += "<br><br><a onclick='history.back();'>"+lg("noIHaveToGo")+"</a>";
 			}
 
-			showStatus(msg,-1,false);
+			showStatus(msg,-1,true);
 			goodbyMissedCall = calleeID+"|"+callerName+"|"+callerId+
 				"|"+Math.floor(Date.now()/1000)+
 				"|"+cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen)+
@@ -1649,8 +1648,8 @@ function calleeNotificationAction() {
 			return;
 		}
 		// calleeID can NOT be notified
-		showStatus(calleeID+" is not available at this time. "+
-		  "<a href='javascript:window.location.href=window.location.href'>"+lg("PleaseTryAgainALittle")+"</a>",-1,false);
+		showStatus(calleeID+" is not available at this time.<br>"+
+		  "<a href='javascript:window.location.href=window.location.href'>"+lg("PleaseTryAgainALittle")+"</a>",-1,true);
 	}, // xhr error
 		errorAction
 		// TODO errorAction will switch back
@@ -1872,7 +1871,7 @@ function errorAction(errString,errcode) {
 	if(errString.startsWith("fetch")) {
 		showStatus("No response from signaling server",-1,true);
 	} else {
-		showStatus("error xhr "+errString,-1,true);
+		showStatus("Error xhr "+errString,-1,true);
 	}
 }
 
@@ -3145,12 +3144,9 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 		localVideoFrame.currentTime = 0;
 		localVideoFrame.srcObject = null;
 
-// tmtmtm
 		console.log('hangup set localStream=null');
 		localStream = null;
 	}
-
-	// TODO this is a good place to enable "store contact" button
 
 	if(mustcheckCalleeOnline) {
 		// it can take up to 3s for our call to get fully ended and cleared on server and callee side
