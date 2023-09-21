@@ -295,11 +295,11 @@ console.log('submitPw valuePw',valuePw);	// TODO remove
 		}
 		if(!gentle) console.log('submitPw ajax',api);
 		let postData = "pw="+valuePw;
-		if(typeof Android !== "undefined" && Android !== null) {
-			if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
-				Android.postRequestData(postData);
-			}
-		}
+//		if(typeof Android !== "undefined" && Android !== null) {
+//			if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
+//				Android.postRequestData(postData);
+//			}
+//		}
 		ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 			// only if we get back "OK" do we continue with:
 			if(xhr.responseText=="OK") {
@@ -379,11 +379,11 @@ console.log('submitPw valuePw',valuePw);	// TODO remove
 		}
 		if(!gentle) console.log('submitPw ajax',api);
 		let postData = "pw="+valuePw;
-		if(typeof Android !== "undefined" && Android !== null) {
-			if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
-				Android.postRequestData(postData);
-			}
-		}
+//		if(typeof Android !== "undefined" && Android !== null) {
+//			if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
+//				Android.postRequestData(postData);
+//			}
+//		}
 		ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 			// only if we get back "OK" do we continue with:
 			if(xhr.responseText=="OK") {

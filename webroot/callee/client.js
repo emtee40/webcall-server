@@ -353,7 +353,7 @@ function sendFile(file) {
 	readSlice(0);
 }
 
-var xhrTimeout = 25000;
+var xhrTimeout = 8000;
 function ajaxFetch(xhr, type, api, processData, errorFkt, postData, sync) {
 	xhr.onreadystatechange = function() {
 		if(xhr.readyState == 4 && (xhr.status==200 || xhr.status==0)) {
@@ -382,7 +382,13 @@ function ajaxFetch(xhr, type, api, processData, errorFkt, postData, sync) {
 	xhr.open(type, api, !sync);
 	xhr.setRequestHeader("Content-type", "text/plain; charset=utf-8");
 	try {
-		if(postData) {
+		if(type=="POST" && postData) {
+			if(!gentle) console.log('posting',postData);
+			if(typeof Android !== "undefined" && Android !== null) {
+				if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
+					Android.postRequestData(postData);
+				}
+			}
 			xhr.send(postData);
 		} else {
 			xhr.send();

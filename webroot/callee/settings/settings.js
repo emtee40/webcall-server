@@ -544,8 +544,13 @@ function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {
 	if(!gentle) console.log('xhr send',apiPath);
 	xhr.open(type, apiPath, true);
 	xhr.setRequestHeader("Content-type", "text/plain; charset=utf-8");
-	if(postData) {
+	if(type=="POST" && postData) {
 		if(!gentle) console.log('posting',postData);
+		if(typeof Android !== "undefined" && Android !== null) {
+			if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
+				Android.postRequestData(postData);
+			}
+		}
 		xhr.send(postData);
 	} else {
 		xhr.send();
@@ -572,12 +577,6 @@ function submitForm(autoclose) {
 
 		let api = apiPath+"/setsettings?id="+calleeID;
 		if(!gentle) console.log('request setsettings api='+api);
-		let postData = newSettings;
-		if(typeof Android !== "undefined" && Android !== null) {
-			if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
-				Android.postRequestData(postData);
-			}
-		}
 		ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 			if(!gentle) console.log('data posted',newSettings);
 			if(autoclose) {
@@ -588,7 +587,7 @@ function submitForm(autoclose) {
 			if(autoclose) {
 				exitPage();
 			}
-		}, postData);
+		}, newSettings);
 	}
 
 	store();

@@ -88,7 +88,7 @@ function errorAction(errString,err) {
 	showStatus('xhr error '+errString,-1);
 }
 
-var xhrTimeout = 5000;
+var xhrTimeout = 8000;
 function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {
 	xhr.onreadystatechange = function() {
 		if(xhr.readyState == 4 && (xhr.status==200 || xhr.status==0)) {
@@ -113,10 +113,20 @@ function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {
 	if(!gentle) console.log('xhr send',apiPath);
 	xhr.open(type, apiPath, true);
 	xhr.setRequestHeader("Content-type", "text/plain; charset=utf-8");
-	if(postData) {
-		xhr.send(postData);
-	} else {
-		xhr.send();
+	try {
+		if(type=="POST" && postData) {
+			if(!gentle) console.log('posting',postData);
+			if(typeof Android !== "undefined" && Android !== null) {
+				if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
+					Android.postRequestData(postData);
+				}
+			}
+			xhr.send(postData);
+		} else {
+			xhr.send();
+		}
+	} catch(ex) {
+		console.log("# xhr send ex="+ex);
 	}
 }
 
@@ -171,12 +181,6 @@ function submitForm(theForm) {
 			}
 		}
 		if(!gentle) console.log('register via api='+api);
-		let postData = "pw="+valuePw;
-		if(typeof Android !== "undefined" && Android !== null) {
-			if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
-				Android.postRequestData(postData);
-			}
-		}
 		ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 			if(xhr.responseText=="OK") {
 				// ID is registered; offer the link
@@ -200,7 +204,7 @@ function submitForm(theForm) {
 				console.log('response:',xhr.responseText);
 				showStatus("Sorry, it is not possible to register your ID right now. Please try again a little later.",-1);
 			}
-		}, errorAction, postData);
+		}, errorAction, "pw="+valuePw);
 	},2000);
 }
 

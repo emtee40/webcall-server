@@ -735,13 +735,6 @@ function login(retryFlag,comment) {
 	}
 	api = api + "&ver="+clientVersion;
 	console.log("login api="+api);
-
-	let postData = "pw="+wsSecret;
-	if(typeof Android !== "undefined" && Android !== null) {
-		if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
-			Android.postRequestData(postData);
-		}
-	}
 	ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 		// processData
 		let loginStatus = xhr.responseText;
@@ -947,7 +940,7 @@ function login(retryFlag,comment) {
 			serviceSecs=0;
 			goOffline("login error");
 		}
-	}, postData);
+	}, "pw="+wsSecret);
 }
 
 function getSettings() {
@@ -1172,12 +1165,6 @@ function mappingCheckboxClick(cb) {
 
 	let api = apiPath+"/setmapping?id="+calleeID;
 	gLog("/setmapping api="+api+" altIDs="+altIDs);
-	let postData = altIDs;
-	if(typeof Android !== "undefined" && Android !== null) {
-		if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
-			Android.postRequestData(postData);
-		}
-	}
 	ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log('# /setmapping err='+xhr.responseText);
@@ -1187,7 +1174,7 @@ function mappingCheckboxClick(cb) {
 	}, function(errString,errcode) {
 		console.log("/setmapping errString="+errString+" errcode="+errcode);
 		// TODO reset checkbox checked value
-	}, postData);
+	}, altIDs);
 }
 
 function mainlinkCheckboxClick(cb) {
@@ -1201,18 +1188,12 @@ function mainlinkCheckboxClick(cb) {
 
 	let api = apiPath+"/setsettings?id="+calleeID;
 	if(!gentle) console.log('request setsettings api='+api);
-	let postData = newSettings;
-	if(typeof Android !== "undefined" && Android !== null) {
-		if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
-			Android.postRequestData(postData);
-		}
-	}
 	ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 		if(!gentle) console.log('data posted',newSettings);
 	}, function(errString,err) {
 		console.log("mainlinkCheckboxClick errString="+errString+" errcode="+errcode);
 		// TODO reset checkbox checked value
-	}, postData);
+	}, newSettings);
 }
 
 function offlineAction() {

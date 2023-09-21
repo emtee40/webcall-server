@@ -383,12 +383,6 @@ function storeData(successFkt,failFkt) {
 	// store string 'altIDs' into db
 	let api = apiPath+"/setmapping?id="+calleeID;
 	if(!gentle) console.log('/setmapping api',api);
-	let postData = altIDs;
-	if(typeof Android !== "undefined" && Android !== null) {
-		if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
-			Android.postRequestData(postData);
-		}
-	}
 	ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log('# /setmapping err='+xhr.responseText);
@@ -399,7 +393,7 @@ function storeData(successFkt,failFkt) {
 	}, function(errString,err) {
 		console.log("# storeData xhr error "+errString+" "+err);
 		failFkt(errString+" "+err);
-	},postData);
+	},altIDs);
 }
 
 function checkCookie() {
@@ -517,7 +511,7 @@ function editSubmit(formElement, id, assign) {
 	}
 }
 
-var xhrTimeout = 5000;
+var xhrTimeout = 8000;
 function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {
 	xhr.onreadystatechange = function() {
 		if(xhr.readyState == 4 && (xhr.status==200 || xhr.status==0)) {
@@ -541,11 +535,20 @@ function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {
 	if(!gentle) console.log('xhr send',apiPath);
 	xhr.open(type, apiPath, true);
 	xhr.setRequestHeader("Content-type", "text/plain; charset=utf-8");
-	if(postData) {
-		if(!gentle) console.log('xhr post='+postData);
-		xhr.send(postData);
-	} else {
-		xhr.send();
+	try {
+		if(type=="POST" && postData) {
+			if(!gentle) console.log('posting',postData);
+			if(typeof Android !== "undefined" && Android !== null) {
+				if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
+					Android.postRequestData(postData);
+				}
+			}
+			xhr.send(postData);
+		} else {
+			xhr.send();
+		}
+	} catch(ex) {
+		console.log("# xhr send ex="+ex);
 	}
 }
 

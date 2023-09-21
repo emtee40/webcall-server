@@ -366,7 +366,7 @@ function errorAction(errString,err) {
 	alert("xhr error "+errString);
 }
 
-var xhrTimeout = 5000;
+var xhrTimeout = 8000;
 function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {
 	xhr.onreadystatechange = function() {
 		if(xhr.readyState == 4 && (xhr.status==200 || xhr.status==0)) {
@@ -391,11 +391,20 @@ function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {
 	gLog('xhr send',apiPath);
 	xhr.open(type, apiPath, true);
 	xhr.setRequestHeader("Content-type", "text/plain; charset=utf-8");
-	if(postData) {
-		gLog('posting',postData);
-		xhr.send(postData);
-	} else {
-		xhr.send();
+	try {
+		if(type=="POST" && postData) {
+			if(!gentle) console.log('posting',postData);
+			if(typeof Android !== "undefined" && Android !== null) {
+				if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
+					Android.postRequestData(postData);
+				}
+			}
+			xhr.send(postData);
+		} else {
+			xhr.send();
+		}
+	} catch(ex) {
+		console.log("# xhr send ex="+ex);
 	}
 }
 
