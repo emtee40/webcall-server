@@ -113,7 +113,7 @@ func httpSetSettings(w http.ResponseWriter, r *http.Request, urlID string, calle
 		data = string(postBuf[:length])
 	}
 	if data=="" {
-		fmt.Printf("# /setsettings (%s) failed on io.ReadFull body %s\n",calleeID, remoteAddr)
+		fmt.Printf("# /setsettings (%s) failed on io.ReadFull body %d %s\n",calleeID, length, remoteAddr)
 		return
 	}
 

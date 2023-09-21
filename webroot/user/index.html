@@ -253,6 +253,7 @@ a, a:link, a:visited, a:active {
 	padding-bottom:12px;
 	padding-left:px;
 	width:98%;
+	height:20px;
 	max-width:520px;
     _font-size:1.1em;
 	_line-height:1.3em;
@@ -540,15 +541,15 @@ input[type=submit]:focus {
 
 		<div id="status" class="status"></div>
 
-		<label class="formlabel" id="avSelectLabel" for="idSelect" style="margin-left:0;margin-top:6px;_display:none;">
-			<select id="avSelect" class="select" onchange="getStream(this,'html')"></select>
-		</label>
+		<div _style="padding-top:2px;">
+			<label class="formlabel" id="avSelectLabel" for="idSelect" style="margin-left:0;margin-top:6px;">
+				<select id="avSelect" class="select" onchange="getStream(this,'html')"></select>
+			</label>
 
-		<label class="formlabel" id="idSelectLabel" for="idSelect" style="margin-left:0;margin-top:6px;display:none;">
-			<select id="idSelect" class="select" onchange="changeId(this)" style=""></select>
-		</label>
+			<label class="formlabel" id="idSelectLabel" for="idSelect" style="margin-left:0;margin-top:6px;display:none;">
+				<select id="idSelect" class="select" onchange="changeId(this)" style=""></select>
+			</label>
 
-		<div>
 			<span id="nicknameDiv" class="nickname" style="display:none;">
 				<label for="nickname" id="nicknameLabel" class="nicknameLabel">Nickname:</label>
 				<input id='nickname' class="nicknameForm" type='text' size='9' maxlength='9' value=''>

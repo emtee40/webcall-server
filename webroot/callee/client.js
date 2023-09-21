@@ -1671,7 +1671,7 @@ var showStatusTimeout = null;
 var showStatusMsg = "";
 var showStatusCurrentHighPrio = 0;
 function showStatus(msg, timeoutMs, prio) {
-	statusLine.style.display = "none";
+//	statusLine.style.display = "none";
 	showStatusMsg = msg;
 	if(typeof prio=="undefined") {
 		showStatusCurrentHighPrio = false;
@@ -1680,10 +1680,6 @@ function showStatus(msg, timeoutMs, prio) {
 	}
 	if(typeof msg=="undefined" || msg==null) {
 		console.log("status: msg undefined");
-		return;
-	}
-	if(msg=="") {
-		console.log("status: msg empty");
 		return;
 	}
 	if(showStatusTimeout!=null) {
@@ -1695,13 +1691,17 @@ function showStatus(msg, timeoutMs, prio) {
 	}
 
 	let sleepMs = 2500;
-	if(typeof timeoutMs!=="undefined" && timeoutMs>=0) {
+	if(typeof timeoutMs!=="undefined") {
 		sleepMs = timeoutMs;
 	}
 	if(prio) {
 		sleepMs = -1;
 	}
-	//console.log("showStatus msg=("+msg+") sleepMs="+sleepMs);
+
+	if(msg=="") {
+		console.log("status: msg empty");
+		sleepMs = -1;
+	}
 
 	// msg may contain html, which we don't want to log
 	let idx = msg.indexOf("<");
@@ -1715,7 +1715,7 @@ function showStatus(msg, timeoutMs, prio) {
 	statusLine.innerHTML = msg;
 	statusLine.style.opacity = 1;
 	// make msg visible
-	statusLine.style.display = "block";
+//	statusLine.style.display = "block";
 /*
 	// clear lastStatusMessage in service (so service will not overwrite our new msg)
 	if(typeof Android !== "undefined" && Android !== null) {

@@ -3154,6 +3154,7 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 
 	if(mustcheckCalleeOnline) {
 		// it can take up to 3s for our call to get fully ended and cleared on server and callee side
+		console.log("hangup: mustcheckCalleeOnline");
 		setTimeout(function() {
 			gLog('hangup -> calleeOnlineStatus');
 			// show msgbox etc.
@@ -3161,11 +3162,10 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 			checkCalleeOnline(false,"hangup");
 			dialButton.disabled = false;
 		},1500);
-	} else {
-		// TODO doing this could clear prev err msgs
-		if(!showStatusCurrentHighPrio) {
-			showStatus("");
-		}
+	}
+	console.log("hangup: showStatusCurrentHighPrio="+showStatusCurrentHighPrio);
+	if(!showStatusCurrentHighPrio) {
+		showStatus("");
 	}
 }
 

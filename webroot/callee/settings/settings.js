@@ -544,16 +544,20 @@ function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {
 	if(!gentle) console.log('xhr send',apiPath);
 	xhr.open(type, apiPath, true);
 	xhr.setRequestHeader("Content-type", "text/plain; charset=utf-8");
-	if(type=="POST" && postData) {
-		if(!gentle) console.log('posting',postData);
-		if(typeof Android !== "undefined" && Android !== null) {
-			if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
-				Android.postRequestData(postData);
+	try {
+		if(type=="POST" && postData) {
+			if(!gentle) console.log('posting',postData);
+			if(typeof Android !== "undefined" && Android !== null) {
+				if(typeof Android.postRequestData !== "undefined" && Android.postRequestData !== null) {
+					Android.postRequestData(postData);
+				}
 			}
+			xhr.send(postData);
+		} else {
+			xhr.send();
 		}
-		xhr.send(postData);
-	} else {
-		xhr.send();
+	} catch(ex) {
+		console.log("# xhr send ex="+ex);
 	}
 }
 
