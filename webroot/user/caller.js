@@ -215,16 +215,6 @@ window.onload = function() {
 		gLog("dialsounds="+playDialSounds);
 	}
 
-	if(playDialSounds) {
-		if(!dtmfDialingSound) {
-			// TODO why can we not do this?
-			//if(playDialSounds) {
-				console.log('load dtmfDialingSound');
-				dtmfDialingSound = new Audio('dtmf-dial.mp3');
-			//}
-		}
-	}
-
 	if(localVideoFrame)
 		localVideoFrame.onresize = showVideoResolutionLocal;
 	if(remoteVideoFrame)
@@ -965,6 +955,7 @@ function onload3(comment) {
 			}
 		}
 	}
+
 	if(!notificationSound) {
 		console.log('load notificationSound');
 		notificationSound = new Audio("notification.mp3");
@@ -1046,53 +1037,6 @@ function dialButtonClick() {
 	}
 	*/
 
-	doneHangup = false;
-	if(playDialSounds) {
-		let loop = 0;
-		//console.log('playDialTone start loop...');
-		var playDialTone = function() {
-/*
-			if(!dialing) {
-				console.log('playDialTone abort no dialing');
-				return;
-			}
-*/
-			if(doneHangup) {
-				console.log('playDialTone abort doneHangup');
-				return;
-			}
-/*
-			if(!wsConn) {
-				console.log('playDialTone abort no wsConn');
-				return;
-			}
-*/
-			if(mediaConnect) {
-				console.log('playDialTone abort is mediaConnect');
-				return;
-			}
-			if(!dtmfDialingSound) {
-				console.log('# playDialTone abort no dtmfDialingSound');
-				return;
-			}
-			console.log('---------------------- playDialTone loop='+loop);
-			if(loop>0) {
-				dtmfDialingSound.currentTime = 2;
-			} else {
-				dtmfDialingSound.currentTime = 0;
-			}
-			loop++;
-			dtmfDialingSound.volume = 0.5;
-			dtmfDialingSound.onended = playDialTone;
-			dtmfDialingSound.play().catch(function(error) {
-				// "The play() request was interrupted by a call to pause()."
-				console.log("# playDialTone err="+error);
-				//showStatus("Error: DialSound "+error,-1,true);
-			});
-		}
-		playDialTone();
-	}
-
 	dialButtonClick2();
 }
 
@@ -1124,6 +1068,7 @@ function dialButtonClick2() {
 		return;
 	}
 
+/*
 	if(playDialSounds) {
 		if(!dtmfDialingSound) {
 			console.log('load dtmf-dial.mp3');
@@ -1147,6 +1092,7 @@ function dialButtonClick2() {
 			console.warn('# load busySignalSound fail');
 		}
 	}
+*/
 
 	//hangupButton.disabled = false;
 	msgboxdiv.style.display = "none";
@@ -2546,8 +2492,8 @@ function dial() {
 	rtcConnect = false;
 	earlyRing = false;
 
-/*
 	if(playDialSounds) {
+/*
 		// postpone dialing, so we can start dialsound before
 		setTimeout(function() {
 			if(doneHangup) {
@@ -2557,6 +2503,7 @@ function dial() {
 				dial2();
 			}
 		},500);
+*/
 
 		let loop = 0;
 		//console.log('playDialTone start loop...');
@@ -2596,13 +2543,13 @@ function dial() {
 				//showStatus("Error: DialSound "+error,-1,true);
 			});
 		}
-		playDialTone();
 
-	} else 
-*/
-	{
-		dial2();
+		setTimeout(function() {
+			playDialTone();
+		},10);
 	}
+
+	dial2();
 }
 
 function dial2() {

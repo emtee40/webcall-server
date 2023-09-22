@@ -3633,14 +3633,15 @@ function openNews(newsUrl) {
 	else
 		newsUrl += "?i="+randId;
 	console.log("openNews "+newsUrl);
-	iframeWindowOpen(newsUrl,true,"max-width:800px;height:100%;",true);
+	iframeWindowOpen(newsUrl,true,"max-width:99vw;",true);
 }
 
 var counter=0;
 function openContacts() {
 	let url = "/callee/contacts/?id="+calleeID+"&ds="+playDialSounds;
 	gLog("openContacts "+url);
-	iframeWindowOpen(url,false,"height:95vh;",true);
+//	iframeWindowOpen(url,false,"height:97vh;",true);
+	iframeWindowOpen(url,false,"max-width:99vw;",true);
 }
 
 var slideOpen = false;
@@ -3691,28 +3692,33 @@ function openDialId(userId) {
 	gLog('openDialId url='+url);
 	// 4th parameter 'dontIframeOnload':
 	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
-	iframeWindowOpen(url,false,"height:95%;max-height:780px;",true);
+//	iframeWindowOpen(url,false,"height:95%;max-height:780px;",true);
+	iframeWindowOpen(url,false,"",true);
 }
 
 function openDialRemote(url) {
 	gLog('openDialUrl',url);
 	// 4th parameter 'dontIframeOnload':
 	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
-	iframeWindowOpen(url,false,"height:95%;max-height:780px;",true);
+//	iframeWindowOpen(url,false,"height:95%;max-height:780px;",true);
+	iframeWindowOpen(url,false,"",true);
 }
 function openDialRemotex(url,evt) {
 	gLog('openDialUrl',url);
 	evt.preventDefault();
 	// 4th parameter 'dontIframeOnload':
 	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
-	iframeWindowOpen(url,false,"height:95%;max-height:780px;",true);
+//	iframeWindowOpen(url,false,"height:95%;max-height:780px;",true);
+	iframeWindowOpen(url,false,"",true);
 }
 
 function openDialUrl(url) {
 	gLog('openDialUrl',url);
 	// 4th parameter 'dontIframeOnload':
 	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
-	iframeWindowOpen(url,false,"height:95%;max-height:780px;",true);
+//	iframeWindowOpen(url,false,"height:95%;max-height:780px;",true);
+//	iframeWindowOpen(url,false,"height:97vh;",true);
+	iframeWindowOpen(url,false,"max-width:99vw;",true);
 }
 function openDialUrlx(url,evt) {
 	gLog('openDialUrl',url);
@@ -3720,8 +3726,10 @@ function openDialUrlx(url,evt) {
 	// 4th parameter 'dontIframeOnload':
 	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
 //	let height = containerElement.clientHeight * 0.9;
-	let height = window.screen.height * 0.86;
-	iframeWindowOpen(url,false,"_height:95%;height:"+height+"px;_min-height:450px;_max-height:780px;",true);
+//	let height = window.screen.height * 0.86;
+//	iframeWindowOpen(url,false,"_height:95%;height:"+height+"px;_min-height:450px;_max-height:780px;",true);
+//	iframeWindowOpen(url,false,"height:97vh;",true);
+	iframeWindowOpen(url,false,"max-width:99vw;",true);
 }
 
 

@@ -859,14 +859,14 @@ function iframeWindowOpen(url, horiCenterBound, addStyleString, dontIframeOnload
 	iframeWindowOpenUrl = url;
 	iframeWindowOpenFlag = true;
 
-	let styleString = "width:94%; max-width:600px; position:absolute; z-index:200;";
+	let styleString = "width:96%; height:97vh; max-width:600px; position:absolute; z-index:200;";
 	if(horiCenterBound) {
 		// center hori
 // TODO does not seem to work
 		styleString += "top:50%; left:50%; transform:translate(-50%,-50%);"
 	} else {
 		// left-bound
-		styleString += "left:3.2%; top:10px;"
+		styleString += "left:10px; top:10px;"
 	}
 
 	if(typeof addStyleString !== "undefined" && addStyleString!="") {
