@@ -1,4 +1,5 @@
 // WebCall Copyright 2023 timur.mobi. All rights reserved.
+// callee.js for 4.0.0
 'use strict';
 const dialButton = document.querySelector('button#callButton');
 const hangupButton = document.querySelector('button#hangupButton');

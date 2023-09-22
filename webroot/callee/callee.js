@@ -1,4 +1,5 @@
 // WebCall Copyright 2023 timur.mobi. All rights reserved.
+// callee.js for 4.0.0
 'use strict';
 const goOnlineSwitch = document.querySelector('input#onlineSwitch');
 const callScreen = document.getElementById('callScreen');
