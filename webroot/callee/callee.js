@@ -3720,7 +3720,7 @@ function openDialUrlx(url,evt) {
 	// 4th parameter 'dontIframeOnload':
 	// iframeOnload() for dial-id takes scrollHeight from caller html min-height
 //	let height = containerElement.clientHeight * 0.9;
-	let height = window.screen.height * 0.88;
+	let height = window.screen.height * 0.86;
 	iframeWindowOpen(url,false,"_height:95%;height:"+height+"px;_min-height:450px;_max-height:780px;",true);
 }
 
