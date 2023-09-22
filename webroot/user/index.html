@@ -11,19 +11,26 @@
 <style>
 ::-webkit-scrollbar { display:none; }
 html {
-	width:100%; height:100%; min-height:460px;
+	width:100%; height:140%;
 	background-image:linear-gradient(#039, #004);
 	color:#ddd;
 	scrollbar-width:none;
 }
 body {
+	_height:100%;
 	font-family:Sans-Serif;
 	font-weight:300;
 	margin:0;
 }
+div#container {
+	_height:100%;
+	padding: 0.7em;
+	max-width:600px;
+	overflow:hidden;
+}
 
 h1 {
-	font-size:1.4em;
+	font-size:1.2em;
 	font-weight:600;
 	user-select:none;
 	margin-block-start:0;
@@ -196,7 +203,8 @@ button[disabled] {
 }
 .menulabel {
 	_margin-left:20px;
-	margin-right:20px;
+	_margin-right:10px;
+	_vertical-align:middle;
 	cursor:pointer;
 }
 
@@ -205,11 +213,6 @@ button[disabled] {
 	font-size:0.9em;
 }
 
-div#container {
-	padding: 0.7em;
-	max-width:600px;
-	overflow:hidden;
-}
 div.outputSelector {
 	margin: -1.3em 0 2em 0;
 }
@@ -250,33 +253,32 @@ a, a:link, a:visited, a:active {
 }
 
 .status {
-	padding-top:8px;
-	padding-bottom:8px;
+	padding-top:10px;
+	padding-bottom:6px;
 	padding-left:1px;
 	width:98%;
 	min-height:24px;
 	max-width:520px;
-    _font-size:1.1em;
-	_line-height:1.3em;
 	transition:opacity 400ms ease-in-out;
-    color:#ccc;
+    color:#ee7;
     font-weight:600;
 }
 
 .msgbox {
 	font-size:1.0em;
-	width:95%;
-	max-width:550px;
+	width:94%;
+	max-width:560px;
 	height:6.2em;
-	padding:16px;
+	padding:6px;
 	background-color:#0002;
-	border: 1.3px solid #bbb;
+	border: 1.3px solid #999;
 	border-radius:6px;
-	color:#fff;
+	color:#eee;
 	outline:none;
 	overflow-y:auto;
 	scrollbar-color: #119 #25f;
 	margin-top:10px;
+	_margin-right:50px;
 }
 textarea::placeholder {
   color: #ddd;
@@ -288,7 +290,7 @@ textarea::placeholder {
 	_background-color:#04c;
 	_border:none;
 	background-color:#0002;
-	border: 1.3px solid #bbb;
+	border: 1.3px solid #999;
 	border-radius:6px;
 	color:#eee;
 	font-size:1.0em;
@@ -409,32 +411,33 @@ input[type=submit]:focus {
 }
 
 .nickname {
-	margin-top:12px;
+	_margin-top:12px;
 	margin-left:2px;
-	font-size:1.1em;
-	padding-right:20px;
+	_font-size:1.1em;
+	padding-right:16px;
 	padding-top:1px;
 	padding-bottom:2px;
 	float:left;
 }
 .nicknameLabel {
 	display:inline-block;
-	margin-right:3px;
+	margin-right:2px;
 	font-size:0.9em;
 }
 .nicknameForm {
 	_background:#04e;
 	_border:none;
-	border: 1.3px solid #bbb;
+	border: 1.3px solid #999;
 	border-radius:6px;
 	background:#0002;
 	outline:none;
 	padding:0.1em;
 	padding-left:0.3em;
 	color:#ddd;
-	font-size:1.0em;
+	font-size:0.9em;
 	-webkit-appearance: none;
-	appearance: none;
+	_appearance: none;
+	max-width:100px;
 }
 
 .mirrorvideo {
@@ -459,7 +462,7 @@ input[type=submit]:focus {
     <div id="spinner" class="spinner"></div>
 </div>
 <img src="phone.svg"
-   style="position:absolute;right:0;top:2vh;width:440px;max-height:80vh;padding:2%;user-select:none;opacity:0.15;z-index:-1;">
+   style="position:absolute;right:0;top:2vh;width:440px;height:80%;padding:2%;user-select:none;opacity:0.15;z-index:-1;">
 
 <div id="fullScreenOverlay" style="position:absolute; left:0; top:0; margin:0; padding:0; width:100%; height:100%; z-index:105; display:none;"></div>
 
@@ -519,7 +522,7 @@ input[type=submit]:focus {
 <div id="dynDialog" style="position:relative; user-select:none; display:none; font-size:1.1em;"></div>
 
 <div id="container">
-	<img id="menu" onclick="menuDialogOpen(menuDialogElement,1)" class="iconbutton"src="menu.svg" _style="position:relative; float:right; width:25px; margin-top:6px; margin-right:10px; margin-left:22px; z-index:100; user-select:none; cursor:pointer;">
+	<img id="menu" onclick="menuDialogOpen(menuDialogElement,1)" class="iconbutton" src="menu.svg" _style="position:relative; float:right; width:25px; margin-top:6px; margin-right:10px; margin-left:22px; z-index:100; user-select:none; cursor:pointer;">
 	<img id="camera" class="iconbutton" src="camera.svg" _style="position:relative; float:right; width:30px; margin-top:5.5px; margin-left:22px; z-index:100; user-select:none; cursor:pointer; transition:opacity 500ms;" onclick="videoSwitch(false)">
 	<span style="clear:both"></span>
 
@@ -550,19 +553,19 @@ input[type=submit]:focus {
 			<select id="idSelect" class="select" onchange="changeId(this)" style=""></select>
 		</label>
 
-		<div>
+		<div style="padding-top:7px; line-height:35px; vertical-align:middle;">
 			<span id="nicknameDiv" class="nickname" style="display:none;">
 				<label for="nickname" id="nicknameLabel" class="nicknameLabel">Nickname:</label>
-				<input id='nickname' class="nicknameForm" type='text' size='9' maxlength='9' value=''>
+				<input id='nickname' class="nicknameForm" type='text' size='12' maxlength='12' value=''>
 			</span>
 
 			<span id="muteMicDiv" style="white-space: nowrap;">
-				<input type="checkbox" id="muteMic" class="checkbox" style="margin-top:22px;margin-left:0;" />
-				<label class="menulabel" id="muteMiclabel" for="muteMic">Mic muted</label>
+				<input type="checkbox" id="muteMic" class="checkbox" style="margin-top:6px;margin-left:0;" />
+				<label id="muteMiclabel" for="muteMic" class="menulabel" style="font-size:0.9em;">Mic muted</label>
 			</span>
 		</div>
 
-		<div id="msgboxdiv" style="display:none;">
+		<div id="msgboxdiv" _style="display:none;">
 			<textarea id="msgbox" class="msgbox" spellcheck="false" maxlength="125"></textarea>
 			<div id="textbox" style="display:none;">
 				<form action="javascript:;" onsubmit="submitFormDone(2)">
@@ -592,7 +595,7 @@ input[type=submit]:focus {
 
 	<div id="timer" class="timer">0:00</div>
 
-	<div style="opacity:0.7;padding-top:10px;user-select:none;">WebCall by <a href="https://timur.mobi/webcall">timur.mobi</a></div>
+	<div style="opacity:0.7;padding-top:10px;user-select:none;">WebCall1 by <a href="https://timur.mobi/webcall">timur.mobi</a></div>
 </div>
 
 <!-- dial-id -->
