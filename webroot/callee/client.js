@@ -985,8 +985,10 @@ function getStream(selectObject,comment) {
 
 	//if(!gentle) {
 	const supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
-	console.log('getStream supportedConstraints',supportedConstraints);
-	console.log('getStream myUserMediaDeviceId='+myUserMediaDeviceId+" comment="+comment);
+	console.log('getStream supportedConstraints',supportedConstraints+" comment="+comment);
+	if(typeof myUserMediaDeviceId!=="undefined" && myUserMediaDeviceId!=null) {
+		console.log('getStream myUserMediaDeviceId='+myUserMediaDeviceId);
+	}
 	//}
 
 /*

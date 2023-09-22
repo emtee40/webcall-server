@@ -956,6 +956,30 @@ function onload3(comment) {
 		return;
 	}
 
+	if(playDialSounds) {
+		if(!dtmfDialingSound) {
+			console.log('load dtmf-dial.mp3');
+			dtmfDialingSound = new Audio('dtmf-dial.mp3');
+			if(!dtmfDialingSound) {
+				console.warn('# load dtmfDialingSound fail');
+			}
+		}
+	}
+	if(!notificationSound) {
+		console.log('load notificationSound');
+		notificationSound = new Audio("notification.mp3");
+		if(!notificationSound) {
+			console.warn('# load notificationSound fail');
+		}
+	}
+	if(!busySignalSound) {
+		console.log('load busySignalSound');
+		busySignalSound = new Audio('busy-signal.mp3');
+		if(!busySignalSound) {
+			console.warn('# load busySignalSound fail');
+		}
+	}
+
 	calleeOnlineAction("init");
 
 	if(dialButton) {
@@ -965,13 +989,9 @@ function onload3(comment) {
 			//dialButton.innerHTML = "Call "+calleeIdTitle;
 		}
 		dialButton.onclick = dialButtonClick;
-//		dialButton.focus();
-//		console.log("----- onload3 dialButton focused");
 	}
 	if(hangupButton) {
 		hangupButton.onclick = function() {
-//			dialButton.style.backgroundColor = "";
-//			hangupButton.style.backgroundColor = "";
 			let msg = lg("hangingUpText");
 			//console.log(msg);
 			if(mediaConnect) {
@@ -1026,6 +1046,53 @@ function dialButtonClick() {
 	}
 	*/
 
+	doneHangup = false;
+	if(playDialSounds) {
+		let loop = 0;
+		//console.log('playDialTone start loop...');
+		var playDialTone = function() {
+/*
+			if(!dialing) {
+				console.log('playDialTone abort no dialing');
+				return;
+			}
+*/
+			if(doneHangup) {
+				console.log('playDialTone abort doneHangup');
+				return;
+			}
+/*
+			if(!wsConn) {
+				console.log('playDialTone abort no wsConn');
+				return;
+			}
+*/
+			if(mediaConnect) {
+				console.log('playDialTone abort is mediaConnect');
+				return;
+			}
+			if(!dtmfDialingSound) {
+				console.log('# playDialTone abort no dtmfDialingSound');
+				return;
+			}
+			console.log('---------------------- playDialTone loop='+loop);
+			if(loop>0) {
+				dtmfDialingSound.currentTime = 2;
+			} else {
+				dtmfDialingSound.currentTime = 0;
+			}
+			loop++;
+			dtmfDialingSound.volume = 0.5;
+			dtmfDialingSound.onended = playDialTone;
+			dtmfDialingSound.play().catch(function(error) {
+				// "The play() request was interrupted by a call to pause()."
+				console.log("# playDialTone err="+error);
+				//showStatus("Error: DialSound "+error,-1,true);
+			});
+		}
+		playDialTone();
+	}
+
 	dialButtonClick2();
 }
 
@@ -1035,7 +1102,7 @@ function dialButtonClick2() {
 		callerName = cleanStringParameter(nicknameElement.value,true);
 	}
 
-	console.log("dialButtonClick calleeID="+calleeID+" callerId="+callerId+" callerName="+callerName);
+	console.log("dialButtonClick2 calleeID="+calleeID+" callerId="+callerId+" callerName="+callerName);
 
 	showStatus(connectingText,-1,false); // "Connecting P2P..."
 	doneHangup = false;
@@ -1048,17 +1115,22 @@ function dialButtonClick2() {
 		const audioTracks = localStream.getAudioTracks();
 		console.log('dialButtonClick2 audioTracks.len='+audioTracks.length);
 	} else {
-		// this is expected when we clear it in gotStream2()
-		console.log('! dialButtonClick2 !localStream');
+		// this is expected when we clear localStream in gotStream2()
+		//console.log('! dialButtonClick2 !localStream');
+	}
+
+	if(dialButton.disabled) {
+		// prevent multiple checkCalleeOnline()
+		return;
 	}
 
 	if(playDialSounds) {
 		if(!dtmfDialingSound) {
-			// TODO why can we not do this?
-			//if(playDialSounds) {
-				console.log('load dtmfDialingSound');
-				dtmfDialingSound = new Audio('dtmf-dial.mp3');
-			//}
+			console.log('load dtmf-dial.mp3');
+			dtmfDialingSound = new Audio('dtmf-dial.mp3');
+			if(!dtmfDialingSound) {
+				console.warn('# load dtmfDialingSound fail');
+			}
 		}
 	}
 	if(!notificationSound) {
@@ -1076,11 +1148,6 @@ function dialButtonClick2() {
 		}
 	}
 
-	if(dialButton.disabled) {
-		// prevent multiple checkCalleeOnline()
-		return;
-	}
-//	dialButton.disabled = true;
 	//hangupButton.disabled = false;
 	msgboxdiv.style.display = "none";
 
@@ -1311,7 +1378,6 @@ function calleeOnlineStatus(onlineStatus,waitForCallee) {
 	dialButton.disabled = false;
 	hangupButton.disabled = true;
 
-// TODO ???
 	if(!localStream) {
 		// we need to call mediaDevices.enumerateDevices() anyway
 		loadJS("adapter-latest.js",function() {
@@ -1354,8 +1420,8 @@ function calleeOnlineAction(comment) {
 	calleeOfflineElement.style.display = "none";
 
 	// now that we know callee is online, we load adapter-latest.js
-// TODO tmtmtm load every time?
-	gLog("load adapter...");
+	// (we load it only the 1st time)
+	//gLog("load adapter...");
 	loadJS("adapter-latest.js",function(){
 		if(!navigator.mediaDevices) {
 			console.warn("navigator.mediaDevices not available");
@@ -1367,8 +1433,8 @@ function calleeOnlineAction(comment) {
 			return;
 		}
 
-		console.log("adapter loaded, dialAfter="+dialAfterCalleeOnline);
 		if(dialAfterCalleeOnline) {
+			console.log("calleeOnlineAction dialAfterCalleeOnline..");
 			// autodial after detected callee is online
 			// normally set by gotStream, if dialAfterLocalStream was set (by dialButton.onclick)
 			dialAfterCalleeOnline = false;
@@ -1396,6 +1462,7 @@ function calleeOnlineAction(comment) {
 				// and bc of dialAfterLocalStream also: -> gotStream -> gotStream2 -> connectSignaling
 			}
 		} else {
+			console.log("calleeOnlineAction no dialAfterCalleeOnline..");
 			// no autodial after we detected callee is online
 			/*
 			if(typeof Android !== "undefined" && Android !== null) {
@@ -1466,7 +1533,7 @@ function loadJS(jsFile,callback) {
 		if(!loaded) {
 			loaded = true;
 			loadedJsMap.set(jsFile,true);
-			gLog('loadJS loaded '+jsFile);
+			console.log('loadJS done loading '+jsFile);
 			callback();
 		}
 		loadJsBusy--;
@@ -1876,7 +1943,7 @@ function errorAction(errString,errcode) {
 }
 
 function gotStream2() {
-	console.log("----- gotStream2 audioTracks len="+localStream.getAudioTracks().length);
+	console.log("gotStream2 audioTracks len="+localStream.getAudioTracks().length);
 
 	if(dialAfterLocalStream) {
 		// dialAfterLocalStream was set by calleeOnlineAction() -> dialAfterCalleeOnline
@@ -2479,10 +2546,9 @@ function dial() {
 	rtcConnect = false;
 	earlyRing = false;
 
+/*
 	if(playDialSounds) {
 		// postpone dialing, so we can start dialsound before
-		console.log('playDialTone start loop...');
-
 		setTimeout(function() {
 			if(doneHangup) {
 				gLog('abort post playDialSound dial2()');
@@ -2493,6 +2559,7 @@ function dial() {
 		},500);
 
 		let loop = 0;
+		//console.log('playDialTone start loop...');
 		var playDialTone = function() {
 			if(!dialing) {
 				console.log('playDialTone abort no dialing');
@@ -2514,9 +2581,11 @@ function dial() {
 				console.log('# playDialTone abort no dtmfDialingSound');
 				return;
 			}
-			console.log('playDialTone...');
+			console.log('---------------------- playDialTone loop='+loop);
 			if(loop>0) {
 				dtmfDialingSound.currentTime = 2;
+			} else {
+				dtmfDialingSound.currentTime = 0;
 			}
 			loop++;
 			dtmfDialingSound.volume = 0.5;
@@ -2524,12 +2593,14 @@ function dial() {
 			dtmfDialingSound.play().catch(function(error) {
 				// "The play() request was interrupted by a call to pause()."
 				console.log("# playDialTone err="+error);
-				showStatus("Error: DialSound "+error,-1,true);
+				//showStatus("Error: DialSound "+error,-1,true);
 			});
 		}
 		playDialTone();
 
-	} else {
+	} else 
+*/
+	{
 		dial2();
 	}
 }
@@ -2548,7 +2619,7 @@ function dial2() {
 	candidateArray = [];
 	candidateResultString = "";
 	dialDate = Date.now();
-	console.log('dial2 dialDate='+dialDate);
+	//console.log('dial2 dialDate='+dialDate);
 
 	if(!localStream) {
 		console.log('# dial2 localStream');
