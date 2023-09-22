@@ -11,7 +11,6 @@ const isHiddenCheckbox = document.querySelector('input#isHidden');
 const isHiddenlabel = document.querySelector('label#isHiddenlabel');
 const autoanswerCheckbox = document.querySelector('input#autoanswer');
 const autoanswerlabel = document.querySelector('label#autoanswerlabel');
-const statusLine = document.getElementById('status');
 const divspinnerframe = document.querySelector('div#spinnerframe'); // busy animation
 const timerElement = document.querySelector('div#timer');
 const missedCallsTitleElement = document.getElementById('missedCallsTitle');

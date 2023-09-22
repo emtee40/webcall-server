@@ -38,6 +38,7 @@ const muteMicElement = document.getElementById("muteMic");
 const muteMiclabelElement = document.getElementById("muteMiclabel");
 const msgboxdiv = document.getElementById('msgboxdiv');
 const msgbox = document.querySelector('textarea#msgbox');
+const statusLine = document.getElementById('status');
 
 var bitrate = 320000;
 var calleeID = "";

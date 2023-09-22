@@ -14,7 +14,6 @@ const numericIdCheckbox = document.querySelector('input#numericId');
 const enterTextElement = document.getElementById('enterText');
 const codecPreferences = document.querySelector('#codecPreferences');
 const titleElement = document.getElementById('title');
-//const statusLine = document.getElementById('status');
 const textbox = document.getElementById('textbox');
 const timerElement = document.querySelector('div#timer');
 const calleeOfflineElement = document.getElementById("calleeOffline");
