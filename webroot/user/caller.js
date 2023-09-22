@@ -14,7 +14,7 @@ const numericIdCheckbox = document.querySelector('input#numericId');
 const enterTextElement = document.getElementById('enterText');
 const codecPreferences = document.querySelector('#codecPreferences');
 const titleElement = document.getElementById('title');
-const statusLine = document.getElementById('status');
+//const statusLine = document.getElementById('status');
 const textbox = document.getElementById('textbox');
 const timerElement = document.querySelector('div#timer');
 const calleeOfflineElement = document.getElementById("calleeOffline");
@@ -119,7 +119,8 @@ function languageDefaults() {
 //	str = lg("msgbox");
 	str = lg("greetingMessage");
 	if(typeof str !== "undefined" && str!="") {
-		msgbox.placeholder = str;
+		placeholderText = str;
+		msgbox.placeholder = placeholderText;
 	}
 
 	str = lg("nicknameLabel");
