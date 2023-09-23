@@ -78,6 +78,7 @@ var newline = String.fromCharCode(13, 10);
 var textchatOKfromOtherSide = false;
 var placeholderText = "";
 var	muteMicModified = false;
+var willShowPostCall = "Data will be available after you have made a call";
 
 var extMessage = function(e) {
 	// prevent an error on split() below when extensions emit unrelated, non-string 'message' events to the window
