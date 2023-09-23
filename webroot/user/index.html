@@ -553,8 +553,8 @@ input[type=submit]:focus {
 		<label id="muteMiclabel" for="muteMic" class="menulabel" style="font-size:0.9em;">Mute</label>
 	</div>
 
-	<div id="calleeOnline" _style="display:none">
-		<label class="formlabel" id="avSelectLabel" for="idSelect" style="margin-left:0;margin-top:6px;">
+	<div id="calleeOnline">
+		<label class="formlabel" id="avSelectLabel" for="avSelect" style="margin-left:0;margin-top:6px;">
 			<select id="avSelect" class="select" onchange="getStream(this,'html')"></select>
 		</label>
 
@@ -567,12 +567,6 @@ input[type=submit]:focus {
 				<label for="nickname" id="nicknameLabel" class="nicknameLabel">Nickname:</label>
 				<input id='nickname' class="nicknameForm" type='text' size='12' maxlength='12' value=''>
 			</span>
-<!--
-			<span id="muteMicDiv" style="white-space: nowrap;">
-				<input type="checkbox" id="muteMic" class="checkbox" style="margin-top:6px;margin-left:2px;" />
-				<label id="muteMiclabel" for="muteMic" class="menulabel" style="font-size:0.9em;">Mic muted</label>
-			</span>
--->
 		</div>
 	</div>
 
@@ -588,8 +582,10 @@ input[type=submit]:focus {
 	</div>
 	<button id="chatButton" style="display:none; margin-top:4px; padding-top:4px; padding-bottom:3px;">TextChat</button>
 
+<!--
 	<div id="calleeOffline" style="display:none">
 	</div>
+-->
 
 	<div id="progressSend" style="width:95%;_max-width:360px;display:none;">
 		<div id="progressSendLabel">sending:</div>
