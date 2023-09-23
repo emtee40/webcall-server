@@ -697,7 +697,7 @@ function changeId(selectObject) {
 }
 
 function onload2() {
-	console.log("onload2");
+	//console.log("onload2");
 	haveBeenWaitingForCalleeOnline=false;
 	altIdCount = 0;
 	checkServerMode(function(mode,msgString) {
@@ -957,7 +957,7 @@ function onload3(comment) {
 
 	if(playDialSounds) {
 		if(!dtmfDialingSound) {
-			console.log('load dtmf-dial.mp3');
+			//console.log('load dtmf-dial.mp3');
 			dtmfDialingSound = new Audio('dtmf-dial.mp3');
 			if(!dtmfDialingSound) {
 				console.warn('# load dtmfDialingSound fail');
@@ -966,14 +966,14 @@ function onload3(comment) {
 	}
 
 	if(!notificationSound) {
-		console.log('load notificationSound');
+		//console.log('load notificationSound');
 		notificationSound = new Audio("notification.mp3");
 		if(!notificationSound) {
 			console.warn('# load notificationSound fail');
 		}
 	}
 	if(!busySignalSound) {
-		console.log('load busySignalSound');
+		//console.log('load busySignalSound');
 		busySignalSound = new Audio('busy-signal.mp3');
 		if(!busySignalSound) {
 			console.warn('# load busySignalSound fail');
@@ -1302,7 +1302,7 @@ function checkCalleeOnline(waitForCallee,comment) {
 	}
 	api = api + "&ver="+clientVersion;
 
-	gLog("checkCalleeOnline api="+api+" ("+comment+")");
+	console.log("checkCalleeOnline api="+api+" ("+comment+")");
 	xhrTimeout = 30*1000;
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		calleeOnlineStatus(xhr.responseText, waitForCallee);
@@ -1315,7 +1315,7 @@ function calleeOnlineStatus(onlineStatus,waitForCallee) {
 		gLog('calleeOnlineStatus abort',rtcConnect,dialing);
 		return;
 	}
-	console.log("calleeOnlineStatus "+onlineStatus+" "+waitForCallee);
+	console.log("calleeOnlineStatus="+onlineStatus+" waitForCallee="+waitForCallee);
 
 	// onlineStatus should be something like "127.0.0.1:8071?wsid=4054932942" (aka wsAddr)
 	if(onlineStatus!="" && onlineStatus.indexOf("wsid=")>=0) {
@@ -1324,18 +1324,15 @@ function calleeOnlineStatus(onlineStatus,waitForCallee) {
 		let tok = onlineStatus.split("|");
 		wsAddr = tok[0];
 		wsAddrTime = Date.now();
-
 		calleeOnlineAction("calleeOnlineStatus");
 		return;
 	}
 
-	// callee is not available
-	console.log("! calleeOnlineStatus no wsid");
-	// TODO here we could act on "busy" and "notavail"
-
+	// callee user is not available
+	console.log("calleeOnlineStatus no wsid, onlineStatus="+onlineStatus);
 	dialButton.disabled = false;
 	hangupButton.disabled = true;
-
+/*
 	if(!localStream) {
 		// we need to call mediaDevices.enumerateDevices() anyway
 		loadJS("adapter-latest.js",function() {
@@ -1349,12 +1346,13 @@ function calleeOnlineStatus(onlineStatus,waitForCallee) {
 			}
 		});
 	}
-
-// TODO ???
+*/
+/*
 	if(onlineStatus=="error") {
 		showStatus("Error: user ID not found",-1,true)
 		waitForCallee = false;
 	}
+*/
 	// switch to offline mode and (if waitForCallee is set) check if calleeID can be notified
 	calleeOfflineAction(onlineStatus,waitForCallee);
 }
@@ -1905,7 +1903,7 @@ function errorAction(errString,errcode) {
 }
 
 function gotStream2() {
-	console.log("gotStream2 audioTracks len="+localStream.getAudioTracks().length);
+	//console.log("gotStream2 audioTracks len="+localStream.getAudioTracks().length);
 
 	if(dialAfterLocalStream) {
 		// dialAfterLocalStream was set by calleeOnlineAction() -> dialAfterCalleeOnline
@@ -1914,16 +1912,16 @@ function gotStream2() {
 		connectSignaling("",dial); // when ws-connected to server, call dial() to call peer
 	} else {
 		// in caller we land here after audio/video was initialzed
-		console.log("gotStream2 !dialAfter");
+		//console.log("gotStream2 !dialAfter");
 
 		if(videoEnabled) {
-			console.log("gotStream2 videoEnabled: no mute mic until dial");
+			console.log("gotStream2 !dialAfter videoEnabled: no mute mic until dial");
 		} else if(!localStream) {
-			console.log("# gotStream2 !localStream: no mute mic until dial");
+			console.log("# gotStream2 !dialAfter !localStream: no mute mic until dial");
 		} else if(rtcConnect) {
-			console.log("gotStream2 rtcConnect: no mute mic until dial");
+			console.log("gotStream2 !dialAfter rtcConnect: no mute mic until dial");
 		} else {
-			console.log("gotStream2 mute mic until dial");
+			console.log("gotStream2 !dialAfter mute mic until dial");
 
 			// disable local mic until we start dialing
 			localStream.getTracks().forEach(track => {

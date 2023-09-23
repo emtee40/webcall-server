@@ -239,7 +239,7 @@ func substituteUserNameHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if logWantedFor("http") {
 			fmt.Printf("substitute nofs curdir(%s) root(%s) url(%s) full(%s)\n",
-				curdir, htmlPath, urlPath, fullpath)
+				curdir, htmlPath, r.URL.String(), fullpath)	// tmtmtm: replaced urlPath with r.URL.String()
 		}
 		readConfigLock.RUnlock()
 		if _, err := os.Stat(fullpath); os.IsNotExist(err) {

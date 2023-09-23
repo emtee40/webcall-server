@@ -1042,7 +1042,7 @@ function getStream(selectObject,comment) {
 		localStream = null;
 	}
 
-	console.log("getStream set getUserMedia ",myUserMediaConstraints);
+	//console.log("getStream set getUserMedia ",myUserMediaConstraints);
 	let saveWorkingConstraints = JSON.parse(JSON.stringify(myUserMediaConstraints));
 	return navigator.mediaDevices.getUserMedia(myUserMediaConstraints)
 		.then(function(stream) {
@@ -1183,7 +1183,9 @@ var addedVideoTrack = null;
 function gotStream(stream) {
 	// add localStream audioTrack and (possibly) localStream videoTrack to peerCon using peerCon.addTrack()
 	// then activate localVideoFrame with localStream
-	console.log('gotStream myUserMediaDeviceId='+myUserMediaDeviceId);
+	if(typeof myUserMediaDeviceId!=="undefined" && myUserMediaDeviceId!=null) {
+		console.log('gotStream myUserMediaDeviceId='+myUserMediaDeviceId);
+	}
 
 	if(!localStream) {
 		console.log("gotStream no old localStream (no stop all tracks)");
@@ -1271,7 +1273,7 @@ function gotStream(stream) {
 		addedVideoTrack = peerCon.addTrack(localStream.getTracks()[1],localStream);
 	}
 
-	console.log("gotStream set localVideoFrame.srcObject, audioTracks len="+localStream.getAudioTracks().length);
+	//console.log("gotStream set localVideoFrame.srcObject, audioTracks len="+localStream.getAudioTracks().length);
 	localVideoFrame.srcObject = localStream;
 	localVideoFrame.volume = 0;
 	localVideoFrame.muted = 1;
