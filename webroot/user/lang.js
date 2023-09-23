@@ -5,7 +5,7 @@ var myLang;
 
 var langMap = {
 "en": {
-	"dialButton"			: "Dial",
+	"dialButton"			: "Call",
 	"hangupButton"			: "Hangup",
 	"greetingMessage"		: "Greeting message (optional)",
 	"connectingText"		: "Connecting P2P...",

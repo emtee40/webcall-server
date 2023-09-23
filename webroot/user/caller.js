@@ -1394,7 +1394,7 @@ function calleeOnlineAction(comment) {
 				// and bc of dialAfterLocalStream also: -> gotStream -> gotStream2 -> connectSignaling
 			}
 		} else {
-			console.log("calleeOnlineAction no dialAfterCalleeOnline..");
+			console.log("calleeOnlineAction no dialAfterCalleeOnline");
 			// no autodial after we detected callee is online
 			/*
 			if(typeof Android !== "undefined" && Android !== null) {
@@ -1676,16 +1676,16 @@ function enableCalleeOnlineElement(clearStatus) {
 	}
 	setTimeout(function() {
 		msgbox.value = "";
+		answerButtons.style.display = "grid";
 		calleeOnlineElement.style.display = "block";
 		msgboxdiv.style.display = "block";
 		bottomElement.style.display = "block";
 		muteMicDiv.style.display = "block";
 
+		answerButtons.classList.remove("disableElement");
 		calleeOnlineElement.classList.remove("disableElement");
 		msgboxdiv.classList.remove("disableElement");
 		bottomElement.classList.remove("disableElement");
-//		answerButtonsElement.classList.remove("disableElement");
-//		answerButtonsElement.style.display = "block";
 	},20);
 }
 
