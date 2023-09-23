@@ -2550,7 +2550,7 @@ function prepareCallee(sendInitFlag,comment) {
 		if(typeof Android !== "undefined" && Android !== null) {
 			// note: Android.isConnected() returns: 0=offline, 1=reconnector busy, 2=connected (wsClient!=null)
 			if(Android.isConnected()>0) {
-				console.log("prepareCallee isConnected()="+Android.isConnected()+" >0 (connected or connecting)");
+				console.log("prepareCallee isConnected()="+Android.isConnected()+" (1=reconnectBusy, 2=connected)");
 				if(sendInitFlag) {
 					sendInit("prepareCallee <- "+comment);
 				}

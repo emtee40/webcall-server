@@ -18,6 +18,7 @@ const titleElement = document.getElementById('title');
 const textbox = document.getElementById('textbox');
 const timerElement = document.querySelector('div#timer');
 const calleeOfflineElement = document.getElementById("calleeOffline");
+const bottomElement = document.getElementById("bottom");
 const addinfoElement = document.getElementById("addinfo");
 
 //const onlineIndicator = document.querySelector('img#onlineIndicator');
@@ -1102,7 +1103,10 @@ function dialButtonClick2() {
 */
 
 	//hangupButton.disabled = false;
-	msgboxdiv.style.display = "none";
+	//msgboxdiv.style.display = "none";
+	calleeOnlineElement.classList.add("disableElement");
+	msgboxdiv.classList.add("disableElement");
+	bottomElement.classList.add("disableElement");
 
 	// hide 'store contact' button
 	let storeContactElement = document.getElementById("storeContact");
@@ -2237,7 +2241,8 @@ function signalingCommand(message) {
 		}
 
 		// hide msgbox
-		msgboxdiv.style.display = "none";
+//		msgboxdiv.style.display = "none";
+//		calleeOnlineElement.classList.add("disableElement");
 //		onlineIndicator.src="red-gradient.svg";
 
 /* TODO somewhere
@@ -2940,7 +2945,12 @@ function stopAllAudioEffects() {
 function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 	console.log("hangup: message="+message);
 	dialing = false;
-	msgboxdiv.style.display = "none";
+
+//	msgboxdiv.style.display = "none";
+	calleeOnlineElement.classList.remove("disableElement");
+	msgboxdiv.classList.remove("disableElement");
+	bottomElement.classList.remove("disableElement");
+
 	textbox.style.display = "none";
 	chatButton.style.display = "none";
 	connectLocalVideo(true); // forceOff
