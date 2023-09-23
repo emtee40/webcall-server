@@ -210,6 +210,13 @@ window.onload = function() {
 		}
 	}
 	
+//	calleeOnlineElement.classList.add("disableElement");
+//	msgboxdiv.classList.add("disableElement");
+//	bottomElement.classList.add("disableElement");
+//	calleeOnlineElement.style.display = "none";
+//	msgboxdiv.style.display = "none";
+//	bottomElement.style.display = "none";
+
 //	if(addinfoElement) {
 //		addinfoElement.innerHTML = "- ver:"+clientVersion;
 //	}
@@ -1194,7 +1201,7 @@ function videoOff() {
 			gLog("videoOff !rtcConnect localStream stop len",allTracks.length);
 			allTracks.forEach(track => {
 				gLog('videoOff local track.stop()',track);
-				track.stop(); 
+				track.stop();
 			});
 		}
 
@@ -1409,7 +1416,7 @@ function calleeOnlineAction(comment) {
 							"The first six seconds of the call will be recorded (red led) "+
 							"and then immediately played back to you.",-1,false);
 			} else {
-				msgboxdiv.classList.remove("disableElement");
+				//msgboxdiv.classList.remove("disableElement");
 				msgbox.value = "";
 				msgbox.readOnly = false;
 				if(placeholderText!="") {
@@ -1512,7 +1519,7 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 						wsAddrTime = Date.now();
 						// switch to callee-is-online layout
 
-						msgboxdiv.classList.remove("disableElement");
+						//msgboxdiv.classList.remove("disableElement");
 						msgbox.readOnly = false;
 						if(placeholderText!="") {
 							msgbox.placeholder = placeholderText;
@@ -1660,12 +1667,20 @@ function calleeNotificationAction() {
 }
 
 function enableCalleeOnlineElement() {
-	msgbox.value = "";
-	calleeOnlineElement.classList.remove("disableElement");
-	msgboxdiv.classList.remove("disableElement");
-	bottomElement.classList.remove("disableElement");
-	answerButtonsElement.classList.remove("disableElement");
 	showStatus("");
+	setTimeout(function() {
+		msgbox.value = "";
+		calleeOnlineElement.style.display = "block";
+		msgboxdiv.style.display = "block";
+		bottomElement.style.display = "block";
+		muteMicDiv.style.display = "block";
+
+		calleeOnlineElement.classList.remove("disableElement");
+		msgboxdiv.classList.remove("disableElement");
+		bottomElement.classList.remove("disableElement");
+//		answerButtonsElement.classList.remove("disableElement");
+//		answerButtonsElement.style.display = "block";
+	},20);
 }
 
 function goodby() {
@@ -1764,14 +1779,16 @@ function submitFormDone(idx) {
 			} catch(e) {
 				// if we end here, the domain cannot be reached, so we don't do window.open()
 				console.log("# submitFormDone window.open("+callUrl+") ex="+e);
-				alert("Connection failed. Please check the server address.");
+				//alert("Connection failed. Please check the server address.");
+				showStatus("Connection failed. Please check the server address.");
 				//de-focus submit button
 				document.activeElement.blur();
 			} finally {
 				if(!openOK) {
 					// if we end here, the domain cannot be reached, so we don't do window.open()
 					console.log("# submitFormDone !openOK window.open("+callUrl+")");
-					alert("Connection failed. Please check the server address.");
+					//alert("Connection failed. Please check the server address.");
+					showStatus("Connection failed. Please check the server address.");
 					//de-focus submit button
 					document.activeElement.blur();
 				} else {
@@ -1811,6 +1828,7 @@ function errorAction2(errString,err) {
 	console.log("# xhr error "+errString+" "+err);
 	// let user know via alert
 	//alert("xhr error "+errString);
+	showStatus("xhr error "+errString);
 }
 
 function notifyConnect(callerName,callerId,callerHost) {
@@ -1887,53 +1905,53 @@ function errorAction(errString,errcode) {
 function gotStream2() {
 	//console.log("gotStream2 audioTracks len="+localStream.getAudioTracks().length);
 
+	enableCalleeOnlineElement();
 	if(dialAfterLocalStream) {
 		// dialAfterLocalStream was set by calleeOnlineAction() -> dialAfterCalleeOnline
 		console.log("gotStream2 dialAfter connectSignaling()");
-		dialAfterLocalStream=false;
+		dialAfterLocalStream = false;
 		connectSignaling("",dial); // when ws-connected to server, call dial() to call peer
+		return;
+	}
+
+	// we land here after audio/video was initialzed
+	//console.log("gotStream2 !dialAfter");
+	if(videoEnabled) {
+		console.log("gotStream2 !dialAfter videoEnabled: no mute mic until dial");
+	} else if(!localStream) {
+		console.log("# gotStream2 !dialAfter !localStream: no mute mic until dial");
+	} else if(rtcConnect) {
+		console.log("gotStream2 !dialAfter rtcConnect: no mute mic until dial");
 	} else {
-		// in caller we land here after audio/video was initialzed
-		//console.log("gotStream2 !dialAfter");
+		console.log("gotStream2 !dialAfter mute mic until dial");
 
-		if(videoEnabled) {
-			console.log("gotStream2 !dialAfter videoEnabled: no mute mic until dial");
-		} else if(!localStream) {
-			console.log("# gotStream2 !dialAfter !localStream: no mute mic until dial");
-		} else if(rtcConnect) {
-			console.log("gotStream2 !dialAfter rtcConnect: no mute mic until dial");
-		} else {
-			console.log("gotStream2 !dialAfter mute mic until dial");
+		// disable local mic until we start dialing
+		localStream.getTracks().forEach(track => {
+			gLog('gotStream2 local mic track.stop()',track);
+			track.stop();
+		});
 
-			// disable local mic until we start dialing
-			localStream.getTracks().forEach(track => {
-				gLog('gotStream2 local mic track.stop()',track);
-				track.stop(); 
-			});
-
-			const audioTracks = localStream.getAudioTracks();
-			console.log('gotStream2 removeTrack local mic audioTracks.length='+audioTracks.length);
-			if(audioTracks.length>0) {
-				gLog('gotStream2 removeTrack local mic',audioTracks[0]);
-				// TODO would it be enough to do this?
-				//audioTracks[0].enabled = false;
-				audioTracks[0].stop();
-				localStream.removeTrack(audioTracks[0]);
-			}
-
-			const videoTracks = localStream.getVideoTracks();
-			gLog('gotStream2 removeTrack local vid videoTracks.length',videoTracks.length);
-			if(videoTracks.length>0) {
-				gLog('videoOff removeTrack local vid',videoTracks[0]);
-				// TODO would it be enough to do this?
-				//videoTracks[0].enabled = false;
-				videoTracks[0].stop();
-				localStream.removeTrack(videoTracks[0]);
-			}
-
-// TODO does this cause the audio-selector to reset?
-			localStream = null;
+		const audioTracks = localStream.getAudioTracks();
+		console.log('gotStream2 removeTrack local mic audioTracks.length='+audioTracks.length);
+		if(audioTracks.length>0) {
+			gLog('gotStream2 removeTrack local mic',audioTracks[0]);
+			// TODO would it be enough to do this?
+			//audioTracks[0].enabled = false;
+			audioTracks[0].stop();
+			localStream.removeTrack(audioTracks[0]);
 		}
+
+		const videoTracks = localStream.getVideoTracks();
+		gLog('gotStream2 removeTrack local vid videoTracks.length',videoTracks.length);
+		if(videoTracks.length>0) {
+			gLog('videoOff removeTrack local vid',videoTracks[0]);
+			// TODO would it be enough to do this?
+			//videoTracks[0].enabled = false;
+			videoTracks[0].stop();
+			localStream.removeTrack(videoTracks[0]);
+		}
+
+		localStream = null;
 	}
 }
 
@@ -2490,18 +2508,6 @@ function dial() {
 	earlyRing = false;
 
 	if(playDialSounds) {
-/*
-		// postpone dialing, so we can start dialsound before
-		setTimeout(function() {
-			if(doneHangup) {
-				gLog('abort post playDialSound dial2()');
-			} else {
-				gLog('post playDialSound dial2()...');
-				dial2();
-			}
-		},500);
-*/
-
 		let loop = 0;
 		//console.log('playDialTone start loop...');
 		var playDialTone = function() {

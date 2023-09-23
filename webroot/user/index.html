@@ -418,6 +418,7 @@ input[type=submit]:focus {
 .nickname {
 	_margin-top:12px;
 	margin-left:2px;
+	height:38.5px;
 	_font-size:1.1em;
 	padding-right:16px;
 	padding-top:1px;
@@ -548,12 +549,12 @@ input[type=submit]:focus {
 		<button id="hangupButton" class="mainbutton mainbuttonRed" disabled>Hang Up</button>
 		<!--img id="onlineIndicator" src="" style="width:28px; margin:0.6em 0 0 0; user-select:none;"-->
 	</div>
-	<div id="muteMicDiv" style="padding-top:6px; padding-bottom:8px; _white-space:nowrap;">
+	<div id="muteMicDiv" style="padding-top:6px; padding-bottom:8px; _white-space:nowrap;display:none;">
 		<input type="checkbox" id="muteMic" class="checkbox" style="margin-left:5px;" />
 		<label id="muteMiclabel" for="muteMic" class="menulabel" style="font-size:0.9em;">Mute</label>
 	</div>
 
-	<div id="calleeOnline">
+	<div id="calleeOnline" style="display:none">
 		<label class="formlabel" id="avSelectLabel" for="avSelect" style="margin-left:0;margin-top:6px;">
 			<select id="avSelect" class="select" onchange="getStream(this,'html')"></select>
 		</label>
@@ -570,7 +571,7 @@ input[type=submit]:focus {
 		</div>
 	</div>
 
-	<div id="msgboxdiv">
+	<div id="msgboxdiv" style="display:none">
 		<textarea id="msgbox" class="msgbox" spellcheck="false" maxlength="125"></textarea>
 		<div id="textbox" style="display:none;">
 			<form action="javascript:;" onsubmit="submitFormDone(2)">
@@ -601,7 +602,7 @@ input[type=submit]:focus {
 
 	<div id="timer" class="timer">0:00</div>
 
-	<div id="bottom" style="opacity:0.7;padding-top:10px;user-select:none;">WebCall1 by <a href="https://timur.mobi/webcall">timur.mobi</a> <span id="addinfo"></span></div>
+	<div id="bottom" style="opacity:0.7;padding-top:10px;user-select:none;display:none;">WebCall1 by <a href="https://timur.mobi/webcall">timur.mobi</a> <span id="addinfo"></span></div>
 </div>
 
 <!-- dial-id -->
