@@ -18,6 +18,8 @@ const titleElement = document.getElementById('title');
 const textbox = document.getElementById('textbox');
 const timerElement = document.querySelector('div#timer');
 const calleeOfflineElement = document.getElementById("calleeOffline");
+const addinfoElement = document.getElementById("addinfo");
+
 //const onlineIndicator = document.querySelector('img#onlineIndicator');
 const calleeMode = false;
 const msgBoxMaxLen = 137;
@@ -205,6 +207,10 @@ window.onload = function() {
 				muteMicElement.checked = true;
 			}
 		}
+	}
+	
+	if(addinfoElement) {
+		addinfoElement.innerHTML = "- ver:"+clientVersion;
 	}
 
 	playDialSounds = true;
