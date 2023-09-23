@@ -1648,7 +1648,7 @@ function calleeNotificationAction() {
 			return;
 		}
 		// calleeID can NOT be reached right now
-		let statusMsg = "<a href='javascript:enableCalleeOnlineElement()'>"+calleeID+" is currently not available.";
+		let statusMsg = "<a href='javascript:enableCalleeOnlineElement(true)'>"+calleeID+" is currently not available.";
 		if(greetingMsg!="") {
 			// calleeID can NOT be reached (but greeting msg can be send)
 			statusMsg += " Your text message has been sent.";
@@ -1666,8 +1666,10 @@ function calleeNotificationAction() {
 	);
 }
 
-function enableCalleeOnlineElement() {
-	showStatus("");
+function enableCalleeOnlineElement(clearStatus) {
+	if(clearStatus) {
+		showStatus("");
+	}
 	setTimeout(function() {
 		msgbox.value = "";
 		calleeOnlineElement.style.display = "block";
@@ -1905,7 +1907,7 @@ function errorAction(errString,errcode) {
 function gotStream2() {
 	//console.log("gotStream2 audioTracks len="+localStream.getAudioTracks().length);
 
-	enableCalleeOnlineElement();
+	enableCalleeOnlineElement(false);
 	if(dialAfterLocalStream) {
 		// dialAfterLocalStream was set by calleeOnlineAction() -> dialAfterCalleeOnline
 		console.log("gotStream2 dialAfter connectSignaling()");
