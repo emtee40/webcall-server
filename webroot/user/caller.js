@@ -1629,7 +1629,9 @@ function calleeNotificationAction() {
 		divspinnerframe.style.display = "none";
 	}
 	let api = apiPath+"/canbenotified?id="+calleeID + "&callerId="+callerId +
-		"&callerName="+callerName + "&callerHost="+callerHost;
+		"&callerName="+callerName + "&callerHost="+callerHost+
+		"&msg="+cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen);
+
 	gLog('canbenotified api',api);
 	xhrTimeout = 30*1000;
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {

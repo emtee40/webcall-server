@@ -526,7 +526,7 @@ func missedCall(callerInfo string, remoteAddr string, cause string) {
 	// the actual call occured ageSecs64 ago (may be a big number, if caller waits long before aborting the page)
 	//ageSecs64 := time.Now().Unix() - timeOfCall
 	err,missedCallsSlice := addMissedCall(calleeId,
-		CallerInfo{remoteAddr, callerName, timeOfCall, callerID, msgtext, }, cause)
+		CallerInfo{remoteAddr, callerName, timeOfCall, callerID, msgtext}, cause)
 	if err==nil {
 		//fmt.Printf("missedCall (%s) noerr caller=%s rip=%s\n", calleeId, callerID, remoteAddr)
 
@@ -624,6 +624,12 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, rem
 		}
 	}
 
+	callerMsg := "" // msgbox
+	url_arg_array, ok = r.URL.Query()["msg"]
+	if ok && len(url_arg_array[0]) >= 1 {
+		callerMsg = url_arg_array[0]
+	}
+
 	// check if callee is hidden online
 	calleeIsHiddenOnline := false
 	ejectOn1stFound := true
@@ -666,13 +672,12 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, rem
 	}
 
 	// this user can NOT rcv push msg (cannot be notified)
-	fmt.Printf("/canbenotified (%s) not online/hiddenonline, no push chl <- %s (%s)\n",
-		urlID, remoteAddr, callerIdLong)
+	fmt.Printf("/canbenotified (%s) not online/hiddenonline, no push chl <- %s (%s) %v\n",
+		urlID, remoteAddr, callerIdLong, dbUser.StoreMissedCalls)
 
 	if(dbUser.StoreMissedCalls) {
 		err,missedCallsSlice := addMissedCall(urlID,
-			// TODO: empty msg string (see: caller.js: 'NOTE: this causes a missedCall entry')
-			CallerInfo{remoteAddr, callerName, time.Now().Unix(), callerIdLong, "", }, "/canbenotified-not")
+			CallerInfo{remoteAddr, callerName, time.Now().Unix(), callerIdLong, callerMsg }, "/canbenotified-not")
 		if err==nil {
 			var calleeWsClient *WsClient = nil
 			hubMapMutex.RLock()
@@ -696,6 +701,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, rem
 
 func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []CallerInfo) {
 	// do we need to check StoreMissedCalls here? NO, it is always checked before this is called
+	//fmt.Printf("addMissedCall (%s) (%v)\n", urlID, caller)
 	var missedCallsSlice []CallerInfo
 	err := kvCalls.Get(dbMissedCalls,urlID,&missedCallsSlice)
 	if err!=nil && strings.Index(err.Error(),"key not found")<0 {
