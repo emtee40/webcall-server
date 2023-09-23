@@ -20,7 +20,7 @@ const timerElement = document.querySelector('div#timer');
 const calleeOfflineElement = document.getElementById("calleeOffline");
 const bottomElement = document.getElementById("bottom");
 const addinfoElement = document.getElementById("addinfo");
-
+const answerButtonsElement = document.getElementById("answerButtons");
 //const onlineIndicator = document.querySelector('img#onlineIndicator');
 const calleeMode = false;
 const msgBoxMaxLen = 137;
@@ -210,9 +210,9 @@ window.onload = function() {
 		}
 	}
 	
-	if(addinfoElement) {
-		addinfoElement.innerHTML = "- ver:"+clientVersion;
-	}
+//	if(addinfoElement) {
+//		addinfoElement.innerHTML = "- ver:"+clientVersion;
+//	}
 
 	playDialSounds = true;
 	let ds = getUrlParams("ds",true);
@@ -1674,6 +1674,10 @@ function calleeNotificationAction() {
 		// calleeID can NOT be notified
 		showStatus(calleeID+" is not available at this time.<br>"+
 		  "<a href='javascript:window.location.href=window.location.href'>"+lg("PleaseTryAgainALittle")+"</a>",-1,true);
+		calleeOnlineElement.classList.add("disableElement");
+		msgboxdiv.classList.add("disableElement");
+		bottomElement.classList.add("disableElement");
+		answerButtonsElement.classList.add("disableElement");
 	}, // xhr error
 		errorAction
 		// TODO errorAction will switch back
