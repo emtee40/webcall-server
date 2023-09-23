@@ -1402,6 +1402,9 @@ function calleeOnlineAction(comment) {
 				Android.prepareDial();
 			}
 			*/
+			setTimeout(function() {
+				enableCalleeOnlineElement(false);
+			},20);
 
 			getStream(false,"calleeOnlineAction2").then(() =>
 				navigator.mediaDevices.enumerateDevices()).then(gotDevices);
@@ -1667,6 +1670,7 @@ function calleeNotificationAction() {
 }
 
 function enableCalleeOnlineElement(clearStatus) {
+	console.log("enableCalleeOnlineElement");
 	if(clearStatus) {
 		showStatus("");
 	}
@@ -1907,7 +1911,7 @@ function errorAction(errString,errcode) {
 function gotStream2() {
 	//console.log("gotStream2 audioTracks len="+localStream.getAudioTracks().length);
 
-	enableCalleeOnlineElement(false);
+	//enableCalleeOnlineElement(false);
 	if(dialAfterLocalStream) {
 		// dialAfterLocalStream was set by calleeOnlineAction() -> dialAfterCalleeOnline
 		console.log("gotStream2 dialAfter connectSignaling()");
