@@ -55,7 +55,7 @@ var connectionstatechangeCounter = 0;
 var playDialSounds = true;
 var pickupAfterLocalStream = false; // not used in caller
 var callStatsTitle = "Call Stats";
-var willShowPostCall = "Data available post call";
+var willShowPostCall = "Data will be available after you have made a call";
 
 var ICE_config = {
 	"iceServers": [
