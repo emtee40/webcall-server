@@ -1005,12 +1005,12 @@ function getSettings() {
 			}
 			let altIDs = xhr.responseText;
 			mappingFetched = true;
+			altIdArray = [];
+			altIdActive = [];
+			altLabel = [];
 			//console.log("getsettings /getmapping altIDs="+altIDs);
 			if(altIDs!="") {
 				// parse altIDs, format: id,true,assign|id,true,assign|...
-				altIdArray = [];
-				altIdActive = [];
-				altLabel = [];
 				let tok = altIDs.split("|");
 				let count = tok.length;
 				for(var i=0; i<tok.length; i++) {

@@ -1,7 +1,7 @@
 // WebCall Copyright 2023 timur.mobi. All rights reserved.
 'use strict';
 const registerButton = document.querySelector('button#register');
-const statusLine = document.getElementById('status');
+//const statusLine = document.getElementById('status');
 const idLine = document.getElementById('id');
 const form = document.querySelector('form#password');
 const formPw = document.querySelector('input#pw');
