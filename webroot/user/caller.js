@@ -973,7 +973,7 @@ function onload3(comment) {
 
 	if(!notificationSound) {
 		//console.log('load notificationSound');
-		notificationSound = new Audio("notification.mp3");
+		notificationSound = new Audio("notification.ogg");
 		if(!notificationSound) {
 			console.warn('# load notificationSound fail');
 		}
