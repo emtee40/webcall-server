@@ -963,8 +963,8 @@ function onload3(comment) {
 
 	if(playDialSounds) {
 		if(!dtmfDialingSound) {
-			//console.log('load dtmf-dial.mp3');
-			dtmfDialingSound = new Audio('dtmf-dial.mp3');
+			console.log('load dtmf-dial.ogg');
+			dtmfDialingSound = new Audio('dtmf-dial.ogg');
 			if(!dtmfDialingSound) {
 				console.warn('# load dtmfDialingSound fail');
 			}
