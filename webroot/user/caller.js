@@ -1408,8 +1408,8 @@ function calleeOnlineAction(comment) {
 			},20);
 
 // TODO or maybe skip this ONLY if callee tells us so
-//			getStream(false,"calleeOnlineAction2").then(() =>
-//				navigator.mediaDevices.enumerateDevices()).then(gotDevices);
+			getStream(false,"calleeOnlineAction2").then(() =>
+				navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 
 			// so we display a message to prepare the caller hitting the call button manually
 			if(calleeID.startsWith("answie"))  {
