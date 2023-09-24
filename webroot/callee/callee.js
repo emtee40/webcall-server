@@ -2140,16 +2140,16 @@ function showMissedCalls() {
 	if(wsConn==null) {
 		// don't execute if client is disconnected
 		if(!goOnlineSwitch.checked) {
-			//console.log('showMissedCalls abort !goOnlineSwitch.checked');
+			console.log('showMissedCalls abort !goOnlineSwitch.checked');
 			return;
 		}
-		//console.log('! showMissedCalls skip: wsConn==null');
+		console.log('! showMissedCalls skip: wsConn==null');
 		nextDrawDelay = 10000;
 		skipRender = true;
 	}
 	if(!skipRender) {
 		if(missedCallsSlice==null || missedCallsSlice.length<=0) {
-			//console.log("showMissedCalls empty skip");
+			console.log("showMissedCalls empty skip");
 			missedCallsTitleElement.style.display = "none";
 			missedCallsElement.style.display = "none";
 			missedCallsElement.innerHTML = "";
@@ -2165,7 +2165,7 @@ function showMissedCalls() {
 					//console.log("showMissedCalls activity is interactive");
 				} else {
 					skipRender = true;
-					//console.log("! showMissedCalls skip: activity not interactive");
+					console.log("! showMissedCalls skip: activity not interactive");
 				}
 			} else {
 				//console.log("showMissedCalls activity isActivityInteractive unavailable");
@@ -2174,7 +2174,7 @@ function showMissedCalls() {
 	}
 
 	if(!skipRender) {
-		//console.log("showMissedCalls len="+missedCallsSlice.length);
+		console.log("showMissedCalls len="+missedCallsSlice.length);
 		// make remoteCallerIdMaxChar depend on window.innerWidth
 		// for window.innerWidth = 360, remoteCallerIdMaxChar=21 is perfect
 		let remoteCallerIdMaxChar = 13;

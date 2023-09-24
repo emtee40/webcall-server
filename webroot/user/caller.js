@@ -1406,8 +1406,9 @@ function calleeOnlineAction(comment) {
 				enableCalleeOnlineElement(false);
 			},20);
 
-			getStream(false,"calleeOnlineAction2").then(() =>
-				navigator.mediaDevices.enumerateDevices()).then(gotDevices);
+// TODO or maybe skip this ONLY if callee tells us so
+//			getStream(false,"calleeOnlineAction2").then(() =>
+//				navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 
 			// so we display a message to prepare the caller hitting the call button manually
 			if(calleeID.startsWith("answie"))  {
@@ -1911,7 +1912,6 @@ function errorAction(errString,errcode) {
 function gotStream2() {
 	//console.log("gotStream2 audioTracks len="+localStream.getAudioTracks().length);
 
-	//enableCalleeOnlineElement(false);
 	if(dialAfterLocalStream) {
 		// dialAfterLocalStream was set by calleeOnlineAction() -> dialAfterCalleeOnline
 		console.log("gotStream2 dialAfter connectSignaling()");
