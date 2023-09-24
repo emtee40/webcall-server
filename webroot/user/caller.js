@@ -27,7 +27,7 @@ const msgBoxMaxLen = 137;
 var connectingText = "Connecting P2P...";
 var notificationSound = null;
 var dtmfDialingSound = null;
-var busySignalSound = null;
+//var busySignalSound = null;
 var wsConn = null;
 var peerCon = null;
 var localDescription = null;
@@ -978,6 +978,7 @@ function onload3(comment) {
 			console.warn('# load notificationSound fail');
 		}
 	}
+/*
 	if(!busySignalSound) {
 		//console.log('load busySignalSound');
 		busySignalSound = new Audio('busy-signal.mp3');
@@ -985,7 +986,7 @@ function onload3(comment) {
 			console.warn('# load busySignalSound fail');
 		}
 	}
-
+*/
 	calleeOnlineAction("init");
 
 	if(dialButton) {
@@ -2931,11 +2932,13 @@ function stopAllAudioEffects() {
 			dtmfDialingSound.pause();
 			dtmfDialingSound.currentTime = 100000;
 		}
+/*
 		if(busySignalSound) {
 			gLog('stopAllAudioEffects busySignalSound stop');
 			busySignalSound.pause();
 			busySignalSound.currentTime = 0;
 		}
+*/
 	}
 }
 

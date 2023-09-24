@@ -2174,7 +2174,7 @@ function showMissedCalls() {
 	}
 
 	if(!skipRender) {
-		console.log("showMissedCalls len="+missedCallsSlice.length);
+		//console.log("showMissedCalls len="+missedCallsSlice.length);
 		// make remoteCallerIdMaxChar depend on window.innerWidth
 		// for window.innerWidth = 360, remoteCallerIdMaxChar=21 is perfect
 		let remoteCallerIdMaxChar = 13;
