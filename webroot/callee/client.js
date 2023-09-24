@@ -851,7 +851,7 @@ function iframeWindowOpen(url, horiCenterBound, addStyleString, dontIframeOnload
 		//console.log("iframeWindowOpen addStyleString="+addStyleString);
 		styleString += addStyleString;
 	}
-	//console.log("iframeWindowOpen styleString="+styleString);
+	console.log("iframeWindowOpen styleString="+styleString);
 
 	iframeWindowElement.style = styleString;
 	if(url.startsWith("string:")) {

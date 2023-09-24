@@ -703,7 +703,7 @@ function changeId(selectObject) {
 }
 
 function onload2() {
-	//console.log("onload2");
+	console.log("onload2");
 	haveBeenWaitingForCalleeOnline=false;
 	altIdCount = 0;
 	checkServerMode(function(mode,msgString) {
@@ -1408,8 +1408,12 @@ function calleeOnlineAction(comment) {
 			},20);
 
 // TODO or maybe skip this ONLY if callee tells us so
-			getStream(false,"calleeOnlineAction2").then(() =>
-				navigator.mediaDevices.enumerateDevices()).then(gotDevices);
+// TODO android does not need this (anymore), but caller on web does (to fill the audio selector)
+			if(typeof Android !== "undefined" && Android !== null) {
+			} else {
+				getStream(false,"calleeOnlineAction2").then(() =>
+					navigator.mediaDevices.enumerateDevices()).then(gotDevices);
+			}
 
 			// so we display a message to prepare the caller hitting the call button manually
 			if(calleeID.startsWith("answie"))  {

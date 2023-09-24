@@ -3731,7 +3731,9 @@ function openDialUrlx(url,evt) {
 //	let height = window.screen.height * 0.86;
 //	iframeWindowOpen(url,false,"_height:95%;height:"+height+"px;_min-height:450px;_max-height:780px;",true);
 //	iframeWindowOpen(url,false,"height:97vh;",true);
-	iframeWindowOpen(url,false,"max-width:99vw;",true);
+
+//	iframeWindowOpen(url,false,"max-width:99vw;",true);
+	iframeWindowOpen(url,false,"left:0px;top:0px;width:100vw;max-width:100vw;height:100vh;",true);
 }
 
 
