@@ -1405,14 +1405,13 @@ function connectToWsServer(message,comment) {
 	// but first, if a peerCon object was not yet created, create one
 	// A peerCon object is required to receive calls and it does not make sense to connect to webcall server
 	// if we then cannpt receive calls due to a local issue
-
 	if(wsAddr=="") {
 		// NOTE: Android.wsOpen() only needs wsAddr if it is not yet connected
 		console.warn("# connectToWsServer '"+comment+"' '"+message+"' wsAddr missing");
-	} else {
-		console.log("connectToWsServer '"+comment+"' '"+message+"' wsAddr="+wsAddr);
+		return;
 	}
 
+	console.log("connectToWsServer '"+comment+"' '"+message+"' wsAddr="+wsAddr);
 	var wsUrl = wsAddr;
 	tryingToOpenWebSocket = true;
 	// wsSendMessage will be sent as soon as we are connected
@@ -2394,9 +2393,12 @@ function deleteMissedCallDo() {
 
 function wsSend(message) {
 	if(typeof Android !== "undefined" && Android !== null) {
-		if(wsConn==null) {
+		if(wsAddr=="") {
+			// we can't call connectToWsServer() without having ever done a login()
+			console.log("# wsSend with empty wsAddr -> abort");
+			// TODO maybe we should do something to get it (call login)?
+		} else if(wsConn==null) {
 			// currently not connected to webcall server
-// TODO we can't call connectToWsServer() without having ever done a login()
 			console.log('wsSend with wsConn==null -> connectToWsServer');
 			connectToWsServer(message,"andr wsConn==null");
 			// service -> connectHost(wsUrl) -> onOpen() -> wsSendMessage(message)
@@ -2554,34 +2556,36 @@ function prepareCallee(sendInitFlag,comment) {
 		// most likely the switch will go off, yes?
 		if(typeof Android !== "undefined" && Android !== null) {
 			// note: Android.isConnected() returns: 0=offline, 1=reconnector busy, 2=connected (wsClient!=null)
-			if(Android.isConnected()>0) {
-// TODO must wait for 2, not >0
-				console.log("prepareCallee isConnected()="+Android.isConnected()+" (1=reconnectBusy, 2=connected)");
+			console.log("prepareCallee isConnected()="+Android.isConnected()+" (1=reconnectBusy, 2=connected)");
+			if(Android.isConnected()==2) {
 				if(sendInitFlag) {
 					sendInit("prepareCallee <- "+comment);
 				}
 // TODO don't do xhr when in the bg
 				getSettings(); // display ownID links
 				return;
-			}
 
-			// we are offline and (so far) not connecting
-			console.log("### spinner on prepareCallee Android.isConnected()<=0");
-			spinnerStarting = true;
-			setTimeout(function(oldWidth) {
-				if(spinnerStarting) {
-					divspinnerframe.style.display = "block";
+			} else if(Android.isConnected()==0) {
+				// we are offline and (so far) not connecting
+				console.log("### spinner on prepareCallee Android.isConnected()<=0");
+				spinnerStarting = true;
+				setTimeout(function(oldWidth) {
+					if(spinnerStarting) {
+						divspinnerframe.style.display = "block";
+					}
+				},200,localVideoFrame.videoWidth);
+
+				if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
+					console.log("prepareCallee not connected/connecting -> call Android.jsGoOnline()");
+					Android.jsGoOnline();	// -> startReconnecter()
+					// will end up in wakeGoOnline or wakeGoOnlineNoInit and will call prepareCallee again
+					return;
 				}
-			},200,localVideoFrame.videoWidth);
-
-			if(typeof Android.jsGoOnline !== "undefined" && Android.jsGoOnline !== null) {
-				console.log("prepareCallee not connected/connecting -> call Android.jsGoOnline()");
-				Android.jsGoOnline();	// -> startReconnecter()
-				// will end up in wakeGoOnline or wakeGoOnlineNoInit and will call prepareCallee again
-				return;
+				console.log("! prepareCallee Android.jsGoOnline() not supported, fall through");
+				// fall through
+			} else {
+				console.log("! prepareCallee no action while connecting...");
 			}
-			console.log("! prepareCallee Android.jsGoOnline() not supported, fall through");
-			// fall through
 		} else {
 			// no Android service,fall through
 			console.log("prepareCallee no Android service, fall through");
