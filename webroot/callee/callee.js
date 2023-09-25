@@ -739,7 +739,7 @@ function login(retryFlag,comment) {
 	ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 		// processData
 		let loginStatus = xhr.responseText;
-		console.log("login xhr loginStatus "+loginStatus);
+		console.log("login xhr loginStatus ("+loginStatus+")");
 
 		//console.log("### spinner off login");
 		spinnerStarting = false;
@@ -875,12 +875,11 @@ function login(retryFlag,comment) {
 			enablePasswordForm();
 		} else if(parts[0]=="") {
 			showStatus("No response from server",-1);
-			goOffline("login");
 			form.style.display = "none";
 		} else if(parts[0]=="fatal") {
 			// loginStatus "fatal" = "already logged in" or "db.GetX err"
 			// no use offering pw entry again at this point
-			goOffline("login");
+			goOffline("error login fatal");
 
 			// make sure our showStatus() comes after the one ("WebCall server disconnected") from disconnectHost()
 			setTimeout(function() {
@@ -892,7 +891,7 @@ function login(retryFlag,comment) {
 			},300);
 			form.style.display = "none";
 		} else {
-			goOffline("login");
+			goOffline("error login "+parts[0]);
 
 			// loginStatus may be: "java.net.ConnectException: failed to connect to timur.mobi/66.228.46.43 (port 8443) from /:: (port 0): connect failed: ENETUNREACH (Network is unreachable)"
 			if(loginStatus!="") {
@@ -927,16 +926,19 @@ function login(retryFlag,comment) {
 		if(waitingCallersTitleElement) {
 			waitingCallersTitleElement.style.display = "none";
 		}
-		if(retryFlag) {
+		if(retryFlag && goOnlineSwitch.checked) {
 			setTimeout(function() {
-				let delay = autoReconnectDelay + Math.floor(Math.random() * 10) - 5;
-				console.log('reconnecting in '+delay);
-				showStatus("Reconnecting...",-1);
-				missedCallsTitleElement.style.display = "none";
-				missedCallsElement.style.display = "none";
-				delayedWsAutoReconnect(delay);
-			},4000);
+				if(goOnlineSwitch.checked) {
+					let delay = autoReconnectDelay + Math.floor(Math.random() * 10) - 5;
+					console.log('reconnecting in '+delay);
+					showStatus("Reconnecting...",-1);
+					missedCallsTitleElement.style.display = "none";
+					missedCallsElement.style.display = "none";
+					delayedWsAutoReconnect(delay);
+				}
+			},2000);
 		} else {
+			console.log('login error, not reconnecting');
 			talkSecs=0;
 			serviceSecs=0;
 			goOffline("login error");
@@ -1406,7 +1408,7 @@ function connectToWsServer(message,comment) {
 
 	if(wsAddr=="") {
 		// NOTE: Android.wsOpen() only needs wsAddr if it is not yet connected
-		console.log("connectToWsServer '"+comment+"' '"+message+"' wsAddr missing");
+		console.warn("# connectToWsServer '"+comment+"' '"+message+"' wsAddr missing");
 	} else {
 		console.log("connectToWsServer '"+comment+"' '"+message+"' wsAddr="+wsAddr);
 	}
@@ -1418,7 +1420,7 @@ function connectToWsServer(message,comment) {
 
 	// create a new webrtc peerCon, if it does not exist yet, this is the last opportunity
 	if(peerCon==null || peerCon.signalingState=="closed") {
-	    console.log("connectToWsServer: no peerCon or peerCon is closed -> newPeerCon()");
+	    console.log("connectToWsServer: no peerCon or peerCon closed -> newPeerCon()");
 		if(newPeerCon("connectToWsServer")) {
 			// fail
 		    console.warn("# connectToWsServer: newPeerCon() failed - abort");
@@ -1452,11 +1454,13 @@ function connectToWsServer(message,comment) {
 	}
 
 	if(wsConn!=null) {
-		//may need to turn on the switch
 		if(!goOnlineSwitch.checked) {
-			// go full online to turn on the switch
-			console.log("connectToWsServer got wsConn, goOnlineSwitch off");
-			goOnline(false,"user button");
+//			console.log("connectToWsServer got wsConn, goOnlineSwitch off");
+//			goOnline(false,"connectToWsServer");
+
+			console.log("connectToWsServer got wsConn, but goOnlineSwitch off");
+			goOffline("wsOnClose");
+
 /* tmtmtm
 // in browser mode, immediatel after login (where getSettings() was called just now but no response yet)
 // login -> getSettings() -> sendInit() -> wsSend("init|") 
@@ -1470,9 +1474,10 @@ function connectToWsServer(message,comment) {
 			// (so even though connectToWsServer() may have been called by service -> wakeGoOnlineNoInit,
 			//  we are now in foreground and xhr is no problem)
 			// go full online to turn on the switch
-			goOnline(false,"user button");
+			goOnline(false,"connectToWsServer");
 */
 		} else {
+			// we are fully connected
 			// just show ownlinks again; do not call prepareCalle (no init); do not call getSettings() (no xhr!)
 
 			// getSettings() xhr may not be executed if JS/webview in background or if android is in deep sleep
@@ -1503,17 +1508,16 @@ function connectToWsServer(message,comment) {
 				getSettingDone();
 			}
 			showMissedCalls();
-		}
 
-		//must turn on the goOnlineSwitch dot
-		document.head.appendChild(document.createElement("style")).innerHTML =
-			"input:checked + .slider::before {background: #4cf;}";
-			// same color as .checkbox:checked background-color
+			//must turn on the goOnlineSwitch dot
+			document.head.appendChild(document.createElement("style")).innerHTML =
+				"input:checked + .slider::before {background: #4cf;}";
+				// same color as .checkbox:checked background-color
+			iconContactsElement.style.display = "block";
+		}
 	} else {
 		console.log("! connectToWsServer no wsConn");
 	}
-
-	iconContactsElement.style.display = "block";
 }
 
 function wsOnOpen() {
@@ -2551,6 +2555,7 @@ function prepareCallee(sendInitFlag,comment) {
 		if(typeof Android !== "undefined" && Android !== null) {
 			// note: Android.isConnected() returns: 0=offline, 1=reconnector busy, 2=connected (wsClient!=null)
 			if(Android.isConnected()>0) {
+// TODO must wait for 2, not >0
 				console.log("prepareCallee isConnected()="+Android.isConnected()+" (1=reconnectBusy, 2=connected)");
 				if(sendInitFlag) {
 					sendInit("prepareCallee <- "+comment);
