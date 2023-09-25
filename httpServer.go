@@ -38,7 +38,6 @@ func httpServer() {
 
 	http.HandleFunc("/callee/", substituteUserNameHandler)
 	http.HandleFunc("/user/", substituteUserNameHandler)
-//	http.HandleFunc("/button/", substituteUserNameHandler)
 
 	readConfigLock.RLock()
 	embeddedFsShouldBeUsed = false

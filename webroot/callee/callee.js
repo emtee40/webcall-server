@@ -2519,7 +2519,7 @@ function prepareCallee(sendInitFlag,comment) {
 
 	if(!ringtoneSound) {
 		console.log('prepareCallee lazy load ringtoneSound');
-		ringtoneSound = new Audio('1980-phone-ringing.mp3');
+		ringtoneSound = new Audio('1980-phone-ringing.ogg');
 		if(ringtoneSound) {
 			ringtoneSound.onplaying = function() {
 				ringtoneIsPlaying = true;
@@ -2534,7 +2534,7 @@ function prepareCallee(sendInitFlag,comment) {
 
 	if(!busySignalSound) {
 		console.log('prepareCallee lazy load busySignalSound');
-		busySignalSound = new Audio('busy-signal.mp3');
+		busySignalSound = new Audio('busy-signal.ogg');
 	}
 
 	if(!notificationSound) {
