@@ -852,80 +852,89 @@ function onload2() {
 function fetchMapping(contFunc,idSelectElement,idSelectLabelElement) {
 	if(idSelectElement==null) return;
 	altIdCount = 0
-	let api = apiPath+"/getmapping?id="+cookieName;
-	gLog('fetchMapping request api',api);
-	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
-		gLog('fetchMapping response',xhr.responseText);
+	if(cookieName!="") {
 		let preselectIndex = -1;
-		let xhrresponse = xhr.responseText;
-		if(xhrresponse!="") {
+
+		let idOption = document.createElement('option');
+		idOption.text = cookieName + " (main id)";
+		idOption.value = cookieName;
+		idSelectElement.appendChild(idOption);
+		altIdCount++;
+
+		let api = apiPath+"/getmapping?id="+cookieName;
+		console.log('fetchMapping request api='+api);
+		ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
+			let xhrresponse = xhr.responseText;
+			console.log('fetchMapping response='+xhrresponse);
 			// xhrresponse can contain random html
 			if(xhrresponse.indexOf("<html")>=0 || xhrresponse.indexOf("<head")>=0) {
 				console.log("# xhr /getmapping received garbage "+xhr.status);
 				showStatus("error xhr getmapping",-1,true);
 				return;
 			}
-			let idOption = document.createElement('option');
-			idOption.text = cookieName + " (main id)";
-			idOption.value = cookieName;
-			idSelectElement.appendChild(idOption);
-			altIdCount++;
 
-			let altIDs = xhrresponse;
-			let tok = altIDs.split("|");
-			for(var i=0; i<tok.length; i++) {
-				//console.log("tok["+i+"]="+tok[i]);
-				if(tok[i]!="") {
-					let tok2 = tok[i].split(",");
-					let id = cleanStringParameter(tok2[0],true);
-					let active = cleanStringParameter(tok2[1],true);
-					let assign = cleanStringParameter(tok2[2],true);
-					if(assign=="") {
-//						assign = "none";
+			if(xhrresponse!="") {
+				let altIDs = xhrresponse;
+				let tok = altIDs.split("|");
+				for(var i=0; i<tok.length; i++) {
+					//console.log("tok["+i+"]="+tok[i]);
+					if(tok[i]!="") {
+						let tok2 = tok[i].split(",");
+						let id = cleanStringParameter(tok2[0],true);
+						let active = cleanStringParameter(tok2[1],true);
+						let assign = cleanStringParameter(tok2[2],true);
+						if(id==callerId) {
+							preselectIndex = i;
+							gLog('preselectIndex='+preselectIndex);
+						}
+						//console.log("assign=("+assign+")");
+						let idOption = document.createElement('option');
+						idOption.text = id + " ("+assign+")";
+						idOption.value = id;
+						idSelectElement.appendChild(idOption);
+						altIdCount++;
 					}
-					if(id==callerId) {
-						preselectIndex = i;
-						gLog('preselectIndex='+preselectIndex);
-					}
-					//console.log("assign=("+assign+")");
-					let idOption = document.createElement('option');
-					idOption.text = id + " ("+assign+")";
-					idOption.value = id;
-					idSelectElement.appendChild(idOption);
-					altIdCount++;
 				}
 			}
+
 			let idOptionAnon = document.createElement('option');
 			idOptionAnon.text = "(incognito)";
-//			idOptionAnon.value = "none";
 			idOptionAnon.value = "";
 			idSelectElement.appendChild(idOptionAnon);
 			altIdCount++;
-		}
 
-		if(altIdCount>1) {
-			// enable idSelectElement
-			if(idSelectLabelElement!=null) {
-				idSelectLabelElement.style.display = "block";
-				if(preselectIndex>=0) {
-					idSelectElement.selectedIndex = preselectIndex+1;
+			if(altIdCount>1) {
+				// enable idSelectElement
+				if(idSelectLabelElement!=null) {
+					idSelectLabelElement.style.display = "block";
+					if(preselectIndex>=0) {
+						idSelectElement.selectedIndex = preselectIndex+1;
+					}
 				}
 			}
-		}
 
-		if(preselectIndex<0) {
-			// callerId was not found in mapping
-			callerId = cookieName;
-		}
+			if(preselectIndex<0) {
+				// callerId was not found in mapping
+				if(callerId!=cookieName) {
+					callerId = cookieName;
+				}
+			}
 
+			if(contFunc!=null)
+				contFunc("1");
+
+		}, function(errString,errcode) {
+			// /getmapping failed
+			if(callerId!=cookieName) {
+				callerId = cookieName;
+			}
+			if(contFunc!=null)
+				contFunc("2 "+errString+" "+errcode);
+		});
+	} else {
 		if(contFunc!=null)
-			contFunc("1");
-
-	}, function(errString,errcode) {
-		// /getmapping failed
-		if(contFunc!=null)
-			contFunc("2 "+errString+" "+errcode);
-	});
+			contFunc("3");
+	}
 }
 
 function onload3(comment) {
