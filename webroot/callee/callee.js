@@ -1401,15 +1401,11 @@ let tryingToOpenWebSocket = false;
 let wsSendMessage = "";
 function connectToWsServer(message,comment) {
 	// main purpose of connectToWsServer() is to establish a ws-connection with webcall server
-	//   or get wsConn from service
+	//   or get wsConn from Android service (in which case wsAddr=="" is no problem)
+
 	// but first, if a peerCon object was not yet created, create one
 	// A peerCon object is required to receive calls and it does not make sense to connect to webcall server
-	// if we then cannpt receive calls due to a local issue
-	if(wsAddr=="") {
-		// NOTE: Android.wsOpen() only needs wsAddr if it is not yet connected
-		console.warn("# connectToWsServer '"+comment+"' '"+message+"' wsAddr missing");
-		return;
-	}
+	// if we then don't have one and cannot receive calls due to a local issue
 
 	console.log("connectToWsServer '"+comment+"' '"+message+"' wsAddr="+wsAddr);
 	var wsUrl = wsAddr;
@@ -1442,6 +1438,13 @@ function connectToWsServer(message,comment) {
 			showStatus("Error: Your platform does not offer websocket support",0,true);
 			return;
 		}
+
+		if(wsAddr=="") {
+			// NOTE: Android.wsOpen() only needs wsAddr if it is not yet connected
+			console.warn("# connectToWsServer '"+comment+"' '"+message+"' wsAddr missing");
+			return;
+		}
+
 	    console.log('connectToWsServer: open ws connection... '+calleeID+' '+wsUrl);
 
 		// get ready for a new websocket connection with webcall server
