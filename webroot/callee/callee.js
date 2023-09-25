@@ -1078,7 +1078,8 @@ function getSettingDone() {
 
 		let links = "";
 		links += "<div style='line-height:1.6em;white-space:nowrap;'>";
-		if(typeof Android !== "undefined" && Android !== null) {
+		//if(typeof Android !== "undefined" && Android !== null) {
+		if(navigator.userAgent.indexOf("Android") || navigator.userAgent.indexOf("Dalvik")) {
 			links += "<div><span class='callListTitle'>Your Webcall ID's:</span> <span style='font-size:0.9em;'>(long-tap to share)</span></div>";
 		} else {
 			links += "<div><span class='callListTitle'>Your Webcall ID's:</span> <span style='font-size:0.9em;'>(right-click to copy)</span></div>";
