@@ -837,7 +837,7 @@ function iframeWindowOpen(url, horiCenterBound, addStyleString, dontIframeOnload
 	iframeWindowOpenUrl = url;
 	iframeWindowOpenFlag = true;
 
-	let styleString = "width:96%; height:97vh; max-width:600px; position:absolute; z-index:200;";
+	let styleString = "width:94%; height:97vh; max-width:600px; position:absolute; z-index:200;";
 	if(horiCenterBound) {
 		// center hori
 // TODO does not seem to work
