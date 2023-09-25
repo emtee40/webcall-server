@@ -129,7 +129,11 @@ function displayMapping() {
 
 	if(altIDs!="") {
 		dataBoxContent += "<table style='width:100%; border-collapse:separate; line-height:1.7em;'>"
-		dataBoxContent += "<tr style='color:#7c0;font-weight:600;font-size:0.9em;user-select:none;'><td>ID (right click)</td><td>Label</td></tr>";
+		let idTitle = "ID (right-click to copy)";
+		if(typeof Android !== "undefined" && Android !== null) {
+			idTitle = "ID (long tap to share)";
+		}
+		dataBoxContent += "<tr style='color:#7c0;font-weight:600;font-size:0.9em;user-select:none;'><td>"+idTitle+"</td><td>Label</td></tr>";
 
 		// main callee id
 		dataBoxContent += "<tr><td><a href='/user/"+calleeID+"' onclick='clickID(\""+calleeID+"\");return false;'>"+calleeID+"</a></td>" + "<td>(Main-ID)</td></tr>";
