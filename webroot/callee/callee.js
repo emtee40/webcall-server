@@ -585,7 +585,7 @@ function goOnlineSwitchChange(comment) {
 	if(goOnlineSwitch.checked) {
 		// goOnline
 		console.log("goOnlineSwitchChange goOnline, wsConn="+(wsConn!=null));
-		if(comment=="user button" || comment=="service") {
+		if(comment=="connectToWsServer" || comment=="user button" || comment=="service") {
 			// we need to add to window.location: "?auto=1" if it does not yet exist
 			let mySearch = window.location.search;
 			if(mySearch.indexOf("auto=1")<0) {
@@ -612,7 +612,7 @@ function goOnlineSwitchChange(comment) {
 		// render offline mode
 		showVisualOffline(comment);
 
-		if(comment=="user button" || comment=="service") {
+		if(comment=="connectToWsServer" || comment=="user button" || comment=="service") {
 			//goOnlineWanted = false;
 			// we need to remove from window.location: "?auto=1"
 			let mySearch = window.location.search;
@@ -1285,7 +1285,7 @@ function gotStream2() {
 		if(wsConn==null) {
 			// not yet connected: we turn goOnlineSwitch.checked on automatically
 			// goOnlineSwitchChange() will call prepareCallee() so we don't have to
-			console.log("gotStream2 onGotStreamGoOnline wsConn==null -> goOnlineSwitch AUTO ON + goOnlineSwitchChange");
+			console.log("gotStream2 onGotStreamGoOnline wsConn==null -> goOnlineSwitch->AUTO ON + goOnlineSwitchChange");
 			goOnlineSwitch.checked = true;
 			goOnlineSwitchChange("gotStream2 onGotStreamGoOnline");
 		} else {
@@ -1299,11 +1299,11 @@ function gotStream2() {
 		if(wsConn==null) {
 			// we are offline, this usually occurs onload in pure browser mode
 			// we turn the switch off bc in pure browser mode the user needs to click to start
-			console.log("gotStream2 wsConn==null, stay offline, no sendInit");
+			console.log("gotStream2 wsConn==null, goOnlineSwitch OFF, no sendInit");
 			showStatus("WebCall server disconnected",-1,true);
 			goOnlineSwitch.checked = false;
 		} else {
-			console.log("gotStream2 wsConn!=null, goOnlineSwitch ON, sendInit");
+			console.log("gotStream2 wsConn!=null, goOnlineSwitch -> ON, sendInit");
 			// we are connected to server already
 			goOnlineSwitch.checked = true;
 			goOnlineSwitchChange("gotStream2 onGotStreamGoOnline");
@@ -1458,11 +1458,9 @@ function connectToWsServer(message,comment) {
 
 	if(wsConn!=null) {
 		if(!goOnlineSwitch.checked) {
-//			console.log("connectToWsServer got wsConn, goOnlineSwitch off");
-//			goOnline(false,"connectToWsServer");
-
-			console.log("connectToWsServer got wsConn, but goOnlineSwitch off");
-			goOffline("wsOnClose");
+			// this is the situation when activity is started on a running service
+			console.log("connectToWsServer got wsConn, goOnlineSwitch off");
+			goOnline(false,"connectToWsServer");
 
 /* tmtmtm
 // in browser mode, immediatel after login (where getSettings() was called just now but no response yet)
@@ -2147,7 +2145,7 @@ function showMissedCalls() {
 	if(wsConn==null) {
 		// don't execute if client is disconnected
 		if(!goOnlineSwitch.checked) {
-			console.log('showMissedCalls abort !goOnlineSwitch.checked');
+			console.log('showMissedCalls abort goOnlineSwitch.checked OFF');
 			return;
 		}
 		console.log('! showMissedCalls skip: wsConn==null');
@@ -2397,15 +2395,16 @@ function deleteMissedCallDo() {
 
 function wsSend(message) {
 	if(typeof Android !== "undefined" && Android !== null) {
-		if(wsAddr=="") {
-			// we can't call connectToWsServer() without having ever done a login()
-			console.log("# wsSend with empty wsAddr -> abort");
-			// TODO maybe we should do something to get it (call login)?
-		} else if(wsConn==null) {
-			// currently not connected to webcall server
-			console.log('wsSend with wsConn==null -> connectToWsServer');
-			connectToWsServer(message,"andr wsConn==null");
-			// service -> connectHost(wsUrl) -> onOpen() -> wsSendMessage(message)
+		if(wsConn==null) {
+			if(wsAddr=="") {
+				// we can't call connectToWsServer() without having ever done a login()
+				console.log("! wsSend with empty wsAddr -> abort");
+			} else {
+				// currently not connected to webcall server
+				console.log('wsSend with wsConn==null -> connectToWsServer');
+				connectToWsServer(message,"andr wsConn==null");
+				// service -> connectHost(wsUrl) -> onOpen() -> wsSendMessage(message)
+			}
 		} else {
 			Android.wsSend(message);
 		}
@@ -2451,7 +2450,7 @@ function sendInit(comment) {
 function hangup(mustDisconnect,dummy2,message) {
 	// hide answerButtons, close msgbox, stop buttonBlinking, hide remoteVideo, stopAllAudioEffects(
 	// close the peer connection (the incomming call) via endWebRtcSession()
-	console.log("hangup: '"+message+"' switch="+goOnlineSwitch.checked);
+	console.log("hangup: '"+message+"' goOnlineSwitch="+goOnlineSwitch.checked);
 	// NOTE: not all message strings are suited for users
 	showStatus(message,-1);
 	// expected followup-message "ready to receive calls" from showOnlineReadyMsg()
@@ -3043,7 +3042,7 @@ function pickup2() {
 	}
 
 	console.log("pickup2 gotStream "+(Date.now() - startPickup)+
-		" wsConn="+(wsConn!=null)+" switch="+goOnlineSwitch.checked);
+		" wsConn="+(wsConn!=null)+" goOnlineSwitch="+goOnlineSwitch.checked);
 
 	if(typeof Android !== "undefined" && Android !== null) {
 		Android.callPickedUp(); // audioToSpeakerSet() + callPickedUpFlag=true (needed for callInProgress())
@@ -3449,7 +3448,7 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 
 	endWebRtcPending = true;
 	console.log("endWebRtcSession discCaller="+disconnectCaller+
-				" onlAfter="+goOnlineAfter+" switch="+goOnlineSwitch.checked+" ("+comment+")");
+				" onlAfter="+goOnlineAfter+" goOnlineSwitch="+goOnlineSwitch.checked+" ("+comment+")");
 	stopAllAudioEffects("endWebRtcSession");
 
 	pickupAfterLocalStream = false;
@@ -3857,7 +3856,7 @@ function wakeGoOnlineNoInit() {
 }
 
 function clearcookie2() {
-	console.log("clearcookie2 id=("+calleeID+")");
+	console.log("clearcookie2 id=("+calleeID+") clear goOnlineSwitch");
 	containerElement.style.filter = "blur(0.8px) brightness(60%)";
 
 // TODO: is this really needed?
