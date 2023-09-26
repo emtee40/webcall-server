@@ -489,14 +489,13 @@ func httpGetContact(w http.ResponseWriter, r *http.Request, urlID string, callee
 		if(contactID=="@") {
 			contactID = ""
 		}
-fmt.Printf("! getcontact (%s) contactID=(%s)\n", calleeID, contactID)
-
-		if contactID=="" {
+		if contactID=="" || strings.HasPrefix(contactID,"@") {
 			if logWantedFor("contacts") {
 				fmt.Printf("/getcontact (%s) empty id=(%s)\n", calleeID, contactID)
 			}
 			return
 		}
+fmt.Printf("! getcontact (%s) contactID=(%s)\n", calleeID, contactID)
 
 		var idNameMap map[string]string // callerID(@host) -> name
 		err := kvContacts.Get(dbContactsBucket,calleeID,&idNameMap)
@@ -624,7 +623,7 @@ func setContact(calleeID string, contactID string, compoundName string, remoteAd
 	if(contactID=="@") {
 		contactID = ""
 	}
-	if contactID=="" {
+	if contactID=="" || strings.HasPrefix(contactID,"@") {
 		fmt.Printf("# setcontact (%s) abort on empty contactID %s\n", calleeID, remoteAddr)
 		return false
 	}
