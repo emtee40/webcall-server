@@ -106,7 +106,7 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, remo
 	}
 	fmt.Printf("/notifyCallee (%s) from callerId=(%s) name=(%s) msg=(%s) %s\n",
 		urlID, callerIdLong, callerName, logTxtMsg, remoteAddr)
-	if dbUser.StoreContacts && callerIdLong!="" && callerName!="" {
+	if dbUser.StoreContacts && callerId!="" && callerIdLong!="" && callerName!="" {
 		addContact(urlID, callerIdLong, callerName, "/notifyCallee")
 	}
 
@@ -743,6 +743,9 @@ func addContact(calleeID string, callerID string, callerName string, cause strin
 		return nil
 	}
 	if calleeID == callerID {
+		return nil
+	}
+	if callerID == "" {
 		return nil
 	}
 	if strings.HasPrefix(calleeID,"!") {

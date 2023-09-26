@@ -105,11 +105,12 @@ window.onload = function() {
 			"<tr><td>Your name:</td><td>"+callerName+"</td></tr>"+
 			"</table><br><br>";
 
+		// store contactId with name compoundName into contacts of user cookieName
 		let api = apiPath+"/setcontact?id="+cookieName+"&contactID="+contactId + "&name="+compoundName;
 		gLog("request /setcontact api="+api);
 		ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 			gLog("xhr /setcontact OK "+xhr.responseText);
-// TODO the assumption that /callee/contacts/ is loaded and we can go back - IS NOT ALWAYS TRUE
+			// NOTE the assumption that /callee/contacts/ is loaded and we can go back - IS NOT ALWAYS TRUE
 			displayString += "Contact stored" /*+ "<br><br><a href='..'>Open Contacts</a>"*/;
 			databoxElement.innerHTML = displayString;
 		}, function(errString,err) {

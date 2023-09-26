@@ -537,10 +537,10 @@ func httpSetContact(w http.ResponseWriter, r *http.Request, urlID string, callee
 	}
 
 	contactID := ""		// may or may not have @host attached
-	contactName := ""
+	compoundName := ""
 
 	if r.Method=="POST" {
-		// TODO implement delivery of contactID and contactName via post body
+		// TODO implement delivery of contactID and compoundName via post body
 
 	} else {
 		url_arg_array, ok := r.URL.Query()["contactID"]
@@ -554,15 +554,15 @@ func httpSetContact(w http.ResponseWriter, r *http.Request, urlID string, callee
 			return
 		}
 
-		// contactName as format: name|prefCallbackId|ourNickname
+		// compoundName as format: name|prefCallbackId|ourNickname
 		url_arg_array, ok = r.URL.Query()["name"]
 		if ok && len(url_arg_array[0]) >= 1 {
-			contactName = url_arg_array[0]
+			compoundName = url_arg_array[0]
 		}
 	}
 
-	//fmt.Printf("/setcontact (%s) -> setcontact()\n", calleeID)
-	if !setContact(calleeID, contactID, contactName, remoteAddr, "http") {
+	//fmt.Printf("/setcontact (%s) -> setcontact(%s,%s) \n", calleeID, contactID, compoundName)
+	if !setContact(calleeID, contactID, compoundName, remoteAddr, "http") {
 		// an error has occured
 	}
 }
@@ -576,6 +576,7 @@ func setContact(calleeID string, contactID string, compoundName string, remoteAd
 		return true
 	}
 
+	fmt.Printf("/setcontact (%s) -> setcontact(%s,%s) \n", calleeID, contactID, compoundName)
 	contactName := "";
 	callerID := "";
 	callerName := "";

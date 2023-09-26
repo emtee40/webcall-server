@@ -20,6 +20,10 @@ const timerElement = document.querySelector('div#timer');
 const bottomElement = document.getElementById("bottom");
 const addinfoElement = document.getElementById("addinfo");
 const answerButtonsElement = document.getElementById("answerButtons");
+// idSelect element on the main dialer page
+const idSelectLabelElement = document.getElementById("idSelectLabel")
+// idSelect element on the DialID page (with domain name form)
+const idSelect2LabelElement = document.getElementById("idSelect2Label");
 //const onlineIndicator = document.querySelector('img#onlineIndicator');
 const calleeMode = false;
 const msgBoxMaxLen = 137;
@@ -474,9 +478,9 @@ window.onload = function() {
 			// when user operates idSelectElement, callerId may be changed
 			idSelectElement = document.getElementById("idSelect2");
 			if(idSelectElement!=null) {
-				let idSelect2LabelElement = document.getElementById("idSelect2Label");
+				//let idSelect2LabelElement = document.getElementById("idSelect2Label");
 				// fetchMapping() will use "/getmapping?id="+cookieName
-				fetchMapping(null,idSelectElement,idSelect2LabelElement);
+				fetchMapping(null,idSelectElement,null); //idSelect2LabelElement);
 			}
 		}
 
@@ -492,6 +496,12 @@ window.onload = function() {
 		enterDomainValElement.onblur = function() {
 			// catch enterDomainValElement.value change to invoke /getcontact
 			//console.log("enterDomainValElement blur value = ("+enterDomainValElement.value+")");
+			let contactHost = cleanStringParameter(enterDomainValElement.value,true);
+			if(contactHost!=location.host) {
+				idSelect2LabelElement.style.display = "block";
+			} else {
+				idSelect2LabelElement.style.display = "none";
+			}
 			getContactFromForm();
 		};
 		//console.log("onload enterIdValElement.value="+enterIdValElement.value);
@@ -601,14 +611,18 @@ function getContactFromForm() {
 	if(contactID!="") {
 		let contactHost = cleanStringParameter(enterDomainValElement.value,true);
 		if(contactHost!="" && contactHost!=location.host) {
-			contactID += "@"+contactHost;
+			if(contactID.indexOf("@")<0) {
+				contactID += "@"+contactHost;
+			} else {
+				contactID += "@@"+contactHost;
+			}
 		}
 		getContact(contactID);
 	}
 }
 
 function getContact(contactID) {
-	//console.log("getcontact() "+cookieName+" "+contactID);
+	console.log("getcontact() "+cookieName+" "+contactID);
 	if(contactID!="" && cookieName!="") {
 		// get preferred callerID and callerNickname from calleeID-contact
 		let api = apiPath+"/getcontact?id="+cookieName + "&contactID="+contactID;
@@ -628,41 +642,41 @@ function getContact(contactID) {
 				let tok = xhrresponse.split("|");
 				if(tok.length>0 && tok[0]!="") {
 					contactName = cleanStringParameter(tok[0],true);
-					gLog("/getcontact contactName=("+contactName+")");
 					if(contactName!="" && contactName!="unknown") {
 						// show contact nickname (for dial-id dialog)
-						var contactNameElement = document.getElementById("contactName");
+						var contactNameElement = document.getElementById("contactNickName");
 						if(contactNameElement) {
-							contactNameElement.innerHTML = "Contact name: "+contactName;
+							contactNameElement.innerHTML = "Nickname: "+contactName;
 							contactNameElement.style.display = "block";
 						}
 					}
 				}
-				if(tok.length>1 && tok[1]!="") {
-					let prefCallbackID = tok[1];
-					if(prefCallbackID!="") {
-						//console.log("/getcontact prefCallbackID="+prefCallbackID);
-						// we can now preselect idSelect with prefCallbackID
-						// we accept prefCallbackID only if it is (still) in the idSelect list !!!
-						const listArray = Array.from(idSelectElement.children);
-						if(listArray.length>0) {
-							// preselect: incognito
-							callerId = "";
-							idSelectElement.selectedIndex = listArray.length -1;
+				console.log("/getcontact contactName=("+contactName+")");
 
-							let i=0;
-							listArray.forEach((item) => {
-								if(item.text.startsWith(prefCallbackID)) {
-									gLog("/getcontact selectedIndex="+i+" +1");
-									idSelectElement.selectedIndex = i;
-									// this will set callerId based on id=cookieName in contacts
-									callerId = prefCallbackID;
-								}
-								i++
-							});
-						}
+				if(tok.length>1) {
+					let prefCallbackID = tok[1];
+					//console.log("/getcontact prefCallbackID="+prefCallbackID);
+					// we can now preselect idSelect with prefCallbackID
+					// we accept prefCallbackID only if it is (still) in the idSelect list !!!
+					const listArray = Array.from(idSelectElement.children);
+					if(listArray.length>0) {
+						// preselect: incognito
+						callerId = "";
+						idSelectElement.selectedIndex = listArray.length -1;
+
+						let i=0;
+						listArray.forEach((item) => {
+							if(item.text.startsWith(prefCallbackID)) {
+								gLog("/getcontact selectedIndex="+i+" +1");
+								idSelectElement.selectedIndex = i;
+								// this will set callerId based on id=cookieName in contacts
+								callerId = prefCallbackID;
+							}
+							i++
+						});
 					}
 				}
+				console.log("preferred callerId="+callerId);
 
 				if(tok.length>2 && tok[2]!="") {
 					// we prefer this over getUrlParams and settings
@@ -679,6 +693,7 @@ function getContact(contactID) {
 						// callername will be fetched from form in checkCalleeOnline()
 					}
 				}
+				console.log("/getcontact contactName2=("+contactName+")");
 			}
 		}, errorAction);
 	}
@@ -817,7 +832,6 @@ function onload2() {
 			if(cookieName!="") {
 				idSelectElement = document.getElementById("idSelect");
 				if(idSelectElement!=null) {
-					let idSelectLabelElement = document.getElementById("idSelectLabel")
 					fetchMapping(onload3,idSelectElement,idSelectLabelElement);
 				}
 				return;
@@ -849,7 +863,7 @@ function onload2() {
 	});
 }
 
-function fetchMapping(contFunc,idSelectElement,idSelectLabelElement) {
+function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 	if(idSelectElement==null) return;
 	altIdCount = 0
 	if(cookieName!="") {
@@ -905,8 +919,8 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElement) {
 
 			if(altIdCount>1) {
 				// enable idSelectElement
-				if(idSelectLabelElement!=null) {
-					idSelectLabelElement.style.display = "block";
+				if(idSelectLabelElem!=null) {
+					idSelectLabelElem.style.display = "block";
 					if(preselectIndex>=0) {
 						idSelectElement.selectedIndex = preselectIndex+1;
 					}
