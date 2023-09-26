@@ -762,8 +762,8 @@ func httpDeleteContact(w http.ResponseWriter, r *http.Request, urlID string, cal
 		if ok {
 			contactID = strings.ToLower(contactID)
 		} else {
-			tryContactID = contactID+"@"+hostname;
-			if strings.IndexOf(contactID,"@")<0 {
+			tryContactID := contactID+"@"+hostname;
+			if strings.Index(contactID,"@")<0 {
 				tryContactID = contactID+"@@"+hostname;
 			}
 			_,ok = idNameMap[tryContactID]
