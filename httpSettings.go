@@ -490,6 +490,7 @@ func httpGetContact(w http.ResponseWriter, r *http.Request, urlID string, callee
 			contactID = ""
 		}
 		if contactID=="" || strings.HasPrefix(contactID,"@") {
+			// this contactID is an incognito user
 			if logWantedFor("contacts") {
 				fmt.Printf("/getcontact (%s) empty id=(%s)\n", calleeID, contactID)
 			}
@@ -624,6 +625,7 @@ func setContact(calleeID string, contactID string, compoundName string, remoteAd
 		contactID = ""
 	}
 	if contactID=="" || strings.HasPrefix(contactID,"@") {
+		// this contactID is an incognito user
 		fmt.Printf("# setcontact (%s) abort on empty contactID %s\n", calleeID, remoteAddr)
 		return false
 	}
