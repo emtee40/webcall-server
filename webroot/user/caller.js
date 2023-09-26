@@ -720,9 +720,11 @@ function changeId(selectObject) {
 function onload2() {
 	console.log("onload2");
 	haveBeenWaitingForCalleeOnline=false;
-	altIdCount = 0;
+//	altIdCount = 0;
+/*
 	checkServerMode(function(mode,msgString) {
 		if(mode==0) {
+*/
 			// normal mode
 			gLog("onload2 normal mode");
 			// TODO do /getsettings here to get callerName?
@@ -839,6 +841,7 @@ function onload2() {
 
 			onload3("3");
 			return;
+/*
 		}
 		if(mode==1) {
 			// maintenance mode
@@ -861,6 +864,7 @@ function onload2() {
 		msgElement.innerHTML = "<div>"+msgString+"</div>";
 		mainParent.appendChild(msgElement);
 	});
+*/
 }
 
 function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
@@ -952,7 +956,7 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 }
 
 function onload3(comment) {
-	gLog('onload3 '+comment);
+	console.log('onload3 '+comment);
 
 	var calleeIdTitle = calleeID;
 	document.title = "WebCall "+calleeIdTitle;
@@ -1058,7 +1062,13 @@ function onload3(comment) {
 	calleeID = calleeID.toLowerCase();
 
 	// TODO we might want to skip getContact() if altIdCount==0
-	if(cookieName!="" && calleeID!="" /*&& altIdCount>0*/) {
+	if(cookieName=="") {
+		console.log("onload3 skip getContact() on empty cookiename");
+	} else if(calleeID=="") {
+		console.log("onload3 skip getContact() on empty calleeID");
+	} else if(altIdCount<1) {
+		console.log("onload3 skip getContact() on altIdCount<1");
+	} else {
 		// since mapping was requested before
 		// we can now use prefCallbackID to set callerId and idSelectElement.selectedIndex
 		// and also set contactName and callerName
@@ -1426,9 +1436,12 @@ function calleeOnlineAction(comment) {
 				Android.prepareDial();
 			}
 			*/
+/*
 			setTimeout(function() {
 				enableCalleeOnlineElement(false);
 			},20);
+*/
+			enableCalleeOnlineElement(false);
 
 // TODO or maybe skip this ONLY if callee tells us so
 // TODO android does not need this (anymore), but caller on web does (to fill the audio selector)
@@ -3206,7 +3219,7 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 		// it can take up to 3s for our call to get fully ended and cleared on server and callee side
 		console.log("hangup: mustcheckCalleeOnline");
 		setTimeout(function() {
-			gLog('hangup -> calleeOnlineStatus');
+			gLog('hangup -> checkCalleeOnline');
 			// show msgbox etc.
 			//calleeOnlineStatus(lastOnlineStatus,false);
 			checkCalleeOnline(false,"hangup");
