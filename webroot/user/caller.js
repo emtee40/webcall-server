@@ -166,7 +166,7 @@ function languageDefaults() {
 }
 
 window.onload = function() {
-	//console.log("caller onload");
+	console.log("caller onload");
 	switchLanguage(navigator.language || navigator.userLanguage);
 	languageDefaults();
 

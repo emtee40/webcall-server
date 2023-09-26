@@ -759,12 +759,18 @@ func httpDeleteContact(w http.ResponseWriter, r *http.Request, urlID string, cal
 	_,ok = idNameMap[contactID]
 	if !ok {
 		_,ok = idNameMap[strings.ToLower(contactID)]
-		if !ok {
-			fmt.Printf("# /deletecontact (%s) idNameMap[%s] does not exist %s\n",
-				calleeID, contactID, remoteAddr)
-			return
+		if ok {
+			contactID = strings.ToLower(contactID)
+		} else {
+			_,ok = idNameMap[contactID+"@"+hostname]
+			if ok {
+				contactID = contactID+"@"+hostname;
+			} else {
+				fmt.Printf("# /deletecontact (%s) idNameMap[%s] does not exist %s\n",
+					calleeID, contactID, remoteAddr)
+				return
+			}
 		}
-		contactID = strings.ToLower(contactID)
 	}
 	delete(idNameMap,contactID)
 	err = kvContacts.Put(dbContactsBucket, calleeID, idNameMap, false)

@@ -295,7 +295,7 @@ function edit(tableElement,ev,key,name) {
 }
 
 function editSubmit(e,formElement,id) {
-	// store the edited contact name via /setcontact - or delete this contact via /deletecontact
+	// store the edited contact name via /setcontact - or delete this contact via deletecontact
 	//gLog('editSubmit',id);
 	if(id=="") return;
 
@@ -322,6 +322,7 @@ function editSubmit(e,formElement,id) {
 		return;
 	}
 
+/*
 	if(newName.toLowerCase()=="delete" || newName=="...") {
 		// special case
 		let api = apiPath+"/deletecontact?id="+calleeID+"&contactID="+id;
@@ -337,7 +338,9 @@ function editSubmit(e,formElement,id) {
 			}
 		}, errorAction);
 
-	} else if(newName!=oldName) {
+	} else 
+*/
+	if(newName!=oldName) {
 		// name change
 		// deliver newName change for id back to the server (/setcontact?id=calleeID&contactID=id&name=newName)
 		let entry1 = newName+"|"+prefCallbackId+"|"+ourNickname;
