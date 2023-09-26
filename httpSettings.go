@@ -770,8 +770,8 @@ func httpDeleteContact(w http.ResponseWriter, r *http.Request, urlID string, cal
 			if ok {
 				contactID = tryContactID;
 			} else {
-				fmt.Printf("# /deletecontact (%s) idNameMap[%s] does not exist %s\n",
-					calleeID, contactID, remoteAddr)
+				fmt.Printf("# /deletecontact (%s) idNameMap[%s/%s] does not exist %s\n",
+					calleeID, contactID, tryContactID, remoteAddr)
 				return
 			}
 		}
