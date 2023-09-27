@@ -493,6 +493,11 @@ window.onload = function() {
 			targetHost = str;
 		}
 		enterDomainValElement.value = targetHost;
+		if(targetHost!=location.host) {
+			idSelect2LabelElement.style.display = "block";
+		} else {
+			idSelect2LabelElement.style.display = "none";
+		}
 		enterDomainValElement.onblur = function() {
 			// catch enterDomainValElement.value change to invoke /getcontact
 			//console.log("enterDomainValElement blur value = ("+enterDomainValElement.value+")");
