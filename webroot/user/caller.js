@@ -20,6 +20,7 @@ const timerElement = document.querySelector('div#timer');
 const bottomElement = document.getElementById("bottom");
 const addinfoElement = document.getElementById("addinfo");
 const answerButtonsElement = document.getElementById("answerButtons");
+const nicknameElement = document.getElementById("nickname");
 // idSelect element on the main dialer page
 const idSelectLabelElement = document.getElementById("idSelectLabel")
 // idSelect element on the DialID page (with domain name form)
@@ -435,7 +436,6 @@ window.onload = function() {
 					if(!calleeID.startsWith("answie") && !calleeID.startsWith("talkback")) {
 						console.log("onload set nickname form with callerName="+callerName);
 						let nicknameDivElement = document.getElementById("nicknameDiv");
-						let nicknameElement = document.getElementById("nickname");
 						if(nicknameElement) {
 							nicknameElement.value = callerName;
 						}
@@ -692,7 +692,6 @@ function getContact(contactID) {
 					if(!calleeID.startsWith("answie") && !calleeID.startsWith("talkback")) {
 						console.log("getContact set nickname form with callerName="+callerName);
 						let nicknameDivElement = document.getElementById("nicknameDiv");
-						let nicknameElement = document.getElementById("nickname");
 						nicknameElement.value = callerName;
 						nicknameDivElement.style.display = "block";
 						// callername will be fetched from form in checkCalleeOnline()
@@ -738,7 +737,6 @@ function onload2() {
 			if(!calleeID.startsWith("answie") && !calleeID.startsWith("talkback")) {
 				console.log("onload2 set nickname with callerName="+callerName);
 				let nicknameDivElement = document.getElementById("nicknameDiv");
-				let nicknameElement = document.getElementById("nickname");
 				nicknameElement.value = callerName;
 				nicknameDivElement.style.display = "block";
 				// callername will be fetched from form in checkCalleeOnline()
@@ -1097,10 +1095,7 @@ function dialButtonClick() {
 }
 
 function dialButtonClick2() {
-	let nicknameElement = document.getElementById("nickname");
-	if(nicknameElement) {
-		callerName = cleanStringParameter(nicknameElement.value,true);
-	}
+	callerName = cleanStringParameter(nicknameElement.value,true);
 
 	console.log("dialButtonClick2 calleeID="+calleeID+" callerId="+callerId+" callerName="+callerName);
 
@@ -1135,9 +1130,7 @@ function dialButtonClick2() {
 	}
 
 	// disable nicknameElement input form
-	if(nicknameElement) {
-		nicknameElement.disabled = true;
-	}
+	nicknameElement.disabled = true;
 
 	// focus back to background, so that esc-key via onkeydown works
 	dialButton.blur();
@@ -1443,11 +1436,7 @@ function calleeOnlineAction(comment) {
 				Android.prepareDial();
 			}
 			*/
-/*
-			setTimeout(function() {
-				enableCalleeOnlineElement(false);
-			},20);
-*/
+
 			enableCalleeOnlineElement(false);
 
 // TODO or maybe skip this ONLY if callee tells us so
@@ -1730,6 +1719,7 @@ function enableCalleeOnlineElement(clearStatus) {
 		msgboxdiv.style.display = "block";
 		bottomElement.style.display = "block";
 		muteMicDiv.style.display = "block";
+		nicknameElement.disabled = false;
 
 		answerButtons.classList.remove("disableElement");
 		calleeOnlineElement.classList.remove("disableElement");
@@ -2135,10 +2125,7 @@ function signalingCommand(message) {
 	if(cmd=="calleeAnswer") {
 		// callee.js has responded to our callerOffer
 		// get callerName from form and don't forget cleanStringParameter(,true)
-		let nicknameElement = document.getElementById("nickname");
-		if(nicknameElement) {
-			callerName = cleanStringParameter(nicknameElement.value,true);
-		}
+		callerName = cleanStringParameter(nicknameElement.value,true);
 		// contactAutoStore is only true if caller is logged in on the local server
 		// if the caller is a remote user (calling someone on this server), contactAutoStore will be false
 		if(contactAutoStore && cookieName!="" && calleeID!="") {
@@ -3145,10 +3132,7 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 	}
 
 	// enable nicknameElement input form
-	let nicknameElement = document.getElementById("nickname");
-	if(nicknameElement) {
-		nicknameElement.disabled = false;
-	}
+	nicknameElement.disabled = false;
 
 	if(wsConn && wsConn.readyState==1) {
 		console.log('hangup mustDisc='+mustDisconnectCallee+' readyState='+wsConn.readyState+" mediaCon="+mediaConnect);
