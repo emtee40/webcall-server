@@ -294,8 +294,8 @@ function prepareSettings(xhrresponse) {
 		displayVersion += "<table style='line-height:1.2em;'>";
 		displayVersion += "<tr><td style='padding: 0 10px 0 0'>WebCall for Android:</td><td>"+Android.getVersionName()+"</td></tr>";
 
-		if(clientVersion >= "4.0.0" && Android.getVersionName() < "1.4.10") {
-			displayVersion += "<tr><td>Suggested upgrade:</td><td><a href='/webcall/update/'>1.4.10</a></td></tr>";
+		if(clientVersion >= "4.0.0" && Android.getVersionName() < "1.4.11") {
+			displayVersion += "<tr><td>Suggested upgrade:</td><td><a href='/webcall/update/'>1.4.11</a></td></tr>";
 		}
 
 		if(calleeVersion!=clientVersion) {
