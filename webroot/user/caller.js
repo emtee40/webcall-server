@@ -844,7 +844,7 @@ function onload2() {
 				return;
 			}
 
-			onload3("3");
+			onload3("onload2");
 			return;
 /*
 		}
@@ -944,7 +944,7 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 			}
 
 			if(contFunc!=null)
-				contFunc("1");
+				contFunc("fetchMapping 1");
 
 		}, function(errString,errcode) {
 			// /getmapping failed
@@ -952,11 +952,11 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 				callerId = cookieName;
 			}
 			if(contFunc!=null)
-				contFunc("2 "+errString+" "+errcode);
+				contFunc("fetchMapping 2 "+errString+" "+errcode);
 		});
 	} else {
 		if(contFunc!=null)
-			contFunc("3");
+			contFunc("fetchMapping 3");
 	}
 }
 
@@ -1019,7 +1019,8 @@ function onload3(comment) {
 		}
 	}
 
-	calleeOnlineAction("init");
+	console.log('onload3 calleeOnlineAction()');
+	calleeOnlineAction("onload3");
 
 	if(dialButton) {
 		if(calleeID.match(/^[0-9]*$/) != null) {
@@ -1077,6 +1078,7 @@ function onload3(comment) {
 		// since mapping was requested before
 		// we can now use prefCallbackID to set callerId and idSelectElement.selectedIndex
 		// and also set contactName and callerName
+		console.log('onload3 getContact() altIdCount='+altIdCount);
 		getContact(calleeID);
 	}
 }
@@ -1375,7 +1377,7 @@ function calleeOnlineStatus(onlineStatus,waitForCallee) {
 }
 
 function calleeOnlineAction(comment) {
-	console.log('calleeOnlineAction='+comment+' dialAfterCalleeOnline='+dialAfterCalleeOnline);
+	console.log('calleeOnlineAction from='+comment+' dialAfterCalleeOnline='+dialAfterCalleeOnline);
 
 	if(haveBeenWaitingForCalleeOnline) {
 		haveBeenWaitingForCalleeOnline = false;
@@ -1393,7 +1395,7 @@ function calleeOnlineAction(comment) {
 	// now that we know callee is online, we load adapter-latest.js
 	// (we load it only the 1st time)
 	//gLog("load adapter...");
-	loadJS("adapter-latest.js",function(){
+	loadJS("adapter-latest.js",function() {
 		if(!navigator.mediaDevices) {
 			console.warn("navigator.mediaDevices not available");
 			if(calleeOnlineElement) {

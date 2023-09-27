@@ -131,7 +131,7 @@ function displayMapping() {
 		dataBoxContent += "<table style='width:100%; border-collapse:separate; line-height:1.7em;'>"
 		let idTitle = "ID (right-click to copy)";
 		//if(typeof Android !== "undefined" && Android !== null) {
-		if(navigator.userAgent.indexOf("Android") || navigator.userAgent.indexOf("Dalvik")) {
+		if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
 			idTitle = "ID (long-tap share)";
 		}
 		dataBoxContent += "<tr style='color:#7c0;font-weight:600;font-size:0.9em;user-select:none;'><td>"+idTitle+"</td><td>Label</td></tr>";
