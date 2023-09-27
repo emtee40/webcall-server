@@ -363,6 +363,12 @@ input[type=submit]:focus {
 	background-color: #9d9;
 	color: #000;
 }
+input:valid {
+}
+
+input:invalid {
+	color: #f77;
+}
 @media (min-aspect-ratio: 13/10) {
 	.videoframe-remote {
 		width:49%; float:left; user-select:none; padding-right:2px;
@@ -416,10 +422,8 @@ input[type=submit]:focus {
 }
 
 .nickname {
-	_margin-top:12px;
 	margin-left:2px;
 	height:38.5px;
-	_font-size:1.1em;
 	padding-right:16px;
 	padding-top:1px;
 	padding-bottom:2px;
@@ -431,8 +435,6 @@ input[type=submit]:focus {
 	font-size:0.9em;
 }
 .nicknameForm {
-	_background:#04e;
-	_border:none;
 	border: 1.3px solid #999;
 	border-radius:6px;
 	background:#0002;
@@ -566,7 +568,8 @@ input[type=submit]:focus {
 		<div style="padding-top:7px; line-height:35px; vertical-align:middle;">
 			<span id="nicknameDiv" class="nickname" style="display:none;">
 				<label for="nickname" id="nicknameLabel" class="nicknameLabel">Nickname:</label>
-				<input id='nickname' class="nicknameForm" type='text' size='12' maxlength='12' value=''>
+				<input id="nickname" class="nicknameForm" type='text' value=''
+					   pattern="[A-Za-z0-9]{1,16}" size="16" maxlength="16">
 			</span>
 		</div>
 	</div>
