@@ -3745,7 +3745,11 @@ function openDialUrlx(url,evt) {
 //	iframeWindowOpen(url,false,"height:97vh;",true);
 // tmtmtm
 //	iframeWindowOpen(url,false,"max-width:99vw;",true);
-	iframeWindowOpen(url,false,"left:0px;top:0px;width:100vw;max-width:100vw;height:100vh;",true);
+	if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
+		iframeWindowOpen(url,false,"left:0px;top:0px;width:100vw;max-width:100vw;height:100vh;",true);
+	} else {
+		iframeWindowOpen(url,false,"height:97vh;width:97vw;max-width:1200px;",true);
+	}
 }
 
 
