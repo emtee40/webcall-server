@@ -423,11 +423,9 @@ input:invalid {
 
 .nickname {
 	margin-left:2px;
-	height:38.5px;
 	padding-right:16px;
 	padding-top:1px;
 	padding-bottom:2px;
-	float:left;
 }
 .nicknameLabel {
 	display:inline-block;
@@ -443,9 +441,6 @@ input:invalid {
 	padding-left:0.3em;
 	color:#ddd;
 	font-size:0.9em;
-	-webkit-appearance: none;
-	_appearance: none;
-	max-width:100px;
 }
 
 .mirrorvideo {
@@ -565,11 +560,11 @@ input:invalid {
 			<select id="idSelect" class="select" onchange="changeId(this)" style=""></select>
 		</label>
 
-		<div style="padding-top:7px; line-height:35px; vertical-align:middle;">
+		<div style="padding-top:12px;">
 			<span id="nicknameDiv" class="nickname" style="display:none;">
-				<label for="nickname" id="nicknameLabel" class="nicknameLabel">Nickname:</label>
+				<label for="nickname" id="nicknameLabel" class="nicknameLabel">Nick:</label>
 				<input id="nickname" class="nicknameForm" type='text' value=''
-					   pattern="[A-Za-z0-9]{1,16}" size="16" maxlength="16">
+					   pattern="[A-Za-z0-9]{1,12}" size="12" maxlength="12">
 			</span>
 		</div>
 	</div>
