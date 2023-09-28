@@ -1670,21 +1670,21 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 
 function calleeNotificationAction() {
 	// calleeID is currently offline - check if calleeID can be notified (via twitter msg)
-	// TODO: this causes a missedCall entry, but without txtmsg (since we don't send it here)
-	// end spinner
 	if(divspinnerframe) {
 		divspinnerframe.style.display = "none";
 	}
 	let api = apiPath+"/canbenotified?id="+calleeID + "&callerId="+callerId +
 		"&callerName="+callerName + "&callerHost="+callerHost;
 	let greetingMsg = cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen);
-	if(greetingMsg!="") {
-		api += "&msg="+greetingMsg;
-	}
+	// greetingMsg via GET
+	//if(greetingMsg!="") {
+	//	api += "&msg="+greetingMsg;
+	//}
 
+	// greetingMsg sent via POST
 	gLog('canbenotified api',api);
 	xhrTimeout = 30*1000;
-	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
+	ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 		if(xhr.responseText.startsWith("direct")) {
 			// calleeID can be notified (or is hidden)
 			// don't ask caller
@@ -1735,9 +1735,10 @@ function calleeNotificationAction() {
 		bottomElement.classList.add("disableElement");
 		answerButtonsElement.classList.add("disableElement");
 	}, // xhr error
-		errorAction
+		errorAction,
 		// TODO errorAction will switch back
 		// if we don't want this we shd handle err like in notifyConnect()
+		greetingMsg
 	);
 }
 

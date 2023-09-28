@@ -25,6 +25,7 @@ import (
 	"strings"
 	"strconv"
 	"fmt"
+	"io"
 	"encoding/json"
 	//webpush "github.com/SherClockHolmes/webpush-go"
 )
@@ -624,10 +625,20 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, rem
 		}
 	}
 
+	// get msgbox/greetingMsg from URL (for old clients)
 	callerMsg := "" // msgbox
 	url_arg_array, ok = r.URL.Query()["msg"]
 	if ok && len(url_arg_array[0]) >= 1 {
 		callerMsg = url_arg_array[0]
+	}
+	// get msgbox/greetingMsg from r.Body (for new clients)
+	if callerMsg=="" {
+		postBuf := make([]byte, 4096)
+		length,_ := io.ReadFull(r.Body, postBuf)
+		if length>0 {
+			callerMsg = string(postBuf[:length])
+			//fmt.Printf("/canbenotified (%s) postMsg=(%s)\n", urlID, callerMsg)
+		}
 	}
 
 	// check if callee is hidden online
