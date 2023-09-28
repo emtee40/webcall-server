@@ -496,7 +496,7 @@ func httpGetContact(w http.ResponseWriter, r *http.Request, urlID string, callee
 			}
 			return
 		}
-fmt.Printf("! getcontact (%s) contactID=(%s)\n", calleeID, contactID)
+		//fmt.Printf("! getcontact (%s) contactID=(%s)\n", calleeID, contactID)
 
 		var idNameMap map[string]string // callerID(@host) -> name
 		err := kvContacts.Get(dbContactsBucket,calleeID,&idNameMap)

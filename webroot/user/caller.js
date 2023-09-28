@@ -235,15 +235,16 @@ window.onload = function() {
 //	}
 
 
-//	if(iframeChild()) {
+	if(iframeChild()) {
 //		if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
-			// need to render a back arrow in the upper left corner
+			// display back-arrow in the upper left corner
 			let arrowLeftElement = document.getElementById("arrowleft");
 			if(arrowLeftElement!=null) {
 				arrowLeftElement.style.display = "block";
 			}
 //		}
-//	}
+	}
+	containerElement.style.display = "block";
 
 
 	playDialSounds = true;
@@ -1729,7 +1730,7 @@ function calleeNotificationAction() {
 
 function enableCalleeOnlineElement(clearStatus) {
 	console.log("enableCalleeOnlineElement");
-	showStatus("call: "+calleeID,-1,true);
+	showStatus("calling: "+calleeID,-1,true);
 
 	if(clearStatus) {
 		showStatus("");

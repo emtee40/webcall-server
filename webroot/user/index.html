@@ -12,7 +12,9 @@
 ::-webkit-scrollbar { display:none; }
 html {
 	width:100%; height:100%;
-	background-image:linear-gradient(#039, #004);
+	background:linear-gradient(#039, #004);
+	background-size: 100% 250%;
+	background-repeat: no-repeat;
 	color:#ddd;
 	scrollbar-width:none;
 }
@@ -524,7 +526,7 @@ input:invalid {
 
 <div id="dynDialog" style="position:relative; user-select:none; display:none; font-size:1.1em;"></div>
 
-<div id="container">
+<div id="container" style="display:none">
 	<img src="menu.svg"   id="menu"   class="iconbutton" onclick="menuDialogOpen(menuDialogElement,1)">
 	<img src="camera.svg" id="camera" class="iconbutton" onclick="videoSwitch(false)">
 	<span style="clear:both"></span>
