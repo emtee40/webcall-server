@@ -487,6 +487,16 @@ window.onload = function() {
 		containerElement.style.display = "none";
 		enterIdElement.style.display = "block";
 
+		if(iframeChild()) {
+//			if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
+				// display back-arrow in the upper left corner
+				let arrowLeftElement = document.getElementById("arrowleftDialID");
+				if(arrowLeftElement!=null) {
+					arrowLeftElement.style.display = "block";
+				}
+//			}
+		}
+
 		if(callerIdArg=="select") {
 			// callerId MUST be set now, bc it is currently set to "select"
 			if(callerId!="" && callerId!=cookieName) {

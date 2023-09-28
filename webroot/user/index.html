@@ -610,7 +610,10 @@ input:invalid {
 
 <!-- dial-id -->
 <div id="enterId" style="display:none">
-	<h1>WebCall Dial ID</h1>
+	<img src="arrow-left.svg" id="arrowleftDialID" onclick="history.back();" _class="iconbutton" style="float:left; width:35px; margin-top:0px; _margin-bottom:4px; margin-right:14px; z-index:100; user-select:none; cursor:pointer; transition:all 300ms ease-out; opacity:0.8; display:none;">
+	<h1 style="float:left; margin-top:4px;">WebCall Dial ID</h1>
+	<div style="clear:both;"></div>
+
 	<form action="javascript:;" style="margin-top:6px;" onsubmit="submitFormDone(1)" id="mnumber">
 		<label class="formlabel" for="enterDomain">Server address:</label><br>
 		<input name="enterDomain" id="enterDomainVal" type="text" class="formtext" required>
