@@ -259,7 +259,7 @@ var langMap = {
 
 function switchLanguage(userLang) {
 	if(userLang=="en") {
-		console.log("switchLanguage abort en");
+		console.log("switchLanguage use en");
 		return;
 	}
 	console.log("switchLanguage: "+userLang);
