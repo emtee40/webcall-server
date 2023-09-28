@@ -181,7 +181,8 @@ window.onload = function() {
 
 	menuClearCookieElement.style.display = "block";
 
-	if(typeof Android !== "undefined" && Android !== null) {
+//	if(typeof Android !== "undefined" && Android !== null) {
+	if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
 		avSelect.style.display = "none";
 	}
 
