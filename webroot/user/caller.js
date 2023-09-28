@@ -1730,7 +1730,8 @@ function calleeNotificationAction() {
 
 function enableCalleeOnlineElement(clearStatus) {
 	console.log("enableCalleeOnlineElement");
-	showStatus("calling: "+calleeID,-1,true);
+	//showStatus("target ID: "+calleeID,-1,true);
+	showStatus(calleeID,-1,true);
 
 	if(clearStatus) {
 		showStatus("");
