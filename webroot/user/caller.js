@@ -166,8 +166,16 @@ function languageDefaults() {
 	}
 }
 
+function iframeChild() {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
+}
+
 window.onload = function() {
-	console.log("caller onload");
+	console.log("caller onload iframeChild="+iframeChild());
 	switchLanguage(navigator.language || navigator.userLanguage);
 	languageDefaults();
 
@@ -225,6 +233,18 @@ window.onload = function() {
 //	if(addinfoElement) {
 //		addinfoElement.innerHTML = "- ver:"+clientVersion;
 //	}
+
+
+	if(iframeChild()) {
+		if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
+			// need to render a back arrow in the upper left corner
+			let arrowLeftElement = document.getElementById("arrowleft");
+			if(arrowLeftElement!=null) {
+				arrowLeftElement.style.display = "block";
+			}
+		}
+	}
+
 
 	playDialSounds = true;
 	let ds = getUrlParams("ds",true);
