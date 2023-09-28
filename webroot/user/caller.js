@@ -264,6 +264,8 @@ window.onload = function() {
 	let fullscreenDiv = document.getElementById('fullscreenDiv');
 	if(typeof Android !== "undefined" && Android !== null) {
 		fullscreenDiv.style.display = "none";
+	}
+	if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
 		avSelect.style.display = "none";
 	}
 
@@ -1462,7 +1464,8 @@ function calleeOnlineAction(comment) {
 
 // TODO or maybe skip this ONLY if callee tells us so
 // TODO android does not need this (anymore), but caller on web does (to fill the audio selector)
-			if(typeof Android !== "undefined" && Android !== null) {
+//			if(typeof Android !== "undefined" && Android !== null) {
+			if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
 			} else {
 				getStream(false,"calleeOnlineAction2").then(() =>
 					navigator.mediaDevices.enumerateDevices()).then(gotDevices);
