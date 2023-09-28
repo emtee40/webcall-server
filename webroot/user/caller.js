@@ -981,11 +981,11 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 function onload3(comment) {
 	console.log('onload3 '+comment);
 
-	var calleeIdTitle = calleeID;
-	document.title = "WebCall "+calleeIdTitle;
-	if(titleElement) {
-		titleElement.innerHTML = "WebCall "+calleeIdTitle;
-	}
+//	var calleeIdTitle = calleeID;
+//	document.title = "WebCall "+calleeIdTitle;
+//	if(titleElement) {
+//		titleElement.innerHTML = "WebCall "+calleeIdTitle;
+//	}
 
 	if(calleeID.startsWith("#")) {
 		// special case: action
@@ -1729,6 +1729,8 @@ function calleeNotificationAction() {
 
 function enableCalleeOnlineElement(clearStatus) {
 	console.log("enableCalleeOnlineElement");
+	showStatus("call: "+calleeID,-1,true);
+
 	if(clearStatus) {
 		showStatus("");
 	}
