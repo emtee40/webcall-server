@@ -2250,10 +2250,10 @@ function showMissedCalls() {
 				}
 				let comboMsg = callerMsg;
 				if(dialID!="") {
-					comboMsg = "("+missedCallsSlice[i].DialID+") "+callerMsg;
+					comboMsg = "("+dialID+") "+callerMsg;
 				}
 				comboHtml = "<div title='"+comboMsg+"' class='tooltip'>" + callerName + "</div>";
-				comboHtml = "<a onclick='showMsg(\""+comboMsg+"\");return false;'>"+comboHtml+"</a>";
+				comboHtml = "<a onclick='showMsg(\""+comboMsg+"\");return false;' style='display:inline-block'>"+comboHtml+"</a>";
 			}
 
 			let remoteCaller = false;
