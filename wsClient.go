@@ -932,7 +932,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 				fmt.Printf("# %s (%s) failed to get dbUser\n",c.connType,c.calleeID)
 			} else if dbUser.StoreMissedCalls {
 				addMissedCall(c.calleeID, CallerInfo{c.RemoteAddr, c.callerName,
-					time.Now().Unix(), c.callerID, c.callerTextMsg }, "callee busy")
+					time.Now().Unix(), c.callerID, c.dialID, c.callerTextMsg }, "callee busy")
 			}
 			c.hub.HubMutex.RUnlock()
 			return

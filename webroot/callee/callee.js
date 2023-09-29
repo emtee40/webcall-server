@@ -2099,8 +2099,9 @@ function showWaitingCallers() {
 			let callerNameShow = callerName;
 			//gLog('waitingCallerSlice[i].Msg',waitingCallerSlice[i].Msg);
 			if(waitingCallerSlice[i].Msg!="") {
-				callerNameShow =
-					"<a onclick='showMsg(\""+waitingCallerSlice[i].Msg+"\");return false;'>"+callerName+"</a>";
+				//callerNameShow =
+				//	"<a onclick='showMsg(\""+waitingCallerSlice[i].Msg+"\");return false;'>"+callerName+"</a>";
+				callerNameShow = callerName
 			}
 
 			let myDomain = location.host;
@@ -2245,7 +2246,8 @@ function showMissedCalls() {
 			if(callerMsg!="") {
 				//gLog('### callerMsg='+callerMsg+' '+waitingTimeString+' '+
 				//	timeNowSecs+' '+missedCallsSlice[i].CallTime);
-				callerNameMarkup = "<a onclick='showMsg(\""+callerMsg+"\");return false;'>"+callerName+"</a>";
+				//callerNameMarkup = "<a onclick='showMsg(\""+callerMsg+"\");return false;'>"+callerName+"</a>";
+				callerNameMarkup = callerName;
 				//console.log("callerNameMarkup("+callerNameMarkup+")");
 			}
 
@@ -2327,7 +2329,13 @@ function showMissedCalls() {
 				}
 			}
 
-			str += "<td>" + callerNameMarkup + "</td>"+
+//			str += "<td>" + callerNameMarkup + "</td>"+
+			let comboHtml = "";
+			if(missedCallsSlice[i].DialID!="") {
+				let comboMsg = ""+missedCallsSlice[i].DialID+" <-- "+callerMsg;
+				comboHtml = "<div title='"+comboMsg+"' class='tooltip'>";
+			}
+			str += "<td>"+comboHtml + callerNameMarkup + "</div></td>"+
 				"<td>"+	callerLink + "</td>"+
 				"<td align='right'>"+
 				"<a onclick='deleteMissedCall(\""+
@@ -2354,10 +2362,12 @@ function showMissedCalls() {
 	}
 }
 
+/*
 function showMsg(msg) {
 	document.getElementById("showMsgInner").innerHTML = msg;
 	menuDialogOpen(document.getElementById("showMsg"),1);
 }
+*/
 
 function halfShowIpAddr(ipAddr) {
 	let idxFirstDot = ipAddr.indexOf(".");

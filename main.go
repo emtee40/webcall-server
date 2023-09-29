@@ -66,6 +66,7 @@ type CallerInfo struct {
 	CallerName string
 	CallTime int64
 	CallerID string
+	DialID string
 	Msg string
 }
 

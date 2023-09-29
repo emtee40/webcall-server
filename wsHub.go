@@ -235,11 +235,16 @@ func (h *Hub) peerConHasEnded(cause string) {
 		err := kvMain.Get(dbUserBucket, userKey, &dbUser)
 		if err!=nil {
 			fmt.Printf("# %s (%s) failed to get dbUser err=%v\n",
-				h.CalleeClient.connType, h.CalleeClient.calleeID,err)
+				h.CalleeClient.connType, h.CalleeClient.calleeID, err)
 		} else if dbUser.StoreMissedCalls {
-			//fmt.Printf("%s (%s) store missedCall msg=(%s)\n", c.connType, c.calleeID, c.callerTextMsg)
+			//fmt.Printf("%s (%s) store missedCall dialID=(%s) msg=(%s)\n",
+			//	h.CalleeClient.connType, h.CalleeClient.calleeID, h.CallerClient.dialID, h.CalleeClient.callerTextMsg)
+			calleeIdDialed := ""
+			if(h!=nil && h.CallerClient!=nil) {
+				calleeIdDialed = h.CallerClient.dialID
+			}
 			addMissedCall(h.CalleeClient.calleeID, CallerInfo{h.CallerIpNoPort, callerName, time.Now().Unix(),
-				callerID, h.CalleeClient.callerTextMsg }, cause)
+				callerID, calleeIdDialed, h.CalleeClient.callerTextMsg }, cause)
 		}
 	}
 

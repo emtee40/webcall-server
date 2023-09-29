@@ -1747,9 +1747,9 @@ function enableCalleeOnlineElement(clearStatus) {
 	//showStatus("target ID: "+calleeID,-1,true);
 	showStatus(calleeID,-1,true);
 
-	if(clearStatus) {
-		showStatus("");
-	}
+//	if(clearStatus) {
+//		showStatus("");
+//	}
 	setTimeout(function() {
 		msgbox.value = "";
 		answerButtons.style.display = "grid";
