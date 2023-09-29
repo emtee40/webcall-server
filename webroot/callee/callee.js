@@ -2099,9 +2099,8 @@ function showWaitingCallers() {
 			let callerNameShow = callerName;
 			//gLog('waitingCallerSlice[i].Msg',waitingCallerSlice[i].Msg);
 			if(waitingCallerSlice[i].Msg!="") {
-				//callerNameShow =
-				//	"<a onclick='showMsg(\""+waitingCallerSlice[i].Msg+"\");return false;'>"+callerName+"</a>";
-				callerNameShow = callerName
+				callerNameShow =
+					"<a onclick='showMsg(\""+waitingCallerSlice[i].Msg+"\");return false;'>"+callerName+"</a>";
 			}
 
 			let myDomain = location.host;
@@ -2243,12 +2242,18 @@ function showMissedCalls() {
 
 			let callerNameMarkup = callerName;
 			let callerMsg = missedCallsSlice[i].Msg;
-			if(callerMsg!="") {
-				//gLog('### callerMsg='+callerMsg+' '+waitingTimeString+' '+
-				//	timeNowSecs+' '+missedCallsSlice[i].CallTime);
-				//callerNameMarkup = "<a onclick='showMsg(\""+callerMsg+"\");return false;'>"+callerName+"</a>";
-				callerNameMarkup = callerName;
-				//console.log("callerNameMarkup("+callerNameMarkup+")");
+			let dialID = missedCallsSlice[i].DialID;
+			let comboHtml = callerName;
+			if(dialID!="" || callerMsg!="") {
+				if(callerMsg=="") {
+					callerMsg = "no message"
+				}
+				let comboMsg = callerMsg;
+				if(dialID!="") {
+					comboMsg = "("+missedCallsSlice[i].DialID+") "+callerMsg;
+				}
+				comboHtml = "<div title='"+comboMsg+"' class='tooltip'>" + callerName + "</div>";
+				comboHtml = "<a onclick='showMsg(\""+comboMsg+"\");return false;'>"+comboHtml+"</a>";
 			}
 
 			let remoteCaller = false;
@@ -2329,13 +2334,7 @@ function showMissedCalls() {
 				}
 			}
 
-//			str += "<td>" + callerNameMarkup + "</td>"+
-			let comboHtml = "";
-			if(missedCallsSlice[i].DialID!="") {
-				let comboMsg = ""+missedCallsSlice[i].DialID+" <-- "+callerMsg;
-				comboHtml = "<div title='"+comboMsg+"' class='tooltip'>";
-			}
-			str += "<td>"+comboHtml + callerNameMarkup + "</div></td>"+
+			str += "<td>" + comboHtml +"</td>"+
 				"<td>"+	callerLink + "</td>"+
 				"<td align='right'>"+
 				"<a onclick='deleteMissedCall(\""+
@@ -2362,12 +2361,12 @@ function showMissedCalls() {
 	}
 }
 
-/*
+
 function showMsg(msg) {
 	document.getElementById("showMsgInner").innerHTML = msg;
 	menuDialogOpen(document.getElementById("showMsg"),1);
 }
-*/
+
 
 function halfShowIpAddr(ipAddr) {
 	let idxFirstDot = ipAddr.indexOf(".");
