@@ -30,7 +30,8 @@ import (
 	//webpush "github.com/SherClockHolmes/webpush-go"
 )
 
-func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, remoteAddr string, remoteAddrWithPort string) {
+func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dialID string,
+		remoteAddr string, remoteAddrWithPort string) {
 	// called by caller.js /notifyCallee (via httpServer.go) if caller requests callee notification 
 	// caller wants to wait for callee (urlID) to come online to answer call
 	if urlID == "" {
@@ -131,10 +132,10 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, remo
 		}
 	}
 
-	calleeIdDialed := ""
-	if(locHub!=nil && locHub.CallerClient!=nil) {
-		calleeIdDialed = locHub.CallerClient.dialID
-	}
+//	calleeIdDialed := ""
+//	if(locHub!=nil && locHub.CallerClient!=nil) {
+//		calleeIdDialed = locHub.CallerClient.dialID
+//	}
 
 	notificationSent := 0
 	if glUrlID == "" {
@@ -241,7 +242,7 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, remo
 			if(dbUser.StoreMissedCalls) {
 				fmt.Printf("# /notifyCallee (%s) could not send notification: store as missed call\n", urlID)
 				addMissedCall(urlID,
-					CallerInfo{remoteAddr, callerName, time.Now().Unix(), callerIdLong, calleeIdDialed, callerMsg},
+					CallerInfo{remoteAddr, callerName, time.Now().Unix(), callerIdLong, dialID, callerMsg},
 						"/notify-notavail")
 			} else {
 				fmt.Printf("# /notifyCallee (%s) could not send notification\n", urlID)
@@ -253,7 +254,7 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, remo
 	callerGaveUp := true
 	// remoteAddr or remoteAddrWithPort for waitingCaller? waitingCaller needs the port for funtionality
 
-	waitingCaller := CallerInfo{remoteAddrWithPort, callerName, time.Now().Unix(), callerIdLong, calleeIdDialed, callerMsg}
+	waitingCaller := CallerInfo{remoteAddrWithPort, callerName, time.Now().Unix(), callerIdLong, dialID, callerMsg}
 
 	var calleeWsClient *WsClient = nil
 	hubMapMutex.RLock()
@@ -575,7 +576,8 @@ func missedCall(callerInfo string, remoteAddr string, cause string) {
 	}
 }
 
-func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, remoteAddr string, remoteAddrWithPort string) {
+func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dialID string,
+		remoteAddr string, remoteAddrWithPort string) {
 	// checks if urlID can be notified (of incoming call)
 	// usually called after /online reports a callee being offline
 	if urlID=="" {
@@ -693,12 +695,12 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, rem
 		urlID, remoteAddr, callerIdLong, dbUser.StoreMissedCalls)
 
 	if(dbUser.StoreMissedCalls) {
-		calleeIdDialed := ""
-		if(locHub!=nil && locHub.CallerClient!=nil) {
-			calleeIdDialed = locHub.CallerClient.dialID
-		}
+//		calleeIdDialed := ""
+//		if(locHub!=nil && locHub.CallerClient!=nil) {
+//			calleeIdDialed = locHub.CallerClient.dialID
+//		}
 		err,missedCallsSlice := addMissedCall(urlID,
-			CallerInfo{remoteAddr, callerName, time.Now().Unix(), callerIdLong, calleeIdDialed, callerMsg},
+			CallerInfo{remoteAddr, callerName, time.Now().Unix(), callerIdLong, dialID, callerMsg},
 				"/canbenotified-not")
 		if err==nil {
 			var calleeWsClient *WsClient = nil
