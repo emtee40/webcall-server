@@ -2253,7 +2253,7 @@ function showMissedCalls() {
 
 			let dialID = missedCallsSlice[i].DialID;
 			if(dialID=="") {
-				dialID = "unknown";
+				dialID = "main";
 			}
 			if(window.innerWidth<440) {
 				dialID = dialID.substring(0,6);
