@@ -1024,7 +1024,7 @@ function getSettings() {
 						if(id.indexOf(" ")>=0) {
 							id = id.replace(" ","");
 						}
-						if(id.length>11) {
+						if(id.length>16) {
 							id = id.substring(0,11);
 						}
 						let active = false;
@@ -1972,9 +1972,9 @@ function signalingCommand(message, comment) {
 		if(payload.length>0) {
 			missedCallsSlice = JSON.parse(payload);
 			if(missedCallsSlice==null) {
-				console.log('cmd missedCallsSlice empty list');
+				console.log('cmd missedCalls slice empty list');
 			} else {
-				console.log('cmd missedCallsSlice elements='+missedCallsSlice.length);
+				console.log('cmd missedCalls slice elements='+missedCallsSlice.length+" "+newestMissedCallBingClock);
 				// beep when there is a new missedCall entry
 				if(missedCallsSlice!=null && missedCallsSlice.length>0) {
 					// OK, there is at least one entry
@@ -1983,10 +1983,15 @@ function signalingCommand(message, comment) {
 						// we only take the time of the newest missedCall entry
 						newestMissedCallBingClock = missedCallsSlice[missedCallsSlice.length-1].CallTime;
 						// from now we will check if the newest entry is newer than newestMissedCallBingClock
-					} else if(missedCallsSlice[missedCallsSlice.length-1].CallTime > newestMissedCallBingClock) {
-						newestMissedCallBingClock = missedCallsSlice[missedCallsSlice.length-1].CallTime;
-						console.log("beep newestMissedCallBingClock="+newestMissedCallBingClock);
-						soundBeep();
+						console.log("cmd missedCalls newestMissedCallBingClock="+ newestMissedCallBingClock);
+					} else {
+						//console.log("cmd missedCalls new="+ missedCallsSlice[missedCallsSlice.length-1].CallTime +
+						//	" last="+newestMissedCallBingClock);
+						if(missedCallsSlice[missedCallsSlice.length-1].CallTime > newestMissedCallBingClock) {
+							newestMissedCallBingClock = missedCallsSlice[missedCallsSlice.length-1].CallTime;
+							console.log("beep newestMissedCallBingClock="+newestMissedCallBingClock);
+							soundBeep();
+						}
 					}
 				}
 			}
