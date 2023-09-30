@@ -132,11 +132,6 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 		}
 	}
 
-//	calleeIdDialed := ""
-//	if(locHub!=nil && locHub.CallerClient!=nil) {
-//		calleeIdDialed = locHub.CallerClient.dialID
-//	}
-
 	notificationSent := 0
 	if glUrlID == "" {
 		// callee (urlID) is offline - send push notification(s)
@@ -468,7 +463,7 @@ func missedCall(callerInfo string, remoteAddr string, cause string) {
 	}
 	calleeId := tok[0]
 	// TODO check calleeId for size and content
-	calleeIdDialed := calleeId
+	dialID := calleeId
 
 	// calleeId may be a tmp-id
 	mappingMutex.RLock()
@@ -534,7 +529,7 @@ func missedCall(callerInfo string, remoteAddr string, cause string) {
 	// the actual call occured ageSecs64 ago (may be a big number, if caller waits long before aborting the page)
 	//ageSecs64 := time.Now().Unix() - timeOfCall
 	err,missedCallsSlice := addMissedCall(calleeId,
-		CallerInfo{remoteAddr, callerName, timeOfCall, callerID, calleeIdDialed, msgtext}, cause)
+		CallerInfo{remoteAddr, callerName, timeOfCall, callerID, dialID, msgtext}, cause)
 	if err==nil {
 		//fmt.Printf("missedCall (%s) noerr caller=%s rip=%s\n", calleeId, callerID, remoteAddr)
 
@@ -695,10 +690,6 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 		urlID, remoteAddr, callerIdLong, dbUser.StoreMissedCalls)
 
 	if(dbUser.StoreMissedCalls) {
-//		calleeIdDialed := ""
-//		if(locHub!=nil && locHub.CallerClient!=nil) {
-//			calleeIdDialed = locHub.CallerClient.dialID
-//		}
 		err,missedCallsSlice := addMissedCall(urlID,
 			CallerInfo{remoteAddr, callerName, time.Now().Unix(), callerIdLong, dialID, callerMsg},
 				"/canbenotified-not")
