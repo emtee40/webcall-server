@@ -299,11 +299,13 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 
 				mappingData := mapping[mappedID]
 				if mappingData.CalleeId != calleeID {
-					assignedName := toks2[2]
+//					assignedName := toks2[2]
 
-					fmt.Printf("/setmapping (%s) set (%s)=(%s)\n",calleeID, mappedID, assignedName)
+//					fmt.Printf("/setmapping (%s) set (%s)=(%s)\n",calleeID, mappedID, assignedName)
+					fmt.Printf("/setmapping (%s) set (%s)\n",calleeID, mappedID)
 					mappingMutex.Lock()
-					mapping[mappedID] = MappingDataType{calleeID,assignedName}
+//					mapping[mappedID] = MappingDataType{calleeID,assignedName}
+					mapping[mappedID] = MappingDataType{calleeID}
 					mappingMutex.Unlock()
 
 					// remove mappedID from dbBlockedIDs
@@ -370,7 +372,8 @@ func httpFetchID(w http.ResponseWriter, r *http.Request, urlID string, calleeID 
 */
 			// add registerID -> calleeID (assign) to mapping.map
 			mappingMutex.Lock()
-			mapping[registerID] = MappingDataType{calleeID,"none"}
+//			mapping[registerID] = MappingDataType{calleeID,"none"}
+			mapping[registerID] = MappingDataType{calleeID}
 			mappingMutex.Unlock()
 			fmt.Fprintf(w,registerID)
 /*
@@ -407,15 +410,17 @@ func httpSetAssign(w http.ResponseWriter, r *http.Request, urlID string, calleeI
 	if ok {
 		setID = url_arg_array[0]
 		if setID!="" {
-			assign := "none"
+//			assign := "none"
 			url_arg_array, ok = r.URL.Query()["assign"]
 			if ok {
-				assign = url_arg_array[0]
+//				assign = url_arg_array[0]
 
-				fmt.Printf("/setassign (%s) setID=%s assign=%s %s\n", calleeID, setID, assign, remoteAddr)
+//				fmt.Printf("/setassign (%s) setID=%s assign=%s %s\n", calleeID, setID, assign, remoteAddr)
+				fmt.Printf("/setassign (%s) setID=%s %s\n", calleeID, setID, remoteAddr)
 				mappingMutex.Lock()
 				mappingData := mapping[setID]
-				mapping[setID] = MappingDataType{mappingData.CalleeId,assign}
+//				mapping[setID] = MappingDataType{mappingData.CalleeId,assign}
+				mapping[setID] = MappingDataType{mappingData.CalleeId}
 				mappingMutex.Unlock()
 				fmt.Fprintf(w,"ok")
 			}

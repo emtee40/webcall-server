@@ -26,7 +26,7 @@ div#container {
 	padding: 1em 1em 1em 1em;
 }
 h1 {
-	font-size:1.7em;
+	font-size:1.4em;
 	font-weight:600;
 	opacity:0.9;
 	margin-top:0;
@@ -100,7 +100,7 @@ input[type=submit] {
 	background:#66f;
 	border: none;
 	color: white;
-	padding: 8px;
+	padding: 6px;
 	text-decoration: none;
 	cursor: pointer;
 }
@@ -130,7 +130,11 @@ input[type=submit]:focus {
 
 <body>
 <div id="container">
-	<h1>WebCall Settings</h1>
+	<!--h1>WebCall Settings</h1-->
+	<img src="../../arrow-left.svg" id="arrowleft" onclick="history.back();" _class="iconbutton" style="float:left; width:35px; margin-top:0px; margin-right:14px; z-index:100; user-select:none; cursor:pointer; transition:all 300ms ease-out; opacity:0.8; display:none;">
+	<h1 style="float:left; margin-top:0px;">WebCall Settings</h1>
+	<div style="clear:both;"></div>
+
 	<div id="databox" style="overflow-y:auto; padding:5px;"></div>
 
 	<form action="javascript:;" onsubmit="submitForm(true)" style="display:none; width:100%;" id="settings">
@@ -171,7 +175,7 @@ input[type=submit]:focus {
 		<br>
 		<div id="errstring" style="color:#ff0;"></div>
 
-		<input type="submit" name="Submit" id="submit" value="Store" style="width:100px; border-radius:3px;">
+		<input type="submit" name="Submit" id="submit" value="Store" style="width:90px; border-radius:3px;">
 
 		<div id="verstring" style="margin-top:24px; font-size:80%; opacity:0.85;"></div>
 	</form>

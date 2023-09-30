@@ -70,9 +70,28 @@ window.onload = function() {
 		calleeVersion = ver;
 	}
 
+	if(iframeChild()) {
+//		if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
+			// display back-arrow in the upper left corner
+			let arrowLeftElement = document.getElementById("arrowleft");
+		console.log("onload arrowLeftElement="+arrowLeftElement);
+			if(arrowLeftElement!=null) {
+				arrowLeftElement.style.display = "block";
+			}
+//		}
+	}
+
 	if(!gentle) console.log("calleeID="+calleeID);
 	// XHR to get current settings; server will use the cookie to authenticate us
 	requestSettings();
+}
+
+function iframeChild() {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
 }
 
 function getUrlParams(param) {

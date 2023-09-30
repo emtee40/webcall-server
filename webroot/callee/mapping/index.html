@@ -11,7 +11,7 @@
 <style>
 ::-webkit-scrollbar { display:none; }
 html {
-	width:100%; max-width:460px; max-height:100vh; min-height:460px;
+	width:100%; _max-width:480px; max-height:100vh; min-height:460px;
 	background-image:linear-gradient(#039, #004);
 	color:#eee;
 	scrollbar-width:none;
@@ -24,14 +24,14 @@ body {
 }
 div#container {
 	margin: 0 auto 0 auto;
-	padding: 0.4em;
+	padding: 0.8em;
 }
 
 h1 {
-	font-size:1.7em;
+	font-size:1.5em;
 	font-weight:600;
 	opacity:0.9;
-	margin-left:10px;
+	margin-left:4px;
 	user-select:none;
 }
 
@@ -46,8 +46,9 @@ button, button:focus {
 	border-radius:3px;
 	color:white;
 	font-size: 1.0em;
-	padding: 0.5em 0.4em 0.4em 0.4em;
-	min-width: 60px;
+	padding: 0.5em 0.7em 0.4em 0.7em;
+	margin-right: 0.6em;
+	min-width: 90px;
 	outline:none;
 	user-select:none;
 }
@@ -93,7 +94,10 @@ input:invalid {
 <div id="dynDialog" style="position:relative; user-select:none; display:none;"></div>
 
 <div id="container">
-	<h1>ID Manager</h1>
+	<img src="../../arrow-left.svg" id="arrowleft" onclick="history.back();" _class="iconbutton" style="float:left; width:35px; margin-top:0px; margin-right:8px; z-index:100; user-select:none; cursor:pointer; transition:all 300ms ease-out; opacity:0.8; display:none;">
+	<h1 style="float:left; margin-top:0px;">ID Manager</h1>
+	<div style="clear:both;"></div>
+
 	<div id="databox" style="overflow-y:auto; padding:5px; width:96%;"></div>
 </div>
 </body>

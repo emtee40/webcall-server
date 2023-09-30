@@ -251,6 +251,7 @@ func serve(w http.ResponseWriter, r *http.Request, tls bool) {
 	client.dialID = wsClientData.dialID
 	client.globalCalleeID = wsClientData.globalID
 
+/*
 	dialID := wsClientData.dialID
 	//fmt.Printf("wsClient calleeID=%s dialID=%s\n", client.calleeID, dialID)
 	if dialID != "" && dialID != client.calleeID {
@@ -259,7 +260,7 @@ func serve(w http.ResponseWriter, r *http.Request, tls bool) {
 		mappingData,ok := mapping[dialID]
 		mappingMutex.RUnlock()
 		if ok {
-			// dialID is mapped (caller is using a temporary (mapped) calleeID)
+			// dialID is mapped (caller is using a mapped calleeID)
 			// if a name was assigned for dialID, we attach it to callerName
 			assignedName := mappingData.Assign
 			if assignedName!="" && assignedName!="none" {
@@ -275,6 +276,7 @@ func serve(w http.ResponseWriter, r *http.Request, tls bool) {
 			}
 		}
 	}
+*/
 
 	//fmt.Printf("serve (%s) callerID=%s callerName=%s auto=%s ver=%s/%s\n",
 	//	wsClientData.calleeID, callerIdLong, callerName, auto, wsClientData.clientVersion, clientVersion)

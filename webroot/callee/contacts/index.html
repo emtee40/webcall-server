@@ -28,10 +28,10 @@ div#container {
 }
 
 h1 {
-	font-size:1.7em;
+	font-size:1.4em;
 	font-weight:600;
 	opacity:0.9;
-	margin-left:10px;
+	margin-left:2px;
 	user-select:none;
 }
 
@@ -57,8 +57,11 @@ a:hover {
 <div id="dynDialog" style="position:relative; user-select:none; display:none;"></div>
 
 <div id="container">
-	<h1>WebCall Contacts</h1>
-	<div id="databox" style="overflow-y:auto; padding:5px;"></div>
+	<img src="../../arrow-left.svg" id="arrowleft" onclick="history.back();" _class="iconbutton" style="float:left; width:35px; margin-top:0px; margin-right:14px; z-index:100; user-select:none; cursor:pointer; transition:all 300ms ease-out; opacity:0.8; display:none;">
+	<h1 style="float:left; margin-top:0px;">WebCall Contacts</h1>
+	<div style="clear:both;"></div>
+
+	<div id="databox" style="overflow-y:auto; _padding:5px;"></div>
 </div>
 </body>
 

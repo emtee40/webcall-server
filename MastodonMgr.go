@@ -967,7 +967,8 @@ func (mMgr *MastodonMgr) storeAltId(calleeID string, mastodonUserID string, remo
 		if ok {
 			oldCalleeID = mappingData.CalleeId
 		}
-		mapping[mastodonUserID] = MappingDataType{calleeID,"none"}
+//		mapping[mastodonUserID] = MappingDataType{calleeID,"none"}
+		mapping[mastodonUserID] = MappingDataType{calleeID}
 		mappingMutex.Unlock()
 
 		if oldCalleeID!="" && oldCalleeID!=calleeID {

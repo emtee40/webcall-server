@@ -936,14 +936,15 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 						let tok2 = tok[i].split(",");
 						let id = cleanStringParameter(tok2[0],true);
 						let active = cleanStringParameter(tok2[1],true);
-						let assign = cleanStringParameter(tok2[2],true);
+//						let assign = cleanStringParameter(tok2[2],true);
 						if(id==callerId) {
 							preselectIndex = i;
 							gLog('preselectIndex='+preselectIndex);
 						}
 						//console.log("assign=("+assign+")");
 						let idOption = document.createElement('option');
-						idOption.text = id + " ("+assign+")";
+//						idOption.text = id + " ("+assign+")";
+						idOption.text = id;
 						idOption.value = id;
 						idSelectElement.appendChild(idOption);
 						altIdCount++;

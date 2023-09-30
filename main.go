@@ -124,7 +124,7 @@ var waitingCallerChanLock sync.RWMutex
 
 type MappingDataType struct {
 	CalleeId string
-	Assign string
+//	_Assign string
 }
 var mapping map[string]MappingDataType
 var mappingMutex sync.RWMutex
@@ -361,7 +361,8 @@ func main() {
 				for tok := range toks {
 					toks2 := strings.Split(toks[tok], ",")
 					if toks2[0] != "" { // tmpID
-						mapping[toks2[0]] = MappingDataType{calleeID,toks2[2]}
+//						mapping[toks2[0]] = MappingDataType{calleeID,toks2[2]}
+						mapping[toks2[0]] = MappingDataType{calleeID}
 
 						if toks2[1] == "true" { // active
 							//fmt.Printf("initloop set mapping from AltIDs %s -> %s (%s)\n",
@@ -376,7 +377,8 @@ func main() {
 
 			if dbUser.MastodonID!="" && dbUser.MastodonID!=calleeID {
 				//fmt.Printf("initloop set mapping from MastodonID %s -> %s\n", dbUser.MastodonID, calleeID)
-				mapping[dbUser.MastodonID] = MappingDataType{calleeID,"none"}
+//				mapping[dbUser.MastodonID] = MappingDataType{calleeID,"none"}
+				mapping[dbUser.MastodonID] = MappingDataType{calleeID}
 			}
 		}
 		return nil
@@ -650,7 +652,8 @@ func readConfig(init bool) {
 					if len(tok)==2 {
 						key := strings.TrimSpace(tok[0])
 						// TODO don't do this is if mapping[key] is none-empty
-						mapping[key] = MappingDataType{strings.TrimSpace(tok[1]),"none"}
+//						mapping[key] = MappingDataType{strings.TrimSpace(tok[1]),"none"}
+						mapping[key] = MappingDataType{strings.TrimSpace(tok[1])}
 					} else {
 						fmt.Printf("# readConfig mappings len(tok)=%d (%s)\n", len(tok), s)
 					}

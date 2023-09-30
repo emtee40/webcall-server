@@ -255,7 +255,8 @@ func httpAdmin(kv skv.SKV, w http.ResponseWriter, r *http.Request, urlPath strin
 	if urlPath=="/dumpMapping" {
 		mappingMutex.RLock()
 		for key,mappingData := range mapping {
-			fmt.Fprintf(w,"mapping %s -> %s (%s)\n", key, mappingData.CalleeId, mappingData.Assign)
+//			fmt.Fprintf(w,"mapping %s -> %s (%s)\n", key, mappingData.CalleeId, mappingData.Assign)
+			fmt.Fprintf(w,"mapping %s -> %s\n", key, mappingData.CalleeId)
 		}
 		mappingMutex.RUnlock()
 		return true

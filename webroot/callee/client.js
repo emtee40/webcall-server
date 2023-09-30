@@ -1,6 +1,6 @@
 // WebCall Copyright 2023 timur.mobi. All rights reserved.
 'use strict';
-const clientVersion = '4.0.0-beta18';
+const clientVersion = '4.0.0-beta19';
 
 const avSelect = document.querySelector("select#avSelect");
 const vresDialogElement = document.getElementById('vresDialog');
@@ -840,8 +840,11 @@ function iframeWindowOpen(url, horiCenterBound, addStyleString, dontIframeOnload
 	let styleString = "width:94%; height:97vh; max-width:600px; position:absolute; z-index:200;";
 	if(horiCenterBound) {
 		// center hori
-// TODO does not seem to work
-		styleString += "top:50%; left:50%; transform:translate(-50%,-50%);"
+//		styleString += "top:50%; left:50%; transform:translate(-50%,-50%);"
+		styleString += "left:50%; transform:translate(-50%,0);"
+//		styleString += "margin:0 auto;"
+//		styleString += "margin-left:auto; margin-right:auto;";
+//		styleString += "align='center'";
 	} else {
 		// left-bound
 		styleString += "left:10px; top:10px;"

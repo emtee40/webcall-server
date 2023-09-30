@@ -451,10 +451,10 @@ func httpApiHandler(w http.ResponseWriter, r *http.Request) {
 		// dialID is mapped to mappingData.CalleeId
 //		urlID = mappingData.CalleeId
 		if logWantedFor("mapping") {
-//			fmt.Printf("httpApi dialID=(%s) mapping->(%s) (assign=%s) urlPath=(%s)\n",
-//				dialID, urlID, mappingData.Assign, urlPath)
-			fmt.Printf("httpApi urlID=(%s) mapping->(%s) (assign=%s) urlPath=(%s)\n",
-				urlID, mappingData.CalleeId, mappingData.Assign, urlPath)
+//			fmt.Printf("httpApi urlID=(%s) mapping->(%s) (assign=%s) urlPath=(%s)\n",
+//				urlID, mappingData.CalleeId, mappingData.Assign, urlPath)
+			fmt.Printf("httpApi urlID=(%s) mapping->(%s) urlPath=(%s)\n",
+				urlID, mappingData.CalleeId, urlPath)
 		}
 		urlID = mappingData.CalleeId
 	} else {

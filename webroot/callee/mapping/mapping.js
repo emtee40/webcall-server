@@ -49,6 +49,17 @@ window.onload = function() {
 	hashcounter = 1;
 	window.onhashchange = hashchange;
 
+	if(iframeChild()) {
+//		if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
+			// display back-arrow in the upper left corner
+			let arrowLeftElement = document.getElementById("arrowleft");
+		console.log("onload arrowLeftElement="+arrowLeftElement);
+			if(arrowLeftElement!=null) {
+				arrowLeftElement.style.display = "block";
+			}
+//		}
+	}
+
 	document.onkeydown = function(evt) {
 		//console.log('mapping onload onkeydown event');
 		evt = evt || window.event;
@@ -79,6 +90,14 @@ window.onload = function() {
 
 	// XHR for current settings; server will use the cookie to authenticate us
 	requestData();
+}
+
+function iframeChild() {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
 }
 
 function getUrlParams(param) {
@@ -134,10 +153,11 @@ function displayMapping() {
 		if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
 			idTitle = "ID (long-tap share)";
 		}
-		dataBoxContent += "<tr style='color:#7c0;font-weight:600;font-size:0.9em;user-select:none;'><td>"+idTitle+"</td><td>Label</td></tr>";
+//		dataBoxContent += "<tr style='color:#7c0;font-weight:600;font-size:0.9em;user-select:none;'><td>"+idTitle+"</td><td>Label</td></tr>";
+		dataBoxContent += "<tr style='color:#7c0;font-weight:600;font-size:0.9em;user-select:none;'><td colspan='2'>"+idTitle+"</td</tr>";
 
 		// main callee id
-		dataBoxContent += "<tr><td><a href='/user/"+calleeID+"' onclick='clickID(\""+calleeID+"\");return false;'>"+calleeID+"</a></td>" + "<td>(Main-ID)</td></tr>";
+		dataBoxContent += "<tr><td><a href='/user/"+calleeID+"' onclick='clickID(\""+calleeID+"\");return false;'>"+calleeID+"</a></td>" + "<td align='right'>Main-ID</td></tr>";
 
 		// parse altIDs, format: id,true,assign|id,true,assign|...
 		let tok = altIDs.split("|");
@@ -148,11 +168,11 @@ function displayMapping() {
 				let tok2 = tok[i].split(",");
 				let id = tok2[0].trim();
 				let active = tok2[1].trim();
-				let assign = tok2[2].trim();
-				if(assign=="") {
-					assign = "none";
-				}
-				//console.log("assign=("+assign+")");
+//				let assign = tok2[2].trim();
+//				if(assign=="") {
+//					assign = "none";
+//				}
+//				//console.log("assign=("+assign+")");
 
 				// plausibility fixes
 				// id and assign may not contain blanks
@@ -163,15 +183,15 @@ function displayMapping() {
 				if(id.length>16) {
 					id = id.substring(0,16);
 				}
-				if(assign.indexOf(" ")>=0) {
-					assign = assign.replace(" ","");
-				}
-				if(assign.length>10) {
-					assign = assign.substring(0,10);
-				}
+//				if(assign.indexOf(" ")>=0) {
+//					assign = assign.replace(" ","");
+//				}
+//				if(assign.length>10) {
+//					assign = assign.substring(0,10);
+//				}
 				dataBoxContent += "<tr>"+
 				    "<td><a href='" +mainLink +id + "' onclick='clickID(\""+id+"\");return false;'>"+id+"</a></td>"+
-				    "<td><a onclick='edit(this,event,\""+id+"\",\""+assign+"\")'>"+ assign +"</a></td>"+
+//				    "<td><a onclick='edit(this,event,\""+id+"\",\""+assign+"\")'>"+ assign +"</a></td>"+
 				    "<td align='right'><a onclick='remove("+i+",\""+id+"\")' style='font-weight:600;'>X</a></td></tr>";
 			}
 		}
@@ -182,9 +202,9 @@ function displayMapping() {
 	dataBoxContent += "<div style='margin-top:18px; font-size:0.9em;'>";
 	if(count<5) {
 		dataBoxContent += "<span id='addbuttons'>";
-		dataBoxContent += "<button onclick='add()'>+ Random</button> &nbsp;";
-		dataBoxContent += "<button onclick='addCustom()'>+ Custom</button> &nbsp; ";
-		dataBoxContent += "<button style='float:right;' onclick='exitPage()'>Close</button>";
+		dataBoxContent += "<button onclick='add()'>+ Random</button>";
+		dataBoxContent += "<button onclick='addCustom()'>+ Custom</button>";
+//		dataBoxContent += "<button style='float:right;' onclick='exitPage()'>Close</button>";
 		dataBoxContent += "</span>";
 	}
 	dataBoxContent += "</div>";
@@ -201,7 +221,7 @@ function add() {
 	// fetch free new random id
 	if(checkCookie()) return;
 
-// TODO do not add more than max (5) entries
+	// do not add more than max (5) entries
 	let api = apiPath+"/fetchid?id="+calleeID;
 	gLog('request fetchid api='+api);
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
@@ -424,6 +444,7 @@ function checkCookie() {
 	return false;
 }
 
+/*
 var myTableElement;
 function edit(tableElement,ev,key,assign) {
 	if(!gentle) console.log("edit key="+key+" assign="+assign);
@@ -515,6 +536,7 @@ function editSubmit(formElement, id, assign) {
 		}, errorAction);
 	}
 }
+*/
 
 var xhrTimeout = 8000;
 function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {

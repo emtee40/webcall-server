@@ -86,7 +86,7 @@ var minNewsDate=0;
 var mid = "";
 var altIdArray = [];
 var altIdActive = [];
-var altLabel = [];
+//var altLabel = [];
 var newline = String.fromCharCode(13, 10);
 var textmode = false;
 var	muteMicModified = false;
@@ -166,10 +166,10 @@ window.onload = function() {
 	window.onresize = (event) => {
 		//console.log("onresize "+window.innerHeight+" "+window.innerWidth);
 		if(window.innerWidth!=lastInnerWidth) {
-			if(Math.abs(window.innerWidth-lastInnerWidth)>=10) {
+			if(Math.abs(window.innerWidth-lastInnerWidth)>=2) {
 				//console.log("window.innerWidth has changed="+(window.innerWidth)+" was="+lastInnerWidth);
 				if(wsConn!=null && missedCallsSlice!=null && missedCallsSlice.length>0) {
-					//console.log("onresize -> showMissedCalls(");
+					//console.log("onresize -> showMissedCalls() -------------------");
 					showMissedCalls();
 				} else {
 					//console.log("onresize -> no showMissedCalls(");
@@ -1010,7 +1010,7 @@ function getSettings() {
 			mappingFetched = true;
 			altIdArray = [];
 			altIdActive = [];
-			altLabel = [];
+//			altLabel = [];
 			//console.log("getsettings /getmapping altIDs="+altIDs);
 			if(altIDs!="") {
 				// parse altIDs, format: id,true,assign|id,true,assign|...
@@ -1038,7 +1038,7 @@ function getSettings() {
 						//console.log("tok2 id="+id+" active="+active);
 						altIdArray.push(id);
 						altIdActive.push(active);
-						altLabel.push(label);
+//						altLabel.push(label);
 						//console.log("getsettings altIdArray.length="+altIdArray.length);
 					}
 				}
@@ -1091,12 +1091,12 @@ function getSettingDone() {
 		} else {
 			links += "<input type='checkbox' id='mainlink' class='checkbox' style='margin-top:8px;margin-left:2px;margin-right:10px;' onclick='mainlinkCheckboxClick(this);' checked />";
 		}
-
 		let showUserLink = userLink;
 		let idx = showUserLink.indexOf("/user/");
 		if(idx>=0) {
 			showUserLink = showUserLink.substring(idx+6);
 		}
+		showUserLink = showUserLink + " (main)";
 		//links += "<a target='_blank' href='"+userLink+"'>"+showUserLink+"</a><br>";
 		links += "<a href='"+userLink+"' onclick='openDialUrlx(\""+userLink+"\",event)'>"+showUserLink+"</a><br>";
 
@@ -1130,15 +1130,15 @@ function getSettingDone() {
 				// altIdArray[i] delivered as garbage may be caused by the nginx rate limiter
 				let userLinkMap = userLink.replace("/user/"+calleeID,"/user/"+altIdArray[i]);
 				let showUserLinkMap = altIdArray[i];
-				if(altLabel[i]=="") {
+//				if(altLabel[i]=="") {
 					//links += "<a target='_blank' href='"+userLinkMap+"'>"+showUserLinkMap+"</a><br>";
 					links += "<a href='"+userLinkMap+"' onclick='openDialUrlx(\""+userLinkMap+"\",event)'>"+
 							 showUserLinkMap+"</a><br>";
-				} else {
-					//links += "<a target='_blank' href='"+userLinkMap+"'>"+showUserLinkMap+"</a> ("+altLabel[i]+")<br>";
-					links += "<a href='"+userLinkMap+"' onclick='openDialUrlx(\""+userLinkMap+"\",event)'>"+
-							 showUserLinkMap+"</a> ("+altLabel[i]+")<br>";
-				}
+//				} else {
+//					//links += "<a target='_blank' href='"+userLinkMap+"'>"+showUserLinkMap+"</a> ("+altLabel[i]+")<br>";
+//					links += "<a href='"+userLinkMap+"' onclick='openDialUrlx(\""+userLinkMap+"\",event)'>"+
+//							 showUserLinkMap+"</a> ("+altLabel[i]+")<br>";
+//				}
 			}
 		}
 		links += "</div>";
@@ -1165,7 +1165,8 @@ function mappingCheckboxClick(cb) {
 				altIdActive[i]="false";
 			}
 		}
-		altIDs += altIdArray[i]+","+altIdActive[i]+","+altLabel[i];
+//		altIDs += altIdArray[i]+","+altIdActive[i]+","+altLabel[i];
+		altIDs += altIdArray[i]+","+altIdActive[i]+",";
 	}
 
 	let api = apiPath+"/setmapping?id="+calleeID;
@@ -1464,7 +1465,7 @@ function connectToWsServer(message,comment) {
 			goOnline(false,"connectToWsServer");
 
 /* tmtmtm
-// in browser mode, immediatel after login (where getSettings() was called just now but no response yet)
+// in browser mode, immediately after login (where getSettings() was called just now but no response yet)
 // login -> getSettings() -> sendInit() -> wsSend("init|") 
 //       -> connectToWsServer() -> connectToWsServer got wsConn -> goOnline()
 // but goOnline() can start a forever loop
@@ -2183,10 +2184,10 @@ function showMissedCalls() {
 		//console.log("showMissedCalls len="+missedCallsSlice.length);
 		// make remoteCallerIdMaxChar depend on window.innerWidth
 		// for window.innerWidth = 360, remoteCallerIdMaxChar=21 is perfect
-		let remoteCallerIdMaxChar = 13;
-		if(window.innerWidth>360) {
-			remoteCallerIdMaxChar += Math.floor((window.innerWidth-360)/22);
-		}
+//		let remoteCallerIdMaxChar = 13;
+//		if(window.innerWidth>360) {
+//			remoteCallerIdMaxChar += Math.floor((window.innerWidth-360)/22);
+//		}
 		//console.log("window.innerWidth="+window.innerWidth+" remoteCallerIdMaxChar="+remoteCallerIdMaxChar);
 
 		let timeNowSecs = Math.floor((Date.now()+500)/1000);
@@ -2196,6 +2197,12 @@ function showMissedCalls() {
 			mainLink = mainLink.substring(0,idx) + "/user/";
 		}
 		let str = "<table style='width:100%; border-collapse:separate; line-height:1.4em; margin-left:-4px;'>"
+/*
+		str += "<tr style='font-size:0.7em;line-height:1.1em;'><td>Nickname</td>"+
+			"<td>Caller ID</td>"+
+			"<td>Dial ID</td>"+
+			"<td align='right'></td></tr>";
+*/
 		for(var i=0; i<missedCallsSlice.length; i++) {
 			str += "<tr>"
 			let waitingSecs = timeNowSecs - missedCallsSlice[i].CallTime;
@@ -2226,10 +2233,14 @@ function showMissedCalls() {
 				callerIp = callerIp.substring(0,callerIpIdxPort);
 			}
 			let callerID = missedCallsSlice[i].CallerID;
-
+			// .CallerName may look like this "id (Finchen)"
 			let callerName = missedCallsSlice[i].CallerName;
 			if(callerName=="null") {
 				callerName="";
+			}
+			let idx = callerName.indexOf(" (");
+			if(idx>0) {
+				callerName = callerName.substring(0,idx);
 			}
 			if(callerName=="") {
 				if(callerID==calleeID) {
@@ -2240,20 +2251,27 @@ function showMissedCalls() {
 			}
 			// TODO if callerName=="" || callerName=="unknown" -> check contacts?
 
-			let callerNameMarkup = callerName;
-			let callerMsg = missedCallsSlice[i].Msg;
 			let dialID = missedCallsSlice[i].DialID;
-			let comboHtml = callerName;
-			if(dialID!="" || callerMsg!="") {
-				if(callerMsg=="") {
-					callerMsg = "no message"
+			if(dialID=="") {
+				dialID = "main";
+			}
+			if(window.innerWidth<440) {
+				dialID = dialID.substring(0,6);
+				if(window.innerWidth<380) {
+					dialID = dialID.substring(0,4);
 				}
-				let comboMsg = callerMsg;
-				if(dialID!="") {
-					comboMsg = "("+dialID+") "+callerMsg;
+				callerName = callerName.substring(0,10);
+				if(window.innerWidth<380) {
+					callerName = callerName.substring(0,8);
 				}
-				comboHtml = "<div title='"+comboMsg+"' class='tooltip'>" + callerName + "</div>";
-				comboHtml = "<a onclick='showMsg(\""+comboMsg+"\");return false;' style='display:inline-block'>"+comboHtml+"</a>";
+			}
+
+			let callerMsg = missedCallsSlice[i].Msg;
+			let comboName = callerName;
+			if(callerMsg!="") {
+				let tmp = "<div title='"+callerMsg+"' class='tooltip'>" + comboName + "</div>";
+				comboName = "<a onclick='showMsg(\""+callerMsg+"\");return false;'"+
+								" style='display:inline-block'>"+tmp+"</a>";
 			}
 
 			let remoteCaller = false;
@@ -2304,6 +2322,12 @@ function showMissedCalls() {
 				//if(!playDialSounds) callerLink += "?ds=false";
 				//console.log("local ("+callerIdNoHost+") ("+callerLink+")");
 
+				if(window.innerWidth<440) {
+					callerIdNoHost = callerIdNoHost.substring(0,11);
+					//if(window.innerWidth<400) {
+					//	callerIdNoHost = callerIdNoHost.substring(0,8);
+					//}
+				}
 				if(noLink) {
 					callerLink = callerIdNoHost;
 				} else {
@@ -2321,11 +2345,16 @@ function showMissedCalls() {
 				let callerIdDisplay = callerID;
 				//gLog("id="+id+" callerIdDisplay="+callerIdDisplay+" callerHost="+callerHost+
 				//	" location.host="+location.host);
-				if(callerIdDisplay.length > remoteCallerIdMaxChar+2) {
-					callerIdDisplay = callerIdDisplay.substring(0,remoteCallerIdMaxChar)+"..";
-					//gLog("callerIdDisplay="+callerIdDisplay+" "+callerIdDisplay.length);
-				}
+//				if(callerIdDisplay.length > remoteCallerIdMaxChar+2) {
+//					callerIdDisplay = callerIdDisplay.substring(0,remoteCallerIdMaxChar)+"..";
+//					//gLog("callerIdDisplay="+callerIdDisplay+" "+callerIdDisplay.length);
+//				}
 
+				if(window.innerWidth<440) {
+					callerIdDisplay = callerIdDisplay.substring(0,11);
+					//if(window.innerWidth<400) {
+					//	callerIdDisplay = callerIdDisplay.substring(0,9);
+				}
 				if(noLink) {
 					callerLink = callerIdDisplay;
 				} else {
@@ -2334,10 +2363,11 @@ function showMissedCalls() {
 				}
 			}
 
-			str += "<td>" + comboHtml +"</td>"+
+			// three columns: nickname, callerID with link, delete X
+			str += "<td>" + comboName +"</td>"+
 				"<td>"+	callerLink + "</td>"+
-				"<td align='right'>"+
-				"<a onclick='deleteMissedCall(\""+
+				"<td>"+	dialID + "</td>"+
+				"<td align='right'><a onclick='deleteMissedCall(\""+
 					missedCallsSlice[i].AddrPort+"_"+missedCallsSlice[i].CallTime+"\","+
 					"\""+callerName+"\","+
 					"\""+callerID+"\")'>"+
@@ -3668,9 +3698,9 @@ function openContacts() {
 //	iframeWindowOpen(url,false,"max-width:99vw;",true);
 
 	if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
-		iframeWindowOpen(url,false,"left:0px;top:0px;width:100vw;max-width:100vw;height:100vh;",true);
+		iframeWindowOpen(url,true,"left:0px;top:0px;width:100vw;max-width:100vw;height:100vh;",true);
 	} else {
-		iframeWindowOpen(url,false,"height:97vh;width:97vw;max-width:800px;",true);
+		iframeWindowOpen(url,true,"height:97vh;width:97vw;max-width:1200px;",true);
 	}
 }
 
@@ -3778,13 +3808,15 @@ function openIdMapping() {
 	let url = "/callee/mapping/?id="+calleeID;
 	console.log('openIdMapping',url);
 	// id manager needs 500px height
-	iframeWindowOpen(url,false,"height:460px;max-width:500px;",true);
+//	iframeWindowOpen(url,false,"height:460px;max-width:420px;",true);
+	iframeWindowOpen(url,true,"top:25px;height:420px;max-width:460px;",true);
 }
 
 function openSettings() {
 	let url = "/callee/settings/?id="+calleeID+"&ver="+clientVersion;
 	gLog('openSettings='+url);
-	iframeWindowOpen(url,false,"max-width:460px;");
+//	iframeWindowOpen(url,false,"max-width:460px;");
+	iframeWindowOpen(url,true,"top:15px;max-width:460px;");
 	// when iframe closes, client.js:iframeWindowClose() will call getSettings()
 }
 
