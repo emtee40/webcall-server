@@ -2260,7 +2260,7 @@ function showMissedCalls() {
 			if(dialID=="") {
 				dialID = "main";
 			}
-			if(window.innerWidth<440) {
+			if(window.innerWidth<480) {
 				dialID = dialID.substring(0,6);
 				if(window.innerWidth<380) {
 					dialID = dialID.substring(0,4);
