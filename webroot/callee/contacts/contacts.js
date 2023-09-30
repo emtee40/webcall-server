@@ -90,6 +90,14 @@ window.onload = function() {
 	requestData();
 }
 
+function iframeChild() {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
+}
+
 function getUrlParams(param) {
 	if(window.location.search!="") {
 		// skip questionmark
