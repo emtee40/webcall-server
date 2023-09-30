@@ -2246,7 +2246,7 @@ function showMissedCalls() {
 				if(callerID==calleeID) {
 					callerName="self";
 				} else {
-					callerName="unknown";
+					callerName="n/a";
 				}
 			}
 			// TODO if callerName=="" || callerName=="unknown" -> check contacts?
