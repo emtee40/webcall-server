@@ -1399,7 +1399,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 			}
 			err := c.hub.CallerClient.Write(message)
 			if err != nil {
-				fmt.Printf("# %s (%s) send cancel msg to caller fail %v\n", c.connType, c.calleeID, err)
+				fmt.Printf("# %s (%s) forward pickup msg to caller fail %v\n", c.connType, c.calleeID, err)
 				c.hub.HubMutex.RUnlock()
 				c.hub.closePeerCon("forward pickup to caller "+err.Error())
 				return

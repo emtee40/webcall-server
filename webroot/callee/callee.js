@@ -611,7 +611,7 @@ function goOnlineSwitchChange(comment) {
 		wsAutoReconnecting = false;
 
 		// render offline mode
-		showVisualOffline(comment);
+		showVisualOffline("goOnlineSwitchChange: "+comment);
 
 		if(comment=="connectToWsServer" || comment=="user button" || comment=="service") {
 			//goOnlineWanted = false;
@@ -2996,7 +2996,7 @@ function peerConnected3() {
 				console.log("peerConnected3 auto-answer call");
 				pickup();
 			}
-			setTimeout(pickupFunc,1000);
+			setTimeout(pickupFunc,3000);
 		}
 
 		console.log("peerConnected3 waiting for manual pickup/reject....."+(Date.now() - startIncomingCall));

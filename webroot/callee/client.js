@@ -389,6 +389,9 @@ function ajaxFetch(xhr, type, api, processData, errorFkt, postData, sync) {
 					Android.postRequestData(postData);
 				}
 			}
+			// net::ERR_CERT_AUTHORITY_INVALID
+			// caused by serverside: TLS handshake error from (client ip): remote error: tls: unknown certificate
+			// requires full-reload -> advanced -> accept security issue
 			xhr.send(postData);
 		} else {
 			xhr.send();

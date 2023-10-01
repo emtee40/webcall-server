@@ -629,7 +629,7 @@ func setContact(calleeID string, contactID string, compoundName string, remoteAd
 		fmt.Printf("# setcontact (%s) abort on empty contactID %s\n", calleeID, remoteAddr)
 		return false
 	}
-fmt.Printf("! setcontact (%s) contactID=(%s)\n", calleeID, contactID)
+	//fmt.Printf("! setcontact (%s) contactID=(%s)\n", calleeID, contactID)
 
 	// read the complete contacts for calleeID into idNameMap
 	var idNameMap map[string]string // calleeID -> contactName

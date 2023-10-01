@@ -2614,7 +2614,7 @@ function dial() {
 				console.log('# playDialTone abort no dtmfDialingSound');
 				return;
 			}
-			console.log('---------------------- playDialTone loop='+loop);
+			console.log('playDialTone loop='+loop);
 			if(loop>0) {
 				dtmfDialingSound.currentTime = 2;
 			} else {
