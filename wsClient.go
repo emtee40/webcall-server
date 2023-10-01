@@ -737,10 +737,6 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 		if !c.calleeInitReceived.Load() {
 			// on first init only
 			fmt.Printf("%s (%s) init %s\n", c.connType, c.calleeID, c.RemoteAddr)
-//			c.hub.HubMutex.Lock()
-//			c.hub.CallerClient = nil
-//			c.hub.HubMutex.Unlock()
-
 			c.calleeInitReceived.Store(true)
 			c.hub.CalleeLogin.Store(true)
 			c.pickupSent.Store(false)

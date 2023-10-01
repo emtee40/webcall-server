@@ -1693,11 +1693,13 @@ function showStatus(msg, timeoutMs, prio) {
 	}
 
 	// msg may contain html, which we don't want to log
-	let idx = msg.indexOf("<");
-	if(idx>=0) {
-		console.log("showStatus("+msg.substring(0,idx)+") "+sleepMs);
-	} else {
-		console.log("showStatus("+msg+") "+sleepMs);
+	if(msg!="") {
+		let idx = msg.indexOf("<");
+		if(idx>=0) {
+			console.log("showStatus("+msg.substring(0,idx)+") "+sleepMs);
+		} else {
+			console.log("showStatus("+msg+") "+sleepMs);
+		}
 	}
 
 	statusLine.style.opacity = 0;

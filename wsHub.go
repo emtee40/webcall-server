@@ -224,6 +224,8 @@ func (h *Hub) peerConHasEnded(cause string) {
 			h.CalleeClient.RemoteAddrNoPort, h.CallerIpNoPort, callerID, cause)
 	}
 
+	h.CalleeClient.pickupSent.Store(false)
+
 	// add an entry to missed calls, but only if hub.CallDurationSecs<=0
 	// if caller cancels via hangup button, then this is the only addMissedCall() and contains msgtext
 	// undone: this is NOT a missed call if callee denies the call: !strings.HasPrefix(cause,"callee")
