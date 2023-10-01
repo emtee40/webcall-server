@@ -695,14 +695,33 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	// dialID is NOT deactivated
 	if calleeIsHiddenOnline || calleeHasPushChannel || locHub.ConnectedCallerIp != "" {
 		// yes, dialID can be notified
-		fmt.Printf("/canbenotified (%s) yes onl=%v calleeName=%s <- %s (%s)\n",
-			dialID, calleeIsHiddenOnline, calleeName, remoteAddr, callerIdLong)
-		if dbUser.AskCallerBeforeNotify==false {
-			fmt.Fprintf(w,"direct|"+calleeName)
-		} else {
-			fmt.Fprintf(w,"ok|"+calleeName)
+
+		// check if remoteAddrWithPort is already listed in waitingCallerSlice
+		remoteAddrAlreadyWaitingUser := false
+		var waitingCallerSlice []CallerInfo
+		kvCalls.Get(dbWaitingCaller,urlID,&waitingCallerSlice)
+		//fmt.Printf(".../canbenotified (%s) waitingCallerSlice.len=%d\n",urlID,len(waitingCallerSlice))
+		for idx := range waitingCallerSlice {
+			//fmt.Printf(".../canbenotified (%s) remoteAddrWithPort=%s waitingCallerAddr=%s\n",
+			//	urlID, remoteAddrWithPort, waitingCallerSlice[idx].AddrPort)
+			if waitingCallerSlice[idx].AddrPort == remoteAddrWithPort {
+				remoteAddrAlreadyWaitingUser = true
+				break
+			}
 		}
-		return
+
+		if !remoteAddrAlreadyWaitingUser {
+			fmt.Printf("/canbenotified (%s) yes onl=%v calleeName=%s <- %s (%s)\n",
+				dialID, calleeIsHiddenOnline, calleeName, remoteAddr, callerIdLong)
+			if dbUser.AskCallerBeforeNotify==false {
+				fmt.Fprintf(w,"direct|"+calleeName)
+			} else {
+				fmt.Fprintf(w,"ok|"+calleeName)
+			}
+			return
+		}
+
+		fmt.Printf("/canbenotified (%s) remoteAddr=%s already waitingCaller\n", urlID, remoteAddr)
 	}
 
 	// this user can NOT rcv push msg (cannot be notified)

@@ -502,6 +502,10 @@ func httpLogin(w http.ResponseWriter, r *http.Request, urlID string, dialID stri
 	exitFunc := func(reqWsClientID uint64, comment string) {
 		// exitFunc: callee is logging out: release hub and port of this session
 
+		// clear dbWaitingCaller for this user
+		var waitingCallerSlice []CallerInfo
+		kvCalls.Put(dbWaitingCaller, globalID, waitingCallerSlice, false)
+
 		if hub == nil {
 			// connection was cut off by the device / or timeout26s
 			fmt.Printf("! exitfunc (%s) hub==nil ws=%d %s rip=%s v=%s\n",
