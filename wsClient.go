@@ -1266,6 +1266,13 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 		// payload = ip:port
 		callerAddrPort := payload
 		fmt.Printf("%s pickupWaitingCaller from %s (%s)\n", c.connType, c.RemoteAddr, callerAddrPort)
+
+		if c.hub.CallerClient!=nil {
+			fmt.Printf("%s pickupWaitingCaller closeCaller\n", c.connType)
+			c.hub.closeCaller("disconCallerOnPickupWaitingCaller") // will clear .CallerClient
+		}
+		// callee will in parallel hangup the current call (see: pickupWaitingCaller())
+
 		// this will end the frozen xhr call by the caller in httpNotifyCallee.go (see: case <-c)
 		waitingCallerChanMap[callerAddrPort] <- 1
 		return

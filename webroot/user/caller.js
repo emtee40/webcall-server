@@ -1721,6 +1721,9 @@ function calleeNotificationAction() {
 				"|"+location.host;
 			// goodbyMissedCall will be cleared by a successful call
 			// if it is still set in goodby(), we will ask server to store this as a missed call
+
+			// disable answer buttons (will be re-enabled in dial2() after successful RTCPeerConnection())
+			answerButtons.classList.add("disableElement");
 			return;
 		}
 		// calleeID can NOT be reached right now
@@ -2689,6 +2692,7 @@ function dial2() {
 		peerCon = new RTCPeerConnection(ICE_config);
 		hangupButton.disabled = false;
 		dialButton.disabled = true;
+		answerButtons.classList.remove("disableElement");
 	} catch(ex) {
 		console.error("# RTCPeerConnection "+ex.message);
 		var statusMsg = "RTCPeerConnection "+ex.message;

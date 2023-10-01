@@ -2140,7 +2140,13 @@ function showWaitingCallers() {
 }
 
 function pickupWaitingCaller(addrPort) {
-	gLog('pickupWaitingCaller',addrPort);
+	console.log('pickupWaitingCaller',addrPort);
+
+	// hangup current call
+	if(mediaConnect) {
+		hangup(true,false,"pickupWaitingCaller");
+	}
+
 	wsSend("pickupWaitingCaller|"+addrPort);
 }
 

@@ -265,7 +265,8 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 		// we can ignore this
 	}
 
-	if notificationSent>0 || calleeIsHiddenOnline {
+	// locHub.ConnectedCallerIp != "" means callee is in a call
+	if notificationSent>0 || calleeIsHiddenOnline || locHub.ConnectedCallerIp != "" {
 		// we now "freeze" the caller's xhr until callee goes online and sends a value to the caller's chan
 		// waitingCallerChanMap[urlID] <- 1 to signal it is picking up the call
 		//fmt.Printf("/notifyCallee (%s) notification sent; freeze caller\n", urlID)
@@ -281,7 +282,7 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 			fmt.Printf("# /notifyCallee (%s) failed to store dbWaitingCaller\n", urlID)
 		}
 
-		if calleeIsHiddenOnline {
+		if calleeIsHiddenOnline || locHub.ConnectedCallerIp != "" {
 			if calleeWsClient != nil {
 				calleeWsClient.hub.IsUnHiddenForCallerAddr = ""
 				//fmt.Printf("/notifyCallee (%s) send waitingCallerSlice len=%d\n",
@@ -673,7 +674,8 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 		}
 	}
 
-	if calleeIsHiddenOnline || calleeHasPushChannel {
+	// locHub.ConnectedCallerIp != "" means callee is in a call
+	if calleeIsHiddenOnline || calleeHasPushChannel || locHub.ConnectedCallerIp != "" {
 		// yes, urlID can be notified
 		fmt.Printf("/canbenotified (%s) yes onl=%v calleeName=%s <- %s (%s)\n",
 			urlID, calleeIsHiddenOnline, calleeName, remoteAddr, callerIdLong)
