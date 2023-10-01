@@ -674,11 +674,29 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 		}
 	}
 
-	// locHub.ConnectedCallerIp != "" means callee is in a call
+	// check if dialID is an altID and is ringMuted/deactivated
+	ringMutedMutex.RLock()
+	_,ok = ringMuted[dialID]
+	ringMutedMutex.RUnlock()
+	if ok {
+		// altID is called, but is deactivated
+		fmt.Printf("/canbenotified (%s) altlink deactivated <- %s\n", dialID, remoteAddr)
+	} else
+	// check if dialID is mainlink and is ringMuted/deactivated
+	if dialID==urlID && dbUser.Int2&8==8 {
+		// mainlink is called, but is deactivated
+		fmt.Printf("/canbenotified (%s) mainlink deactivated <- %s\n", dialID, remoteAddr)
+	} else
+	// check if dialID is mastodonlink, but is ringMuted/deactivated
+	if dialID==dbUser.MastodonID && dbUser.Int2&16==16 {
+		// mastodonlink is called, but it is deactivated
+		fmt.Printf("/canbenotified (%s) mastodonlink deactivated <- %s\n", dialID, remoteAddr)
+	} else
+	// dialID is NOT deactivated
 	if calleeIsHiddenOnline || calleeHasPushChannel || locHub.ConnectedCallerIp != "" {
-		// yes, urlID can be notified
+		// yes, dialID can be notified
 		fmt.Printf("/canbenotified (%s) yes onl=%v calleeName=%s <- %s (%s)\n",
-			urlID, calleeIsHiddenOnline, calleeName, remoteAddr, callerIdLong)
+			dialID, calleeIsHiddenOnline, calleeName, remoteAddr, callerIdLong)
 		if dbUser.AskCallerBeforeNotify==false {
 			fmt.Fprintf(w,"direct|"+calleeName)
 		} else {
@@ -689,7 +707,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 
 	// this user can NOT rcv push msg (cannot be notified)
 	fmt.Printf("/canbenotified (%s) not online/hiddenonline, no push chl <- %s (%s) %v\n",
-		urlID, remoteAddr, callerIdLong, dbUser.StoreMissedCalls)
+		dialID, remoteAddr, callerIdLong, dbUser.StoreMissedCalls)
 
 	if(dbUser.StoreMissedCalls) {
 		err,missedCallsSlice := addMissedCall(urlID,

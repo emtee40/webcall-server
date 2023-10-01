@@ -66,6 +66,7 @@ func httpOnline(w http.ResponseWriter, r *http.Request, urlID string, dialID str
 		return
 	}
 
+/* glUrlID need the same order of checks as for locHub below
 	if glUrlID == "" {
 		// callee urlID is not online; try to find out for how long
 		if logWantedFor("online") {
@@ -193,67 +194,13 @@ func httpOnline(w http.ResponseWriter, r *http.Request, urlID string, dialID str
 			return
 		}
 	}
-
+*/
 	if locHub != nil {
 		locHub.HubMutex.RLock()
 		// callee is managed by this server
 		if logWantedFor("online") {
 			fmt.Printf("/online (%s/%s) locHub callerIp=%s Caller=%v hidden=%v\n",
 				urlID, glUrlID, locHub.ConnectedCallerIp, locHub.CallerClient!=nil, locHub.IsCalleeHidden)
-		}
-
-		if locHub.ConnectedCallerIp != "" {
-			// this callee (urlID/glUrlID) is online but currently busy
-			fmt.Printf("/online (%s) busy callerIp=%s <- %s v=%s\n",
-				urlID, locHub.ConnectedCallerIp, remoteAddr, clientVersion)
-			locHub.HubMutex.RUnlock()
-			// remoteAddr is now eligible to send xhr /missedCall
-			missedCallAllowedMutex.Lock()
-			missedCallAllowedMap[remoteAddr] = time.Now()
-			missedCallAllowedMutex.Unlock()
-			fmt.Fprintf(w, "busy")
-			return
-		}
-
-		if locHub.IsCalleeHidden && locHub.IsUnHiddenForCallerAddr != remoteAddr {
-			fmt.Printf("/online (%s) notavail (hidden onl) %s v=%s ua=%s\n",
-				urlID, remoteAddr, clientVersion, r.UserAgent())
-			locHub.HubMutex.RUnlock()
-			// remoteAddr is now eligible to send xhr /missedCall
-			missedCallAllowedMutex.Lock()
-			missedCallAllowedMap[remoteAddr] = time.Now()
-			missedCallAllowedMutex.Unlock()
-			fmt.Fprintf(w, "notavail")
-			return
-		}
-
-		wsClientID := locHub.WsClientID // set by wsClient serve()
-		if wsClientID == 0 {
-			// this seems to happen when urlID has not logged in or is just now logging in but not finished
-			// just act as if (urlID) is not curretly online
-			locHub.HubMutex.RUnlock()
-			fmt.Printf("/online (%s) notavail ws=0 %s v=%s\n", urlID, remoteAddr, clientVersion)
-			// remoteAddr is now eligible to send xhr /missedCall
-			missedCallAllowedMutex.Lock()
-			missedCallAllowedMap[remoteAddr] = time.Now()
-			missedCallAllowedMutex.Unlock()
-			fmt.Fprintf(w, "notavail")
-			return
-		}
-
-		// check if the original dialID is ringMuted
-		ringMutedMutex.RLock()
-		_,ok = ringMuted[dialID]
-		ringMutedMutex.RUnlock()
-		if ok {
-			locHub.HubMutex.RUnlock()
-			fmt.Printf("/online (%s) ringMuted <- %s v=%s\n", dialID, remoteAddr, clientVersion)
-			// remoteAddr is now eligible to send xhr /missedCall
-			missedCallAllowedMutex.Lock()
-			missedCallAllowedMap[remoteAddr] = time.Now()
-			missedCallAllowedMutex.Unlock()
-			fmt.Fprintf(w, "notavail")
-			return
 		}
 
 		var dbEntry DbEntry
@@ -286,10 +233,69 @@ func httpOnline(w http.ResponseWriter, r *http.Request, urlID string, dialID str
 			return
 		}
 
+		idDisabled := false
+		ringMutedMutex.RLock()
+		_,ok = ringMuted[dialID]
+		ringMutedMutex.RUnlock()
+		if ok {
+			// altID is called, but is deactivated
+			//fmt.Printf("/canbenotified (%s) ID deactivated <- %s\n", dialID, remoteAddr)
+			idDisabled = true
+		} else
+		// check if dialID is mainlink and is ringMuted/deactivated
 		if dialID==urlID && dbUser.Int2&8==8 {
-			// mainlink deactivated
+			// mainlink is called, but is deactivated
+			//fmt.Printf("/canbenotified (%s) main ID deactivated <- %s\n", dialID, remoteAddr)
+			idDisabled = true
+		} else
+		// check if dialID is mastodonlink, but is ringMuted/deactivated
+		if dialID==dbUser.MastodonID && dbUser.Int2&16==16 {
+			// mastodonlink is called, but it is deactivated
+			//fmt.Printf("/canbenotified (%s) mastodon ID deactivated <- %s\n", dialID, remoteAddr)
+			idDisabled = true
+		}
+		if idDisabled {
 			locHub.HubMutex.RUnlock()
-			fmt.Printf("/online (%s) mainlink deactivated <- %s v=%s\n", dialID, remoteAddr, clientVersion)
+			fmt.Printf("/online (%s) ID deactivated <- %s v=%s\n", dialID, remoteAddr, clientVersion)
+			// remoteAddr is now eligible to send xhr /missedCall
+			missedCallAllowedMutex.Lock()
+			missedCallAllowedMap[remoteAddr] = time.Now()
+			missedCallAllowedMutex.Unlock()
+			fmt.Fprintf(w, "notavail")
+			return
+		}
+
+		wsClientID := locHub.WsClientID // set by wsClient serve()
+		if wsClientID == 0 {
+			// this seems to happen when urlID has not logged in or is just now logging in but not finished
+			// just act as if (urlID) is not curretly online
+			locHub.HubMutex.RUnlock()
+			fmt.Printf("/online (%s) notavail ws=0 %s v=%s\n", urlID, remoteAddr, clientVersion)
+			// remoteAddr is now eligible to send xhr /missedCall
+			missedCallAllowedMutex.Lock()
+			missedCallAllowedMap[remoteAddr] = time.Now()
+			missedCallAllowedMutex.Unlock()
+			fmt.Fprintf(w, "notavail")
+			return
+		}
+
+		if locHub.ConnectedCallerIp != "" {
+			// this callee (urlID/glUrlID) is online but currently busy
+			fmt.Printf("/online (%s) busy callerIp=%s <- %s v=%s\n",
+				urlID, locHub.ConnectedCallerIp, remoteAddr, clientVersion)
+			locHub.HubMutex.RUnlock()
+			// remoteAddr is now eligible to send xhr /missedCall
+			missedCallAllowedMutex.Lock()
+			missedCallAllowedMap[remoteAddr] = time.Now()
+			missedCallAllowedMutex.Unlock()
+			fmt.Fprintf(w, "busy")
+			return
+		}
+
+		if locHub.IsCalleeHidden && locHub.IsUnHiddenForCallerAddr != remoteAddr {
+			fmt.Printf("/online (%s) notavail (hidden onl) %s v=%s ua=%s\n",
+				urlID, remoteAddr, clientVersion, r.UserAgent())
+			locHub.HubMutex.RUnlock()
 			// remoteAddr is now eligible to send xhr /missedCall
 			missedCallAllowedMutex.Lock()
 			missedCallAllowedMap[remoteAddr] = time.Now()

@@ -2125,7 +2125,10 @@ function showWaitingCallers() {
 				"<td style='text-align:right;'> "+
 				waitingTimeString + "</td>"+
 				"<td style='text-align:right;'><a onclick='pickupWaitingCaller(\""+waitingCallerSlice[i].AddrPort+"\")'>"+
-				"accept</a></td></tr>";
+				"accept</a></td>"+
+				"<td style='text-align:right;'><a onclick='rejectWaitingCaller(\""+waitingCallerSlice[i].AddrPort+"\")'>"+
+				"reject</a></td>"+
+				"</tr>";
 		}
 		str += "</table>";
 		waitingCallersElement.innerHTML = str;
@@ -2145,9 +2148,15 @@ function pickupWaitingCaller(addrPort) {
 	// hangup current call
 	if(mediaConnect) {
 		hangup(true,false,"pickupWaitingCaller");
+// TODO tmtmtm do we need to delay wsSend("pickupWaitingCaller") ???
 	}
 
 	wsSend("pickupWaitingCaller|"+addrPort);
+}
+
+function rejectWaitingCaller(addrPort) {
+	console.log('rejectWaitingCaller',addrPort);
+// TODO
 }
 
 var showCallsWhileInAbsenceCallingItself = false;
