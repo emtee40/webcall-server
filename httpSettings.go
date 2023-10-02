@@ -566,12 +566,12 @@ func httpSetContact(w http.ResponseWriter, r *http.Request, urlID string, callee
 	}
 
 	//fmt.Printf("/setcontact (%s) -> setcontact(%s,%s) \n", calleeID, contactID, compoundName)
-	if !setContact(calleeID, contactID, compoundName, remoteAddr, "http") {
-		// an error has occured
+	if !setContact(calleeID, contactID, compoundName, true, remoteAddr, "http") {
+		// the entry could not be stored or an error has occured
 	}
 }
 
-func setContact(calleeID string, contactID string, compoundName string, remoteAddr string, comment string) bool {
+func setContact(calleeID string, contactID string, compoundName string, changeName bool, remoteAddr string, comment string) bool {
 	// calleeID = the callee for which to add a contact
 	// contactID = the userid to be added / changed
 	// compoundName = contactName+"|"+callerId+"|"+callerName
@@ -580,7 +580,7 @@ func setContact(calleeID string, contactID string, compoundName string, remoteAd
 		return true
 	}
 
-	fmt.Printf("/setcontact (%s) -> setcontact(%s,%s) \n", calleeID, contactID, compoundName)
+	fmt.Printf("setcontact (%s) <- contactID=%s compoundName=%s\n", calleeID, contactID, compoundName)
 	contactName := "";
 	callerID := "";
 	callerName := "";
@@ -618,11 +618,11 @@ func setContact(calleeID string, contactID string, compoundName string, remoteAd
 
 	// cut off @host from contactID if host starts with hostname of local server
 	idxAt := strings.Index(contactID,"@"+hostname)
-	if idxAt >=0 {
+	if idxAt >= 0 {
 		contactID = contactID[:idxAt]
 	}
-	if(contactID=="@") {
-		contactID = ""
+	if strings.HasSuffix(contactID,"@") {
+		contactID = contactID[0:len(contactID)-1]
 	}
 	if contactID=="" || strings.HasPrefix(contactID,"@") {
 		// this contactID is an incognito user
@@ -667,6 +667,7 @@ func setContact(calleeID string, contactID string, compoundName string, remoteAd
 	}
 
 	if ok {
+		// found an old entry for contactID
 		oldName := ""
 		oldCallerID := "";
 		oldCallerName := "";
@@ -680,8 +681,11 @@ func setContact(calleeID string, contactID string, compoundName string, remoteAd
 		}
 		//fmt.Printf("setcontact (%s) oldCompoundName=%s oldName=%s\n", calleeID, oldCompoundName, oldName)
 
-		if contactName=="" && oldName!="" {
-			contactName = oldName
+		if oldName!="" {
+			// oldName exists, so contactName would change it
+			if contactName=="" || !changeName {
+				contactName = oldName
+			}
 		}
 
 		if callerID=="" && oldCallerID!="" {
@@ -694,6 +698,7 @@ func setContact(calleeID string, contactID string, compoundName string, remoteAd
 	}
 
 	if contactName=="" {
+		// wsClient.go ignores contactName if set to "unknown"
 		contactName = "unknown"
 	}
 
@@ -708,10 +713,10 @@ func setContact(calleeID string, contactID string, compoundName string, remoteAd
 	}
 
 	// we may override the name of a contact edited by callee (oldCompoundName) with the nickname given by caller
-	if logWantedFor("contacts") {
+//	if logWantedFor("contacts") {
 		fmt.Printf("setcontact (%s) store ID=%s from (%s) to (%s) %s %s\n",
 			calleeID, contactID, oldCompoundName, newCompoundName, remoteAddr, comment)
-	}
+//	}
 	idNameMap[contactID] = newCompoundName
 	//fmt.Printf("setcontact (%s) idNameMap=%v\n", calleeID, idNameMap[contactID])
 	err = kvContacts.Put(dbContactsBucket, calleeID, idNameMap, false)

@@ -2157,6 +2157,7 @@ function pickupWaitingCaller(addrPort) {
 function rejectWaitingCaller(addrPort) {
 	console.log('rejectWaitingCaller',addrPort);
 // TODO
+	wsSend("rejectWaitingCaller|"+addrPort);
 }
 
 var showCallsWhileInAbsenceCallingItself = false;

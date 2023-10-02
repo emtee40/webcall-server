@@ -109,7 +109,10 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 	fmt.Printf("/notifyCallee (%s) from callerId=(%s) name=(%s) msg=(%s) %s\n",
 		urlID, callerIdLong, callerName, logTxtMsg, remoteAddr)
 	if dbUser.StoreContacts && callerId!="" && callerIdLong!="" && callerName!="" {
-		addContact(urlID, callerIdLong, callerName, "/notifyCallee")
+//			addContact(urlID, callerIdLong, callerName, "/notifyCallee")
+		if !setContact(urlID, callerIdLong, callerName, false, remoteAddr, "/notifyCallee") {
+			// an error has occured
+		}
 	}
 
 	// check if callee is hidden online
@@ -794,6 +797,7 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 	return err,missedCallsSlice
 }
 
+/*
 func addContact(calleeID string, callerID string, callerName string, cause string) error {
 	if strings.HasPrefix(calleeID,"answie") {
 		return nil
@@ -833,6 +837,7 @@ func addContact(calleeID string, callerID string, callerName string, cause strin
 	//	calleeID, callerID, callerName, cause)
 	return nil
 }
+*/
 
 /*
 func webpushSend(subscription string, msg string, urlID string) (error,int) {

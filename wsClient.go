@@ -1581,7 +1581,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 						if c.hub.CallerID != "" {
 							// we don't have callerId + callerName for this contact yet
 							compoundName := c.hub.CallerClient.callerName+"||"
-							setContact(c.calleeID, c.hub.CallerID, compoundName,
+							setContact(c.calleeID, c.hub.CallerID, compoundName, false,
 								c.RemoteAddrNoPort, "wsClient")
 						}
 

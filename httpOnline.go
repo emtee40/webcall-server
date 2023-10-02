@@ -66,7 +66,6 @@ func httpOnline(w http.ResponseWriter, r *http.Request, urlID string, dialID str
 		return
 	}
 
-// TODO glUrlID need the same order of checks as for locHub below
 	if glUrlID == "" {
 		// callee urlID is not online; try to find out for how long
 		if logWantedFor("online") {
