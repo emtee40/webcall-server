@@ -269,7 +269,7 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 	}
 
 	// locHub.ConnectedCallerIp != "" means callee is in a call
-	if notificationSent>0 || calleeIsHiddenOnline || locHub.ConnectedCallerIp != "" {
+	if notificationSent>0 || calleeIsHiddenOnline || (locHub!=nil && locHub.ConnectedCallerIp != "") {
 		// we now "freeze" the caller's xhr until callee goes online and sends a value to the caller's chan
 		// waitingCallerChanMap[urlID] <- 1 to signal it is picking up the call
 		//fmt.Printf("/notifyCallee (%s) notification sent; freeze caller\n", urlID)
@@ -285,7 +285,7 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 			fmt.Printf("# /notifyCallee (%s) failed to store dbWaitingCaller\n", urlID)
 		}
 
-		if calleeIsHiddenOnline || locHub.ConnectedCallerIp != "" {
+		if calleeIsHiddenOnline || (locHub!=nil && locHub.ConnectedCallerIp != "") {
 			if calleeWsClient != nil {
 				calleeWsClient.hub.IsUnHiddenForCallerAddr = ""
 				//fmt.Printf("/notifyCallee (%s) send waitingCallerSlice len=%d\n",
@@ -696,7 +696,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 		fmt.Printf("/canbenotified (%s) mastodonlink deactivated <- %s\n", dialID, remoteAddr)
 	} else
 	// dialID is NOT deactivated
-	if calleeIsHiddenOnline || calleeHasPushChannel || locHub.ConnectedCallerIp != "" {
+	if calleeIsHiddenOnline || calleeHasPushChannel || (locHub!=nil && locHub.ConnectedCallerIp != "") {
 		// yes, dialID can be notified
 
 		// check if remoteAddrWithPort is already listed in waitingCallerSlice
