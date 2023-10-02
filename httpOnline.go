@@ -66,7 +66,7 @@ func httpOnline(w http.ResponseWriter, r *http.Request, urlID string, dialID str
 		return
 	}
 
-/* glUrlID need the same order of checks as for locHub below
+// TODO glUrlID need the same order of checks as for locHub below
 	if glUrlID == "" {
 		// callee urlID is not online; try to find out for how long
 		if logWantedFor("online") {
@@ -194,7 +194,7 @@ func httpOnline(w http.ResponseWriter, r *http.Request, urlID string, dialID str
 			return
 		}
 	}
-*/
+
 	if locHub != nil {
 		locHub.HubMutex.RLock()
 		// callee is managed by this server
