@@ -1351,6 +1351,7 @@ function checkCalleeOnline(waitForCallee,comment) {
 	console.log("checkCalleeOnline api="+api+" ("+comment+")");
 	xhrTimeout = 30*1000;
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
+		//console.log("/online xhr.responseText="+xhr.responseText);
 		calleeOnlineStatus(xhr.responseText, waitForCallee);
 	}, errorAction);
 }
@@ -1663,6 +1664,7 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 
 	} else {
 		console.log('calleeOfflineAction no waitForCallee');
+// TODO
 		window.location.reload();
 	}
 
@@ -1686,6 +1688,7 @@ function calleeNotificationAction() {
 	gLog('canbenotified api',api);
 	xhrTimeout = 30*1000;
 	ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
+		//console.log("/canbenotified xhr.responseText="+xhr.responseText);
 		if(xhr.responseText.startsWith("direct")) {
 			// calleeID can be notified (or is hidden)
 			// don't ask caller
@@ -1727,11 +1730,14 @@ function calleeNotificationAction() {
 			return;
 		}
 		// calleeID can NOT be reached right now
+// TODO tmtmtm display callee nickname instead of calleeID
 		let statusMsg = "<a href='javascript:enableCalleeOnlineElement(true)'>"+calleeID+" is currently not available.";
-		if(greetingMsg!="") {
+
+		if(xhr.responseText.startsWith("offline") && greetingMsg!="") {
 			// calleeID can NOT be reached (but greeting msg can be send)
 			statusMsg += " Your text message has been sent.";
 		}
+
 		statusMsg += " "+lg("PleaseTryAgainALittle")+".</a>";
 		showStatus(statusMsg,-1,true);
 		calleeOnlineElement.classList.add("disableElement");
@@ -1946,6 +1952,7 @@ function notifyConnect(callerName,callerId,callerHost) {
 	xhrTimeout = 600*1000; // 10 min extended xhr timeout
 	gLog("notifyCallee api="+api+" timeout="+xhrTimeout);
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
+		//console.log("/notifyCallee?id xhr.responseText="+xhr.responseText);
 		if(divspinnerframe) {
 			divspinnerframe.style.display = "none";
 		}

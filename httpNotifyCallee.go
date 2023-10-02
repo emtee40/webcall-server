@@ -580,7 +580,8 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	// checks if urlID can be notified (of incoming call)
 	// usually called after /online reports a callee being offline
 	if urlID=="" {
-		fmt.Printf("# /canbenotified failed on empty urlID rip=%s\n",remoteAddr)
+		fmt.Printf("! /canbenotified failed on empty urlID rip=%s\n",remoteAddr)
+		fmt.Fprintf(w,"error")
 		return
 	}
 
@@ -588,13 +589,15 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	var dbUser DbUser
 	err := kvMain.Get(dbRegisteredIDs,urlID,&dbEntry)
 	if err!=nil {
-		fmt.Printf("/canbenotified (%s) failed on dbRegisteredIDs rip=%s\n",urlID,remoteAddr)
+		fmt.Printf("! /canbenotified (%s) failed on dbRegisteredIDs rip=%s\n",urlID,remoteAddr)
+		fmt.Fprintf(w,"error")
 		return
 	}
 	dbUserKey := fmt.Sprintf("%s_%d",urlID, dbEntry.StartTime)
 	err = kvMain.Get(dbUserBucket, dbUserKey, &dbUser)
 	if err!=nil {
-		fmt.Printf("# /canbenotified (%s) failed on dbUserBucket rip=%s\n",urlID,remoteAddr)
+		fmt.Printf("! /canbenotified (%s) failed on dbUserBucket rip=%s\n",urlID,remoteAddr)
+		fmt.Fprintf(w,"error")
 		return
 	}
 	calleeName := dbUser.Name
@@ -753,6 +756,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 			}
 		}
 	}
+	fmt.Fprintf(w,"offline")
 	return
 }
 
