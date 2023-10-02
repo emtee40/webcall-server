@@ -458,11 +458,11 @@ func missedCall(callerInfo string, remoteAddr string, cause string) {
 	//fmt.Printf("missedCall (%s) rip=%s\n", callerInfo, remoteAddr)
 	tok := strings.Split(callerInfo, "|")
 	if len(tok) < 3 {
-		fmt.Printf("# missedCall (%s) failed len(tok)=%d<3 rip=%s\n",callerInfo,len(tok),remoteAddr)
+		fmt.Printf("! missedCall (%s) failed len(tok)=%d<3 rip=%s\n",callerInfo,len(tok),remoteAddr)
 		return
 	}
 	if tok[0]=="" || tok[0]=="undefined" {
-		fmt.Printf("# missedCall (%s) failed no calleeId rip=%s\n",callerInfo,remoteAddr)
+		fmt.Printf("! missedCall (%s) failed no calleeId rip=%s\n",callerInfo,remoteAddr)
 		return
 	}
 	calleeId := tok[0]
@@ -483,7 +483,7 @@ func missedCall(callerInfo string, remoteAddr string, cause string) {
 	var dbEntry DbEntry
 	err := kvMain.Get(dbRegisteredIDs,calleeId,&dbEntry)
 	if err!=nil {
-		fmt.Printf("# missedCall (%s) failed on get dbRegisteredIDs %s err=%v\n",calleeId,remoteAddr,err)
+		fmt.Printf("! missedCall (%s) failed on get dbRegisteredIDs %s err=%v\n",calleeId,remoteAddr,err)
 		return
 	}
 
@@ -491,11 +491,11 @@ func missedCall(callerInfo string, remoteAddr string, cause string) {
 	var dbUser DbUser
 	err = kvMain.Get(dbUserBucket, dbUserKey, &dbUser)
 	if err!=nil {
-		fmt.Printf("# missedCall (%s) failed on dbUserBucket %s err=%v\n",dbUserKey,remoteAddr,err)
+		fmt.Printf("! missedCall (%s) failed on dbUserBucket %s err=%v\n",dbUserKey,remoteAddr,err)
 		return
 	}
 	if(!dbUser.StoreMissedCalls) {
-		//fmt.Printf("missedCall (%s) no StoreMissedCalls rip=%s\n",dbUserKey,remoteAddr)
+		fmt.Printf("missedCall (%s) no StoreMissedCalls rip=%s\n",dbUserKey,remoteAddr)
 		return
 	}
 
@@ -627,7 +627,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	}
 
 	callerIdLong := callerID
-	if callerHost!="" && callerHost!=hostname {
+	if callerHost!="" && callerHost!=hostname && callerID!="" {
 		if strings.Index(callerIdLong,"@")>=0 {
 			callerIdLong += "@"+callerHost
 		} else {
@@ -718,7 +718,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 
 		if !remoteAddrAlreadyWaitingUser {
 			fmt.Printf("/canbenotified (%s) yes onl=%v calleeName=%s <- %s (%s)\n",
-				dialID, calleeIsHiddenOnline, calleeName, remoteAddr, callerIdLong)
+				dialID, calleeIsHiddenOnline, calleeName, remoteAddrWithPort, callerIdLong)
 			if dbUser.AskCallerBeforeNotify==false {
 				fmt.Fprintf(w,"direct|"+calleeName)
 			} else {
