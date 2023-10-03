@@ -82,7 +82,6 @@ body {
 /* Answer, Hang Up, TextChat, Send File */
 .callScreen {
 	margin: 0 auto;
-	_padding-top:10px;
 	padding-bottom:15px;
 	border-radius:8px;
 	width:86%;
@@ -124,7 +123,6 @@ body {
 	font-family:sans-serif;
 	padding: 0.4em 0.1em 0.4em 0.1em;
 	min-width: 100px;
-	_max-width: 180px;
 	outline: none;
 	text-align: center;
 	user-select: none;
@@ -162,7 +160,6 @@ body {
 	padding-top: 12px;
 	padding-bottom: 12px;
 	width: 98%;
-	_height:20px;
 	max-width: 570px;
 	transition: opacity 400ms ease-in-out;
     color: #ccc;
@@ -284,6 +281,7 @@ label {
 	overflow-y:auto;
 	scrollbar-color: #119 #25f;
 }
+/*
 select, select:focus {
 	margin-top:5px;
 	background-color:#04c;
@@ -301,6 +299,32 @@ select:focus {
 	outline:none;
 	background-color: #6c6;
 	color:#000;
+}
+*/
+.select {
+	margin-top:8px;
+	margin-right:5px;
+	background-color:#0002;
+	border: 1.3px solid #999;
+	border-radius:6px;
+	color:#eee;
+	font-size:1.0em;
+    padding: 0.3em 0.5em 0.2em 0.5em;
+	width:350px;
+	max-width:94%;
+	outline:none;
+	user-select:none;
+	cursor: pointer;
+}
+.select > option {
+	background:#000c;
+	color:#ddd;
+}
+
+select:focus {
+	outline:none;
+	_background-color: #6c6;
+	_color:#000;
 }
 .timer {
 	position:absolute;
