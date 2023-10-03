@@ -968,10 +968,10 @@ function getSettings() {
 				console.log("# getSettings JSON.parse err "+ex);
 				return;
 			}
-			if(typeof serverSettings.nickname!=="undefined") {
-				calleeName = serverSettings.nickname;
-				gLog("getsettings calleeName "+calleeName);
-			}
+//			if(typeof serverSettings.nickname!=="undefined") {
+//				calleeName = serverSettings.nickname;
+//				gLog("getsettings calleeName "+calleeName);
+//			}
 
 			if(typeof serverSettings.mastodonID!=="undefined") {
 				mastodonID = serverSettings.mastodonID;

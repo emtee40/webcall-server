@@ -649,25 +649,38 @@ func setContact(calleeID string, contactID string, compoundName string, changeNa
 	// check for contactID
 	oldCompoundName,ok := idNameMap[contactID]
 	if !ok || oldCompoundName=="" {
+		if logWantedFor("contacts") {
+			fmt.Printf("setcontact (%s) contactID=(%s) not found oldCompoundName=%s\n",
+				calleeID, contactID, oldCompoundName)
+		}
 		// try lowercase contactID
 		contactID = strings.ToLower(contactID)
 		oldCompoundName,ok = idNameMap[contactID]
 	}
 	if !ok {
+		if logWantedFor("contacts") {
+			fmt.Printf("setcontact (%s) contactID=(%s)lowercase not found2 oldCompoundName=%s\n",
+				calleeID, contactID, oldCompoundName)
+		}
 		// check for uppercase contactID
 		toUpperContactID := strings.ToUpper(contactID[0:1])+contactID[1:]
-		if logWantedFor("contacts") {
-			fmt.Printf("setcontact (%s->%s) check toUpperContactID=%s\n",
-				calleeID, contactName, toUpperContactID)
-		}
 		oldCompoundName,ok = idNameMap[toUpperContactID]
-		if ok {
+		if !ok {
+			if logWantedFor("contacts") {
+				fmt.Printf("setcontact (%s) contactID=(%s)uppercase not found oldCompoundName=%s\n",
+					calleeID, toUpperContactID, oldCompoundName)
+			}
+		} else {
 			contactID = toUpperContactID
 		}
 	}
 
 	if ok {
 		// found an old entry for contactID
+		if logWantedFor("contacts") {
+			fmt.Printf("setcontact (%s) contactID=(%s) found oldCompoundName=%s\n",
+				calleeID, contactID, oldCompoundName)
+		}
 		oldName := ""
 		oldCallerID := "";
 		oldCallerName := "";
@@ -679,7 +692,9 @@ func setContact(calleeID string, contactID string, compoundName string, changeNa
 				case 2: oldCallerName = tok
 			}
 		}
-		//fmt.Printf("setcontact (%s) oldCompoundName=%s oldName=%s\n", calleeID, oldCompoundName, oldName)
+		if logWantedFor("contacts") {
+			fmt.Printf("setcontact (%s) oldCompoundName=%s oldName=%s\n", calleeID, oldCompoundName, oldName)
+		}
 
 		if oldName!="" {
 			// oldName exists, so contactName would change it

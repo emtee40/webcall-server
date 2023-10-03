@@ -795,7 +795,7 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 			logTxtMsg = "hidden"
 		}
 		// caller.CallerID may contain @callerHost
-		fmt.Printf("addMissedCall (%s) <- (%s) name=%s ip=%s msg=(%s) cause=(%s)\n",
+		fmt.Printf("addMissedCall (%s) <- callerID=(%s) callerName=%s ip=%s msg=(%s) cause=(%s)\n",
 			urlID, caller.CallerID, caller.CallerName, caller.AddrPort, logTxtMsg, cause)
 	}
 	return err,missedCallsSlice
