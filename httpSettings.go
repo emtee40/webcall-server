@@ -555,8 +555,8 @@ func httpSetContact(w http.ResponseWriter, r *http.Request, urlID string, callee
 	}
 
 	forceChangeName := false
-	url_arg_array, ok = r.URL.Query()["force"]
-	if ok /*&& len(url_arg_array[0]) >= 1*/ {
+	_, ok = r.URL.Query()["force"]
+	if ok {
 		forceChangeName = true
 		// setContact() will allow changing contactName (this is for contacts app only)
 		// caller.js will NOT set this flag and will not be able to overwrite contactName
@@ -628,14 +628,16 @@ func setContact(calleeID string, contactID string, compoundName string, changeNa
 	}
 
 	// cut off @host from contactID if host starts with hostname of local server
-	idxAt := strings.Index(contactID,"@"+hostname)
+	contactIDnohost := contactID
+	idxAt := strings.Index(contactIDnohost,"@"+hostname)
 	if idxAt >= 0 {
-		contactID = contactID[:idxAt]
+		contactIDnohost = contactIDnohost[:idxAt]
 	}
-	if strings.HasSuffix(contactID,"@") {
-		contactID = contactID[0:len(contactID)-1]
+	if strings.HasSuffix(contactIDnohost,"@") {
+		//fmt.Printf("! setcontact (%s) hasSuffix @ contactIDnohost=(%s)\n", calleeID, contactIDnohost)
+		contactIDnohost = contactIDnohost[0:len(contactIDnohost)-1]
 	}
-	if contactID=="" || strings.HasPrefix(contactID,"@") {
+	if contactIDnohost=="" || strings.HasPrefix(contactIDnohost,"@") {
 		// this contactID is an incognito user
 		fmt.Printf("# setcontact (%s) abort on empty contactID %s\n", calleeID, remoteAddr)
 		return false
@@ -657,7 +659,6 @@ func setContact(calleeID string, contactID string, compoundName string, changeNa
 		idNameMap = make(map[string]string)
 	}
 
-contactIDsave := contactID
 	// check for contactID
 	oldCompoundName,ok := idNameMap[contactID]
 	if !ok || oldCompoundName=="" {
@@ -677,18 +678,18 @@ contactIDsave := contactID
 		// check for uppercase contactID
 		toUpperContactID := strings.ToUpper(contactID[0:1])+contactID[1:]
 		oldCompoundName,ok = idNameMap[toUpperContactID]
-		if !ok {
-			if logWantedFor("contacts") {
-				fmt.Printf("setcontact (%s) contactID=(%s)uppercase not found oldCompoundName=%s\n",
-					calleeID, toUpperContactID, oldCompoundName)
-			}
-		} else {
+		if ok {
 			contactID = toUpperContactID
 		}
 	}
 
-	if ok {
-		// found an old entry for contactID
+	if !ok {
+		if logWantedFor("contacts") {
+			fmt.Printf("! setcontact (%s) contactID=(%s) not found\n",
+				calleeID, contactID)
+		}
+	} else {
+		// found an entry for contactID
 		if logWantedFor("contacts") {
 			fmt.Printf("setcontact (%s) contactID=(%s) found oldCompoundName=%s\n",
 				calleeID, contactID, oldCompoundName)
@@ -741,8 +742,8 @@ contactIDsave := contactID
 
 	// we may override the name of a contact edited by callee (oldCompoundName) with the nickname given by caller
 //	if logWantedFor("contacts") {
-		fmt.Printf("setcontact (%s) store ID=%s(%s)%v from (%s) to (%s) %s %s\n",
-			calleeID, contactID, contactIDsave, contactID==contactIDsave, oldCompoundName, newCompoundName, remoteAddr, comment)
+		fmt.Printf("setcontact (%s) store ID=%s from (%s) to (%s) %s %s\n",
+			calleeID, contactID, oldCompoundName, newCompoundName, remoteAddr, comment)
 //	}
 	idNameMap[contactID] = newCompoundName
 	//fmt.Printf("setcontact (%s) idNameMap=%v\n", calleeID, idNameMap[contactID])
