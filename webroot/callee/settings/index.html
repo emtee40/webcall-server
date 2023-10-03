@@ -88,12 +88,15 @@ select {
 	max-width:420px;
 	padding:4px 4px; box-sizing:border-box;
 	outline:none;
-	background:#2ae;
+	background:#6bf;
 	box-shadow:none; /* removes red border in FF */
 }
 .formtext:focus {
-	background:#adf;
-	_color:#000;
+	background:#add;
+	color:#000;
+}
+.formtext:invalid {
+	color: #c11;
 }
 input[type=submit] {
 	font-size:1.0em;
@@ -107,9 +110,6 @@ input[type=submit] {
 input[type=submit]:focus {
 	background-color: #8c8;
 	color: #000;
-}
-input:invalid {
-	color: #f11;
 }
 .checkbox {
 	-webkit-appearance: none;
