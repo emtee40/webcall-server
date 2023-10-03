@@ -1285,12 +1285,12 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 		// payload = ip:port
 		callerAddrPort := payload
 		fmt.Printf("%s (%s) rejectWaitingCaller from %s (%s)\n", c.connType, c.calleeID, c.RemoteAddr, callerAddrPort)
-
+/*
 		if c.hub.CallerClient!=nil {
 			fmt.Printf("%s (%s) rejectWaitingCaller closeCaller\n", c.connType, c.calleeID)
 			c.hub.closeCaller("disconCallerOnRejectWaitingCaller") // will clear .CallerClient
 		}
-
+*/
 		// this will end the frozen xhr call by the caller in httpNotifyCallee.go (see: case <-c)
 		chn,ok := waitingCallerChanMap[callerAddrPort]
 		if ok {
