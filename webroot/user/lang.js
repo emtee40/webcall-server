@@ -23,7 +23,7 @@ var langMap = {
 	"isCurrentlyNot"		: "is currently not available.",
 	"canYouWaitSomeTime"	: "Can you wait a bit while we try to establish a connection?",
 	"yesPleaseTry"			: "Yes, please try",
-	"noIHaveToGo"			: "No, I have to go",
+	"noIHaveToGo"			: "No, thanks",
 	"TryingToGet"			: "Trying to get",
 	"onThePhonePleaseWait"	: "on the phone. Please wait...",
 	"sorryUnableToReach"	: "Unable to contact",

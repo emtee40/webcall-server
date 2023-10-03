@@ -1683,24 +1683,29 @@ function calleeNotificationAction() {
 		} else if(xhr.responseText.startsWith("ok")) {
 			// calleeID can be notified (or is hidden)
 			// if caller is willing to wait, caller can invoke confirmNotifyConnect() to enter own name
+			/*
 			let calleeName = xhr.responseText.substring(3);
 			if(calleeName=="" || calleeName.length<3) {
 				calleeName = calleeID;
 			} else {
 				calleeName = calleeName + " ("+calleeID+")";
 			}
+			*/
 
-			var msg = calleeName+" "+lg("isCurrentlyNot")+"<br><br>"+
-				lg("canYouWaitSomeTime")+"<br><br><a onclick='confirmNotifyConnect()'>"+
-				lg("yesPleaseTry")+"</a>";
+			let calleeName = calleeID;
+			var msg = calleeName+" "+lg("isCurrentlyNot")+" "+
+				lg("canYouWaitSomeTime")+"<br><a onclick='confirmNotifyConnect()'>"+
+				"<div style='line-height:1.8em;'>"+
+				lg("yesPleaseTry")+"</a> &nbsp; &nbsp;";
 
 			if(window.self == window.top) {
 				// not running in iframe mode: no -> jump on directory up
-				msg += "<br><br><a href='..'>"+lg("noIHaveToGo")+"</a>";
+				msg += "<a onclick='enableCalleeOnlineElement(false)' style='white-space:nowrap;'>"+lg("noIHaveToGo")+"</a>";
 			} else {
 				// running in iframe mode: no -> history.back()
-				msg += "<br><br><a onclick='history.back();'>"+lg("noIHaveToGo")+"</a>";
+				msg += "<a onclick='history.back();' style='white-space:nowrap;'>"+lg("noIHaveToGo")+"</a>";
 			}
+			msg += "</msg>";
 
 			showStatus(msg,-1,true);
 			goodbyMissedCall = calleeID+"|"+callerName+"|"+callerId+
