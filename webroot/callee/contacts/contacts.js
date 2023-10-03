@@ -298,7 +298,7 @@ function removeDo() {
 function edit(tableElement,ev,key,name) {
 	// edit the contact name
 	let rect = tableElement.getBoundingClientRect();
-	gLog('edit',key,name,rect,ev.pageX,ev.pageY);
+	console.log('edit',key,name,rect,ev.pageX,ev.pageY);
 	if(formElement!=null) {
 		let parentElement = formElement.parentNode;
 		parentElement.removeChild(formElement);
@@ -317,6 +317,7 @@ function edit(tableElement,ev,key,name) {
 function editSubmit(e,formElement,id) {
 	// store the edited contact name via /setcontact - or delete this contact via deletecontact
 	//gLog('editSubmit',id);
+	e.preventDefault();
 	if(id=="") return;
 
 	let entry1 = obj[id];
@@ -330,8 +331,7 @@ function editSubmit(e,formElement,id) {
 
 	let formtextElement = document.getElementById("formtext");
 	let newName = formtextElement.value;
-	gLog('editSubmit value',oldName,newName,id);
-	e.preventDefault();
+	console.log('edit ',oldName,newName,id);
 
 	if(newName=="") {
 		//prevent nameless element by aborting edit form
@@ -372,7 +372,11 @@ function editSubmit(e,formElement,id) {
 			//gLog('xhr setcontact resp='+xhr.responseText);
 			if(xhr.responseText=="") {
 				obj[id] = entry1;
-				myTableElement.innerHTML = newName;
+				//myTableElement.innerHTML = newName;
+				var newElement = document.createElement("a");
+				newElement.setAttribute("onclick","edit(this,event,\""+id+"\",\""+newName+"\")");
+				newElement.innerHTML = newName;
+				myTableElement.parentNode.replaceChild(newElement,myTableElement);
 			}
 		}, errorAction);
 	}
