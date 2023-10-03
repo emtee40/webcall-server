@@ -919,14 +919,12 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 						let tok2 = tok[i].split(",");
 						let id = cleanStringParameter(tok2[0],true);
 						let active = cleanStringParameter(tok2[1],true);
-//						let assign = cleanStringParameter(tok2[2],true);
 						if(id==callerId) {
 							preselectIndex = i;
 							gLog('preselectIndex='+preselectIndex);
 						}
 						//console.log("assign=("+assign+")");
 						let idOption = document.createElement('option');
-//						idOption.text = id + " ("+assign+")";
 						idOption.text = id;
 						idOption.value = id;
 						idSelectElement.appendChild(idOption);
@@ -1756,9 +1754,14 @@ function enableCalleeOnlineElement(clearStatus) {
 		bottomElement.style.display = "block";
 		muteMicDiv.style.display = "block";
 		nicknameElement.disabled = false;
+		let nicknameDivElement = document.getElementById("nicknameDiv");
+		nicknameDivElement.disabled = false;
+		idSelectElement = document.getElementById("idSelect");
+		idSelectElement.disabled = false;
 
 		answerButtons.classList.remove("disableElement");
 		calleeOnlineElement.classList.remove("disableElement");
+		nicknameDivElement.classList.remove("disableElement");
 		msgboxdiv.classList.remove("disableElement");
 		bottomElement.classList.remove("disableElement");
 	},20);
@@ -2321,16 +2324,6 @@ function signalingCommand(message) {
 			return;
 		}
 
-		// hide msgbox
-//		msgboxdiv.style.display = "none";
-//		calleeOnlineElement.classList.add("disableElement");
-//		onlineIndicator.src="red-gradient.svg";
-
-/* TODO somewhere
-		if(!calleeID.startsWith("answie"))  {
-			chatButton.style.display = "block";
-		}
-*/
 		// open textChat or enable chatButton
 		chatButton.onclick = function() {
 			if(textchatOKfromOtherSide) {
@@ -2379,6 +2372,19 @@ function signalingCommand(message) {
 			mediaConnect = true;
 			console.log("mediaConnect (set dialing=false)");
 			dialing = false;
+
+			// enable avSelect for web clients
+// TODO tmtmtm
+			if(navigator.userAgent.indexOf("Android")<0 && navigator.userAgent.indexOf("Dalvik")<0) {
+				avSelect.style.display = "block";
+				calleeOnlineElement.style.display = "block";
+				calleeOnlineElement.classList.remove("disableElement");
+				idSelectElement = document.getElementById("idSelect");
+				idSelectElement.disabled = true;
+				let nicknameDivElement = document.getElementById("nicknameDiv");
+				nicknameDivElement.disabled = true;
+				nicknameDivElement.classList.add("disableElement");
+			}
 
 			// on start of fullConnect: un-mute mic if muteMicElement not checked
 			if(localStream) {
@@ -3017,9 +3023,9 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 	console.log("hangup: message="+message);
 	dialing = false;
 
-	calleeOnlineElement.classList.remove("disableElement");
-	msgboxdiv.classList.remove("disableElement");
-	bottomElement.classList.remove("disableElement");
+//	calleeOnlineElement.classList.remove("disableElement");
+//	msgboxdiv.classList.remove("disableElement");
+//	bottomElement.classList.remove("disableElement");
 
 	textbox.style.display = "none";
 	chatButton.style.display = "none";
