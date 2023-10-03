@@ -451,7 +451,7 @@ function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {
 }
 
 function exportEntries() {
-	let fileName = 'webcall.csv';
+	let fileName = 'webcall-contacts.csv';
 	//console.log("downloadFile element count="+entries.length);
 	//define heading
 	if(entries==null) return;
