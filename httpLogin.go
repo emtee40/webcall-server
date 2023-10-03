@@ -502,15 +502,16 @@ func httpLogin(w http.ResponseWriter, r *http.Request, urlID string, dialID stri
 	exitFunc := func(reqWsClientID uint64, comment string) {
 		// exitFunc: callee is logging out: release hub and port of this session
 
-		// clear dbWaitingCaller for this user
-		var waitingCallerSlice []CallerInfo
-		kvCalls.Put(dbWaitingCaller, globalID, waitingCallerSlice, false)
-
 		if hub == nil {
 			// connection was cut off by the device / or timeout26s
 			fmt.Printf("! exitfunc (%s) hub==nil ws=%d %s rip=%s v=%s\n",
 				globalID, wsClientID, comment, remoteAddrWithPort, wcVer)
 			return;
+		}
+
+		if logWantedFor("attach") {
+			fmt.Printf("exitfunc (%s) '%s' ws=%d %s\n",
+				globalID, comment, wsClientID, remoteAddrWithPort)
 		}
 
 		// make sure the old calleeClient.hub.WsClientID is really same as the new wsClientID
@@ -522,11 +523,6 @@ func httpLogin(w http.ResponseWriter, r *http.Request, urlID string, dialID stri
 					globalID, wsClientID, reqWsClientID, comment, remoteAddrWithPort, wcVer)
 			}
 			return;
-		}
-
-		if logWantedFor("attach") {
-			fmt.Printf("exitfunc (%s) '%s' ws=%d %s\n",
-				globalID, comment, wsClientID, remoteAddrWithPort)
 		}
 
 		if dbUserKey!="" {

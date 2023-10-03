@@ -981,7 +981,7 @@ func waitingCallerToCallee(calleeID string, waitingCallerSlice []CallerInfo, mis
 		} else if hubclient==nil {
 			// TODO may need HubMutex locking for hubclient!=nil
 			fmt.Printf("# waitingCallerToCallee cannot send waitingCallers (%s) hubclient==nil\n", calleeID)
-		} else {
+		} else if hubclient.isOnline.Load() {
 			if logWantedFor("missedcalljson") {
 				fmt.Printf("waitingCallerToCallee send waitingCallers (%s) (%s) (%s)\n",
 					calleeID, hubclient.hub.IsUnHiddenForCallerAddr, string(jsonStr))

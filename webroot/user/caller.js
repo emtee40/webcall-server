@@ -1934,7 +1934,7 @@ function notifyConnect(callerName,callerId,callerHost) {
 	let api = apiPath+"/notifyCallee?id="+calleeID +
 		"&callerId="+callerId + "&callerName="+callerName + "&callerHost="+callerHost + textModeArg +
 		"&msg="+cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen);
-	xhrTimeout = 600*1000; // 10 min extended xhr timeout
+	xhrTimeout = 30*60*1000; // 30 min extended xhr timeout
 	gLog("notifyCallee api="+api+" timeout="+xhrTimeout);
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		//console.log("/notifyCallee?id xhr.responseText="+xhr.responseText);
@@ -1948,7 +1948,7 @@ function notifyConnect(callerName,callerId,callerHost) {
 			dialButton.click();
 			return;
 		}
-		gLog('notify: callee could not be reached (%s)',xhr.responseText);
+		console.log('notify: callee could not be reached (%s)',xhr.responseText);
 		//showStatus("Sorry! Unable to reach "+calleeID+".<br>Please try again a little later.",-1,false);
 		let name = calleeID;
 		if(contactName!="" && contactName!="unknown") {

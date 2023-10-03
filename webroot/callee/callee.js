@@ -1637,7 +1637,7 @@ function wsOnClose(evt) {
 			return;
 		}
 		// we accept that there is a problem and will try to reconnect; we stay offline
-		console.log("! wsOnClose not reconnecting err="+errCode+" "+tryingToOpenWebSocket);
+		console.log("wsOnClose code="+errCode+" shutting down, was tryingToOpenWebSocket="+tryingToOpenWebSocket);
 		goOffline("wsOnClose");
 	}
 }

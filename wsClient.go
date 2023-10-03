@@ -802,10 +802,10 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 			countOutdated:=0
 			for idx := range waitingCallerSlice {
 				//fmt.Printf("%s (idx=%d of %d)\n", c.connType,idx,len(waitingCallerSlice))
-				if idx >= len(waitingCallerSlice) {
-					break
-				}
-				if time.Now().Unix() - waitingCallerSlice[idx].CallTime > 10*60 {
+				//if idx >= len(waitingCallerSlice) {
+				//	break
+				//}
+				if time.Now().Unix() - waitingCallerSlice[idx].CallTime > 30*60 {
 					// remove outdated caller from waitingCallerSlice
 					waitingCallerSlice = append(waitingCallerSlice[:idx],
 						waitingCallerSlice[idx+1:]...)
@@ -1270,7 +1270,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 		// callee will in parallel hangup the current call (see: pickupWaitingCaller())
 
 		// this will end the frozen xhr call by the caller in httpNotifyCallee.go (see: case <-c)
-		waitingCallerChanMap[callerAddrPort] <- 1
+		waitingCallerChanMap[callerAddrPort] <- 1 // accept
 		return
 	}
 
@@ -1285,13 +1285,8 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 			c.hub.closeCaller("disconCallerOnRejectWaitingCaller") // will clear .CallerClient
 		}
 
-// TODO delete entry from
-		waitingCallerChanLock.Lock()
-		delete(waitingCallerChanMap, callerAddrPort)
-		waitingCallerChanLock.Unlock()
-
 		// this will end the frozen xhr call by the caller in httpNotifyCallee.go (see: case <-c)
-		waitingCallerChanMap[callerAddrPort] <- 1
+		waitingCallerChanMap[callerAddrPort] <- 2 // cancel
 		return
 	}
 
@@ -1727,11 +1722,28 @@ func (c *WsClient) Close(reason string) {
 			c.connType, c.calleeID, c.isCallee, reason)
 		c.wsConn.WriteMessage(websocket.CloseMessage, nil) // ignore any error
 		c.wsConn.Close()
+		c.isOnline.Store(false)
 	}
 
 	if c.isCallee {
-		// do nothing
+		// callee closing
+		// cancel all waitingCallers
+		var waitingCallerSlice []CallerInfo
+		// err can be ignored
+		kvCalls.Get(dbWaitingCaller,c.calleeID,&waitingCallerSlice)
+		if len(waitingCallerSlice) > 0 {
+			for idx := range waitingCallerSlice {
+				// disconnect client waitingCallerSlice[idx]
+				callerAddrPort := waitingCallerSlice[idx].AddrPort
+				fmt.Printf("%s (%s) Close: waitingCaller '%s'\n", c.connType, c.calleeID, callerAddrPort)
+				waitingCallerChanMap[callerAddrPort] <- 2 // cancel
+			}
+			// clear dbWaitingCaller for this user
+			//waitingCallerSlice = nil
+			//kvCalls.Put(dbWaitingCaller, c.calleeID, waitingCallerSlice, false)
+		}
 	} else {
+		// caller closing
 		if c.hub!=nil && c.hub.CallerClient!=nil {
 			// this caller might still be ringing: stop the watchdog timer
 			//if logWantedFor("wsclose") {
@@ -1746,6 +1758,10 @@ func (c *WsClient) Close(reason string) {
 func (c *WsClient) SendPing(maxWaitMS int) {
 	// we expect a pong (or anything) from the client within max 20 secs from now
 	// currently we are sending pings only to callees
+	if !c.isOnline.Load() {
+		return
+	}
+
 	if maxWaitMS<0 {
 		maxWaitMS = 20000
 	}
