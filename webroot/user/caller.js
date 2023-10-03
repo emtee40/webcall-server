@@ -452,9 +452,9 @@ window.onload = function() {
 					//console.log("playDialSounds from settings NOT SET");
 				}
 
-				if(callerName=="") { // TODO prefer getUrlParams over settings? yes, may come from missedcalls
-					//console.log("callerName = serverSettings.nickname "+serverSettings.nickname);
-					callerName = serverSettings.nickname; // user can modify this in UI
+//				if(callerName=="") { // TODO prefer getUrlParams over settings? yes, may come from missedcalls
+//					//console.log("callerName = serverSettings.nickname "+serverSettings.nickname);
+//					callerName = serverSettings.nickname; // user can modify this in UI
 /* will be done in onload2
 					if(!calleeID.startsWith("answie") && !calleeID.startsWith("talkback")) {
 						console.log("onload set nickname form with callerName="+callerName);
@@ -466,7 +466,7 @@ window.onload = function() {
 						// callername will be fetched from form in checkCalleeOnline()
 					}
 */
-				}
+//				}
 			}
 
 			console.log("onload callerId=("+callerId+") callerName=("+callerName+") from /getsettings");
