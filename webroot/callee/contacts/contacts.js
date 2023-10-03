@@ -57,12 +57,10 @@ window.onload = function() {
 	}
 
 
-	if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
-		// Android browser
-	} else if(typeof Android !== "undefined" && Android !== null) {
-		// Android client
+	if(typeof Android !== "undefined" && Android !== null) {
+		// Android webview cannot generate csv files
 	} else {
-		// web client
+		// web browser clients can generate csv files
 		let exportEntriesElement = document.getElementById("exportEntries");
 		if(exportEntriesElement) {
 			exportEntriesElement.style.display = "block";
