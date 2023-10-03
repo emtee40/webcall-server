@@ -56,6 +56,19 @@ window.onload = function() {
 //		}
 	}
 
+
+	if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
+		// Android browser
+	} else if(typeof Android !== "undefined" && Android !== null) {
+		// Android client
+	} else {
+		// web client
+		let exportEntriesElement = document.getElementById("exportEntries");
+		if(exportEntriesElement) {
+			exportEntriesElement.style.display = "block";
+		}
+	}
+
 	dialsounds = getUrlParams("ds",true);
 	gLog('contacts onload calleeID='+calleeID+' dialsounds='+dialsounds);
 
