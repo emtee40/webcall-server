@@ -374,7 +374,7 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 				// tell caller to not wait any longer
 				fmt.Fprintf(w, "error")
 			}
-			// fall through to delete waitingCaller
+			// fall through to remove waitingCaller
 		case <-r.Context().Done():
 			// caller has disconnected (before callee could wake this channel to answer the call)
 			callerGaveUp = true
