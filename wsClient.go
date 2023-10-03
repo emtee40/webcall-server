@@ -1261,16 +1261,22 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 		// for callee only
 		// payload = ip:port
 		callerAddrPort := payload
-		fmt.Printf("%s pickupWaitingCaller from %s (%s)\n", c.connType, c.RemoteAddr, callerAddrPort)
+		fmt.Printf("%s (%s) pickupWaitingCaller from %s (%s)\n", c.connType, c.calleeID, c.RemoteAddr, callerAddrPort)
 
 		if c.hub.CallerClient!=nil {
-			fmt.Printf("%s pickupWaitingCaller closeCaller\n", c.connType)
+			fmt.Printf("%s (%s) pickupWaitingCaller closeCaller\n", c.connType, c.calleeID)
 			c.hub.closeCaller("disconCallerOnPickupWaitingCaller") // will clear .CallerClient
 		}
 		// callee will in parallel hangup the current call (see: pickupWaitingCaller())
 
 		// this will end the frozen xhr call by the caller in httpNotifyCallee.go (see: case <-c)
-		waitingCallerChanMap[callerAddrPort] <- 1 // accept
+		chn,ok := waitingCallerChanMap[callerAddrPort]
+		if ok {
+			fmt.Printf("%s (%s) pickupWaitingCaller accept via channel\n", c.connType, c.calleeID)
+			chn <- 1 // accept
+		} else {
+			fmt.Printf("! %s (%s) pickupWaitingCaller channel gone\n", c.connType, c.calleeID)
+		}
 		return
 	}
 
@@ -1278,15 +1284,42 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 		// for callee only
 		// payload = ip:port
 		callerAddrPort := payload
-		fmt.Printf("%s rejectWaitingCaller from %s (%s)\n", c.connType, c.RemoteAddr, callerAddrPort)
+		fmt.Printf("%s (%s) rejectWaitingCaller from %s (%s)\n", c.connType, c.calleeID, c.RemoteAddr, callerAddrPort)
 
 		if c.hub.CallerClient!=nil {
-			fmt.Printf("%s rejectWaitingCaller closeCaller\n", c.connType)
+			fmt.Printf("%s (%s) rejectWaitingCaller closeCaller\n", c.connType, c.calleeID)
 			c.hub.closeCaller("disconCallerOnRejectWaitingCaller") // will clear .CallerClient
 		}
 
 		// this will end the frozen xhr call by the caller in httpNotifyCallee.go (see: case <-c)
-		waitingCallerChanMap[callerAddrPort] <- 2 // cancel
+		chn,ok := waitingCallerChanMap[callerAddrPort]
+		if ok {
+			fmt.Printf("%s (%s) rejectWaitingCaller abort via channel\n", c.connType, c.calleeID)
+			chn <- 2 // cancel
+		} else {
+			fmt.Printf("! %s (%s) rejectWaitingCaller channel gone\n", c.connType, c.calleeID)
+
+			// remove entry callerAddrPort from dbWaitingCaller
+			var waitingCallerSlice []CallerInfo
+			// err can be ignored
+			kvCalls.Get(dbWaitingCaller,c.calleeID,&waitingCallerSlice)
+			if len(waitingCallerSlice)>0 {
+				for idx := range waitingCallerSlice {
+					if waitingCallerSlice[idx].AddrPort == callerAddrPort {
+						//fmt.Printf("/notifyCallee (%s) remove caller from waitingCallerSlice + store\n", urlID)
+						waitingCallerSlice = append(waitingCallerSlice[:idx], waitingCallerSlice[idx+1:]...)
+						err := kvCalls.Put(dbWaitingCaller, c.calleeID, waitingCallerSlice, false)
+						if err != nil {
+							fmt.Printf("# %s (%s) rejectWaitingCaller failed to remove (%s) from dbWaitingCaller\n",
+								c.connType, c.calleeID, callerAddrPort)
+						}
+						break
+					}
+				}
+				// force redraw of waitingCaller
+				waitingCallerToCallee(c.calleeID, waitingCallerSlice, nil, c)
+			}
+		}
 		return
 	}
 

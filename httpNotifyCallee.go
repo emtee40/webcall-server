@@ -303,11 +303,12 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 		fmt.Printf("/notifyCallee (%s) waiting for callee to come online (%d) %s\n",
 			urlID, notificationSent, remoteAddr)
 		callerGaveUp = false
+		callerGotConnected := false
 		select {
-		case chnVal := <-chn:
+		case chnVal,ok := <-chn:
 			// chnVal==1 accept/connect
 			// chnVal==2 reject/disconnect
-			fmt.Printf("/notifyCallee (%s) chnVal=%v\n", urlID, chnVal)
+			fmt.Printf("/notifyCallee (%s) chnVal=%v ok=%v\n", urlID, chnVal, ok)
 			if chnVal==1 {
 				// callee is accepting this caller to call
 				// coming from callee.js: function pickupWaitingCaller(callerID)
@@ -320,11 +321,13 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 					reportHiddenCallee, remoteAddr, "/notifyCallee")
 				if err != nil {
 					fmt.Printf("# /notifyCallee (%s) GetOnlineCallee() err=%v\n", urlID, err)
-					// fall through
+					// tell caller to not wait any longer
+					fmt.Fprintf(w, "error")
 				} else if glUrlID == "" {
 					fmt.Printf("# /notifyCallee (%s/%s) callee wants caller (%s) to connect - but is not online\n",
 						urlID, glUrlID, remoteAddr)
-					// fall through
+					// tell caller to not wait any longer
+					fmt.Fprintf(w, "error")
 				} else {
 					// make the hidden callee "visible" for this particular caller
 					fmt.Printf("/notifyCallee (%s/%s) callee wants caller (%s) to connect\n",
@@ -364,13 +367,14 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 					}
 					// caller receiving this "ok" will automatically attempt to make a call now
 					fmt.Fprintf(w, "ok")
-					return
+					callerGotConnected = true
 				}
 			} else {
 				fmt.Printf("/notifyCallee (%s) waitingCaller canceled by callee\n", urlID)
+				// tell caller to not wait any longer
+				fmt.Fprintf(w, "error")
 			}
-			// tell caller to not wait any longer
-			fmt.Fprintf(w, "error")
+			// fall through to delete waitingCaller
 		case <-r.Context().Done():
 			// caller has disconnected (before callee could wake this channel to answer the call)
 			callerGaveUp = true
@@ -393,16 +397,15 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 			}
 		}
 
-		fmt.Printf("/notifyCallee (%s) delete waitingCaller\n", urlID)
-		waitingCallerChanLock.Lock()
-		delete(waitingCallerChanMap, remoteAddrWithPort)
-		waitingCallerChanLock.Unlock()
-
-		// remove this caller from waitingCallerSlice
-		err = kvCalls.Get(dbWaitingCaller, urlID, &waitingCallerSlice)
-		if err != nil {
-			// we can ignore this
+		if !callerGotConnected {
+			fmt.Printf("/notifyCallee (%s) delete waitingCaller\n", urlID)
+			waitingCallerChanLock.Lock()
+			delete(waitingCallerChanMap, remoteAddrWithPort)
+			waitingCallerChanLock.Unlock()
 		}
+
+		// remove this waitingCaller from waitingCallerSlice
+		err = kvCalls.Get(dbWaitingCaller, urlID, &waitingCallerSlice)
 		for idx := range waitingCallerSlice {
 			if waitingCallerSlice[idx].AddrPort == remoteAddrWithPort {
 				//fmt.Printf("/notifyCallee (%s) remove caller from waitingCallerSlice + store\n", urlID)

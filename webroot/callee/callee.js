@@ -909,6 +909,8 @@ function login(retryFlag,comment) {
 		console.log("# login xhr error "+errString+" "+err);
 		if(err==502 || errString.startsWith("fetch")) {
 			showStatus("No response from server",-1);
+//		} if(errString=="timeout") {
+//			showStatus("xhr error timeout",3000);
 		} else {
 			showStatus("xhr error "+err,3000);
 		}
