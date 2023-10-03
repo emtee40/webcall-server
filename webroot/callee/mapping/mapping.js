@@ -50,14 +50,12 @@ window.onload = function() {
 	window.onhashchange = hashchange;
 
 	if(iframeChild()) {
-//		if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
-			// display back-arrow in the upper left corner
-			let arrowLeftElement = document.getElementById("arrowleft");
+		// display back-arrow in the upper left corner
+		let arrowLeftElement = document.getElementById("arrowleft");
 		console.log("onload arrowLeftElement="+arrowLeftElement);
-			if(arrowLeftElement!=null) {
-				arrowLeftElement.style.display = "block";
-			}
-//		}
+		if(arrowLeftElement!=null) {
+			arrowLeftElement.style.display = "block";
+		}
 	}
 
 	document.onkeydown = function(evt) {

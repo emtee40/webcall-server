@@ -237,13 +237,11 @@ window.onload = function() {
 
 
 	if(iframeChild()) {
-//		if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
-			// display back-arrow in the upper left corner
-			let arrowLeftElement = document.getElementById("arrowleft");
-			if(arrowLeftElement!=null) {
-				arrowLeftElement.style.display = "block";
-			}
-//		}
+		// display back-arrow in the upper left corner
+		let arrowLeftElement = document.getElementById("arrowleft");
+		if(arrowLeftElement!=null) {
+			arrowLeftElement.style.display = "block";
+		}
 	}
 	containerElement.style.display = "block";
 
