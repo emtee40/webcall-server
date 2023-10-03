@@ -83,6 +83,7 @@ var textchatOKfromOtherSide = false;
 var placeholderText = "";
 var	muteMicModified = false;
 var willShowPostCall = "Data will be available after you have made a call";
+var serverSettings = null;
 
 var extMessage = function(e) {
 	// prevent an error on split() below when extensions emit unrelated, non-string 'message' events to the window
@@ -406,6 +407,9 @@ window.onload = function() {
 		}
 	}
 
+	let nicknameDivElement = document.getElementById("nicknameDiv");
+	nicknameDivElement.style.display = "block";
+
 	contactAutoStore = false;
 	if(cookieName!="" && (callerId==cookieName || callerId=="" || callerId=="select")) {
 		// using cookieName (bc callerID is same or not set)
@@ -426,7 +430,7 @@ window.onload = function() {
 				showStatus("error xhr getsettings",-1,true);
 				return;
 			}
-			var serverSettings = JSON.parse(xhrresponse);
+			serverSettings = JSON.parse(xhrresponse);
 			if(typeof serverSettings!=="undefined") {
 				gLog('serverSettings.storeContacts',serverSettings.storeContacts);
 				if(serverSettings.storeContacts=="true") {
@@ -452,24 +456,14 @@ window.onload = function() {
 					//console.log("playDialSounds from settings NOT SET");
 				}
 
-//				if(callerName=="") { // TODO prefer getUrlParams over settings? yes, may come from missedcalls
-//					//console.log("callerName = serverSettings.nickname "+serverSettings.nickname);
-//					callerName = serverSettings.nickname; // user can modify this in UI
-/* will be done in onload2
-					if(!calleeID.startsWith("answie") && !calleeID.startsWith("talkback")) {
-						console.log("onload set nickname form with callerName="+callerName);
-						let nicknameDivElement = document.getElementById("nicknameDiv");
-						if(nicknameElement) {
-							nicknameElement.value = callerName;
-						}
-						nicknameDivElement.style.display = "block";
-						// callername will be fetched from form in checkCalleeOnline()
-					}
-*/
-//				}
+				// prefer nickname from getUrlParams over settings!
+				// note that nicknameElement.value may be overwritten by callerName from contacts (see: getContact())
+				if(callerName!="") {
+					nicknameElement.value = callerName;
+				} else {
+					nicknameElement.value = serverSettings.nickname;
+				}
 			}
-
-			console.log("onload callerId=("+callerId+") callerName=("+callerName+") from /getsettings");
 
 		}, function(errString,err) {
 			console.log("# onload xhr error "+errString+" "+err);
@@ -675,6 +669,7 @@ function getContact(contactID) {
 					showStatus("error xhr getcontacts",-1,true);
 					return;
 				}
+				//console.log("--- /getcontact xhrresponse=("+xhrresponse+")");
 
 				// format: name|prefCallbackID|myNickname
 				let tok = xhrresponse.split("|");
@@ -764,16 +759,6 @@ function onload2() {
 */
 			// normal mode
 			gLog("onload2 normal mode");
-			// TODO do /getsettings here to get callerName?
-
-			// enable nickname form (if not calling answie or talkback)
-			if(!calleeID.startsWith("answie") && !calleeID.startsWith("talkback")) {
-				console.log("onload2 set nickname with callerName="+callerName);
-				let nicknameDivElement = document.getElementById("nicknameDiv");
-				nicknameElement.value = callerName;
-				nicknameDivElement.style.display = "block";
-				// callername will be fetched from form in checkCalleeOnline()
-			}
 
 			// enable randomized 123 codeDivElement if no cookie available (and if not answie or talkback)
 			if(calleeID.startsWith("answie") || calleeID.startsWith("talkback")) {
