@@ -7,6 +7,7 @@ var calleeID = "";
 var dialsounds = "";
 var formForNameOpen = false;
 var formElement = null;
+var entries = null;
 
 window.onload = function() {
 	let urlId = "";
@@ -139,7 +140,7 @@ function processContacts(xhrresponse) {
 	//gLog('xhrresponse obj',obj);
 
 	// in order to sort the json data we convert it to an array
-	let entries = Object.entries(obj);
+	entries = Object.entries(obj);
 	// if there is no name, we use the id as name
 	for(let entry of entries) {
 		// entry[0]=id, entry[1]=name
@@ -434,6 +435,26 @@ function ajaxFetch(xhr, type, apiPath, processData, errorFkt, postData) {
 	} catch(ex) {
 		console.log("# xhr send ex="+ex);
 	}
+}
+
+function exportEntries() {
+	let fileName = 'webcall.csv';
+	//console.log("downloadFile element count="+entries.length);
+	//define heading
+	if(entries==null) return;
+	var csv = 'WebCall-ID,ContactName,optCallbackID,optMyNickname\n';
+	entries.forEach(function(row) {
+		let line = row.join(',').replaceAll('|',',');
+		csv += line + "\n";
+	});
+
+	var aLink = document.createElement('a');
+	aLink.download = fileName;
+	// alt 'data:attachment/csv'
+	aLink.href = 'data:text/csv;charset=UTF-8,' + encodeURIComponent(csv);
+	var event = new MouseEvent('click');
+	aLink.dispatchEvent(event);
+	aLink.remove();
 }
 
 function exitPage() {
