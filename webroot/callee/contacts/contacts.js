@@ -364,7 +364,8 @@ function editSubmit(e,formElement,id) {
 		// deliver newName change for id back to the server (/setcontact?id=calleeID&contactID=id&name=newName)
 		let entry1 = newName+"|"+prefCallbackId+"|"+ourNickname;
 		// TODO /setcontact would benefit from using POST
-		let api = apiPath+"/setcontact?id="+calleeID+"&contactID="+id+"&name="+entry1;
+		// NOTE: the &force parameter will allow the contacts app to overwrite a none-blank contactName
+		let api = apiPath+"/setcontact?id="+calleeID+"&contactID="+id+"&name="+entry1+"&force=";
 		gLog('request api',api);
 		ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 			//gLog('xhr setcontact resp='+xhr.responseText);

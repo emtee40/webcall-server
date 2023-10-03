@@ -543,21 +543,32 @@ func httpSetContact(w http.ResponseWriter, r *http.Request, urlID string, callee
 	contactID := ""		// may or may not have @host attached
 	compoundName := ""
 
+	url_arg_array, ok := r.URL.Query()["contactID"]
+	if ok && len(url_arg_array[0]) >= 1 {
+		contactID = url_arg_array[0]
+	}
+	if contactID=="" {
+		if logWantedFor("contacts") {
+			fmt.Printf("/setcontact (%s) contactID from client is empty %s\n", calleeID, remoteAddr)
+		}
+		return
+	}
+
+	forceChangeName := false
+	url_arg_array, ok = r.URL.Query()["force"]
+	if ok /*&& len(url_arg_array[0]) >= 1*/ {
+		forceChangeName = true
+		// setContact() will allow changing contactName (this is for contacts app only)
+		// caller.js will NOT set this flag and will not be able to overwrite contactName
+		if logWantedFor("contacts") {
+			fmt.Printf("/setcontact (%s) forceChangeName set\n", calleeID)
+		}
+	}
+
 	if r.Method=="POST" {
 		// TODO implement delivery of contactID and compoundName via post body
 
 	} else {
-		url_arg_array, ok := r.URL.Query()["contactID"]
-		if ok && len(url_arg_array[0]) >= 1 {
-			contactID = url_arg_array[0]
-		}
-		if contactID=="" {
-			if logWantedFor("contacts") {
-				fmt.Printf("/setcontact (%s) contactID from client is empty %s\n", calleeID, remoteAddr)
-			}
-			return
-		}
-
 		// compoundName as format: name|prefCallbackId|ourNickname
 		url_arg_array, ok = r.URL.Query()["name"]
 		if ok && len(url_arg_array[0]) >= 1 {
@@ -566,7 +577,7 @@ func httpSetContact(w http.ResponseWriter, r *http.Request, urlID string, callee
 	}
 
 	//fmt.Printf("/setcontact (%s) -> setcontact(%s,%s) \n", calleeID, contactID, compoundName)
-	if !setContact(calleeID, contactID, compoundName, true, remoteAddr, "http") {
+	if !setContact(calleeID, contactID, compoundName, forceChangeName, remoteAddr, "http") {
 		// the entry could not be stored or an error has occured
 	}
 }
@@ -646,6 +657,7 @@ func setContact(calleeID string, contactID string, compoundName string, changeNa
 		idNameMap = make(map[string]string)
 	}
 
+contactIDsave := contactID
 	// check for contactID
 	oldCompoundName,ok := idNameMap[contactID]
 	if !ok || oldCompoundName=="" {
@@ -729,8 +741,8 @@ func setContact(calleeID string, contactID string, compoundName string, changeNa
 
 	// we may override the name of a contact edited by callee (oldCompoundName) with the nickname given by caller
 //	if logWantedFor("contacts") {
-		fmt.Printf("setcontact (%s) store ID=%s from (%s) to (%s) %s %s\n",
-			calleeID, contactID, oldCompoundName, newCompoundName, remoteAddr, comment)
+		fmt.Printf("setcontact (%s) store ID=%s(%s)%v from (%s) to (%s) %s %s\n",
+			calleeID, contactID, contactIDsave, contactID==contactIDsave, oldCompoundName, newCompoundName, remoteAddr, comment)
 //	}
 	idNameMap[contactID] = newCompoundName
 	//fmt.Printf("setcontact (%s) idNameMap=%v\n", calleeID, idNameMap[contactID])
