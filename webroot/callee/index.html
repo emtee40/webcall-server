@@ -304,6 +304,7 @@ select:focus {
 .select {
 	margin-top:8px;
 	margin-right:5px;
+	margin-bottom:8px;
 	background-color:#0002;
 	border: 1.3px solid #999;
 	border-radius:6px;
@@ -604,9 +605,9 @@ input:disabled + .slider {
 		<input type="submit" name="Submit" id="submit" value="OK" style="width:120px; margin-top:12px;">
 	</form>
 
-	<div id="slideReveal" style="height:0px; transition:height 300ms; overflow:hidden; cursor:pointer; _padding-top:10px;">
-	    <div style="clear:all;height:10px; _background:#666;"></div>
-		<select id="avSelect" class="select" onchange="getStream(this)" style="_margin-top:10px"></select>
+	<div id="slideReveal" style="height:0px; transition:height 300ms; overflow:hidden; cursor:pointer;">
+	    <div style="clear:all;height:10px;"></div>
+		<select id="avSelect" class="select" onchange="getStream(this)"></select>
 		<div style="margin-top:5px;"></div>
 
 		<div style="columns:7rem auto;white-space:nowrap;max-width:340px; padding-bottom:10px;">
@@ -614,8 +615,6 @@ input:disabled + .slider {
 				<input type="checkbox" id="muteMic" class="checkbox" />
 				<label class="menulabel2" id="muteMiclabel" for="muteMic">Mic muted</label>
 			</div>
-			<!--label class="menulabel2" id="" _style="display:none;">
-				<input type="checkbox" id="" class="checkbox"> Ring mute</label-->
 			<label class="menulabel2" id="isHiddenlabel" style="display:none;">
 				<input type="checkbox" id="isHidden" class="checkbox"> Hide me</label>
 			<label class="menulabel2" id="autoanswerlabel" style="display:none;">
