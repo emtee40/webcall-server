@@ -121,6 +121,7 @@ var missedCallAllowedMutex sync.RWMutex
 
 var waitingCallerChanMap map[string]chan int // ip:port -> chan
 var waitingCallerChanLock sync.RWMutex
+var waitingCallerDbLock sync.RWMutex
 
 type MappingDataType struct {
 	CalleeId string

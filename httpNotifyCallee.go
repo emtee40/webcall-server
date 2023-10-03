@@ -262,11 +262,9 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 	}
 	hubMapMutex.RUnlock()
 
+	waitingCallerDbLock.Lock()
 	var waitingCallerSlice []CallerInfo
 	err = kvCalls.Get(dbWaitingCaller, urlID, &waitingCallerSlice)
-	if err != nil {
-		// we can ignore this
-	}
 
 	// locHub.ConnectedCallerIp != "" means callee is in a call
 	if notificationSent>0 || calleeIsHiddenOnline || (locHub!=nil && locHub.ConnectedCallerIp != "") {
@@ -284,6 +282,7 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 		if err != nil {
 			fmt.Printf("# /notifyCallee (%s) failed to store dbWaitingCaller\n", urlID)
 		}
+		waitingCallerDbLock.Unlock()
 
 		if calleeIsHiddenOnline || (locHub!=nil && locHub.ConnectedCallerIp != "") {
 			if calleeWsClient != nil {
@@ -340,7 +339,7 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 						calleeWsClient = hubMap[glUrlID].CalleeClient
 						hubMapMutex.RUnlock()
 
-						// clear unHiddenForCaller after a while, say, after 3 min
+						// clear unHiddenForCaller after a while...
 						go func() {
 							time.Sleep(60 * time.Second)
 							// in the mean time callee may have gone offline (and is now back online)
@@ -398,25 +397,36 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 		}
 
 		if !callerGotConnected {
-			fmt.Printf("/notifyCallee (%s) delete waitingCaller\n", urlID)
+			fmt.Printf("/notifyCallee (%s) delete waitingCaller %s\n", urlID, remoteAddrWithPort)
 			waitingCallerChanLock.Lock()
 			delete(waitingCallerChanMap, remoteAddrWithPort)
 			waitingCallerChanLock.Unlock()
+		} else {
+			fmt.Printf("/notifyCallee (%s) skip delete waitingCaller %s\n", urlID, remoteAddrWithPort)
 		}
 
+		waitingCallerDbLock.Lock()
 		// remove this waitingCaller from waitingCallerSlice
 		err = kvCalls.Get(dbWaitingCaller, urlID, &waitingCallerSlice)
 		for idx := range waitingCallerSlice {
 			if waitingCallerSlice[idx].AddrPort == remoteAddrWithPort {
-				//fmt.Printf("/notifyCallee (%s) remove caller from waitingCallerSlice + store\n", urlID)
+				fmt.Printf("/notifyCallee (%s) remove waitingCaller %s from dbWaitingCaller\n",
+					urlID, remoteAddrWithPort)
 				waitingCallerSlice = append(waitingCallerSlice[:idx], waitingCallerSlice[idx+1:]...)
 				err = kvCalls.Put(dbWaitingCaller, urlID, waitingCallerSlice, false)
 				if err != nil {
-					fmt.Printf("# /notifyCallee (%s) failed to store dbWaitingCaller\n", urlID)
+					fmt.Printf("# /notifyCallee (%s) failed to remove %s from dbWaitingCaller\n",
+						urlID, remoteAddrWithPort)
 				}
 				break
+			} else {
+				fmt.Printf("/notifyCallee (%s) leaving waitingCaller %s in dbWaitingCaller for now\n",
+					urlID, remoteAddrWithPort)
 			}
 		}
+		waitingCallerDbLock.Unlock()
+	} else {
+		waitingCallerDbLock.Unlock()
 	}
 
 	var missedCallsSlice []CallerInfo
@@ -577,11 +587,13 @@ func missedCall(callerInfo string, remoteAddr string, cause string) {
 				calleeWsClient = myhub.CalleeClient
 			}
 			if calleeWsClient != nil {
+				waitingCallerDbLock.RLock()
 				var waitingCallerSlice []CallerInfo
 				err = kvCalls.Get(dbWaitingCaller, calleeId, &waitingCallerSlice)
 				if err != nil {
 					// we can ignore this
 				}
+				waitingCallerDbLock.RUnlock()
 				waitingCallerToCallee(calleeId, waitingCallerSlice, missedCallsSlice, calleeWsClient)
 			}
 		}
@@ -717,6 +729,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 
 		// check if remoteAddrWithPort is already listed in waitingCallerSlice
 		remoteAddrAlreadyWaitingUser := false
+		waitingCallerDbLock.RLock()
 		var waitingCallerSlice []CallerInfo
 		kvCalls.Get(dbWaitingCaller,urlID,&waitingCallerSlice)
 		//fmt.Printf(".../canbenotified (%s) waitingCallerSlice.len=%d\n",urlID,len(waitingCallerSlice))
@@ -728,6 +741,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 				break
 			}
 		}
+		waitingCallerDbLock.RUnlock()
 
 		if !remoteAddrAlreadyWaitingUser {
 			fmt.Printf("/canbenotified (%s) yes onl=%v calleeName=%s <- %s (%s)\n",

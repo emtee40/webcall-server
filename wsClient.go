@@ -793,9 +793,9 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 				}
 			}
 
+			waitingCallerDbLock.Lock()
 			// send list of waitingCaller to callee client
 			var waitingCallerSlice []CallerInfo
-			// err can be ignored
 			kvCalls.Get(dbWaitingCaller,c.calleeID,&waitingCallerSlice)
 			// before we send waitingCallerSlice
 			// we remove all entries that are older than 10min
@@ -821,6 +821,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 					fmt.Printf("# %s (%s) init failed to store dbWaitingCaller\n",c.connType,c.calleeID)
 				}
 			}
+			waitingCallerDbLock.Unlock()
 
 			// send list of missedCalls to callee client
 			var missedCallsSlice []CallerInfo
@@ -1295,14 +1296,15 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 			// we hav to cleanup dbWaitingCaller
 			fmt.Printf("! %s (%s) rejectWaitingCaller channel gone\n", c.connType, c.calleeID)
 
+			waitingCallerDbLock.Lock()
 			// remove entry callerAddrPort from dbWaitingCaller
 			var waitingCallerSlice []CallerInfo
-			// err can be ignored
 			kvCalls.Get(dbWaitingCaller,c.calleeID,&waitingCallerSlice)
 			if len(waitingCallerSlice)>0 {
 				for idx := range waitingCallerSlice {
 					if waitingCallerSlice[idx].AddrPort == callerAddrPort {
-						//fmt.Printf("/notifyCallee (%s) remove caller from waitingCallerSlice + store\n", urlID)
+						fmt.Printf("%s (%s) rejectWaitingCaller remove (%s) from dbWaitingCaller\n",
+							c.connType, c.calleeID, callerAddrPort)
 						waitingCallerSlice = append(waitingCallerSlice[:idx], waitingCallerSlice[idx+1:]...)
 						err := kvCalls.Put(dbWaitingCaller, c.calleeID, waitingCallerSlice, false)
 						if err != nil {
@@ -1310,11 +1312,15 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 								c.connType, c.calleeID, callerAddrPort)
 						}
 						break
+					} else {
+						fmt.Printf("%s (%s) rejectWaitingCaller leaving (%s) in dbWaitingCaller for now\n",
+							c.connType, c.calleeID, callerAddrPort)
 					}
 				}
 				// force redraw of waitingCaller
 				waitingCallerToCallee(c.calleeID, waitingCallerSlice, nil, c)
 			}
+			waitingCallerDbLock.Unlock()
 		}
 		return
 	}
@@ -1758,7 +1764,6 @@ func (c *WsClient) Close(reason string) {
 		// callee closing
 		// cancel all waitingCallers
 		var waitingCallerSlice []CallerInfo
-		// err can be ignored
 		kvCalls.Get(dbWaitingCaller,c.calleeID,&waitingCallerSlice)
 		if len(waitingCallerSlice) > 0 {
 			for idx := range waitingCallerSlice {
@@ -1771,32 +1776,20 @@ func (c *WsClient) Close(reason string) {
 						c.connType, c.calleeID, callerAddrPort)
 					chn <- 2 // cancel (httpNotifyCallee() will cleanup dbWaitingCaller)
 				} else {
-					// we hav to cleanup dbWaitingCaller
+					// we have to cleanup dbWaitingCaller
 					fmt.Printf("! %s (%s) Close: waitingCaller channel gone '%s'\n",
 						c.connType, c.calleeID, callerAddrPort)
-
-					// remove entry callerAddrPort from dbWaitingCaller
-					var waitingCallerSlice []CallerInfo
-					// err can be ignored
-					kvCalls.Get(dbWaitingCaller,c.calleeID,&waitingCallerSlice)
-					if len(waitingCallerSlice)>0 {
-						for idx := range waitingCallerSlice {
-							if waitingCallerSlice[idx].AddrPort == callerAddrPort {
-								//fmt.Printf("/notifyCallee (%s) remove caller from waitingCallerSlice + store\n", urlID)
-								waitingCallerSlice = append(waitingCallerSlice[:idx], waitingCallerSlice[idx+1:]...)
-								err := kvCalls.Put(dbWaitingCaller, c.calleeID, waitingCallerSlice, false)
-								if err != nil {
-									fmt.Printf("# %s (%s) Close: waitingCaller failed to remove (%s)\n",
-										c.connType, c.calleeID, callerAddrPort)
-								}
-								break
-							}
-						}
-						// force redraw of waitingCaller
-						waitingCallerToCallee(c.calleeID, waitingCallerSlice, nil, c)
-					}
 				}
 			}
+
+			fmt.Printf("%s (%s) Close: store empty dbWaitingCaller...\n", c.connType, c.calleeID)
+			//waitingCallerDbLock.Lock()
+			err := kvCalls.Put(dbWaitingCaller, c.calleeID, nil, false)
+			if(err!=nil) {
+				fmt.Printf("# %s (%s) Close: store empty dbWaitingCaller err=%v\n",
+					c.connType, c.calleeID, err)
+			}
+			//waitingCallerDbLock.Unlock()
 		}
 	} else {
 		// caller closing
