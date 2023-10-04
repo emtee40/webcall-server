@@ -3565,8 +3565,8 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 
 				if(wsConn) {
 					// also tell the server about it
-					console.log('endWebRtcSession wsSend(cancel|disconnectByCallee)');
-					wsSend("cancel|disconnectByCallee"); // very important (if caller is not ws-disconnected)
+					console.log('endWebRtcSession wsSend(cancel|'+comment+')');
+					wsSend("cancel|"+comment); // very important (if caller is not ws-disconnected)
 				}
 			}
 			if(dataChannel) {

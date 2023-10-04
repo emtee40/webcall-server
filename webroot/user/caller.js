@@ -2878,7 +2878,7 @@ function dataChannelOnmessage(event) {
 		//console.log("dataChannel.onmessage "+event.data);
 		if(event.data) {
 			if(event.data.startsWith("disconnect")) {
-				gLog("disconnect via dataChannel");
+				console.log("disconnect via dataChannel");
 				if(dataChannel) {
 					dataChannel.close();
 					dataChannel = null;
