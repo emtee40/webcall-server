@@ -4,6 +4,7 @@
 const dialButton = document.querySelector('button#callButton');
 const hangupButton = document.querySelector('button#hangupButton');
 const calleeOnlineElement = document.getElementById("calleeOnline");
+const chatButtonLabel = document.getElementById("chatButtonlabel");
 const enterIdElement = document.getElementById('enterId');
 const enterIdValElement = document.getElementById('enterIdVal');
 const enterIdClearElement = document.getElementById("enterIdClear");
@@ -1063,15 +1064,14 @@ function onload3(comment) {
 			hangupButton.blur();
 		};
 	}
-	if(chatButton) {
-		chatButton.onclick = function() {
+	if(chatButtonLabel) {
+		chatButtonLabel.onclick = function() {
+			history.back();
 			if(textchatOKfromOtherSide) {
-				// hide chat-button
-				chatButton.style.display = "none";
-				enableDisableTextchat(true);
+				enableDisableTextchat(false);
 			} else {
 				setTimeout(function() {
-					//chatButton.style.display = "none";
+					chatButtonLabel.style.display = "none";
 					showStatus(lg("peerNoTextChat"),4000,false);
 				},500);
 			}
@@ -2324,18 +2324,18 @@ function signalingCommand(message) {
 			hangupWithBusySound(true,"no localStream");
 			return;
 		}
-
+/*
 		// open textChat or enable chatButton
-		chatButton.onclick = function() {
+		chatButtonLabel.onclick = function() {
 			if(textchatOKfromOtherSide) {
-				console.log("chatButton.onclick -> enableDisableTextchat");
+				console.log("chatButtonLabel.onclick -> enableDisableTextchat");
 				enableDisableTextchat(false);
 			} else {
-				//chatButton.style.display = "none";
+				//chatButtonLabel.style.display = "none";
 				showStatus("Peer does not support textchat",4000);
 			}
 		}
-
+*/
 		// callee has accepted our call, if muteMicElement checked -> enable textchat
 		if(muteMicElement.checked) {
 			// we auto-open the textbox bc the caller requested textmode
@@ -2373,6 +2373,7 @@ function signalingCommand(message) {
 			mediaConnect = true;
 			console.log("mediaConnect (set dialing=false)");
 			dialing = false;
+			msgboxdiv.style.display = "none";
 
 			// enable avSelect for web clients
 // TODO tmtmtm
@@ -2425,6 +2426,15 @@ function signalingCommand(message) {
 				}
 			} else {
 				console.log("# fileselectLabel not enabled (no dataChl)");
+			}
+
+			if(chatButtonLabel) {
+				if(isDataChlOpen()) {
+					// good
+				} else {
+					chatButtonLabel.style.display = "none";
+					console.log("# chatButtonLabel not enabled (no dataChl)");
+				}
 			}
 
 			// getting stats (p2p or relayed connection)
@@ -2547,7 +2557,7 @@ function signalingCommand(message) {
 			// callee is live-requestiong textmode: open Textchat + mute mic
 			enableDisableTextchat(true);
 			// hide chat-button
-			chatButton.style.display = "none";
+			//chatButtonLabel.style.display = "none";
 			// mute mic
 			if(muteMicElement.checked==false) {
 				muteMicElement.checked = true;
@@ -2895,7 +2905,8 @@ function dataChannelOnmessage(event) {
 				let cleanString = cleanStringParameter(event.data.substring(4),false);
 				if(cleanString!="") {
 					//gLog("dataChannel.onmessage msg",cleanString);
-					chatButton.style.display = "none";
+					//chatButtonLabel.style.display = "none";
+					enableDisableTextchat(true);
 					msgbox.readOnly = true;
 					placeholderText = msgbox.placeholder;
 					msgbox.placeholder = "";
@@ -3031,7 +3042,7 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 //	bottomElement.classList.remove("disableElement");
 
 	textbox.style.display = "none";
-	chatButton.style.display = "none";
+	chatButtonLabel.style.display = "none";
 	connectLocalVideo(true); // forceOff
 	if(fileselectLabel) {
 		fileselectLabel.style.display = "none";

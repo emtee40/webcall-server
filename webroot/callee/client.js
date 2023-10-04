@@ -1923,6 +1923,8 @@ function enableDisableTextchat(force) {
 	msgbox.placeholder = "";
 	// show msgbox and textbox
 	msgboxdiv.style.display = "block";
+	msgboxdiv.classList.remove("disableElement");
+
 	textbox.style.display = "block"; // -> submitForm()
 
 	setTimeout(function() {
