@@ -1071,6 +1071,7 @@ function onload3(comment) {
 				enableDisableTextchat(false);
 			} else {
 				setTimeout(function() {
+					console.log("onload3 peerNoTextChat");
 					chatButtonLabel.style.display = "none";
 					showStatus(lg("peerNoTextChat"),4000,false);
 				},500);
@@ -1896,7 +1897,7 @@ function submitFormDone(idx) {
 		// get TextChat-msg from enterTextElement and send it via dataChannel
 		let text = cleanStringParameter(enterTextElement.value,false);
 		//console.log("submitText text="+text);
-		if(dataChannel) {
+		if(isDataChlOpen()) {
 			dataChannel.send("msg|"+text);
 			// add text to msgbox
 			let msg = "> " + text;
@@ -2431,6 +2432,7 @@ function signalingCommand(message) {
 			if(chatButtonLabel) {
 				if(isDataChlOpen()) {
 					// good
+					chatButtonLabel.style.display = "block";
 				} else {
 					chatButtonLabel.style.display = "none";
 					console.log("# chatButtonLabel not enabled (no dataChl)");
@@ -3132,7 +3134,7 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 					closePeerCon();
 				}
 			} else {
-				if(isDataChlOpen()) {
+				if(dataChannel) {
 					gLog('hangup dataChannel.close');
 					dataChannel.close();
 					dataChannel = null;

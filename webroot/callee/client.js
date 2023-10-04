@@ -1761,8 +1761,10 @@ function isDataChlOpen() {
 }
 
 function isP2pCon() {
-	if(localCandidateType!="relay" && remoteCandidateType!="relay")
+	if(localCandidateType!="relay" && remoteCandidateType!="relay") {
 		return true;
+	}
+	console.log("# not isP2pCon ("+localCandidateType+") ("+remoteCandidateType+")");
 	return false;
 }
 

@@ -449,7 +449,7 @@ function videoOff() {
 		remoteVideoHide();
 		remoteStream = null;
 
-		if(dataChannel) {
+		if(isDataChlOpen()) {
 			gLog("videoOff !rtcConnect dataChannel still set "+dataChannel.readyState);
 		}
 	}
@@ -561,7 +561,7 @@ function submitFormDone(idx) {
 		// -> getStream() -> getUserMedia(constraints) -> gotStream() -> prepareCallee() -> login()
 	} else if(idx==2) {
 		// textchat msg to send to caller via dataChannel
-		if(dataChannel) {
+		if(isDataChlOpen()) {
 			let text = cleanStringParameter(enterTextElement.value,false);
 			console.log("submitText text="+text);
 			dataChannel.send("msg|"+text);
@@ -2879,7 +2879,7 @@ function peerConnected3() {
 
 	// before we can continue enabling answerButton, we need to wait for datachannel
 	let sinceStartWaitConnect = Date.now() - startWaitConnect;
-	if(dataChannel==null) {
+	if(!isDataChlOpen()) {
 		if(sinceStartWaitConnect < 1500) {
 			console.log("peerConnected3: waiting for datachannel... "+
 				sinceStartWaitConnect+" "+(Date.now() - startIncomingCall));
@@ -3082,7 +3082,7 @@ function pickup() {
 	// TODO not sure about this timeout duration
 	// if user must be asked for mic permission, that could take much longer
 	let startWaitPickup = Date.now();
-	console.log("pickup waiting for pickup2... "+startWaitPickup+" "+startPickup);
+	console.log("pickup waiting for pickup2... "+startWaitPickup+" "+startPickup+" dataChl="+isDataChlOpen());
 	setTimeout(function() {
 		// if gotStream2() was called, pickupAfterLocalStream would be cleared
 		// if endWebRtcSession() was called rtcConnect would be false
@@ -3120,8 +3120,8 @@ function pickup2() {
 		return;
 	}
 
-	console.log("pickup2 gotStream "+(Date.now() - startPickup)+
-		" wsConn="+(wsConn!=null)+" goOnlineSwitch="+goOnlineSwitch.checked);
+	console.log("pickup2 gotStream "+(Date.now() - startPickup)+"ms "+
+		" wsConn="+(wsConn!=null)+" goOnlineSwitch="+goOnlineSwitch.checked+" dataChl="+isDataChlOpen());
 
 	if(typeof Android !== "undefined" && Android !== null) {
 		Android.callPickedUp(); // audioToSpeakerSet() + callPickedUpFlag=true (needed for callInProgress())
@@ -3185,7 +3185,7 @@ function pickup4(comment) {
 		return;
 	}
 
-	console.log("pickup4: got localStream after "+sinceStartPickup);
+	console.log("pickup4: got localStream after "+sinceStartPickup+"ms dataChl="+isDataChlOpen());
 
 	// full connect
 	mediaConnect = true;
@@ -3202,20 +3202,6 @@ function pickup4(comment) {
 	// this will make the caller unmute our mic on their side
 	// TODO could also use datachannel?
 	wsSend("pickup|!");
-
-	chatButton.style.display = "block";
-
-	// filetransfer button (fileselectLabel) is still hidden
-	if(!isDataChlOpen()) {
-		// should never happen
-		console.log("# pickup4 no datachl - do not enable fileselectLabel: !isDataChlOpen");
-	} else if(!isP2pCon()) {
-		// we don't allow file transfer over relayed link
-		console.log("# pickup4 no datachl - do not enable fileselectLabel: !isP2pCon()");
-	} else {
-		gLog("pickup4 enable fileselectLabel");
-		fileselectLabel.style.display = "block";
-	}
 
 	// hide clear cookie (while peer connected) - will be re-enabled from endWebRtcSession(
 	menuClearCookieElement.style.display = "none";
@@ -3281,7 +3267,6 @@ function pickup4(comment) {
 					console.log("chatButton.onclick -> enableDisableTextchat toggle");
 					enableDisableTextchat(false);
 				} else {
-					//chatButton.style.display = "none";
 					if(mediaConnect) {
 						showStatus("Peer does not support TextChat",2000);
 					} else {
@@ -3300,8 +3285,22 @@ function getStatsCandidateTypes(results,eventString1,eventString2) {
 	// the original string from getStatsCandidateTypesEx() is sent as log to the server
 	wsSend("log|callee "+msg); // shows up in server log as: serveWss peer callee "Incoming p2p/p2p"
 
-	// now we create the string for showStatus
+	if(eventString1=="Connected") {
+		// chatButton + fileselectLabel buttons are still hidden
+		if(!isDataChlOpen()) {
+			// should never happen
+			console.log("# getStatsCandidateTypes no datachl - no textChat, no fileselect");
+		} else if(!isP2pCon()) {
+			// we don't allow file transfer over relayed link
+			console.log("# getStatsCandidateTypes no P2p - no textChat, no fileselect");
+		} else {
+			gLog("pickup4 enable chatButton + fileselectLabel");
+			chatButton.style.display = "block";
+			fileselectLabel.style.display = "block";
+		}
+	}
 
+	// now we create the string for showStatus
 	// remove eventString1 (Incoming, Connected) from msg
 	msg = msg.replace(eventString1,"");
 	// result: "p2p/p2p"
@@ -3540,6 +3539,8 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	}
 	buttonBlinking = false;
 	callScreen.style.display = "none";
+	chatButton.style.display = "none";
+	fileselectLabel.style.display = "none";
 
 	//console.log("### spinner off endWebRtcSession");
 	spinnerStarting = false;
