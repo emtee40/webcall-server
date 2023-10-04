@@ -1756,8 +1756,9 @@ function enableCalleeOnlineElement(clearStatus) {
 		nicknameElement.disabled = false;
 		let nicknameDivElement = document.getElementById("nicknameDiv");
 		nicknameDivElement.disabled = false;
-		idSelectElement = document.getElementById("idSelect");
-		idSelectElement.disabled = false;
+
+		idSelectLabelElement.disabled = true;
+		idSelectLabelElement.classList.remove("disableElement");
 
 		answerButtons.classList.remove("disableElement");
 		calleeOnlineElement.classList.remove("disableElement");
@@ -2379,8 +2380,10 @@ function signalingCommand(message) {
 				avSelect.style.display = "block";
 				calleeOnlineElement.style.display = "block";
 				calleeOnlineElement.classList.remove("disableElement");
-				idSelectElement = document.getElementById("idSelect");
-				idSelectElement.disabled = true;
+
+				idSelectLabelElement.disabled = true;
+				idSelectLabelElement.classList.add("disableElement");
+
 				let nicknameDivElement = document.getElementById("nicknameDiv");
 				nicknameDivElement.disabled = true;
 				nicknameDivElement.classList.add("disableElement");

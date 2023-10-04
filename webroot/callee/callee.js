@@ -1354,25 +1354,23 @@ function showOnlineReadyMsg() {
 		console.log("# showOnlineReadyMsg not online");
 		return;
 	}
-
+	if(typeof wsConn.readyState !== "undefined" && wsConn.readyState!=1) {
+		console.log("# showOnlineReadyMsg not online 2");
+		return;
+	}
+/*
 	// delay 'ready to receive calls' msg, so that prev msg can be read by user
 	setTimeout(function(oldWidth) {
-		console.log("showOnlineReadyMsg");
-		if(typeof Android !== "undefined" && Android !== null) {
-			if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
-				// Android.calleeConnected() does not do a lot
-				Android.calleeConnected();
-				// calleeConnected() does 2 things:
-				// 1. postStatus("state","connected");
-				// 2. statusMessage(readyToReceiveCallsString,-1,true,false);
-				//return;
-				if(startedWithRinging) {
-					startedWithRinging = false;
-					Android.calleeReady();
-					showStatus("Incoming call...",-1);
-				}
-			}
+		if(!wsConn) {
+			console.log("# showOnlineReadyMsg not online 3");
+			return;
 		}
+		if(typeof wsConn.readyState !== "undefined" && wsConn.readyState!=1) {
+			console.log("# showOnlineReadyMsg not online 4");
+			return;
+		}
+*/
+		console.log("showOnlineReadyMsg");
 
 		let readyMessage = "Ready to receive calls";
 		if(mediaConnect) {
@@ -1385,6 +1383,22 @@ function showOnlineReadyMsg() {
 			readyMessage += " (Auto-Answer)";
 		}
 */
+		if(typeof Android !== "undefined" && Android !== null) {
+			if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
+				// be very careful calling calleeConnected(), bc it does:
+				// 1. calleeIsConnectedFlag = true
+				// 2. postStatus("state","connected");
+				// 3. statusMessage(readyToReceiveCallsString,-1,true,false);
+				Android.calleeConnected();
+
+				if(startedWithRinging) {
+					startedWithRinging = false;
+					Android.calleeReady();
+					readyMessage = "Incoming call...";
+				}
+			}
+		}
+
 		if(mediaConnect) {
 			// do not show "Call in progress"
 		} else {
@@ -1399,7 +1413,9 @@ function showOnlineReadyMsg() {
 		//console.log("### spinner off showOnlineReadyMsg");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
+/*
 	},300);
+*/
 }
 
 let tryingToOpenWebSocket = false;
