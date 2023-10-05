@@ -101,6 +101,26 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 		return
 	}
 
+	// check if remoteAddrWithPort is already listed in waitingCallerSlice
+	remoteAddrAlreadyWaitingUser := false
+	waitingCallerDbLock.RLock()
+	var waitingCallerSlice []CallerInfo
+	kvCalls.Get(dbWaitingCaller,urlID,&waitingCallerSlice)
+	//fmt.Printf(".../canbenotified (%s) waitingCallerSlice.len=%d\n",urlID,len(waitingCallerSlice))
+	for idx := range waitingCallerSlice {
+		//fmt.Printf(".../canbenotified (%s) remoteAddrWithPort=%s waitingCallerAddr=%s\n",
+		//	urlID, remoteAddrWithPort, waitingCallerSlice[idx].AddrPort)
+		if waitingCallerSlice[idx].AddrPort == remoteAddrWithPort {
+			remoteAddrAlreadyWaitingUser = true
+			break
+		}
+	}
+	waitingCallerDbLock.RUnlock()
+	if remoteAddrAlreadyWaitingUser {
+		fmt.Printf("# /notifyCallee (%s) failed on same address\n", urlID)
+		return
+	}
+
 	logTxtMsg := callerMsg
 	if logTxtMsg!="" {
 		// do not log actual msg
@@ -263,7 +283,7 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 	hubMapMutex.RUnlock()
 
 	waitingCallerDbLock.Lock()
-	var waitingCallerSlice []CallerInfo
+	//var waitingCallerSlice []CallerInfo
 	err = kvCalls.Get(dbWaitingCaller, urlID, &waitingCallerSlice)
 
 	// locHub.ConnectedCallerIp != "" means callee is in a call
