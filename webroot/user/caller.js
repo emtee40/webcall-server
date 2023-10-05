@@ -237,6 +237,8 @@ window.onload = function() {
 //	}
 
 
+	hangupButton.disabled = true;
+
 	if(iframeChild()) {
 		// display back-arrow in the upper left corner
 		let arrowLeftElement = document.getElementById("arrowleft");
@@ -2021,9 +2023,8 @@ function gotStream2() {
 		console.log('gotStream2 removeTrack local mic audioTracks.length='+audioTracks.length);
 		if(audioTracks.length>0) {
 			gLog('gotStream2 removeTrack local mic',audioTracks[0]);
-			// TODO would it be enough to do this?
-			//audioTracks[0].enabled = false;
 			audioTracks[0].stop();
+			audioTracks[0].enabled = false;
 			localStream.removeTrack(audioTracks[0]);
 		}
 
@@ -2754,20 +2755,21 @@ function dial2() {
 				} else if(!rtcConnect && !dialing) {
 					console.log('# onnegotiationneeded deny send: !rtcConnect && !dialing');
 				} else if(isDataChlOpen()) {
+					let localDescriptionStr = JSON.stringify(localDescription);
 					console.log('peerCon onnegotiationneeded send callerOfferUpd via dc');
-					dataChannel.send("cmd|callerOfferUpd|"+JSON.stringify(localDescription));
+					dataChannel.send("cmd|callerOfferUpd|"+localDescriptionStr);
 				} else {
 					console.log('peerCon onnegotiationneeded send callerOffer via ws');
 					// when server receives our callerOffer, it sends 'callerInfo|' to the callee
+/*
 					// if msgboxText exists, send it before callerOffer
-
-				   let msgboxText = cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen);
+					let msgboxText = cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen);
 					//gLog('msgboxText=('+msgboxText+')');
 					if(msgboxText!="") {
 						gLog('msg=('+msgboxText+')');
 						wsSend("msg|"+msgboxText);
 					}
-
+*/
 					wsSend("callerOffer|"+JSON.stringify(localDescription));
 				}
 			}, err => console.error(`Failed to set local descr: ${err.toString()}`));

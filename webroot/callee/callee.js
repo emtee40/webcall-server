@@ -1276,7 +1276,10 @@ function gotStream2() {
 		console.log('gotStream2 mute mic (localStream) standby');
 		localStream.getTracks().forEach(track => { track.stop(); });
 		const audioTracks = localStream.getAudioTracks();
-		localStream.removeTrack(audioTracks[0]);
+		if(audioTracks.length>0) {
+			audioTracks[0].enabled = false;
+			localStream.removeTrack(audioTracks[0]);
+		}
 		localStream = null;
 	}
 
@@ -3377,6 +3380,7 @@ function dataChannelOnmessage(event) {
 					dataChannel.close();
 					dataChannel = null;
 				}
+// TODO this msg may not be replaced with "Ready to receive calls"
 				hangupWithBusySound(true,"disconnect by peer via datachl");
 			} else if(event.data.startsWith("textchatOK")) {
 				textchatOKfromOtherSide = true;
@@ -3650,9 +3654,11 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 	if(localStream && !videoEnabled) {
 		console.log('endWebRtcSession close localStream');
 		const audioTracks = localStream.getAudioTracks();
-		audioTracks[0].enabled = false; // mute mic
 		localStream.getTracks().forEach(track => { track.stop(); });
-		localStream.removeTrack(audioTracks[0]);
+		if(audioTracks.length>0) {
+			audioTracks[0].enabled = false;
+			localStream.removeTrack(audioTracks[0]);
+		}
 		localStream = null;
 	}
 

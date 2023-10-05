@@ -970,7 +970,7 @@ function getStream(selectObject,comment) {
 
 	//if(!gentle) {
 	const supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
-	console.log('getStream supportedConstraints',supportedConstraints+" comment="+comment);
+	console.log("getStream supportedConstraints comment="+comment,supportedConstraints);
 	if(typeof myUserMediaDeviceId!=="undefined" && myUserMediaDeviceId!=null) {
 		console.log('getStream myUserMediaDeviceId='+myUserMediaDeviceId);
 	}
@@ -996,10 +996,20 @@ function getStream(selectObject,comment) {
 				console.log('getStream avSelect myUserMediaDeviceId='+myUserMediaDeviceId);
 
 				if(avSelect.options[i].label.startsWith("Audio")) {
+/*
 					if(videoEnabled) {
 						console.log('getStream avSelect audio: videoOff');
 						videoOff();
 					}
+*/
+					let tmpConstraints = defaultConstraintString;
+					if(myUserMediaDeviceId) {
+						tmpConstraints += ',"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
+					}
+					tmpConstraints = "{"+tmpConstraints+"}";
+					console.log('getStream avSelect audio ',tmpConstraints);
+					userMediaConstraints.audio = JSON.parse(tmpConstraints);
+
 				} else if(avSelect.options[i].label.startsWith("Video")) {
 					let tmpConstraints = defaultConstraintString;
 					if(myUserMediaDeviceId) {
@@ -1053,12 +1063,15 @@ function getStream(selectObject,comment) {
 	return navigator.mediaDevices.getUserMedia(myUserMediaConstraints)
 		.then(function(stream) {
 			console.log('getStream success -> gotStream');
-			gotStream(stream);
 			// no error: use this as lastGoodMediaConstraints
-			lastGoodMediaConstraints = JSON.parse(JSON.stringify(saveWorkingConstraints));
+			let workingConstraintsString = JSON.stringify(saveWorkingConstraints);
+			//console.log('getStream workingConstraintsString='+workingConstraintsString);
+			// "audio":{"noiseSuppression":true,"echoCancellation":true,"autoGainControl":false},"video":false
+			lastGoodMediaConstraints = JSON.parse(workingConstraintsString);
 			if(avSelect) {
 				lastGoodAvSelectIndex = avSelect.selectedIndex;
 			}
+			gotStream(stream);
 			//console.log('set lastGoodMediaConstraints',lastGoodMediaConstraints);
 		})
 		.catch(function(err) {
@@ -1208,7 +1221,7 @@ function gotStream(stream) {
 	if(peerCon && peerCon.iceConnectionState!="closed" && addedAudioTrack) {
 		console.log("gotStream removeTrack(addedAudioTrack)");
 		// this can throw "The sender was not created by this peer connection."
-		// TODO where shold the old addedAudioTrack be removed, nulled?
+		// TODO where should the old addedAudioTrack be removed, nulled?
 		try {
 			peerCon.removeTrack(addedAudioTrack);
 		} catch(ex) {
@@ -1226,28 +1239,45 @@ function gotStream(stream) {
 	}
 	addedVideoTrack = null;
 
+	if(stream==null) {
+		console.log("# gotStream stream==null");
+		return;
+	}
+/*
 	if(localStream==stream) {
 		console.log("gotStream localStream==stream (no set localStream)");
-	} else if(stream) {
+	} else
+*/
+	{
 		localStream = stream;
 		console.log("gotStream got new localStream "+(localStream!=null));
 	}
 
+console.log("gotStream localStream id="+localStream.id+" active="+localStream.active, localStream);
+
 	const audioTracks = localStream.getAudioTracks();
+	if(audioTracks.length<1) {
+		console.log('# no audioTracks');
+		return;
+	}
+
 	console.log("gotStream got audioTracks len="+audioTracks.length);
-	if(!mediaConnect) {
-		console.log('gotStream mute loc audio inp '+audioTracks[0]);
+
+/*	if(!mediaConnect) {
+		console.log('gotStream no mediaConnect, disable loc audio inp ',audioTracks[0]);
+		audioTracks[0].enabled = false;
+	} else 
+*/	if(muteMicElement && muteMicElement.checked) {
+		console.log('gotStream muteMic, DISABLE loc audio inp',audioTracks[0]);
 		audioTracks[0].enabled = false;
 	} else {
-		if(!muteMicElement || !muteMicElement.checked) {
-			console.log('gotStream unmute loc audio inp '+audioTracks[0]);
-			audioTracks[0].enabled = true;
-		}
+		console.log('gotStream ENABLE loc audio inp',audioTracks[0]);
+		audioTracks[0].enabled = true;
 	}
 
 	if(!peerCon || peerCon.iceConnectionState=="closed") {
 		// this normally occurs onload
-		console.log("gotStream no peerCon: no addTrack");
+		console.log("! gotStream no peerCon: no addTrack");
 	} else if(addedAudioTrack) {
 		console.log("# gotStream addedAudioTrack already set: no addTrack");
 	} else {
