@@ -86,7 +86,7 @@ function setVideoConstraintsGiven() {
 	let tmpConstraints = constraintString;
 	if(myUserMediaDeviceId && myUserMediaDeviceId!="default") {
 		console.log('setVideoConstraintsGiven myUserMediaDeviceId='+myUserMediaDeviceId);
-		tmpConstraints += ',"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
+//		tmpConstraints += ',"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
 	} else {
 		// desktop chromium doesn't like 'exact' 'user'
 		tmpConstraints += ',"facingMode": { "ideal": "user" }';
@@ -1003,26 +1003,29 @@ function getStream(selectObject,comment) {
 						videoOff();
 					}
 */
-					let tmpConstraints = defaultConstraintString;
+					let tmpConstraints = ""; //defaultConstraintString;
 					if(myUserMediaDeviceId) {
-						tmpConstraints += ',"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
+//						tmpConstraints += ',"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
 					}
 					tmpConstraints = "{"+tmpConstraints+"}";
-					console.log('getStream avSelect audio ',tmpConstraints);
+					console.log('getStream avSelect audio '+tmpConstraints);
 					userMediaConstraints.audio = JSON.parse(tmpConstraints);
+					userMediaConstraints.video = false;
 
 				} else if(avSelect.options[i].label.startsWith("Video")) {
 					let tmpConstraints = defaultConstraintString;
 					if(myUserMediaDeviceId) {
-						tmpConstraints += ',"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
+//						tmpConstraints += ',"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
 					}
 					tmpConstraints = "{"+tmpConstraints+"}";
-					console.log('getStream avSelect video ',tmpConstraints);
+					console.log('getStream avSelect video '+tmpConstraints);
 					userMediaConstraints.video = JSON.parse(tmpConstraints);
 				}
 				break;
 			}
 		}
+	} else {
+// TODO turn exact off?
 	}
 
 	myUserMediaConstraints = JSON.parse(JSON.stringify(userMediaConstraints));
@@ -1085,8 +1088,20 @@ function getStream(selectObject,comment) {
 			} else {
 				console.log('# getUserMedia a/v err='+err.message, myUserMediaConstraints);
 				if(localVideoMsgElement) {
+					console.log("getUserMedia show 'video mode error'");
+// TODO msg momentatily disappears
 					localVideoMsgElement.innerHTML = "video mode error";
 					localVideoMsgElement.style.opacity = 0.9;
+				}
+				if(err.message.indexOf("video")>=0) {
+					// close video frame? (if err="Starting videoinput failed")
+					// at least stop 'send' button blinking
+					if(vsendButton) {
+						console.log("getUserMedia stop vsendButton blink");
+// TODO blink does not stop
+						vsendButton.classList.remove('blink_me');
+						//vsendButton.style.color = "#ff0";
+					}
 				}
 			}
 			showStatus("Error getStream "+err.message,0,true); // undo "Connecting..."
@@ -1279,7 +1294,7 @@ console.log("gotStream localStream id="+localStream.id+" active="+localStream.ac
 
 	if(!peerCon || peerCon.iceConnectionState=="closed") {
 		// this normally occurs onload
-		console.log("! gotStream no peerCon: no addTrack");
+		console.log("gotStream no peerCon: no addTrack");
 	} else if(addedAudioTrack) {
 		console.log("# gotStream addedAudioTrack already set: no addTrack");
 	} else {
