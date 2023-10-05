@@ -85,13 +85,14 @@ function setVideoConstraintsGiven() {
 	// build userMediaConstraints.video from constraintString + myUserMediaDeviceId
 	let tmpConstraints = constraintString;
 	if(myUserMediaDeviceId && myUserMediaDeviceId!="default") {
-		console.log('setVideoConstraintsGiven avSelect myUserMediaDeviceId',myUserMediaDeviceId);
+		console.log('setVideoConstraintsGiven myUserMediaDeviceId='+myUserMediaDeviceId);
 		tmpConstraints += ',"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
 	} else {
 		// desktop chromium doesn't like 'exact' 'user'
 		tmpConstraints += ',"facingMode": { "ideal": "user" }';
 	}
 	tmpConstraints = "{"+tmpConstraints+"}";
+	console.log('setVideoConstraintsGiven constraints='+tmpConstraints);
 	userMediaConstraints.video = JSON.parse(tmpConstraints);
 	return tmpConstraints;
 }
@@ -970,7 +971,7 @@ function getStream(selectObject,comment) {
 
 	//if(!gentle) {
 	const supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
-	console.log("getStream supportedConstraints comment="+comment,supportedConstraints);
+	console.log("getStream supportedConstraints comment="+comment+" supportedConstraints="+JSON.stringify(supportedConstraints));
 	if(typeof myUserMediaDeviceId!=="undefined" && myUserMediaDeviceId!=null) {
 		console.log('getStream myUserMediaDeviceId='+myUserMediaDeviceId);
 	}
@@ -1027,13 +1028,13 @@ function getStream(selectObject,comment) {
 	myUserMediaConstraints = JSON.parse(JSON.stringify(userMediaConstraints));
 
 	if(!videoEnabled) {
-		//gLog('getStream !videoEnabled: Constraints.video = false');
+		console.log('getStream !videoEnabled: Constraints.video = false');
 		myUserMediaConstraints.video = false;
 	}
 
 	if(videoEnabled) {
 		if(!myUserMediaConstraints.video) {
-			gLog('getStream videoEnabled but !myUserMediaConstraints.video: localVideoHide()');
+			console.log('getStream videoEnabled but !myUserMediaConstraints.video: localVideoHide()');
 			if(localVideoMsgElement) {
 				localVideoMsgElement.innerHTML = "no video device";
 				localVideoMsgElement.style.opacity = 0.9;
@@ -1058,7 +1059,7 @@ function getStream(selectObject,comment) {
 		localStream = null;
 	}
 
-	//console.log("getStream set getUserMedia ",myUserMediaConstraints);
+	console.log("getStream set getUserMedia "+JSON.stringify(myUserMediaConstraints));
 	let saveWorkingConstraints = JSON.parse(JSON.stringify(myUserMediaConstraints));
 	return navigator.mediaDevices.getUserMedia(myUserMediaConstraints)
 		.then(function(stream) {
@@ -1076,13 +1077,13 @@ function getStream(selectObject,comment) {
 		})
 		.catch(function(err) {
 			if(!videoEnabled) {
-				console.log("# audio error " + err.message);
+				console.log("# getUserMedia audio err="+err.message, myUserMediaConstraints);
 				if(!doneHangup) {
 //					alert("audio error: " + err.message +
 //						  "\nLooks like an issue with your browser");
 				}
 			} else {
-				console.log('# audio/video error', err.message);
+				console.log('# getUserMedia a/v err='+err.message, myUserMediaConstraints);
 				if(localVideoMsgElement) {
 					localVideoMsgElement.innerHTML = "video mode error";
 					localVideoMsgElement.style.opacity = 0.9;
@@ -1095,21 +1096,22 @@ function getStream(selectObject,comment) {
 			}
 
 			if(lastGoodMediaConstraints) {
-				gLog('getStream back to lastGoodMediaConstraints '+lastGoodMediaConstraints);
+				console.log('getStream back to lastGoodMediaConstraints',lastGoodMediaConstraints);
 				userMediaConstraints = JSON.parse(JSON.stringify(lastGoodMediaConstraints));
 				if(avSelect) {
 					avSelect.selectedIndex = lastGoodAvSelectIndex;
 				}
 				if(!userMediaConstraints.video && videoEnabled) {
-					gLog('getStream back to lastGoodMediaConstraints !Constraints.video');
+					console.log('getStream back to lastGoodMediaConstraints !Constraints.video');
 					//localVideoHide();
 				}
 				if(userMediaConstraints.video && !videoEnabled) {
-					gLog('getStream back to lastGoodMediaConstraints Constraints.video');
+					console.log('getStream back to lastGoodMediaConstraints Constraints.video');
 					localVideoShow();
 				}
 				return navigator.mediaDevices.getUserMedia(userMediaConstraints)
 					.then(function(stream) {
+						console.log('getStream success -> gotStream');
 						gotStream(stream);
 						if(videoEnabled && localVideoMsgElement) {
 							// remove error msg
@@ -1121,7 +1123,7 @@ function getStream(selectObject,comment) {
 					})
 					.catch(function(err) {
 						if(videoEnabled && localVideoMsgElement) {
-							gLog('getStream backto lastGoodMediaConstraints videoEnabled err');
+							console.log('getStream backto lastGoodMediaConstraints videoEnabled err');
 							localVideoMsgElement.innerHTML = "no video device";
 							localVideoMsgElement.style.opacity = 0.9;
 						}
@@ -1253,7 +1255,7 @@ function gotStream(stream) {
 		console.log("gotStream got new localStream "+(localStream!=null));
 	}
 
-console.log("gotStream localStream id="+localStream.id+" active="+localStream.active, localStream);
+console.log("gotStream localStream id="+localStream.id+" active="+localStream.active+" localStream="+JSON.stringify(localStream));
 
 	const audioTracks = localStream.getAudioTracks();
 	if(audioTracks.length<1) {
@@ -1271,7 +1273,7 @@ console.log("gotStream localStream id="+localStream.id+" active="+localStream.ac
 		console.log('gotStream muteMic, DISABLE loc audio inp',audioTracks[0]);
 		audioTracks[0].enabled = false;
 	} else {
-		console.log('gotStream ENABLE loc audio inp',audioTracks[0]);
+		console.log('gotStream ENABLE loc audio inp tracks='+JSON.stringify(audioTracks[0]));
 		audioTracks[0].enabled = true;
 	}
 
@@ -1299,11 +1301,12 @@ console.log("gotStream localStream id="+localStream.id+" active="+localStream.ac
 		console.log('gotStream videoEnabled but !addLocalVideoEnabled: no addTrack vid');
 	} else if(!peerCon || peerCon.iceConnectionState=="closed") {
 		console.log('# gotStream videoEnabled but !peerCon: no addTrack vid');
-	} else if(localCandidateType=="relay" || remoteCandidateType=="relay") {
-		console.log('# gotStream videoEnabled but relayed con: no addTrack vid (%s)(%s) '+
-			localCandidateType+" "+remoteCandidateType);
+//	} else if(localCandidateType=="relay" || remoteCandidateType=="relay") {		// too early
+//		console.log('# gotStream videoEnabled but relayed con: no addTrack vid (%s)(%s) '+
+//			localCandidateType+" "+remoteCandidateType);
 	} else if(localStream.getTracks().length<2) {
 		console.log('# gotStream videoEnabled but getTracks().length<2: no addTrack vid '+localStream.getTracks().length);
+		// TODO show constraints
 	} else {
 		console.log('peerCon addTrack local video input '+localStream.getTracks()[1]);
 		addedVideoTrack = peerCon.addTrack(localStream.getTracks()[1],localStream);
