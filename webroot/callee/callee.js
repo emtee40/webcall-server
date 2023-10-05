@@ -1361,8 +1361,8 @@ function showOnlineReadyMsg() {
 		console.log("# showOnlineReadyMsg not online 2");
 		return;
 	}
-/*
-	// delay 'ready to receive calls' msg, so that prev msg can be read by user
+
+	// delay 'ready to receive calls' msg, so that it appears (and stays on screen) after prev msgs
 	setTimeout(function(oldWidth) {
 		if(!wsConn) {
 			console.log("# showOnlineReadyMsg not online 3");
@@ -1372,20 +1372,20 @@ function showOnlineReadyMsg() {
 			console.log("# showOnlineReadyMsg not online 4");
 			return;
 		}
-*/
+
 		console.log("showOnlineReadyMsg");
 
 		let readyMessage = "Ready to receive calls";
 		if(mediaConnect) {
 			readyMessage = "Call in progress";
 		}
-/*
+		/*
 		if(isHiddenCheckbox.checked) {
 			readyMessage += " (Online status hidden)";
 		} else if(autoanswerCheckbox.checked) {
 			readyMessage += " (Auto-Answer)";
 		}
-*/
+		*/
 		if(typeof Android !== "undefined" && Android !== null) {
 			if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
 				// be very careful calling calleeConnected(), bc it does:
@@ -1416,9 +1416,8 @@ function showOnlineReadyMsg() {
 		//console.log("### spinner off showOnlineReadyMsg");
 		spinnerStarting = false;
 		divspinnerframe.style.display = "none";
-/*
+
 	},300);
-*/
 }
 
 let tryingToOpenWebSocket = false;
