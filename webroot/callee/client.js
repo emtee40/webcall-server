@@ -80,7 +80,8 @@ var userMediaConstraints = {
 	// videoOn() will set userMediaConstraints.video
 };
 
-let myUserMediaDeviceId;
+let myUserMediaDeviceId="";
+let myUserMediaDeviceLabel="";
 function setVideoConstraintsGiven() {
 	// build userMediaConstraints.video from constraintString + myUserMediaDeviceId
 	let tmpConstraints = constraintString;
@@ -994,7 +995,9 @@ function getStream(selectObject,comment) {
 				// found deviceId
 // TODO selectObject.value may have resetted itself to "default"
 				myUserMediaDeviceId = selectObject.value;
-				console.log('getStream avSelect myUserMediaDeviceId='+myUserMediaDeviceId);
+				myUserMediaDeviceLabel = avSelect.options[i].label;
+				console.log("getStream avSelect label="+myUserMediaDeviceLabel+
+					" myUserMediaDeviceId="+myUserMediaDeviceId);
 
 				if(avSelect.options[i].label.startsWith("Audio")) {
 /*
@@ -1004,8 +1007,13 @@ function getStream(selectObject,comment) {
 					}
 */
 					let tmpConstraints = ""; //defaultConstraintString;
-					if(myUserMediaDeviceId) {
-//						tmpConstraints += ',"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
+					if(myUserMediaDeviceLabel.indexOf("Default")<0 || myUserMediaDeviceLabel.indexOf("default")<0) {
+						if(myUserMediaDeviceId && myUserMediaDeviceId!="" && myUserMediaDeviceId!="default") {
+							if(tmpConstraints!="") {
+								tmpConstraints += ',';
+							}
+							tmpConstraints += '"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
+						}
 					}
 					tmpConstraints = "{"+tmpConstraints+"}";
 					console.log('getStream avSelect audio '+tmpConstraints);
@@ -1014,8 +1022,13 @@ function getStream(selectObject,comment) {
 
 				} else if(avSelect.options[i].label.startsWith("Video")) {
 					let tmpConstraints = defaultConstraintString;
-					if(myUserMediaDeviceId) {
-//						tmpConstraints += ',"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
+					if(myUserMediaDeviceLabel.indexOf("Default")<0 || myUserMediaDeviceLabel.indexOf("default")<0) {
+						if(myUserMediaDeviceId && myUserMediaDeviceId!="" && myUserMediaDeviceId!="default") {
+							if(tmpConstraints!="") {
+								tmpConstraints += ',';
+							}
+							tmpConstraints += '"deviceId": { "exact": "'+myUserMediaDeviceId+'" }';
+						}
 					}
 					tmpConstraints = "{"+tmpConstraints+"}";
 					console.log('getStream avSelect video '+tmpConstraints);
