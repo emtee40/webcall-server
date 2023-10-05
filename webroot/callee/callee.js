@@ -2111,13 +2111,13 @@ function showWaitingCallers() {
 		waitingCallersElement.style.display = "block";
 		gLog('showWaitingCallers fkt waitingCallerSlice.length',waitingCallerSlice.length);
 		let timeNowSecs = Math.floor((Date.now()+500)/1000);
-		let str = "<table style='width:100%; border-collapse:separate; border-spacing:6px 2px; line-height:1.5em;'>"
+		let str = "<table style='width:100%; border-collapse:separate; border-spacing:2px 2px; line-height:1.5em;'>"
 		for(let i=0; i<waitingCallerSlice.length; i++) {
 			str += "<tr>"
 			let waitingSecs = timeNowSecs - waitingCallerSlice[i].CallTime;
-			let waitingTimeString = ""+waitingSecs+" sec";
+			let waitingTimeString = ""+waitingSecs+"s";
 			if(waitingSecs>50) {
-				waitingTimeString = ""+Math.floor((waitingSecs+10)/60)+" min"
+				waitingTimeString = ""+Math.floor((waitingSecs+10)/60)+"m"
 			}
 			let callerName = waitingCallerSlice[i].CallerName;
 			let callerNameShow = callerName;
@@ -2138,15 +2138,32 @@ function showWaitingCallers() {
 					callerID = callerID.substring(0,callerID.length-1);
 				}
 			}
-			str += "<td>" + callerNameShow + "</td><td>"+
-			    callerID + "</td>"+
-				"<td style='text-align:right;'> "+
-				waitingTimeString + "</td>"+
-				"<td style='text-align:right;'><a onclick='pickupWaitingCaller(\""+waitingCallerSlice[i].AddrPort+"\")'>"+
-				"accept</a></td>"+
-				"<td style='text-align:right;'><a onclick='rejectWaitingCaller(\""+waitingCallerSlice[i].AddrPort+"\")'>"+
-				"reject</a></td>"+
-				"</tr>";
+
+			if(window.innerWidth>500) {
+				str += "<td>" + callerNameShow + "</td><td>"+
+					callerID + "</td>"+
+					"<td style='text-align:right;'> "+
+					waitingTimeString + "</td>"+
+					"<td style='text-align:right;'>"+
+						"<a onclick='pickupWaitingCaller(\""+waitingCallerSlice[i].AddrPort+"\")'>"+
+					"accept</a></td>"+
+					"<td style='text-align:right;'>"+
+						"<a onclick='rejectWaitingCaller(\""+waitingCallerSlice[i].AddrPort+"\")'>"+
+					"reject</a></td>"+
+					"</tr>";
+			} else {
+				str += "<td>" + callerNameShow + "<br>"+
+					callerID + "</td>"+
+					"<td style='text-align:right;'> "+
+					waitingTimeString + "</td>"+
+					"<td style='text-align:right;'>"+
+						"<a onclick='pickupWaitingCaller(\""+waitingCallerSlice[i].AddrPort+"\")'>"+
+					"accept</a></td>"+
+					"<td style='text-align:right;'>"+
+						"<a onclick='rejectWaitingCaller(\""+waitingCallerSlice[i].AddrPort+"\")'>"+
+					"reject</a></td>"+
+					"</tr>";
+			}
 		}
 		str += "</table>";
 		waitingCallersElement.innerHTML = str;
