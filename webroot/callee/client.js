@@ -1034,7 +1034,7 @@ function getStream(selectObject,comment) {
 
 	if(videoEnabled) {
 		if(!myUserMediaConstraints.video) {
-			console.log('getStream videoEnabled but !myUserMediaConstraints.video: localVideoHide()');
+			console.log('# getStream videoEnabled but !myUserMediaConstraints.video: localVideoHide()');
 			if(localVideoMsgElement) {
 				localVideoMsgElement.innerHTML = "no video device";
 				localVideoMsgElement.style.opacity = 0.9;
@@ -1324,10 +1324,8 @@ console.log("gotStream localStream id="+localStream.id+" active="+localStream.ac
 
 function videoSwitch(forceClose) {
 	if(videoEnabled || forceClose) {
-		gLog("===videoSwitch videoOff==="+forceClose);
 		videoOff();
 	} else {
-		gLog("===videoSwitch videoOn===");
 		videoOn();
 	}
 }

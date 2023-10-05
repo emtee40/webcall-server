@@ -365,7 +365,7 @@ window.onload = function() {
 
 function videoOn() {
 	// open local video-frame (it is not yet streaming, but locally visible)
-	gLog("videoOn");
+	console.log("===videoSwitch videoOn===");
 	constraintString = defaultConstraintString;
 	setVideoConstraintsGiven();
 	localVideoShow();
@@ -393,6 +393,7 @@ function videoOn() {
 		gotDevices(deviceInfos);
 
 		if(videoEnabled) {
+/*
 			// switch to the 1st video option
 			let optionElements = Array.from(avSelect);
 			if(optionElements.length>0) {
@@ -406,9 +407,9 @@ function videoOn() {
 					}
 				}
 			}
-
+*/
 			if(videoEnabled && mediaConnect && !addLocalVideoEnabled && vsendButton) {
-				gLog('videoOn mediaConnect, blink vsendButton');
+				console.log('videoOn mediaConnect, blink vsendButton');
 				vsendButton.classList.add('blink_me');
 				setTimeout(function() { vsendButton.classList.remove('blink_me') },10000);
 			}
@@ -418,7 +419,7 @@ function videoOn() {
 
 function videoOff() {
 	// hide/close localVideoFrame (not needed anymore)
-	gLog("videoOff");
+	console.log("===videoSwitch videoOff===");
 	myUserMediaDeviceId = null;
 	localVideoHide();
 	if(localStream) {
@@ -453,7 +454,7 @@ function videoOff() {
 			gLog("videoOff !rtcConnect dataChannel still set "+dataChannel.readyState);
 		}
 	}
-
+/*
 	// getStream() triggers a new cmd=='missedCalls' but we don't want a beep
 
 	// switch to the 1st audio option
@@ -474,6 +475,7 @@ function videoOff() {
 			getStream(false,"videoOff2");
 		}
 	}
+*/
 }
 
 function checkServerMode(callback) {
