@@ -483,13 +483,13 @@ window.onload = function() {
 		enterIdElement.style.display = "block";
 
 		if(iframeChild()) {
-//			if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
+			//if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
 				// display back-arrow in the upper left corner
 				let arrowLeftElement = document.getElementById("arrowleftDialID");
 				if(arrowLeftElement!=null) {
 					arrowLeftElement.style.display = "block";
 				}
-//			}
+			//}
 		}
 
 		if(callerIdArg=="select") {
@@ -1461,8 +1461,9 @@ function calleeOnlineAction(comment) {
 // TODO or maybe skip this ONLY if callee tells us so
 // TODO android does not need this (anymore), but caller on web does (to fill the audio selector)
 //			if(typeof Android !== "undefined" && Android !== null) {
-			if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
-			} else {
+//			if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
+//			} else 
+			{
 				getStream(false,"calleeOnlineAction2").then(() =>
 					navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 			}
@@ -2379,7 +2380,7 @@ function signalingCommand(message) {
 
 			// enable avSelect for web clients
 // TODO tmtmtm
-			if(navigator.userAgent.indexOf("Android")<0 && navigator.userAgent.indexOf("Dalvik")<0) {
+//			if(navigator.userAgent.indexOf("Android")<0 && navigator.userAgent.indexOf("Dalvik")<0) {
 				avSelect.style.display = "block";
 				calleeOnlineElement.style.display = "block";
 				calleeOnlineElement.classList.remove("disableElement");
@@ -2390,7 +2391,7 @@ function signalingCommand(message) {
 				let nicknameDivElement = document.getElementById("nicknameDiv");
 				nicknameDivElement.disabled = true;
 				nicknameDivElement.classList.add("disableElement");
-			}
+//			}
 
 			// on start of fullConnect: un-mute mic if muteMicElement not checked
 			if(localStream) {
