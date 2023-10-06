@@ -418,7 +418,7 @@ function videoOn() {
 function videoOff() {
 	// hide/close localVideoFrame (not needed anymore)
 	console.log("===videoSwitch videoOff===");
-	myUserMediaDeviceId = null;
+//	myUserMediaDeviceId = null;
 	localVideoHide();
 	if(localStream) {
 		connectLocalVideo(true);
@@ -452,8 +452,6 @@ function videoOff() {
 			gLog("videoOff !rtcConnect dataChannel still set "+dataChannel.readyState);
 		}
 	}
-/*
-	// getStream() triggers a new cmd=='missedCalls' but we don't want a beep
 
 	// switch to the 1st audio option
 	let optionElements = Array.from(avSelect);
@@ -463,17 +461,18 @@ function videoOff() {
 			if(optionElements[i].text.startsWith("Audio")) {
 				gLog("videoOff avSelect idx "+i);
 				avSelect.selectedIndex = i;
-				getStream(optionElements[i],"videoOff");
+				//getStream(optionElements[i],"videoOff");
 				break;
 			}
 		}
+/*
 		if(rtcConnect) {
 			// activate selected device
 			gLog("videoOff rtcConnect getStream()");
-			getStream(false,"videoOff2");
+			getStream(false,"videoOff");
 		}
-	}
 */
+	}
 }
 
 function checkServerMode(callback) {

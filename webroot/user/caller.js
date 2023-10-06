@@ -1285,11 +1285,13 @@ function videoOff() {
 				break;
 			}
 		}
+/*
 		if(rtcConnect) {
 			// if still peer connected, activate the selected audio device
 			// TODO not sure this is needed
 			getStream(false,"videoOff");
 		}
+*/
 	}
 }
 
