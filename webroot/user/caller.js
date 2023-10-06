@@ -1458,8 +1458,7 @@ function calleeOnlineAction(comment) {
 
 			enableCalleeOnlineElement(false);
 
-// TODO or maybe skip this ONLY if callee tells us so
-// TODO android does not need this (anymore), but caller on web does (to fill the audio selector)
+// TODO android does not need this (anymore)(wrong!), but caller on web does (to fill the audio selector)
 //			if(typeof Android !== "undefined" && Android !== null) {
 //			if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
 //			} else 
@@ -2378,7 +2377,7 @@ function signalingCommand(message) {
 			dialing = false;
 			msgboxdiv.style.display = "none";
 
-			// enable avSelect for web clients
+			// enable avSelect
 // TODO tmtmtm
 //			if(navigator.userAgent.indexOf("Android")<0 && navigator.userAgent.indexOf("Dalvik")<0) {
 				avSelect.style.display = "block";

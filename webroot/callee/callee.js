@@ -181,10 +181,9 @@ window.onload = function() {
 
 	menuClearCookieElement.style.display = "block";
 
-//	if(typeof Android !== "undefined" && Android !== null) {
-	if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
-		avSelect.style.display = "none";
-	}
+//	if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
+//		avSelect.style.display = "none";
+//	}
 
 	// if set will auto-login as callee
 	let auto = cleanStringParameter(getUrlParams("auto",true),true,"auto");
@@ -392,22 +391,21 @@ function videoOn() {
 	.then((deviceInfos) => {
 		gotDevices(deviceInfos);
 
-		if(videoEnabled) {
-/*
-			// switch to the 1st video option
-			let optionElements = Array.from(avSelect);
-			if(optionElements.length>0) {
-				gLog("videoOn avSelect.selectedIndex count "+optionElements.length);
-				for(let i=0; i<optionElements.length; i++) {
-					if(optionElements[i].text.startsWith("Video")) {
-						gLog("videoOn avSelect.selectedIndex set "+i);
-						avSelect.selectedIndex = i;
-						getStream(optionElements[i],"videoOn2");
-						break;
-					}
+		// switch to the 1st video option
+		let optionElements = Array.from(avSelect);
+		if(optionElements.length>0) {
+			gLog("videoOn avSelect.selectedIndex count "+optionElements.length);
+			for(let i=0; i<optionElements.length; i++) {
+				if(optionElements[i].text.startsWith("Video")) {
+					gLog("videoOn avSelect.selectedIndex set "+i);
+					avSelect.selectedIndex = i;
+					//getStream(optionElements[i],"videoOn2");
+					break;
 				}
 			}
-*/
+		}
+
+		if(videoEnabled) {
 			if(videoEnabled && mediaConnect && !addLocalVideoEnabled && vsendButton) {
 				console.log('videoOn mediaConnect, blink vsendButton');
 				vsendButton.classList.add('blink_me');

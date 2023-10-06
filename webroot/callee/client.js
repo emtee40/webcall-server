@@ -1037,8 +1037,6 @@ function getStream(selectObject,comment) {
 				break;
 			}
 		}
-	} else {
-// TODO turn exact off?
 	}
 
 	myUserMediaConstraints = JSON.parse(JSON.stringify(userMediaConstraints));
