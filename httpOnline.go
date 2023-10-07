@@ -317,17 +317,14 @@ func httpOnline(w http.ResponseWriter, r *http.Request, urlID string, dialID str
 			}
 		}
 
-		if dialID != urlID {
-			// dialID was mapped
-			// original dialID is needed by caller in wsClient.go
-			wsClientMutex.Lock()
-			wsClientData,ok := wsClientMap[wsClientID]
-			if ok {
-				wsClientData.dialID = dialID
-				wsClientMap[wsClientID] = wsClientData
-			}
-			wsClientMutex.Unlock()
+		// always store the original dialID in wsClientMap[wsClientID].dialID
+		wsClientMutex.Lock()
+		wsClientData,ok := wsClientMap[wsClientID]
+		if ok {
+			wsClientData.dialID = dialID
+			wsClientMap[wsClientID] = wsClientData
 		}
+		wsClientMutex.Unlock()
 
 		wsAddr := fmt.Sprintf("ws://%s:%d/ws", hostname, wsPort)
 		readConfigLock.RLock()

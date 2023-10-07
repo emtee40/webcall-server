@@ -245,8 +245,10 @@ func (h *Hub) peerConHasEnded(cause string) {
 			if(h!=nil && h.CallerClient!=nil) {
 				calleeIdDialed = h.CallerClient.dialID
 			}
-			addMissedCall(h.CalleeClient.calleeID, CallerInfo{h.CallerIpNoPort, callerName, time.Now().Unix(),
-				callerID, calleeIdDialed, h.CalleeClient.callerTextMsg }, cause)
+			var missedCallsSlice []CallerInfo
+			_,missedCallsSlice = addMissedCall(h.CalleeClient.calleeID, CallerInfo{h.CallerIpNoPort, callerName,
+				time.Now().Unix(), callerID, calleeIdDialed, h.CalleeClient.callerTextMsg}, cause)
+			waitingCallerToCallee(h.CalleeClient.calleeID, nil, missedCallsSlice, h.CalleeClient)
 		}
 	}
 

@@ -2309,9 +2309,9 @@ function showMissedCalls() {
 			// TODO if callerName=="" || callerName=="unknown" -> check contacts?
 
 			let dialID = missedCallsSlice[i].DialID;
-			if(dialID=="") {
-				dialID = "main";
-			}
+//			if(dialID=="") {
+//				dialID = "main";
+//			}
 			if(window.innerWidth<480) {
 				dialID = dialID.substring(0,6);
 				if(window.innerWidth<380) {

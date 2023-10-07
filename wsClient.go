@@ -162,9 +162,9 @@ func serve(w http.ResponseWriter, r *http.Request, tls bool) {
 		} else {
 			callerIdLong += "@@"+callerHost
 		}
-		//fmt.Printf("wsClient (%s) callerID=%s Long=%s callerHost=%s hostname=%s\n",
-		//	wsClientData.calleeID, callerID, callerIdLong, callerHost, hostname)
 	}
+	//fmt.Printf("wsClient (%s) callerID=%s/%s callerHost=%s hostname=%s\n",
+	//	wsClientData.calleeID, callerID, callerIdLong, callerHost, hostname)
 
 	callerName := ""
 	url_arg_array, ok = r.URL.Query()["callerName"]
@@ -248,7 +248,7 @@ func serve(w http.ResponseWriter, r *http.Request, tls bool) {
 
 	client := &WsClient{wsConn:wsConn}
 	client.calleeID = wsClientData.calleeID // this is the main-calleeID
-	client.dialID = wsClientData.dialID
+	client.dialID = wsClientData.dialID // stored by httpOnline()
 	client.globalCalleeID = wsClientData.globalID
 
 /*
@@ -917,11 +917,11 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 			c.hub.HubMutex.RUnlock()
 			return
 		}
-		// prevent this callee from receiving a call, when already in a call
+		// callee is busy; prevent it from receiving a call, when already in a call
 		if c.hub.ConnectedCallerIp!="" {
 			// ConnectedCallerIp is set below by StoreCallerIpInHubMap()
-			fmt.Printf("# %s (%s) CALL⚡ but hub.ConnectedCallerIp not empty (%s) <- (%s) %s\n",
-				c.connType, c.calleeID, c.hub.ConnectedCallerIp, c.callerID, c.RemoteAddr)
+			fmt.Printf("# %s (%s/%s) CALL⚡ but hub.ConnectedCallerIp not empty (%s) <- (%s) %s\n",
+				c.connType, c.calleeID, c.dialID, c.hub.ConnectedCallerIp, c.callerID, c.RemoteAddr)
 
 			// add missed call if dbUser.StoreMissedCalls is set
 			userKey := c.calleeID + "_" + strconv.FormatInt(int64(c.hub.registrationStartTime),10)
