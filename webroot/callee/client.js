@@ -972,7 +972,7 @@ function getStream(selectObject,comment) {
 
 	//if(!gentle) {
 	const supportedConstraints = navigator.mediaDevices.getSupportedConstraints();
-	console.log("getStream supportedConstraints comment="+comment+" supportedConstraints="+JSON.stringify(supportedConstraints));
+	//console.log("getStream supportedConstraints comment="+comment+" supportedConstraints="+JSON.stringify(supportedConstraints));
 	if(typeof myUserMediaDeviceId!=="undefined" && myUserMediaDeviceId!=null) {
 		console.log('getStream myUserMediaDeviceId='+myUserMediaDeviceId);
 	}
@@ -1230,7 +1230,7 @@ var addedVideoTrack = null;
 function gotStream(stream) {
 	// add localStream audioTrack and (possibly) localStream videoTrack to peerCon using peerCon.addTrack()
 	// then activate localVideoFrame with localStream
-	if(typeof myUserMediaDeviceId!=="undefined" && myUserMediaDeviceId!=null) {
+	if(typeof myUserMediaDeviceId!=="undefined" && myUserMediaDeviceId!=null && myUserMediaDeviceId!="") {
 		console.log('gotStream myUserMediaDeviceId='+myUserMediaDeviceId);
 	}
 
@@ -1281,7 +1281,7 @@ function gotStream(stream) {
 		console.log("gotStream got new localStream "+(localStream!=null));
 	}
 
-console.log("gotStream localStream id="+localStream.id+" active="+localStream.active+" localStream="+JSON.stringify(localStream));
+	//console.log("gotStream localStream id="+localStream.id+" active="+localStream.active+" localStream="+JSON.stringify(localStream));
 
 	const audioTracks = localStream.getAudioTracks();
 	if(audioTracks.length<1) {
@@ -1305,7 +1305,7 @@ console.log("gotStream localStream id="+localStream.id+" active="+localStream.ac
 
 	if(!peerCon || peerCon.iceConnectionState=="closed") {
 		// this normally occurs onload
-		console.log("gotStream no peerCon: no addTrack");
+		//console.log("gotStream no peerCon: no addTrack");
 	} else if(addedAudioTrack) {
 		console.log("# gotStream addedAudioTrack already set: no addTrack");
 	} else {

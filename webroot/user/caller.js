@@ -194,13 +194,6 @@ window.onload = function() {
 	goodbyMissedCall = "";
 	goodbyTextMsg = "";
 
-	// if on start there is a fragment/hash ('#') in the URL, remove it
-	if(location.hash.length > 0) {
-		gLog("location.hash.length=%d",location.hash.length);
-		window.location.replace("/user/"+calleeID);
-		return;
-	}
-
 	let dbg = getUrlParams("dbg",true);
 	if(typeof dbg!=="undefined" && dbg!="" && dbg!="undefined") {
 		gentle = false;
@@ -210,6 +203,13 @@ window.onload = function() {
 	let id = getUrlParams("id");
 	if(typeof id!=="undefined" && id!="" && id!="undefined") {
 		calleeID = cleanStringParameter(id,true);
+	}
+
+	// if on start there is a fragment/hash ('#') in the URL, remove it
+	if(location.hash.length > 0) {
+		gLog("location.hash.length=%d",location.hash.length);
+		window.location.replace("/user/"+calleeID);
+		return;
 	}
 
 	// if caller is started with ?text=true -> check muteMicElement
@@ -675,8 +675,11 @@ function getContact(contactID) {
 				// format: name|prefCallbackID|myNickname
 				let tok = xhrresponse.split("|");
 				if(tok.length>0 && tok[0]!="") {
-					contactName = cleanStringParameter(tok[0],true);
-					if(contactName!="" && contactName!="unknown") {
+					let tmpContactName = cleanStringParameter(tok[0],true);
+					if(tmpContactName!="" && tmpContactName!="unknown") {
+						contactName = tmpContactName;
+						enableCalleeOnlineElement(false);
+
 						// show contact nickname (for dial-id dialog)
 						var contactNameElement = document.getElementById("contactNickName");
 						if(contactNameElement) {
@@ -1746,7 +1749,11 @@ function calleeNotificationAction() {
 function enableCalleeOnlineElement(clearStatus) {
 	console.log("enableCalleeOnlineElement");
 	//showStatus("target ID: "+calleeID,-1,true);
-	showStatus(calleeID,-1,true);
+	if(contactName!="" && contactName!="unknown" && contactName!=calleeID) {
+		showStatus(calleeID+" "+contactName,-1,true);
+	} else {
+		showStatus(calleeID,-1,true);
+	}
 
 //	if(clearStatus) {
 //		showStatus("");
@@ -2689,7 +2696,8 @@ function dial2() {
 		return;
 	}
 
-	if(typeof myUserMediaDeviceId !== "undefined" && myUserMediaDeviceId!=null && myUserMediaDeviceId!="default") {
+	if(typeof myUserMediaDeviceId !== "undefined" && myUserMediaDeviceId!=null &&
+			myUserMediaDeviceId!="" && myUserMediaDeviceId!="default") {
 		console.log('dial2 set avSelect.value='+myUserMediaDeviceId);
 		avSelect.value = myUserMediaDeviceId;
 	}
@@ -2753,7 +2761,7 @@ function dial2() {
 
 			peerCon.setLocalDescription(localDescription).then(() => {
 				if(doneHangup) {
-					console.log('! peerCon onnegotiationneeded deny doneHangup sent');
+					//console.log('! peerCon onnegotiationneeded deny doneHangup sent');
 				} else if(!rtcConnect && !dialing) {
 					console.log('# onnegotiationneeded deny send: !rtcConnect && !dialing');
 				} else if(isDataChlOpen()) {

@@ -195,7 +195,7 @@ function processContacts(xhrresponse) {
 
 		// right column: ID (call)
 		var parts = id.split("@");
-/*
+
 		//console.log("id="+id+" parts.length="+parts.length+" parts="+parts);
 		// if id.split('@') has three parts and parts[2] (the host) is our own host, then treat this ID like a local user
 		if(parts.length>=3) {
@@ -210,7 +210,7 @@ function processContacts(xhrresponse) {
 				parts = id.split("@");
 			}
 		}
-*/
+
 		if(parts.length>=3) {
 			// right column: remote user
 			// if we go straight to a new tab for the remote-host caller-widget (as we do here),

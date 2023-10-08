@@ -709,7 +709,7 @@ func setContact(calleeID string, contactID string, compoundName string, changeNa
 			fmt.Printf("setcontact (%s) oldCompoundName=%s oldName=%s\n", calleeID, oldCompoundName, oldName)
 		}
 
-		if oldName!="" {
+		if oldName!="" && oldName=="unknown" {
 			// oldName exists, so contactName would change it
 			if contactName=="" || !changeName {
 				contactName = oldName
