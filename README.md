@@ -4,27 +4,23 @@
 
 # WebCall Telephony Server
 
-P2P E2EE Web Telephony based on WebRTC:
-
 - Audio Telephony
 - Video Telephony
 - TextChat
 - File Transfer
+- Always P2P
+- Always E2EE
 
-WebCall P2P calls are always end-to-end encrypted.
+WebCall server operates 100% self-contained. No 3rd party services are being used.
 
-Audio is delivered with up to 320kbps in both directions
-with better quality than most internet radio stations.
+To make calls you only need a 2020+ web browser (on any OS including Android and iOS).
 
-Audio and video delivery can be turned off and on during the call.
-This allows you to use TextChat and File Transfer without any media overhead.
+You can receive direct P2P calls from anyone on the internet. 
 
-WebCall server operates fully self-contained.
-No 3rd party services (STUN, TURN, etc.) are being used, so that 
-no external parties can track your calls.
+Audio delivery with up to 320kbps in both directions produce an incredible audio quality.
 
-To use WebCall all you need is a 2020+ web browser on Android, iPhone, Windows, macOS or Linux.
-You can receive calls from anyone on the internet.
+Audio and video can be turned off and on during a call.
+This lets you use TextChat and File Transfer without any media overhead.
 
 WebCall-Mastodon Bridge can deliver call notifications into your Mastodon inbox.
 
@@ -38,7 +34,7 @@ Native WebCall client for Android:
 
 More info: [timur.mobi/webcall/android](https://timur.mobi/webcall/android)
 
-# Building
+# Build the Server
 
 With Go 1.19 run: go build
 
