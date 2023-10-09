@@ -528,7 +528,7 @@ function getStatsPostCall(results) {
 function openPostCallStats() {
 	gLog('openPostCallStats');
 	let str = "string:<h2>"+callStatsTitle+"</h2>"+showStatsPostCall();
-	iframeWindowOpen(str,false,"width:auto; min-width:300px; max-width:400px; max-height:80vh; top:3%; left:5%; right:5%; padding:16px; padding-bottom:24px; background:#33ad; color:#eee; line-height:1.4em;");
+	iframeWindowOpen(str,false,"width:auto; min-width:300px; max-width:450px; _height:90vh; height:500px; top:3%; left:5%; right:5%; padding:16px; padding-bottom:24px; background:#33ad; color:#eee; line-height:1.4em;");
 }
 
 function stopProgressSend() {
