@@ -17,7 +17,9 @@ To make calls you only need a 2020+ web browser (on any OS including Android and
 
 You can receive direct P2P calls from anyone on the internet. 
 
-Audio delivery with up to 320kbps in both directions produce an incredible audio quality.
+Audio delivery with up to 320kbps in both directions producing an incredible audio quality.
+
+Give Answie a live call: [timur.mobi/user/answie](https://timur.mobi/user/answie)
 
 Audio and video can be turned off and on during a call.
 This lets you use TextChat and File Transfer without any media overhead.
