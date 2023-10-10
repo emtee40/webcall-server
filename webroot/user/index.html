@@ -221,8 +221,9 @@ button[disabled] {
 }
 
 .formlabel {
-	margin-left:2px;
+	_margin-left:2px;
 	font-size:0.9em;
+	display:inline-block;
 }
 
 div.outputSelector {
@@ -267,7 +268,6 @@ a, a:link, a:visited, a:active {
 .status {
 	padding-top:10px;
 	padding-bottom:6px;
-	_padding-left:1px;
 	width:98%;
 	min-height:24px;
 	max-width:520px;
@@ -283,14 +283,13 @@ a, a:link, a:visited, a:active {
 	height:6.2em;
 	padding:6px;
 	background-color:#0002;
-	border: 1.3px solid #999;
+	border:1.3px solid #999;
 	border-radius:6px;
 	color:#eee;
 	outline:none;
 	overflow-y:auto;
 	scrollbar-color: #119 #25f;
 	margin-top:10px;
-	_margin-right:50px;
 }
 textarea::placeholder {
   color: #ddd;
@@ -303,10 +302,10 @@ textarea::placeholder {
 	border: 1.3px solid #999;
 	border-radius:6px;
 	color:#eee;
-	font-size:1.0em;
+	font-size:0.9em;
     padding: 0.3em 0.5em 0.2em 0.5em;
-	width:350px;
-	max-width:94%;
+	width:calc(100% - 106px);
+	max-width:300px;
 	outline:none;
 	user-select:none;
 	cursor: pointer;
@@ -426,7 +425,7 @@ input:invalid {
 }
 
 .nickname {
-	margin-left:2px;
+	_margin-left:2px;
 	padding-right:16px;
 	padding-top:1px;
 	padding-bottom:2px;
@@ -440,9 +439,10 @@ input:invalid {
 	border: 1.3px solid #999;
 	border-radius:6px;
 	background:#0002;
+	width:calc(100% - 108px);
+	max-width:170px;
 	outline:none;
-	padding:0.1em;
-	padding-left:0.3em;
+    padding: 0.3em 0.2em 0.2em 0.5em;
 	color:#ddd;
 	font-size:0.9em;
 }
@@ -535,7 +535,7 @@ input:invalid {
 	<img src="camera.svg" id="camera" class="iconbutton" onclick="videoSwitch(false)">
 	<span style="clear:both"></span>
 
-	<img src="arrow-left.svg" id="arrowleft" onclick="history.back();" _class="iconbutton" style="float:left; width:35px; margin-top:0px; _margin-bottom:4px; margin-right:14px; z-index:100; user-select:none; cursor:pointer; transition:all 300ms ease-out; opacity:0.8; display:none;">
+	<img src="arrow-left.svg" id="arrowleft" onclick="history.back();" style="float:left; width:35px; margin-top:0px; _margin-bottom:4px; margin-right:14px; z-index:100; user-select:none; cursor:pointer; transition:all 300ms ease-out; opacity:0.8; display:none;">
 	<h1 id="title" style="float:left; margin-top:4px;">WebCall</h1>
 	<div style="clear:both;"></div>
 
@@ -550,7 +550,7 @@ input:invalid {
 	<div id="status" class="status"></div>
 
 	<div id="answerButtons" class="answerButtons">
-		<button id="callButton" class="mainbutton mainbuttonGreen" _style="background-color:#0c59;">Call</button>
+		<button id="callButton" class="mainbutton mainbuttonGreen">Call</button>
 		<button id="hangupButton" class="mainbutton mainbuttonRed" disabled>Hangup</button>
 		<!--img id="onlineIndicator" src="" style="width:28px; margin:0.6em 0 0 0; user-select:none;"-->
 	</div>
@@ -560,19 +560,21 @@ input:invalid {
 	</div>
 
 	<div id="calleeOnline" style="display:none">
-		<label class="formlabel" id="avSelectLabel" for="avSelect" style="margin-left:0;margin-top:6px;">
-			<select id="avSelect" class="select" onchange="getStream(this,'html')"></select>
-		</label>
+		<label class="formlabel" id="avSelectLabel" for="avSelect"
+			style="margin-left:0;margin-top:6px; width:84px;">AV-Select:</label>
+		<select id="avSelect" class="select" onchange="getStream(this,'html')"></select>
+		<br>
 
-		<label class="formlabel" id="idSelectLabel" for="idSelect" style="margin-left:0;margin-top:6px;display:none;">
-			<select id="idSelect" class="select" onchange="changeId(this)" style=""></select>
-		</label>
+		<label class="formlabel" id="idSelectLabel" for="idSelect"
+			style="margin-left:0;margin-top:6px; width:84px; display:none;">Callback:</label>
+		<select id="idSelect" class="select" onchange="changeId(this)"></select>
+		<br>
 
-		<div style="padding-top:12px;">
+		<div style="padding-top:7px;">
 			<span id="nicknameDiv" class="nickname" style="display:none;">
-				<label for="nickname" id="nicknameLabel" class="nicknameLabel">Nick:</label>
+				<label for="nickname" id="nicknameLabel" class="nicknameLabel" style="width:84px;">Nickname:</label>
 				<input id="nickname" class="nicknameForm" type='text' value=''
-					   pattern="[A-Za-z0-9]{1,16}" size="16" maxlength="16">
+					   pattern="[A-Za-z0-9]{1,16}" maxlength="16">
 			</span>
 		</div>
 	</div>
@@ -588,7 +590,7 @@ input:invalid {
 		</div>
 	</div>
 
-	<div id="progressSend" style="width:95%;_max-width:360px;display:none;">
+	<div id="progressSend" style="width:95%;display:none;">
 		<div id="progressSendLabel">sending:</div>
 		<progress id="fileProgressSend" max="0" value="0" style="width:100%" onclick="stopProgressSend()"></progress>
 	</div>
@@ -598,7 +600,7 @@ input:invalid {
 		<progress id="fileProgressRcv" max="0" value="0" style="width:100%" onclick="stopProgressRcv()"></progress>
 	</div>
 
-	<div id="storeContact" style="_padding-top:16px;"></div>
+	<div id="storeContact"></div>
 
 	<div id="timer" class="timer">0:00</div>
 
@@ -607,7 +609,7 @@ input:invalid {
 
 <!-- dial-id -->
 <div id="enterId" style="display:none">
-	<img src="arrow-left.svg" id="arrowleftDialID" onclick="history.back();" _class="iconbutton" style="float:left; width:35px; margin-top:0px; _margin-bottom:4px; margin-right:14px; z-index:100; user-select:none; cursor:pointer; transition:all 300ms ease-out; opacity:0.8; display:none;">
+	<img src="arrow-left.svg" id="arrowleftDialID" onclick="history.back();" style="float:left; width:35px; margin-top:0px; margin-right:14px; z-index:100; user-select:none; cursor:pointer; transition:all 300ms ease-out; opacity:0.8; display:none;">
 	<h1 style="float:left; margin-top:4px;">WebCall Dial ID</h1>
 	<div style="clear:both;"></div>
 

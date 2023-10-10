@@ -12,7 +12,7 @@ var langMap = {
 	"ringingText"			: "Ringing...",
 	"hangingUpText"			: "Hanging up...",
 	"msgbox"				: "(Greeting message)",
-	"nicknameLabel"			: "Nick:",
+	"nicknameLabel"			: "Nickname:",
 	"callstatsLabel"		: "Call stats",
 	"fullscreenLabel"		: "Fullscreen",
 	"willShowPostCall"		: "Data will be available after you made a call.",

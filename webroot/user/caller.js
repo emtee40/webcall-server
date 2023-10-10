@@ -946,7 +946,7 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 				if(altIdCount>0) {
 					// enable idSelectElement
 					if(idSelectLabelElem!=null) {
-						idSelectLabelElem.style.display = "block";
+						idSelectLabelElem.style.display = "inline-block";
 						if(preselectIndex>=0) {
 							idSelectElement.selectedIndex = preselectIndex+1;
 							//callerId = ;
@@ -961,8 +961,8 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 					}
 				}
 
-				console.log("fetchMapping preselectIndex="+preselectIndex+"/"+altPreselectIndex+
-					" altIdCount="+altIdCount+" callerId="+callerId+" cookieName="+cookieName);
+				//console.log("fetchMapping preselectIndex="+preselectIndex+"/"+altPreselectIndex+
+				//	" altIdCount="+altIdCount+" callerId="+callerId+" cookieName="+cookieName);
 			}
 
 			//if(callerId!=cookieName) {
