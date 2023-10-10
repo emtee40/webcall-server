@@ -685,7 +685,7 @@ func setContact(calleeID string, contactID string, compoundName string, changeNa
 
 	if !ok {
 		if logWantedFor("contacts") {
-			fmt.Printf("! setcontact (%s) contactID=(%s) not found\n",
+			fmt.Printf("setcontact (%s) contactID=(%s) not found\n",
 				calleeID, contactID)
 		}
 	} else {
@@ -735,8 +735,8 @@ func setContact(calleeID string, contactID string, compoundName string, changeNa
 	if newCompoundName == oldCompoundName {
 		// contactName for contactID exists and is same as oldName - don't overwrite
 		if logWantedFor("contacts") {
-			fmt.Printf("setcontact (%s) contactID=%s already exists, skip (%s) %s\n",
-				calleeID, contactID, newCompoundName, remoteAddr)
+			fmt.Printf("setcontact (%s) contactID=%s already exists, skip (%s) %s %s\n",
+				calleeID, contactID, newCompoundName, remoteAddr, comment)
 		}
 		return true
 	}
