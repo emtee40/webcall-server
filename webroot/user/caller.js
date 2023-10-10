@@ -375,7 +375,8 @@ window.onload = function() {
 		// if this is coming from the android client, it will be correct data
 		// if this comes directly from a 3rd party source, it may be false data
 		//    in such a case the party being called will not be able to call back this caller
-		//    however, if the callers cookie is found, we will set: callerHost = location.host;
+		//    however, if the caller cookie is found, we will set: callerHost = location.host;
+		//    TODO tmtmtm but this may cut off the :port
 		callerHost = str;
 	}
 
@@ -1333,7 +1334,16 @@ function checkCalleeOnline(waitForCallee,comment) {
 	// check if calleeID is online (on behalf of callerId/callerName)
 	let api = apiPath+"/online?id="+calleeID;
 	if(callerId!=="") {
-		api += "&callerId="+callerId;
+		let fullCallerID = callerId;
+		if(callerHost!="" && !callerHost.startsWith(location.host)) {
+			// if calleeID is on a remote server (relative to callerID), add callerHost to callerID
+			// "&callerId="+callerId + "@@" + callerHost
+			fullCallerID = callerId + "@@" + callerHost;
+			if(callerId.indexOf("@")>=0) {
+				fullCallerID = callerId + "@" + callerHost;
+			}
+		}
+		api += "&callerId="+fullCallerID;
 	}
 	api = api + "&ver="+clientVersion;
 
@@ -3188,13 +3198,14 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 	}
 
 	// offer store contact link (only if callerId and calleeID exist)
-	if(callerId!="" && calleeID!="" && callerHost!="" && callerHost!=location.host) {
+	if(callerId!="" && calleeID!="" && callerHost!="" && !callerHost.startsWith(location.host)) {
 		let storeContactElement = document.getElementById("storeContact");
 		if(storeContactElement) {
 			let fullContactId = calleeID+"@@"+location.host;
 			if(calleeID.indexOf("@")>=0) {
 				fullContactId = calleeID+"@"+location.host;
 			}
+
 			//console.log("contactName (for storeContactLink)=("+contactName+")");
 			let storeContactLink = "https://"+callerHost+"/callee/contacts/store/?id="+callerId+
 				"&contactId="+fullContactId+"&contactName="+contactName+"&callerName="+callerName;
