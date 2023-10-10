@@ -756,7 +756,7 @@ function menuDialogClose() {
 function onIceCandidate(event,myCandidateName) {
 	// onIceCandidate is used by both clients
 	if(doneHangup) {
-		console.log('# onIce ignored after doneHangup '+JSON.stringify(event.candidate));
+		//console.log('# onIce ignored after doneHangup '+JSON.stringify(event.candidate));
 		return;
 	}
 	// fw the iceCandidates ('calleeCandidate') we got from the webrtc engine to the other peer

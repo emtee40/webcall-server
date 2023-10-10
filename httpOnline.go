@@ -37,6 +37,7 @@ func httpOnline(w http.ResponseWriter, r *http.Request, urlID string, dialID str
 		clientVersion = url_arg_array[0]
 	}
 
+	// for remote callers, callerId should contain the @@hostaddress(:port)
 	callerId := ""
 	url_arg_array, ok = r.URL.Query()["callerId"]
 	if ok && len(url_arg_array[0]) >= 1 {
