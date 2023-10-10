@@ -481,7 +481,7 @@ func httpGetContact(w http.ResponseWriter, r *http.Request, urlID string, callee
 	if ok && len(url_arg_array[0]) >= 1 {
 		contactID := url_arg_array[0]
 
-		// cut off @host from contactID if host starts with hostname of local server
+		// cut off @hostname from contactID if host starts with hostname of local server
 		idxAt := strings.Index(contactID,"@"+hostname)
 		if idxAt >=0 {
 			contactID = contactID[:idxAt]
@@ -583,8 +583,8 @@ func httpSetContact(w http.ResponseWriter, r *http.Request, urlID string, callee
 }
 
 func setContact(calleeID string, contactID string, compoundName string, changeName bool, remoteAddr string, comment string) bool {
-	// calleeID = the callee for which to add a contact
-	// contactID = the userid to be added / changed
+	// calleeID = the callee for which to add a contact (always on this server instalce)
+	// contactID = the userid to be added / changed (may/should contain @addr)
 	// compoundName = contactName+"|"+callerId+"|"+callerName
 	// contactName must split compoundName
 	if strings.HasPrefix(calleeID,"answie") || strings.HasPrefix(calleeID,"talkback") {
@@ -709,8 +709,9 @@ func setContact(calleeID string, contactID string, compoundName string, changeNa
 			fmt.Printf("setcontact (%s) oldCompoundName=%s oldName=%s\n", calleeID, oldCompoundName, oldName)
 		}
 
-		if oldName!="" && oldName=="unknown" {
-			// oldName exists, so contactName would change it
+		if oldName!="" && oldName!="unknown" {
+			// a real oldName exists, so contactName (if it exits) would change it
+			// this is only allowed if changeName flag is set
 			if contactName=="" || !changeName {
 				contactName = oldName
 			}
@@ -795,6 +796,7 @@ func httpDeleteContact(w http.ResponseWriter, r *http.Request, urlID string, cal
 		if ok {
 			contactID = strings.ToLower(contactID)
 		} else {
+			// contactID not found, try with attached @hostname
 			tryContactID := contactID+"@"+hostname;
 			if strings.Index(contactID,"@")<0 {
 				tryContactID = contactID+"@@"+hostname;
@@ -803,9 +805,24 @@ func httpDeleteContact(w http.ResponseWriter, r *http.Request, urlID string, cal
 			if ok {
 				contactID = tryContactID;
 			} else {
-				fmt.Printf("# /deletecontact (%s) idNameMap[%s/%s] does not exist %s\n",
-					calleeID, contactID, tryContactID, remoteAddr)
-				return
+				// tryContactID = contactID@@hostname not found,
+				// delete the first entry that starts with tryContactID
+				contactID = ""
+				for k := range idNameMap {
+					if strings.HasPrefix(k,tryContactID) {
+						contactID = k;
+						break
+					}
+				}
+				if contactID=="" {
+					// found no such entry
+					fmt.Printf("# /deletecontact (%s) idNameMap[%s/%s] does not exist %s\n",
+						calleeID, contactID, tryContactID, remoteAddr)
+					for k := range idNameMap {
+						fmt.Printf("...key=(%s)\n",k)
+					}
+					return
+				}
 			}
 		}
 	}

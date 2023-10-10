@@ -693,13 +693,13 @@ function start() {
 	isHiddenlabel.onchange = function(ev) {
 		ev.stopPropagation();
 		console.log("isHidden click");
-		showOnlineReadyMsg();
+		//showOnlineReadyMsg();
 	}
 
 	autoanswerlabel.onchange = function(ev) {
 		ev.stopPropagation();
 		console.log("autoanswer click");
-		showOnlineReadyMsg();
+		//showOnlineReadyMsg();
 	}
 
 	// if isRinging(): callee.js was started with a call already waiting
@@ -1391,7 +1391,7 @@ function showOnlineReadyMsg() {
 				// 1. calleeIsConnectedFlag = true
 				// 2. postStatus("state","connected");
 				// 3. statusMessage(readyToReceiveCallsString,-1,true,false);
-				Android.calleeConnected();
+				//Android.calleeConnected();
 
 				if(startedWithRinging) {
 					startedWithRinging = false;
@@ -1943,7 +1943,7 @@ function signalingCommand(message, comment) {
 	} else if(cmd=="sessionId") {
 		// callee has checked in
 		// payload is server version
-		console.log("cmd=='sessionId' -> showOnlineReadyMsg()");
+		console.log("cmd=='sessionId'");
 		showOnlineReadyMsg();
 
 	} else if(cmd=="sessionDuration") { // in call
@@ -2229,7 +2229,7 @@ function showMissedCalls() {
 					//console.log("showMissedCalls activity is interactive");
 				} else {
 					skipRender = true;
-					console.log("! showMissedCalls skip: activity not interactive");
+					//console.log("! showMissedCalls skip: activity not interactive");
 				}
 			} else {
 				//console.log("showMissedCalls activity isActivityInteractive unavailable");

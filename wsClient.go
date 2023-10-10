@@ -1604,12 +1604,11 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 							calleeLoginMutex.Unlock()
 						}
 
-						// store the caller (c.hub.CallerID)
-						// into contacts of user being called (c.calleeID)
-						// setContact() checks if dbUser.StoreContacts is set for c.calleeID
+						// store c.hub.CallerID into contacts of c.calleeID
+						// setContact() will check if dbUser.StoreContacts is set for c.calleeID
 						// TODO what if only "@host"
 						if c.hub.CallerID != "" {
-							// we don't have callerId + callerName for this contact yet
+							// we don't have callbackId + callbacNickname for this contact yet
 							compoundName := c.hub.CallerClient.callerName+"||"
 							setContact(c.calleeID, c.hub.CallerID, compoundName, false,
 								c.RemoteAddrNoPort, "wsClient")
