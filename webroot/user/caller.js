@@ -917,6 +917,7 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 				return;
 			}
 
+			let altPreselectIndex = -1;
 			if(xhrresponse!="") {
 				let altIDs = xhrresponse;
 				let tok = altIDs.split("|");
@@ -925,10 +926,13 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 					if(tok[i]!="") {
 						let tok2 = tok[i].split(",");
 						let id = cleanStringParameter(tok2[0],true);
-						let active = cleanStringParameter(tok2[1],true);
 						if(id==callerId) {
 							preselectIndex = i;
 							gLog('preselectIndex='+preselectIndex);
+						}
+						let active = cleanStringParameter(tok2[1],true);
+						if(altPreselectIndex<0 && active) {
+							altPreselectIndex = i;
 						}
 						//console.log("assign=("+assign+")");
 						let idOption = document.createElement('option');
@@ -938,30 +942,38 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 						altIdCount++;
 					}
 				}
+
+				if(altIdCount>0) {
+					// enable idSelectElement
+					if(idSelectLabelElem!=null) {
+						idSelectLabelElem.style.display = "block";
+						if(preselectIndex>=0) {
+							idSelectElement.selectedIndex = preselectIndex+1;
+							//callerId = ;
+						}
+					}
+
+					if(preselectIndex<0 && altPreselectIndex>=0) {
+						// no stored callbackID was found in mapping
+						// so we use the first non-deactivated ID
+						idSelectElement.selectedIndex = altPreselectIndex+1;
+						//callerId = ;
+					}
+				}
+
+				console.log("fetchMapping preselectIndex="+preselectIndex+"/"+altPreselectIndex+
+					" altIdCount="+altIdCount+" callerId="+callerId+" cookieName="+cookieName);
 			}
+
+			//if(callerId!=cookieName) {
+			//	callerId = cookieName; // main id
+			//}
 
 			let idOptionAnon = document.createElement('option');
 			idOptionAnon.text = "(incognito)";
 			idOptionAnon.value = "";
 			idSelectElement.appendChild(idOptionAnon);
 			altIdCount++;
-
-			if(altIdCount>1) {
-				// enable idSelectElement
-				if(idSelectLabelElem!=null) {
-					idSelectLabelElem.style.display = "block";
-					if(preselectIndex>=0) {
-						idSelectElement.selectedIndex = preselectIndex+1;
-					}
-				}
-			}
-
-			if(preselectIndex<0) {
-				// callerId was not found in mapping
-				if(callerId!=cookieName) {
-					callerId = cookieName;
-				}
-			}
 
 			if(contFunc!=null)
 				contFunc("fetchMapping 1");
