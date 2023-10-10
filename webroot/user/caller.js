@@ -2185,23 +2185,6 @@ function signalingCommand(message) {
 	//console.log("...signaling cmd="+cmd);
 
 	if(cmd=="calleeAnswer") {
-		// callee.js has responded to our callerOffer
-		// get callerName from form and don't forget cleanStringParameter(,true)
-		callerName = cleanStringParameter(nicknameElement.value,true);
-		// contactAutoStore is only true if caller is logged in on the local server
-		// if the caller is a remote user (calling someone on this server), contactAutoStore will be false
-		if(contactAutoStore && cookieName!="" && calleeID!="") {
-			// store the user being called (calleeID) into the contacts of the caller (cookieName)
-			let compoundName = contactName+"|"+callerId+"|"+callerName;
-			let api = apiPath+"/setcontact?id="+cookieName+"&contactID="+calleeID + "&name="+compoundName;
-			gLog("request api="+api);
-			ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
-				gLog("xhr setcontact OK "+xhr.responseText);
-			}, errorAction2);
-		} else {
-			//console.log('signalingCommand no store contact',contactAutoStore,cookieName,calleeID);
-		}
-
 		if(!peerCon || peerCon.iceConnectionState=="closed") {
 			console.warn('calleeAnswer abort no peerCon');
 			return;
@@ -2345,6 +2328,24 @@ function signalingCommand(message) {
 			hangupWithBusySound(true,"no localStream");
 			return;
 		}
+
+		// callee.js has responded to our callerOffer
+		// get callerName from form and don't forget cleanStringParameter(,true)
+		callerName = cleanStringParameter(nicknameElement.value,true);
+		// contactAutoStore is only true if caller is logged in on the local server
+		// if the caller is a remote user (calling someone on this server), contactAutoStore will be false
+		if(contactAutoStore && cookieName!="" && calleeID!="") {
+			// store the user being called (calleeID) into the contacts of the caller (cookieName)
+			let compoundName = contactName+"|"+callerId+"|"+callerName;
+			let api = apiPath+"/setcontact?id="+cookieName+"&contactID="+calleeID + "&name="+compoundName;
+			gLog("request api="+api);
+			ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
+				gLog("xhr setcontact OK "+xhr.responseText);
+			}, errorAction2);
+		} else {
+			//console.log('signalingCommand no store contact',contactAutoStore,cookieName,calleeID);
+		}
+
 /*
 		// open textChat or enable chatButton
 		chatButtonLabel.onclick = function() {
