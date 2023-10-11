@@ -1350,6 +1350,7 @@ function delayedWsAutoReconnect(reconPauseSecs) {
 }
 
 function showOnlineReadyMsg() {
+	// should only be called on cmd=="sessionId"
 	if(!wsConn) {
 		console.log("# showOnlineReadyMsg not online");
 		return;
@@ -1384,10 +1385,11 @@ function showOnlineReadyMsg() {
 		*/
 		if(typeof Android !== "undefined" && Android !== null) {
 			if(typeof Android.calleeConnected !== "undefined" && Android.calleeConnected !== null) {
-				// be very careful calling calleeConnected(), bc it does:
+				// Android.calleeConnected() does:
 				// 1. calleeIsConnectedFlag = true
 				// 2. postStatus("state","connected");
 				// 3. statusMessage(readyToReceiveCallsString,-1,true,false);
+				// 4. updateNotification(readyToReceiveCallsString)
 				Android.calleeConnected();
 
 				if(startedWithRinging) {
