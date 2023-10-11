@@ -693,13 +693,11 @@ function start() {
 	isHiddenlabel.onchange = function(ev) {
 		ev.stopPropagation();
 		console.log("isHidden click");
-		//showOnlineReadyMsg();
 	}
 
 	autoanswerlabel.onchange = function(ev) {
 		ev.stopPropagation();
 		console.log("autoanswer click");
-		//showOnlineReadyMsg();
 	}
 
 	// if isRinging(): callee.js was started with a call already waiting
@@ -1360,6 +1358,7 @@ function showOnlineReadyMsg() {
 		console.log("# showOnlineReadyMsg not online 2");
 		return;
 	}
+	console.log("showOnlineReadyMsg");
 
 	// delay 'ready to receive calls' msg, so that it appears (and stays on screen) after prev msgs
 	setTimeout(function(oldWidth) {
@@ -1371,8 +1370,6 @@ function showOnlineReadyMsg() {
 			console.log("# showOnlineReadyMsg not online 4");
 			return;
 		}
-
-		console.log("showOnlineReadyMsg");
 
 		let readyMessage = "Ready to receive calls";
 		if(mediaConnect) {
@@ -1391,7 +1388,7 @@ function showOnlineReadyMsg() {
 				// 1. calleeIsConnectedFlag = true
 				// 2. postStatus("state","connected");
 				// 3. statusMessage(readyToReceiveCallsString,-1,true,false);
-				//Android.calleeConnected();
+				Android.calleeConnected();
 
 				if(startedWithRinging) {
 					startedWithRinging = false;
@@ -1402,7 +1399,7 @@ function showOnlineReadyMsg() {
 		}
 
 		if(mediaConnect) {
-			// do not show "Call in progress"
+			// do not show "Ready to receive calls" / "Call in progress"
 		} else {
 			showStatus(readyMessage,-1,true);
 		}
@@ -2550,9 +2547,6 @@ function hangup(mustDisconnect,dummy2,message) {
 	console.log("hangup: '"+message+"' goOnlineSwitch="+goOnlineSwitch.checked);
 	// NOTE: not all message strings are suited for users
 	showStatus(message,-1);
-	// expected followup-message "ready to receive calls" from showOnlineReadyMsg()
-	// showOnlineReadyMsg() is called in response to us calling sendInit() and the server responding with "sessionId|"
-	// hangup() -> endWebRtcSession() -> prepareCallee() -> sendInit() ... server "sessionId|" -> showOnlineReadyMsg()
 
 	//console.log("### spinner off hangup");
 	spinnerStarting = false;
@@ -3689,11 +3683,6 @@ function endWebRtcSession(disconnectCaller,goOnlineAfter,comment) {
 		//showStatus("WebCall server disconnected");	// already done above
 		// also hide ownlink
 		showVisualOffline("endWebRtcSession wsConn==null or no goOnlineAfter");
-	} else {
-		// status: 'Ready to receive calls'
-		// we must do this here bc we receive no cmd==sessionId -> showOnlineReadyMsg()
-		// BS! with goOnlineAfter we will get cmd==sessionId after prepareCallee(init=true)
-		// showOnlineReadyMsg();
 	}
 
 	if(!goOnlineAfter) {
@@ -3958,12 +3947,6 @@ function wakeGoOnlineNoInit() {
 		if(typeof Android.isTextmode !== "undefined" && Android.isTextmode !== null) {
 			textmode = Android.isTextmode();
 			console.log("wakeGoOnlineNoInit isTextmode="+textmode);
-		}
-		// if Android version < 1.4.8 -> showOnlineReadyMsg() (otherwise "Connecting..." may stick)
-		if(typeof Android.getVersionName !== "undefined" && Android.getVersionName !== null) {
-			if(Android.getVersionName() < "1.4.8") {
-				showOnlineReadyMsg();
-			}
 		}
 	}
 
