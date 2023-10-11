@@ -700,8 +700,8 @@ function getContact(contactID) {
 					if(listArray.length>0) {
 						// preselect: incognito
 						callerId = "";
-						console.log("/getcontact idSelectElement.selectedIndex="+listArray.length+" -1");
-						idSelectElement.selectedIndex = listArray.length -1;
+						//console.log("/getcontact idSelectElement.selectedIndex="+listArray.length+" -1");
+						//idSelectElement.selectedIndex = listArray.length -1;
 
 						let i=0;
 						listArray.forEach((item) => {
@@ -923,7 +923,7 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 				let altIDs = xhrresponse;
 				let tok = altIDs.split("|");
 				for(var i=0; i<tok.length; i++) {
-					//console.log("tok["+i+"]="+tok[i]);
+					console.log("tok["+i+"]="+tok[i]);
 					if(tok[i]!="") {
 						let tok2 = tok[i].split(",");
 						let id = cleanStringParameter(tok2[0],true);
@@ -955,7 +955,6 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 						}
 						if(preselectIndex>=0) {
 							idSelectElement.selectedIndex = preselectIndex+1;
-							//callerId = ;
 						}
 					}
 
@@ -964,7 +963,6 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 						// so we use the first non-deactivated ID
 						//console.log("-- set altPreselectIndex+1="+(altPreselectIndex+1));
 						idSelectElement.selectedIndex = altPreselectIndex+1;
-						//callerId = ;
 					}
 				}
 
@@ -1132,6 +1130,12 @@ function dialButtonClick() {
 		return;
 	}
 	*/
+
+	if(idSelectElement && idSelectElement.options.length>0 && idSelectElement.selectedIndex>=0) {
+		console.log("dialButtonClick idSelectElement.selectedIndex="+idSelectElement.selectedIndex+
+					" callerId="+idSelectElement.options[idSelectElement.selectedIndex].value+" old:"+callerId);
+		callerId = idSelectElement.options[idSelectElement.selectedIndex].value;
+	}
 
 	dialButtonClick2();
 }
