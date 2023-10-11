@@ -700,12 +700,13 @@ function getContact(contactID) {
 					if(listArray.length>0) {
 						// preselect: incognito
 						callerId = "";
+						console.log("/getcontact idSelectElement.selectedIndex="+listArray.length+" -1");
 						idSelectElement.selectedIndex = listArray.length -1;
 
 						let i=0;
 						listArray.forEach((item) => {
 							if(item.text.startsWith(prefCallbackID)) {
-								gLog("/getcontact selectedIndex="+i+" +1");
+								console.log("/getcontact idSelectElement.selectedIndex="+i);
 								idSelectElement.selectedIndex = i;
 								// this will set callerId based on id=cookieName in contacts
 								callerId = prefCallbackID;
@@ -931,8 +932,10 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 							gLog('preselectIndex='+preselectIndex);
 						}
 						let active = cleanStringParameter(tok2[1],true);
-						if(altPreselectIndex<0 && active) {
+						//console.log("--- i="+i+" active="+active+" altPreselectIndex="+altPreselectIndex);
+						if(altPreselectIndex<0 && active=="true") {
 							altPreselectIndex = i;
+							//console.log("--- altPreselectIndex="+altPreselectIndex);
 						}
 						//console.log("assign=("+assign+")");
 						let idOption = document.createElement('option');
@@ -959,13 +962,15 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 					if(preselectIndex<0 && altPreselectIndex>=0) {
 						// no stored callbackID was found in mapping
 						// so we use the first non-deactivated ID
+						//console.log("-- set altPreselectIndex+1="+(altPreselectIndex+1));
 						idSelectElement.selectedIndex = altPreselectIndex+1;
 						//callerId = ;
 					}
 				}
 
-				//console.log("fetchMapping preselectIndex="+preselectIndex+"/"+altPreselectIndex+
-				//	" altIdCount="+altIdCount+" callerId="+callerId+" cookieName="+cookieName);
+				//console.log("----fetchMapping preselectIndex="+preselectIndex+"/"+altPreselectIndex+
+				//	" altIdCount="+altIdCount+" callerId="+callerId+" cookieName="+cookieName+
+				//	" idSelectElement.selectedIndex="+idSelectElement.selectedIndex);
 			}
 
 			//if(callerId!=cookieName) {
