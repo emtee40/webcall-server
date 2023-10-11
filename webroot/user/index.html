@@ -296,6 +296,7 @@ textarea::placeholder {
 }
 
 .select {
+	display:inline-block;
 	margin-top:8px;
 	margin-right:5px;
 	background-color:#0002;
@@ -562,13 +563,11 @@ input:invalid {
 	<div id="calleeOnline" style="display:none">
 		<label class="formlabel" id="avSelectLabel" for="avSelect"
 			style="margin-left:0;margin-top:6px; width:84px;">AV-Select:</label>
-		<select id="avSelect" class="select" onchange="getStream(this,'html')"></select>
-		<br>
+		<select id="avSelect" class="select" onchange="getStream(this,'html')"></select><br>
 
 		<label class="formlabel" id="idSelectLabel" for="idSelect"
 			style="margin-left:0;margin-top:6px; width:84px; display:none;">Your ID:</label>
-		<select id="idSelect" class="select" onchange="changeId(this)"></select>
-		<br>
+		<select id="idSelect" class="select" onchange="changeId(this)" style="display:none;"></select>
 
 		<div style="padding-top:7px;">
 			<span id="nicknameDiv" class="nickname" style="display:none;">
@@ -619,7 +618,7 @@ input:invalid {
 		<span class="lbutton" id="enterDomainClear" onclick="clearForm(4)">clr</span><br>
 		<br>
 
-		<label class="formlabel" for="enterId">User ID:</label><br>
+		<label class="formlabel" for="enterId">Calling ID:</label><br>
 		<input name="enterId" id="enterIdVal" type="text" class="formtext" required>
 		<span class="lbutton" id="enterIdClear" onclick="clearForm(3)">clr</span>
 
@@ -635,12 +634,15 @@ input:invalid {
 
 		<!-- idSelect: visible only if more than one id-mapping is specified -->
 		<label class="formlabel" id="idSelect2Label" for="idSelect2"
-			style="margin-left:0;margin-top:16px;display:none;">
-			Your callback ID:<br>
-			<select id="idSelect2" class="select" onchange="changeId(this)"
-				style="margin-top:0;"></select>
-		</label>
+			style="margin-left:0;margin-top:16px;display:none;">Your ID:</label>
 		<br>
+		<select id="idSelect2" class="select" onchange="changeId(this)" style="margin-top:0;width:100%;max-width:280px;"></select>
+		<br>
+
+		<label class="formlabel" id="idSelectLabel" for="idSelect"
+			style="margin-left:0;margin-top:6px; width:84px; display:none;">Your ID:</label>
+		<select id="idSelect" class="select" onchange="changeId(this)" style="display:none;"></select>
+
 
 		<div style="margin-top:18px;">
 			<input type="submit" name="Submit" id="submit" value="Continue" style="width:120px;">

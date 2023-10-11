@@ -267,9 +267,9 @@ window.onload = function() {
 	if(typeof Android !== "undefined" && Android !== null) {
 		fullscreenDiv.style.display = "none";
 	}
-	if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
+//	if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
 //		avSelect.style.display = "none";
-	}
+//	}
 
 	// requestFullscreen and exitFullscreen are not supported in iOS (will abort JS without err-msg)
 	let ua = navigator.userAgent;
@@ -522,8 +522,8 @@ window.onload = function() {
 			targetHost = str;
 		}
 		enterDomainValElement.value = targetHost;
-		if(targetHost!=location.host) {
-			idSelect2LabelElement.style.display = "block";
+		if(targetHost!=location.host && cookieName!="") {
+			idSelect2LabelElement.style.display = "inline-block";
 		} else {
 			idSelect2LabelElement.style.display = "none";
 		}
@@ -531,8 +531,8 @@ window.onload = function() {
 			// catch enterDomainValElement.value change to invoke /getcontact
 			//console.log("enterDomainValElement blur value = ("+enterDomainValElement.value+")");
 			let contactHost = cleanStringParameter(enterDomainValElement.value,true);
-			if(contactHost!=location.host) {
-				idSelect2LabelElement.style.display = "block";
+			if(contactHost!=location.host && cookieName!="") {
+				idSelect2LabelElement.style.display = "inline-block";
 			} else {
 				idSelect2LabelElement.style.display = "none";
 			}
@@ -947,6 +947,9 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 					// enable idSelectElement
 					if(idSelectLabelElem!=null) {
 						idSelectLabelElem.style.display = "inline-block";
+						if(idSelectElement!=null) {
+							idSelectElement.style.display = "inline-block"
+						}
 						if(preselectIndex>=0) {
 							idSelectElement.selectedIndex = preselectIndex+1;
 							//callerId = ;
@@ -2412,7 +2415,7 @@ function signalingCommand(message) {
 			// enable avSelect
 // TODO tmtmtm
 //			if(navigator.userAgent.indexOf("Android")<0 && navigator.userAgent.indexOf("Dalvik")<0) {
-				avSelect.style.display = "block";
+				avSelect.style.display = "inline-block";
 				calleeOnlineElement.style.display = "block";
 				calleeOnlineElement.classList.remove("disableElement");
 
