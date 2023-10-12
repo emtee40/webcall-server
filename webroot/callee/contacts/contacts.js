@@ -8,6 +8,8 @@ var dialsounds = "";
 var formForNameOpen = false;
 var formElement = null;
 var entries = null;
+var obj = null;
+var lastInnerWidth = 0;
 
 window.onload = function() {
 	let urlId = "";
@@ -64,6 +66,16 @@ window.onload = function() {
 			exportEntriesElement.style.display = "block";
 		}
 	}
+
+	window.onresize = (event) => {
+		//console.log("onresize "+window.innerHeight+" "+window.innerWidth);
+		if(window.innerWidth!=lastInnerWidth) {
+			if(Math.abs(window.innerWidth-lastInnerWidth)>=2) {
+				displayContacts();
+			}
+			lastInnerWidth = window.innerWidth;
+		}
+	};
 
 	dialsounds = getUrlParams("ds",true);
 	gLog('contacts onload calleeID='+calleeID+' dialsounds='+dialsounds);
@@ -131,17 +143,11 @@ function requestData() {
 	}, errorAction);
 }
 
-var obj = null;
 function processContacts(xhrresponse) {
 	// response from /getcontacts
 	gLog("xhrresponse ("+xhrresponse+")");
 	if(xhrresponse=="") {
 		return;
-	}
-	let mainLink = window.location.href;
-	let idx = mainLink.indexOf("/callee/");
-	if(idx>0) {
-		mainLink = mainLink.substring(0,idx) + "/user/";
 	}
 
 	// parse json response of xhr /getcontacts
@@ -167,6 +173,15 @@ function processContacts(xhrresponse) {
 		return 0;
 	});
 	//console.log("sorted results",entries);
+	displayContacts();
+}
+
+function displayContacts() {
+	let mainLink = window.location.href;
+	let idx = mainLink.indexOf("/callee/");
+	if(idx>0) {
+		mainLink = mainLink.substring(0,idx) + "/user/";
+	}
 
 	// create display table
 	let remoteCallerIdMaxChar = 16;
@@ -276,6 +291,7 @@ function processContacts(xhrresponse) {
 	dataBoxContent += "</table>";
 	databoxElement.innerHTML = dataBoxContent;
 }
+
 
 var myTableElement;
 var removeId = 0;
