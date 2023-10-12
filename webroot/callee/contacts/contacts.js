@@ -177,18 +177,20 @@ function processContacts(xhrresponse) {
 }
 
 function displayContacts() {
+	// create display table
 	let mainLink = window.location.href;
 	let idx = mainLink.indexOf("/callee/");
 	if(idx>0) {
 		mainLink = mainLink.substring(0,idx) + "/user/";
 	}
 
-	// create display table
-	let remoteCallerIdMaxChar = 16;
-	if(window.innerWidth>360) {
-		remoteCallerIdMaxChar += Math.floor((window.innerWidth-360)/26);
+	// max char-width for ID (2nd column)
+	let remoteIdMaxChar = 25;
+	if(window.innerWidth<480) {
+		remoteIdMaxChar = Math.floor((window.innerWidth-200)/12);
 	}
-	//gLog("remoteCallerIdMaxChar="+remoteCallerIdMaxChar);
+	//console.log("MaxChar="+remoteIdMaxChar+" "+window.innerWidth);
+
 	var dataBoxContent = "<table style='width:100%; border-collapse:separate; line-height:1.7em;'>"
 	dataBoxContent += "<tr style='color:#7c0;font-weight:600;user-select:none;'><td>Name (edit)</td><td>ID (call)</td><td></td></tr>";
 	for(let entry of entries) {
@@ -244,9 +246,8 @@ function displayContacts() {
 			if(callerHost==location.host) {
 				idDisplay = idOnly;
 			}
-			if(idDisplay.length > remoteCallerIdMaxChar+2) {
-				idDisplay = idDisplay.substring(0,remoteCallerIdMaxChar)+"..";
-				//gLog("idDisplay="+idDisplay+" "+idDisplay.length);
+			if(idDisplay.length > remoteIdMaxChar) {
+				idDisplay = idDisplay.substring(0,remoteIdMaxChar)+"..";
 			}
 
 			let args = "?callerId=select";
@@ -281,8 +282,13 @@ function displayContacts() {
 			}
 			*/
 
+			let idDisplay = id;
+			if(idDisplay.length > remoteIdMaxChar) {
+				idDisplay = idDisplay.substring(0,remoteIdMaxChar)+"..";
+			}
+
 			// by straight opening a href we replace the content in the contacts iframe
-			dataBoxContent += "<td><a href='" + mainLink + id + args + "'>"+id+"</a></td>";
+			dataBoxContent += "<td><a href='" + mainLink + id + args + "'>"+idDisplay+"</a></td>";
 		}
 
 		dataBoxContent += "<td><a onclick=\"remove(this,'"+id+"','"+name+"')\""+
