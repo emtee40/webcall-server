@@ -330,7 +330,7 @@ function removeDo() {
 function edit(tableElement,ev,key,name) {
 	// edit the contact name
 	let rect = tableElement.getBoundingClientRect();
-	console.log('edit',key,name,rect,ev.pageX,ev.pageY);
+	//console.log('edit',key,name,rect,ev.pageX,ev.pageY);
 	if(formElement!=null) {
 		let parentElement = formElement.parentNode;
 		parentElement.removeChild(formElement);
@@ -338,7 +338,7 @@ function edit(tableElement,ev,key,name) {
 	}
 	myTableElement = tableElement;
 	// offer a form for the user to edit the name at pos rect.x / rect.y and rect.width
-//TODO alternatively we could open a new dialog to edit: name|prefCallbackId|ourNickname
+	//TODO alternatively we could open a new dialog to edit: name|prefCallbackId|ourNickname
 	formElement = document.createElement("div");
 	formElement.style = "position:absolute; left:"+rect.x+"px; top:"+(rect.y+window.scrollY)+"px; z-index:100;";
 	formElement.innerHTML = "<form action='javascript:;' onsubmit='editSubmit(event,this,\""+key+"\")' id='user-comment'> <input type='text' id='formtext' value='"+name+"' size='14' maxlength='14' autofocus> <input type='submit' id='submit' value='Store'> </form>";

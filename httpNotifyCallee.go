@@ -662,7 +662,9 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	var dbUser DbUser
 	err := kvMain.Get(dbRegisteredIDs,urlID,&dbEntry)
 	if err!=nil {
-		fmt.Printf("! /canbenotified (%s) failed on dbRegisteredIDs rip=%s\n",urlID,remoteAddr)
+		// when caller cannot reach urlID (calleeID), it tries to find out if it can send it a notification
+		// if urlID does not exist at all (typo), it ends up here - no need to log an error message
+		//fmt.Printf("! /canbenotified (%s) failed on dbRegisteredIDs rip=%s\n",urlID,remoteAddr)
 		fmt.Fprintf(w,"error")
 		return
 	}
