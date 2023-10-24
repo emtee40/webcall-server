@@ -843,13 +843,13 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 	var missedCallsSlice []CallerInfo
 	err := kvCalls.Get(dbMissedCalls,urlID,&missedCallsSlice)
 	if err!=nil && strings.Index(err.Error(),"key not found")<0 {
-		fmt.Printf("# addMissedCall (%s) failed to read dbMissedCalls (%v) err=%v\n",
+		fmt.Printf("# addMissed (%s) failed to read dbMissedCalls (%v) err=%v\n",
 			urlID, caller, err)
 	}
 	//if urlID == caller.CallerID { // false
 	if caller.DialID == caller.CallerID {
 		// don't store missed call from same user
-		fmt.Printf("addMissedCall (%s) not storing missedCalls from same ID (%s <- %s)\n",
+		fmt.Printf("addMissed (%s) not storing missedCalls from same ID (%s <- %s)\n",
 			urlID, caller.DialID, caller.CallerID)
 		return err,missedCallsSlice
 	}
@@ -862,7 +862,7 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 	missedCallsSlice = append(missedCallsSlice, caller)
 	err = kvCalls.Put(dbMissedCalls, urlID, missedCallsSlice, true) // TODO: skipConfirm really?
 	if err!=nil {
-		fmt.Printf("# addMissedCall (%s) failed to store dbMissedCalls (%v) err=%v\n", urlID, caller, err)
+		fmt.Printf("# addMissed (%s) failed to store dbMissedCalls (%v) err=%v\n", urlID, caller, err)
 		return err,nil
 	}
 	if logWantedFor("missedcall") {
@@ -872,8 +872,8 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 			logTxtMsg = "hidden"
 		}
 		// caller.CallerID may contain @@callerHost
-		fmt.Printf("addMissedCall (%s) <- callerID=(%s) callerName=%s ip=%s msg=(%s) cause=(%s)\n",
-			urlID, caller.CallerID, caller.CallerName, caller.AddrPort, logTxtMsg, cause)
+		fmt.Printf("addMissed (%s/%s) <- (%s/%s) ip=%s msg=(%s) cause=(%s)\n",
+			urlID, caller.DialID, caller.CallerID, caller.CallerName, caller.AddrPort, logTxtMsg, cause)
 	}
 	return err,missedCallsSlice
 }

@@ -458,10 +458,10 @@ func httpApiHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		urlID = mappingData.CalleeId
 	} else {
-		if logWantedFor("http") {
-			fmt.Printf("httpApi urlID=(%s) nomapping calleeID=%v %s urlPath=(%s)\n",
-				urlID, calleeID, remoteAddrWithPort, urlPath)
-		}
+//		if logWantedFor("http") {
+//			fmt.Printf("httpApi urlID=(%s) nomapping calleeID=%v %s urlPath=(%s)\n",
+//				urlID, calleeID, remoteAddrWithPort, urlPath)
+//		}
 	}
 
 	if len(urlID)>11 {
@@ -474,8 +474,10 @@ func httpApiHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf("! httpApi (%s) long urlID=(%s) %s (%s)\n", calleeID, urlID, remoteAddr, urlPath)
 			clientRequestAdd(remoteAddr,3)
 		}
-	} else if logWantedFor("http") {
-		fmt.Printf("httpApi (%s) urlID=(%s) %s (%s)\n", calleeID, urlID, remoteAddr, urlPath)
+	} else {
+//		if logWantedFor("http") {
+//			fmt.Printf("httpApi (%s) urlID=(%s) %s (%s)\n", calleeID, urlID, remoteAddr, urlPath)
+//		}
 	}
 
 	nocookie := false
@@ -715,14 +717,18 @@ func httpApiHandler(w http.ResponseWriter, r *http.Request) {
 
 	if urlPath=="/message" {
 		// get message from post
-		postBuf := make([]byte, 4096)
+		postBuf := make([]byte, 64*1024)
 		length,_ := io.ReadFull(r.Body, postBuf)
 		if length>0 {
 			message := string(postBuf[:length])
 			if strings.Index(message,"images/branding/product")>=0 {
 				// skip this
 			} else {
-				fmt.Printf("/message=(%s)\n", message)
+				if length<1024 {
+					fmt.Printf("/message=(%s) len=%d\n", message,length)
+				} else {
+					fmt.Printf("/message=(%s ... %s) len=%d\n", message[:512], message[length-512:], length)
+				}
 				// TODO here could send an email to adminEmail
 			}
 		}
