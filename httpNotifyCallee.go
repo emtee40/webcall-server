@@ -808,13 +808,12 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	}
 
 	// this user can NOT rcv push msg (cannot be notified)
+	logDialID := "/"+dialID
 	if urlID==dialID {
-		fmt.Printf("/canbenoti (%s) not online/hiddenonline, no push chl <- callerId=%s callerName=%s ip=%s\n",
-			urlID, callerIdLong, callerName, remoteAddr)
-	} else {
-		fmt.Printf("/canbenoti (%s/%s) not online/hiddenonline, no push chl <- callerId=%s callerName=%s ip=%s\n",
-			urlID, dialID, callerIdLong, callerName, remoteAddr)
+		logDialID = ""
 	}
+	fmt.Printf("/canbenoti (%s%s) not online/hiddenonline, no push chl <- (%s/%s) ip=%s\n",
+		urlID, logDialID, callerIdLong, callerName, remoteAddr)
 
 	if(dbUser.StoreMissedCalls) {
 		err,missedCallsSlice := addMissedCall(urlID,
@@ -832,7 +831,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 				//fmt.Printf("/canbenoti (%s/%s) callee offline (no send waitingCaller)\n", urlID, glUrlID)
 			} else {
 				// send updated waitingCallerSlice + missedCalls
-				fmt.Printf("/canbenoti (%s/%s) callee online, send missedCalls upd\n", urlID, glUrlID)
+				fmt.Printf("/canbenoti (%s%s) callee online, send missedCalls upd\n", urlID, logDialID)
 				waitingCallerToCallee(urlID, nil, missedCallsSlice, calleeWsClient)
 			}
 		}
@@ -850,11 +849,24 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 		fmt.Printf("# addMissed (%s) failed to read dbMissedCalls (%v) err=%v\n",
 			urlID, caller, err)
 	}
-	//if urlID == caller.CallerID { // false
+
+	callerMainID := ""
+	if caller.CallerID!="" {
+		mappingMutex.RLock()
+		mappingData,ok := mapping[caller.CallerID]
+		mappingMutex.RUnlock()
+		if ok {
+			callerMainID = mappingData.CalleeId
+			if callerMainID==caller.CallerID {
+				callerMainID = ""
+			}
+		}
+	}
+
 	if caller.DialID == caller.CallerID {
 		// don't store missed call from same user
-		fmt.Printf("addMissed (%s) not storing missedCalls from same ID (%s <- %s)\n",
-			urlID, caller.DialID, caller.CallerID)
+		fmt.Printf("addMissed (%s) not storing missedCalls from same ID (%s <- %s/%s)\n",
+			urlID, caller.DialID, callerMainID, caller.CallerID)
 		return err,missedCallsSlice
 	}
 	// make sure we never keep/show more than 10 missed calls
@@ -877,11 +889,11 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 		}
 		// caller.CallerID may contain @@callerHost
 		if caller.DialID == urlID {
-			fmt.Printf("addMissed (%s) <- (%s/%s) ip=%s msg=(%s) cause=(%s)\n",
-				urlID, caller.CallerID, caller.CallerName, caller.AddrPort, logTxtMsg, cause)
+			fmt.Printf("addMissed (%s) <- (%s/%s/%s) ip=%s msg=(%s) cause=(%s)\n",
+				urlID, callerMainID, caller.CallerID, caller.CallerName, caller.AddrPort, logTxtMsg, cause)
 		} else {
-			fmt.Printf("addMissed (%s/%s) <- (%s/%s) ip=%s msg=(%s) cause=(%s)\n",
-				urlID, caller.DialID, caller.CallerID, caller.CallerName, caller.AddrPort, logTxtMsg, cause)
+			fmt.Printf("addMissed (%s/%s) <- (%s/%s/%s) ip=%s msg=(%s) cause=(%s)\n",
+				urlID, caller.DialID, callerMainID, caller.CallerID, caller.CallerName, caller.AddrPort, logTxtMsg, cause)
 		}
 	}
 	return err,missedCallsSlice

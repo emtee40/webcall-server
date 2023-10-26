@@ -449,19 +449,11 @@ func httpApiHandler(w http.ResponseWriter, r *http.Request) {
 	mappingMutex.RUnlock()
 	if ok {
 		// dialID is mapped to mappingData.CalleeId
-//		urlID = mappingData.CalleeId
 		if logWantedFor("mapping") {
-//			fmt.Printf("httpApi urlID=(%s) mapping->(%s) (assign=%s) urlPath=(%s)\n",
-//				urlID, mappingData.CalleeId, mappingData.Assign, urlPath)
 			fmt.Printf("httpApi urlID=(%s) mapping->(%s) urlPath=(%s)\n",
 				urlID, mappingData.CalleeId, urlPath)
 		}
 		urlID = mappingData.CalleeId
-	} else {
-//		if logWantedFor("http") {
-//			fmt.Printf("httpApi urlID=(%s) nomapping calleeID=%v %s urlPath=(%s)\n",
-//				urlID, calleeID, remoteAddrWithPort, urlPath)
-//		}
 	}
 
 	if len(urlID)>11 {

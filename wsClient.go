@@ -1506,30 +1506,50 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 		if c.hub.CallerClient!=nil && c.hub.CallerClient.dialID!="" && c.hub.CallerClient.dialID!=c.calleeID {
 			dialID = "/"+c.hub.CallerClient.dialID
 		}
+		callerMainID := ""
+		if c.hub.CallerID!="" {
+			mappingMutex.RLock()
+			mappingData,ok := mapping[c.hub.CallerID]
+			mappingMutex.RUnlock()
+			if ok {
+				callerMainID = mappingData.CalleeId
+				if callerMainID==c.hub.CallerID {
+					callerMainID = ""
+				}
+			}
+		}
+		callerName := ""
+		if c.hub.CallerClient!=nil {
+			callerName = c.hub.CallerClient.callerName
+		}
 		if tok[0]=="callee" {
 			if(constateShort=="RING") {
-				fmt.Printf("%s (%s%s) PEER callee %s🔔 %s %s <- %s (%s)\n",
+				fmt.Printf("%s (%s%s) PEER callee %s🔔 %s %s <- %s (%s/%s/%s)\n",
 					c.connType, c.calleeID, dialID, constateShort, p2pRelayedInfo,
-					c.hub.CalleeClient.RemoteAddrNoPort, c.hub.CallerIpNoPort, c.hub.CallerID)
+					c.hub.CalleeClient.RemoteAddrNoPort, c.hub.CallerIpNoPort,
+					callerMainID, c.hub.CallerID, callerName)
 
 				// forward special ring indicator to caller
 				if c.hub.CallerClient!=nil {
 					c.hub.CallerClient.Write([]byte("ring|"))
 				}
 			} else {
-				fmt.Printf("%s (%s%s) PEER callee %s☎️  %s %s <- %s (%s)\n",
+				fmt.Printf("%s (%s%s) PEER callee %s☎️  %s %s <- %s (%s/%s/%s)\n",
 					c.connType, c.calleeID, dialID, constateShort, p2pRelayedInfo,
-					c.hub.CalleeClient.RemoteAddrNoPort, c.hub.CallerIpNoPort, c.hub.CallerID)
+					c.hub.CalleeClient.RemoteAddrNoPort, c.hub.CallerIpNoPort,
+					callerMainID, c.hub.CallerID, callerName)
 			}
 		} else {
 			if strings.HasPrefix(constate,"Con") && !c.isConnectedToPeer.Load() {
-				fmt.Printf("%s (%s%s) PEER caller %s☎️  %s %s <- %s (%s)\n",
+				fmt.Printf("%s (%s%s) PEER caller %s☎️  %s %s <- %s (%s/%s/%s)\n",
 					c.connType, c.calleeID, dialID, constateShort, p2pRelayedInfo,
-					c.hub.CalleeClient.RemoteAddrNoPort, c.hub.CallerIpNoPort, c.hub.CallerID)
+					c.hub.CalleeClient.RemoteAddrNoPort, c.hub.CallerIpNoPort,
+					callerMainID, c.hub.CallerID, callerName)
 			} else {
-				fmt.Printf("%s (%s%s) PEER caller %s %s %s <- %s (%s)\n",
+				fmt.Printf("%s (%s%s) PEER caller %s %s %s <- %s (%s/%s/%s)\n",
 					c.connType, c.calleeID, dialID, constateShort, p2pRelayedInfo,
-					c.hub.CalleeClient.RemoteAddrNoPort, c.hub.CallerIpNoPort, c.hub.CallerID)
+					c.hub.CalleeClient.RemoteAddrNoPort, c.hub.CallerIpNoPort,
+					callerMainID, c.hub.CallerID, callerName)
 			}
 		}
 
