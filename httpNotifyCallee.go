@@ -653,7 +653,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	// checks if urlID can be notified (of incoming call)
 	// usually called after /online reports a callee being offline
 	if urlID=="" {
-		fmt.Printf("! /canbenotified failed on empty urlID rip=%s\n",remoteAddr)
+		fmt.Printf("! /canbenoti failed on empty urlID rip=%s\n",remoteAddr)
 		fmt.Fprintf(w,"error")
 		return
 	}
@@ -664,14 +664,14 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	if err!=nil {
 		// when caller cannot reach urlID (calleeID), it tries to find out if it can send it a notification
 		// if urlID does not exist at all (typo), it ends up here - no need to log an error message
-		//fmt.Printf("! /canbenotified (%s) failed on dbRegisteredIDs rip=%s\n",urlID,remoteAddr)
+		//fmt.Printf("! /canbenoti (%s) failed on dbRegisteredIDs rip=%s\n",urlID,remoteAddr)
 		fmt.Fprintf(w,"error")
 		return
 	}
 	dbUserKey := fmt.Sprintf("%s_%d",urlID, dbEntry.StartTime)
 	err = kvMain.Get(dbUserBucket, dbUserKey, &dbUser)
 	if err!=nil {
-		fmt.Printf("! /canbenotified (%s) failed on dbUserBucket rip=%s\n",urlID,remoteAddr)
+		fmt.Printf("! /canbenoti (%s) failed on dbUserBucket rip=%s\n",urlID,remoteAddr)
 		fmt.Fprintf(w,"error")
 		return
 	}
@@ -722,7 +722,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 		length,_ := io.ReadFull(r.Body, postBuf)
 		if length>0 {
 			callerMsg = string(postBuf[:length])
-			//fmt.Printf("/canbenotified (%s) postMsg=(%s)\n", urlID, callerMsg)
+			//fmt.Printf("/canbenoti (%s) postMsg=(%s)\n", urlID, callerMsg)
 		}
 	}
 
@@ -732,14 +732,14 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	reportHiddenCallee := true
 	reportBusyCallee := true
 	glUrlID, locHub, globHub, err := GetOnlineCallee(urlID, ejectOn1stFound, reportBusyCallee,
-		reportHiddenCallee, remoteAddr, "/canbenotified")
+		reportHiddenCallee, remoteAddr, "/canbenoti")
 	if logWantedFor("hub") {
-		fmt.Printf("/canbenotified (%s/%s) locHub=%v isHiddenOnline=%v/%v\n", urlID, glUrlID, locHub!=nil,
+		fmt.Printf("/canbenoti (%s/%s) locHub=%v isHiddenOnline=%v/%v\n", urlID, glUrlID, locHub!=nil,
 			(locHub!=nil && locHub.IsCalleeHidden), (globHub!=nil && globHub.IsCalleeHidden))
 	}
 	if err==nil && glUrlID != "" {
 		if (locHub!=nil && locHub.IsCalleeHidden) || (globHub!=nil && globHub.IsCalleeHidden) {
-			//fmt.Printf("/canbenotified (%s) isHiddenOnline\n", glUrlID)
+			//fmt.Printf("/canbenoti (%s) isHiddenOnline\n", glUrlID)
 			calleeIsHiddenOnline = true
 		}
 	}
@@ -761,17 +761,17 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	ringMutedMutex.RUnlock()
 	if ok {
 		// altID is called, but is deactivated
-		fmt.Printf("/canbenotified (%s/%s) altlink deactivated <- %s\n", urlID, dialID, remoteAddr)
+		fmt.Printf("/canbenoti (%s/%s) altlink deactivated <- %s\n", urlID, dialID, remoteAddr)
 	} else
 	// check if dialID is mainlink and is ringMuted/deactivated
 	if dialID==urlID && dbUser.Int2&8==8 {
 		// mainlink is called, but is deactivated
-		fmt.Printf("/canbenotified (%s) mainlink deactivated <- %s\n", urlID, remoteAddr)
+		fmt.Printf("/canbenoti (%s) mainlink deactivated <- %s\n", urlID, remoteAddr)
 	} else
 	// check if dialID is mastodonlink, but is ringMuted/deactivated
 	if dialID==dbUser.MastodonID && dbUser.Int2&16==16 {
 		// mastodonlink is called, but it is deactivated
-		fmt.Printf("/canbenotified (%s/%s) mastodonlink deactivated <- %s\n", urlID, dialID, remoteAddr)
+		fmt.Printf("/canbenoti (%s/%s) mastodonlink deactivated <- %s\n", urlID, dialID, remoteAddr)
 	} else
 	// dialID is NOT deactivated
 	if calleeIsHiddenOnline || calleeHasPushChannel || (locHub!=nil && locHub.ConnectedCallerIp != "") {
@@ -782,9 +782,9 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 		waitingCallerDbLock.RLock()
 		var waitingCallerSlice []CallerInfo
 		kvCalls.Get(dbWaitingCaller,urlID,&waitingCallerSlice)
-		//fmt.Printf(".../canbenotified (%s) waitingCallerSlice.len=%d\n",urlID,len(waitingCallerSlice))
+		//fmt.Printf(".../canbenoti (%s) waitingCallerSlice.len=%d\n",urlID,len(waitingCallerSlice))
 		for idx := range waitingCallerSlice {
-			//fmt.Printf(".../canbenotified (%s) remoteAddrWithPort=%s waitingCallerAddr=%s\n",
+			//fmt.Printf(".../canbenoti (%s) remoteAddrWithPort=%s waitingCallerAddr=%s\n",
 			//	urlID, remoteAddrWithPort, waitingCallerSlice[idx].AddrPort)
 			if waitingCallerSlice[idx].AddrPort == remoteAddrWithPort {
 				remoteAddrAlreadyWaitingUser = true
@@ -794,7 +794,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 		waitingCallerDbLock.RUnlock()
 
 		if !remoteAddrAlreadyWaitingUser {
-			fmt.Printf("/canbenotified (%s/%s) yes onl=%v calleeName=%s <- %s (%s)\n",
+			fmt.Printf("/canbenoti (%s/%s) yes onl=%v calleeName=%s <- %s (%s)\n",
 				urlID, dialID, calleeIsHiddenOnline, calleeName, remoteAddrWithPort, callerIdLong)
 			if dbUser.AskCallerBeforeNotify==false {
 				fmt.Fprintf(w,"direct|"+calleeName)
@@ -804,22 +804,21 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 			return
 		}
 
-		fmt.Printf("/canbenotified (%s) remoteAddr=%s already waitingCaller\n", urlID, remoteAddr)
+		fmt.Printf("/canbenoti (%s) remoteAddr=%s already waitingCaller\n", urlID, remoteAddr)
 	}
 
 	// this user can NOT rcv push msg (cannot be notified)
 	if urlID==dialID {
-		fmt.Printf("/canbenotified (%s) not online/hiddenonline, no push chl <- callerId=%s callerName=%s ip=%s\n",
+		fmt.Printf("/canbenoti (%s) not online/hiddenonline, no push chl <- callerId=%s callerName=%s ip=%s\n",
 			urlID, callerIdLong, callerName, remoteAddr)
 	} else {
-		fmt.Printf("/canbenotified (%s/%s) not online/hiddenonline, no push chl <- callerId=%s callerName=%s ip=%s\n",
+		fmt.Printf("/canbenoti (%s/%s) not online/hiddenonline, no push chl <- callerId=%s callerName=%s ip=%s\n",
 			urlID, dialID, callerIdLong, callerName, remoteAddr)
 	}
 
 	if(dbUser.StoreMissedCalls) {
 		err,missedCallsSlice := addMissedCall(urlID,
-			CallerInfo{remoteAddr, callerName, time.Now().Unix(), callerIdLong, dialID, callerMsg},
-				"/canbenotified-not")
+			CallerInfo{remoteAddr, callerName, time.Now().Unix(), callerIdLong, dialID, callerMsg}, "/canbenoti")
 		if err==nil {
 			var calleeWsClient *WsClient = nil
 			hubMapMutex.RLock()
@@ -830,10 +829,10 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 			hubMapMutex.RUnlock()
 			if calleeWsClient==nil {
 				// callee is offline: don't send waitingCaller update
-				//fmt.Printf("/canbenotified (%s/%s) callee offline (no send waitingCaller)\n", urlID, glUrlID)
+				//fmt.Printf("/canbenoti (%s/%s) callee offline (no send waitingCaller)\n", urlID, glUrlID)
 			} else {
 				// send updated waitingCallerSlice + missedCalls
-				fmt.Printf("/canbenotified (%s/%s) callee online, send missedCalls upd\n", urlID, glUrlID)
+				fmt.Printf("/canbenoti (%s/%s) callee online, send missedCalls upd\n", urlID, glUrlID)
 				waitingCallerToCallee(urlID, nil, missedCallsSlice, calleeWsClient)
 			}
 		}
@@ -877,8 +876,13 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 			logTxtMsg = "hidden"
 		}
 		// caller.CallerID may contain @@callerHost
-		fmt.Printf("addMissed (%s/%s) <- (%s/%s) ip=%s msg=(%s) cause=(%s)\n",
-			urlID, caller.DialID, caller.CallerID, caller.CallerName, caller.AddrPort, logTxtMsg, cause)
+		if caller.DialID == urlID {
+			fmt.Printf("addMissed (%s) <- (%s/%s) ip=%s msg=(%s) cause=(%s)\n",
+				urlID, caller.CallerID, caller.CallerName, caller.AddrPort, logTxtMsg, cause)
+		} else {
+			fmt.Printf("addMissed (%s/%s) <- (%s/%s) ip=%s msg=(%s) cause=(%s)\n",
+				urlID, caller.DialID, caller.CallerID, caller.CallerName, caller.AddrPort, logTxtMsg, cause)
+		}
 	}
 	return err,missedCallsSlice
 }

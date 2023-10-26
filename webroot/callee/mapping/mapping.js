@@ -360,10 +360,10 @@ function remove(idx,id) {
 }
 
 function removeDo() {
-	let api = apiPath+"/deletemapping?id="+calleeID+"&delid="+removeId;
-	if(!gentle) console.log('request api',api);
+	let api = apiPath+"/deletemapping?id="+calleeID;
+	console.log('request api',api);
 	if(checkCookie()) return;
-	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
+	ajaxFetch(new XMLHttpRequest(), "POST", api, function(xhr) {
 		if(xhr.responseText.startsWith("error")) {
 			console.log("# /deletemapping err="+xhr.responseText);
 			abortOnError("Error: "+xhr.responseText.substring(5));
@@ -399,7 +399,7 @@ function removeDo() {
 				abortOnError("Error: "+err);
 			});
 		}
-	}, errorAction);
+	}, errorAction, removeId);
 }
 
 function storeData(successFkt,failFkt) {

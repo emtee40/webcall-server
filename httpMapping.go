@@ -178,6 +178,13 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 					fmt.Fprintf(w,"errorLength")
 					return
 				}
+				if strings.HasPrefix(mappedID,"answie") || strings.HasPrefix(mappedID,"talkback") {
+					// not allowed
+					fmt.Printf("# /setmapping (%s) mappedID=(%s) forbidden error\n",calleeID, mappedID)
+					time.Sleep(1000 * time.Millisecond)
+					fmt.Fprintf(w,"errorFormat")
+					return
+				}
 
 				// check for duplicates
 				for _, v := range acceptedIDs {
@@ -453,18 +460,27 @@ func httpDeleteMapping(w http.ResponseWriter, r *http.Request, urlID string, cal
 	url_arg_array, ok := r.URL.Query()["delid"]
 	if ok {
 		delID = url_arg_array[0]
-		if delID!="" {
-			errcode := deleteMapping(calleeID,delID,remoteAddr)
-			switch(errcode) {
-				case 1:
-					fmt.Fprintf(w,"errorDeleteRegistered")
-					return
-				case 2:
-					// ignore error creating dbBlockedID ???
-			}
-
-			fmt.Fprintf(w,"ok")
+		fmt.Printf("/deletemapping (%s) delid=%s from url %s\n", calleeID, delID, remoteAddr)
+	} else {
+		// read delID from POST
+		postBuf := make([]byte, 100)
+		length,_ := io.ReadFull(r.Body, postBuf)
+		if length>0 {
+			delID = string(postBuf[:length])
 		}
+		fmt.Printf("/deletemapping (%s) delid=%s from POST %s\n", calleeID, delID, remoteAddr)
+	}
+	if delID!="" {
+		errcode := deleteMapping(calleeID,delID,remoteAddr)
+		switch(errcode) {
+			case 1:
+				fmt.Fprintf(w,"errorDeleteRegistered")
+				return
+			case 2:
+				// ignore error creating dbBlockedID ???
+		}
+
+		fmt.Fprintf(w,"ok")
 	}
 }
 

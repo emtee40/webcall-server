@@ -724,12 +724,12 @@ func httpApiHandler(w http.ResponseWriter, r *http.Request) {
 			if strings.Index(message,"images/branding/product")>=0 {
 				// skip this
 			} else {
-				if length<1024 {
+				if length<=2048 {
 					fmt.Printf("/message=(%s) len=%d rip=%s\n",
 						message, length, remoteAddr)
 				} else {
 					fmt.Printf("/message=(%s ... %s) len=%d rip=%s\n",
-						message[:512], message[length-512:], length,remoteAddr)
+						message[:1024], message[length-1024:], length,remoteAddr)
 				}
 				// TODO here could send an email to adminEmail
 			}

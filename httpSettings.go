@@ -806,12 +806,17 @@ func httpDeleteContact(w http.ResponseWriter, r *http.Request, urlID string, cal
 				contactID = tryContactID;
 			} else {
 				// tryContactID = contactID@@hostname not found,
-				// delete the first entry that starts with tryContactID
-				contactID = ""
-				for k := range idNameMap {
-					if strings.HasPrefix(k,tryContactID) {
-						contactID = k;
-						break
+				if contactID!="" {
+					// delete the first entry that starts with contactID
+					tryContactID = contactID
+					contactID = ""
+				}
+				if tryContactID!="" {
+					for k := range idNameMap {
+						if strings.HasPrefix(k,tryContactID) {
+							contactID = k;
+							break
+						}
 					}
 				}
 				if contactID=="" {
