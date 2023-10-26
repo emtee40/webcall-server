@@ -725,9 +725,11 @@ func httpApiHandler(w http.ResponseWriter, r *http.Request) {
 				// skip this
 			} else {
 				if length<1024 {
-					fmt.Printf("/message=(%s) len=%d\n", message,length)
+					fmt.Printf("/message=(%s) len=%d rip=%s\n",
+						message, length, remoteAddr)
 				} else {
-					fmt.Printf("/message=(%s ... %s) len=%d\n", message[:512], message[length-512:], length)
+					fmt.Printf("/message=(%s ... %s) len=%d rip=%s\n",
+						message[:512], message[length-512:], length,remoteAddr)
 				}
 				// TODO here could send an email to adminEmail
 			}

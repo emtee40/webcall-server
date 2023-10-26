@@ -55,7 +55,7 @@ func httpLogin(w http.ResponseWriter, r *http.Request, urlID string, dialID stri
 
 	if dialID!="" && dialID!=urlID {
 		// a callee MUST use it's main-id to login (not alt-id or mapping-id's)
-		fmt.Printf("! /login (%s) dialID=(%s) deny %s\n", urlID, dialID, remoteAddr)
+		fmt.Printf("! /login (%s) dialID=(%s) deny (must use mainID to login) %s\n", urlID, dialID, remoteAddr)
 		time.Sleep(1000 * time.Millisecond)
 		fmt.Fprintf(w, "error")
 		return

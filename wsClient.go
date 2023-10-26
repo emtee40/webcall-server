@@ -438,7 +438,7 @@ func serve(w http.ResponseWriter, r *http.Request, tls bool) {
 	hub.HubMutex.Lock()
 	if hub.CalleeClient==nil {
 		// callee client (1st client)
-		if logWantedFor("wsclient") {
+		if logWantedFor("attach") {
 			fmt.Printf("%s (%s) callee conn ws=%d %s\n", client.connType,
 				client.calleeID, wsClientID64, client.RemoteAddr)
 		}

@@ -766,7 +766,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	// check if dialID is mainlink and is ringMuted/deactivated
 	if dialID==urlID && dbUser.Int2&8==8 {
 		// mainlink is called, but is deactivated
-		fmt.Printf("/canbenotified (%s/%s) mainlink deactivated <- %s\n", urlID, dialID, remoteAddr)
+		fmt.Printf("/canbenotified (%s) mainlink deactivated <- %s\n", urlID, remoteAddr)
 	} else
 	// check if dialID is mastodonlink, but is ringMuted/deactivated
 	if dialID==dbUser.MastodonID && dbUser.Int2&16==16 {
@@ -808,8 +808,13 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	}
 
 	// this user can NOT rcv push msg (cannot be notified)
-	fmt.Printf("/canbenotified (%s/%s) not online/hiddenonline, no push chl <- callerId=%s callerName=%s ip=%s\n",
-		urlID, dialID, callerIdLong, callerName, remoteAddr)
+	if urlID==dialID {
+		fmt.Printf("/canbenotified (%s) not online/hiddenonline, no push chl <- callerId=%s callerName=%s ip=%s\n",
+			urlID, callerIdLong, callerName, remoteAddr)
+	} else {
+		fmt.Printf("/canbenotified (%s/%s) not online/hiddenonline, no push chl <- callerId=%s callerName=%s ip=%s\n",
+			urlID, dialID, callerIdLong, callerName, remoteAddr)
+	}
 
 	if(dbUser.StoreMissedCalls) {
 		err,missedCallsSlice := addMissedCall(urlID,
