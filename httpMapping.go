@@ -162,7 +162,7 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 		}
 		for tok := range toks {
 			toks2 := strings.Split(toks[tok], ",")
-			if toks2[0] != "" {
+			if len(toks2)>0 && toks2[0] != "" {
 				// verify mappedID: a-z 0-9, min/max len
 				mappedID := toks2[0]
 				if(!isLowercaseWord(mappedID)) {
@@ -197,20 +197,23 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 				}
 
 				// verify assignedName: max len 10
-				assignedName := toks2[2]
-				if(!isWord(assignedName)) {
-					// found forbidden char
-					fmt.Printf("# /setmapping (%s) assignedName=(%s) special char error\n",calleeID, assignedName)
-					time.Sleep(1000 * time.Millisecond)
-					fmt.Fprintf(w,"errorFormat")
-					return
-				}
+				assignedName := ""
+				if len(toks2)>1 {
+					assignedName = toks2[2]
+					if(!isWord(assignedName)) {
+						// found forbidden char
+						fmt.Printf("# /setmapping (%s) assignedName=(%s) special char error\n",calleeID, assignedName)
+						time.Sleep(1000 * time.Millisecond)
+						fmt.Fprintf(w,"errorFormat")
+						return
+					}
 
-				if len(assignedName)>10 {
-					fmt.Printf("# /setmapping (%s) assignedName=(%s) length error\n",calleeID, assignedName)
-					time.Sleep(1000 * time.Millisecond)
-					fmt.Fprintf(w,"errorLength")
-					return
+					if len(assignedName)>10 {
+						fmt.Printf("# /setmapping (%s) assignedName=(%s) length error\n",calleeID, assignedName)
+						time.Sleep(1000 * time.Millisecond)
+						fmt.Fprintf(w,"errorLength")
+						return
+					}
 				}
 
 				// mappedID must not be in use by anyone else yet (other than by calleeID)
