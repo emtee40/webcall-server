@@ -14,4 +14,5 @@ dumponline.sh
 backupdb.sh
 webroot/callee/adapter-latest.js
 webroot/user/adapter-latest.js
+webroot-*
 

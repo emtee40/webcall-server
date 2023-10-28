@@ -73,7 +73,7 @@ func httpLogin(w http.ResponseWriter, r *http.Request, urlID string, dialID stri
 	if !strings.HasPrefix(urlID,"answie") && !strings.HasPrefix(urlID,"talkback") {
 		readConfigLock.RLock()
 		if clientBlockBelowVersion!="" && (wcVer=="" || wcVer < clientBlockBelowVersion) {
-			fmt.Printf("/login (%s) deny wcVer (%s) < clientBlockBelowVersion (%s) %s\n",
+			fmt.Printf("! /login (%s) deny wcVer (%s) < clientBlockBelowVersion (%s) %s\n",
 				urlID, wcVer, clientBlockBelowVersion, remoteAddr)
 			readConfigLock.RUnlock()
 

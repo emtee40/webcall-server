@@ -892,17 +892,35 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 		if c.dialID!="" && c.dialID!=c.calleeID {
 			dialID = "/"+c.dialID
 		}
+//		callerName := ""
+//		if c.hub.CallerClient!=nil {
+//			callerName = c.hub.CallerClient.callerName
+//		}
+		callerMainID := ""
+		if c.callerID!="" {
+			mappingMutex.RLock()
+			mappingData,ok := mapping[c.callerID]
+			mappingMutex.RUnlock()
+			if ok {
+				callerMainID = mappingData.CalleeId
+				if callerMainID==c.callerID {
+					callerMainID = ""
+				} else {
+					callerMainID = callerMainID + "/"
+				}
+			}
+		}
 		if c.hub.CalleeClient==nil {
-			fmt.Printf("# %s (%s%s) CALL⚡ from (%s) %s but hub.CalleeClient==nil\n",
-				c.connType, c.calleeID, dialID, c.callerID, c.RemoteAddr)
+			fmt.Printf("# %s (%s%s) CALL⚡ from (%s%s) %s but hub.CalleeClient==nil\n",
+				c.connType, c.calleeID, dialID, callerMainID, c.callerID, c.RemoteAddr)
 			c.hub.HubMutex.RUnlock()
 			return
 		}
 		// callee is busy; prevent it from receiving a call, when already in a call
 		if c.hub.ConnectedCallerIp!="" {
 			// ConnectedCallerIp is set below by StoreCallerIpInHubMap()
-			fmt.Printf("# %s (%s%s) CALL⚡ but hub.ConnectedCallerIp not empty (%s) <- (%s) %s\n",
-				c.connType, c.calleeID, dialID, c.hub.ConnectedCallerIp, c.callerID, c.RemoteAddr)
+			fmt.Printf("# %s (%s%s) CALL⚡ but hub.ConnectedCallerIp not empty (%s) <- (%s%s) %s\n",
+				c.connType, c.calleeID, dialID, c.hub.ConnectedCallerIp, callerMainID, c.callerID, c.RemoteAddr)
 
 			// add missed call if dbUser.StoreMissedCalls is set
 			userKey := c.calleeID + "_" + strconv.FormatInt(int64(c.hub.registrationStartTime),10)
@@ -918,9 +936,9 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 			return
 		}
 
-		fmt.Printf("%s (%s%s) CALL⚡ %s <- %s (%s) T=%s v=%s ua=%s\n",
+		fmt.Printf("%s (%s%s) CALL⚡ %s <- %s (%s%s) T=%s v=%s ua=%s\n",
 			c.connType, c.calleeID, dialID, c.hub.CalleeClient.RemoteAddr,
-				c.RemoteAddr, c.callerID, c.textMode, c.clientVersion, c.userAgent)
+				c.RemoteAddr, callerMainID, c.callerID, c.textMode, c.clientVersion, c.userAgent)
 
 		// forward the callerOffer message to the callee client
 		err := c.hub.CalleeClient.Write(message)
@@ -1088,8 +1106,8 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 			}
 			// caller client is disconnecting the callee
 			// c.RemoteAddr is callee-ip (c.hub.CallerClient may be nil already)
-			fmt.Printf("%s (%s%s) REQ PEER DISCON %s <- by caller cancel='%s'\n",
-				c.connType, c.calleeID, dialID, c.RemoteAddr, payload)
+			fmt.Printf("%s (%s%s) REQ PEER DISCON <- by caller cancel (%s) %s\n",
+				c.connType, c.calleeID, dialID, payload, c.RemoteAddr)
 			// end the peer-connection
 			// we need to fw "cancel|" to the callee so it stops ringing
 			c.hub.CalleeClient.Write([]byte("cancel|"+payload)) // TODO better move to peerConHasEnded() ?
@@ -1515,41 +1533,43 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 				callerMainID = mappingData.CalleeId
 				if callerMainID==c.hub.CallerID {
 					callerMainID = ""
+				} else {
+					callerMainID = callerMainID + "/"
 				}
 			}
 		}
-		callerName := ""
-		if c.hub.CallerClient!=nil {
-			callerName = c.hub.CallerClient.callerName
-		}
+//		callerName := ""
+//		if c.hub.CallerClient!=nil {
+//			callerName = c.hub.CallerClient.callerName
+//		}
 		if tok[0]=="callee" {
 			if(constateShort=="RING") {
-				fmt.Printf("%s (%s%s) PEER callee %s🔔 %s %s <- %s (%s/%s/%s)\n",
+				fmt.Printf("%s (%s%s) PEER callee %s🔔 %s %s <- %s (%s%s)\n",
 					c.connType, c.calleeID, dialID, constateShort, p2pRelayedInfo,
 					c.hub.CalleeClient.RemoteAddrNoPort, c.hub.CallerIpNoPort,
-					callerMainID, c.hub.CallerID, callerName)
+					callerMainID, c.hub.CallerID)
 
 				// forward special ring indicator to caller
 				if c.hub.CallerClient!=nil {
 					c.hub.CallerClient.Write([]byte("ring|"))
 				}
 			} else {
-				fmt.Printf("%s (%s%s) PEER callee %s☎️  %s %s <- %s (%s/%s/%s)\n",
+				fmt.Printf("%s (%s%s) PEER callee %s☎️  %s %s <- %s (%s%s)\n",
 					c.connType, c.calleeID, dialID, constateShort, p2pRelayedInfo,
 					c.hub.CalleeClient.RemoteAddrNoPort, c.hub.CallerIpNoPort,
-					callerMainID, c.hub.CallerID, callerName)
+					callerMainID, c.hub.CallerID)
 			}
 		} else {
 			if strings.HasPrefix(constate,"Con") && !c.isConnectedToPeer.Load() {
-				fmt.Printf("%s (%s%s) PEER caller %s☎️  %s %s <- %s (%s/%s/%s)\n",
+				fmt.Printf("%s (%s%s) PEER caller %s☎️  %s %s <- %s (%s%s)\n",
 					c.connType, c.calleeID, dialID, constateShort, p2pRelayedInfo,
 					c.hub.CalleeClient.RemoteAddrNoPort, c.hub.CallerIpNoPort,
-					callerMainID, c.hub.CallerID, callerName)
+					callerMainID, c.hub.CallerID)
 			} else {
-				fmt.Printf("%s (%s%s) PEER caller %s %s %s <- %s (%s/%s/%s)\n",
+				fmt.Printf("%s (%s%s) PEER caller %s %s %s <- %s (%s%s)\n",
 					c.connType, c.calleeID, dialID, constateShort, p2pRelayedInfo,
 					c.hub.CalleeClient.RemoteAddrNoPort, c.hub.CallerIpNoPort,
-					callerMainID, c.hub.CallerID, callerName)
+					callerMainID, c.hub.CallerID)
 			}
 		}
 

@@ -594,10 +594,10 @@ func missedCall(callerInfo string, remoteAddr string, cause string) {
 			// ???
 		}
 	}
-	fmt.Printf("missedCall (%s/%s) missedCall arrived %ds ago <- callerID=%s callerName=%s\n",
-		calleeId, dialID, timeOfCall, callerID, callerName)
+	fmt.Printf("missedCall (%s/%s) <- (%s/%s) arrived %ds ago [%s]\n",
+		calleeId, dialID, callerID, callerName, timeOfCall, callerInfo)
 
-	// TODO if callerName=="" get if from contacts via calleeId?
+	// TODO if callerName=="" get it from contacts via calleeId?
 
 	// TODO check callerName, callerID, msgtext for size and content
 	// the actual call occured ageSecs64 ago (may be a big number, if caller waits long before aborting the page)
@@ -812,8 +812,22 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	if urlID==dialID {
 		logDialID = ""
 	}
-	fmt.Printf("/canbenoti (%s%s) not online/hiddenonline, no push chl <- (%s/%s) ip=%s\n",
-		urlID, logDialID, callerIdLong, callerName, remoteAddr)
+	callerMainID := ""
+	if callerID!="" && callerID==callerIdLong {
+		mappingMutex.RLock()
+		mappingData,ok := mapping[callerID]
+		mappingMutex.RUnlock()
+		if ok {
+			callerMainID = mappingData.CalleeId
+			if callerMainID==callerID {
+				callerMainID = ""
+			} else {
+				callerMainID = callerMainID + "/"
+			}
+		}
+	}
+	fmt.Printf("/canbenoti (%s%s) not online/hiddenonline, no push chl <- (%s%s) ip=%s\n",
+		urlID, logDialID, callerMainID, callerIdLong, remoteAddr)
 
 	if(dbUser.StoreMissedCalls) {
 		err,missedCallsSlice := addMissedCall(urlID,
@@ -846,7 +860,7 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 	var missedCallsSlice []CallerInfo
 	err := kvCalls.Get(dbMissedCalls,urlID,&missedCallsSlice)
 	if err!=nil && strings.Index(err.Error(),"key not found")<0 {
-		fmt.Printf("# addMissed (%s) failed to read dbMissedCalls (%v) err=%v\n",
+		fmt.Printf("# missedCall (%s) failed to read dbMissedCalls (%v) err=%v\n",
 			urlID, caller, err)
 	}
 
@@ -859,14 +873,21 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 			callerMainID = mappingData.CalleeId
 			if callerMainID==caller.CallerID {
 				callerMainID = ""
+			} else {
+				callerMainID = callerMainID + "/"
 			}
 		}
 	}
 
 	if caller.DialID == caller.CallerID {
 		// don't store missed call from same user
-		fmt.Printf("addMissed (%s) not storing missedCalls from same ID (%s <- %s/%s)\n",
-			urlID, caller.DialID, callerMainID, caller.CallerID)
+		if urlID == caller.DialID {
+			fmt.Printf("missedCall (%s) not storing missedCalls from same ID (%s%s)\n",
+				urlID, callerMainID, caller.CallerID)
+		} else {
+			fmt.Printf("missedCall (%s/%s) not storing missedCalls from same ID (%s%s)\n",
+				urlID, caller.DialID, callerMainID, caller.CallerID)
+		}
 		return err,missedCallsSlice
 	}
 	// make sure we never keep/show more than 10 missed calls
@@ -878,7 +899,7 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 	missedCallsSlice = append(missedCallsSlice, caller)
 	err = kvCalls.Put(dbMissedCalls, urlID, missedCallsSlice, true) // TODO: skipConfirm really?
 	if err!=nil {
-		fmt.Printf("# addMissed (%s) failed to store dbMissedCalls (%v) err=%v\n", urlID, caller, err)
+		fmt.Printf("# missedCall (%s) failed to store dbMissedCalls (%v) err=%v\n", urlID, caller, err)
 		return err,nil
 	}
 	if logWantedFor("missedcall") {
@@ -889,11 +910,11 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 		}
 		// caller.CallerID may contain @@callerHost
 		if caller.DialID == urlID {
-			fmt.Printf("addMissed (%s) <- (%s/%s/%s) ip=%s msg=(%s) cause=(%s)\n",
-				urlID, callerMainID, caller.CallerID, caller.CallerName, caller.AddrPort, logTxtMsg, cause)
+			fmt.Printf("missedCall (%s) <- (%s%s) ip=%s msg=(%s) cause=(%s)\n",
+				urlID, callerMainID, caller.CallerID, caller.AddrPort, logTxtMsg, cause)
 		} else {
-			fmt.Printf("addMissed (%s/%s) <- (%s/%s/%s) ip=%s msg=(%s) cause=(%s)\n",
-				urlID, caller.DialID, callerMainID, caller.CallerID, caller.CallerName, caller.AddrPort, logTxtMsg, cause)
+			fmt.Printf("missedCall (%s/%s) <- (%s%s) ip=%s msg=(%s) cause=(%s)\n",
+				urlID, caller.DialID, callerMainID, caller.CallerID, caller.AddrPort, logTxtMsg, cause)
 		}
 	}
 	return err,missedCallsSlice

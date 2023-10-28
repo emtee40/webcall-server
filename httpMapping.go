@@ -148,7 +148,7 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 	}
 
 	// /setmapping (98597153158) done data=(93489236986,true,|77728892315,true,|48849331002,true,|94042933561,true,)
-	fmt.Printf("/setmapping (%s) data=(%s) check...\n",calleeID, data)
+	//fmt.Printf("/setmapping (%s) data=(%s) check...\n",calleeID, data)
 
 	// verify each element in data before writing over dbUser.AltIDs
 	if data!="" {

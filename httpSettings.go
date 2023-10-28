@@ -821,8 +821,8 @@ func httpDeleteContact(w http.ResponseWriter, r *http.Request, urlID string, cal
 				}
 				if contactID=="" {
 					// found no such entry
-					fmt.Printf("# /deletecontact (%s) idNameMap[%s/%s] does not exist %s\n",
-						calleeID, contactID, tryContactID, remoteAddr)
+					fmt.Printf("# /deletecontact (%s) try=%s does not exist  idNameMap[%v] %s\n",
+						calleeID, tryContactID, idNameMap, remoteAddr)
 					for k := range idNameMap {
 						fmt.Printf("...key=(%s)\n",k)
 					}
