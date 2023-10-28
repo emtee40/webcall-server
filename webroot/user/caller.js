@@ -1640,7 +1640,6 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 				if(goodbyDone) {
 					return;
 				}
-				console.log("fall through to calleeNotificationAction");
 				calleeNotificationAction();
 
 			}, function(errString,errcode) {
@@ -1652,8 +1651,9 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 				console.log('online: callee could not be reached. xhr err',errString,errcode);
 				// TODO if xhr /online failed, does it make sense to try xhr /missedCall ?
 				showStatus("Unable to reach "+calleeID+".<br>Please try again later.",-1,true);
-				//wsSend("missedcall|"+goodbyMissedCall); // this is not possible here
+/*
 				if(goodbyMissedCall!="") {
+					console.log("calleeOfflineAction xhr /missedCall "+goodbyMissedCall);
 					let api = apiPath+"/missedCall?id="+goodbyMissedCall;
 					ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 						gLog('/missedCall success');
@@ -1662,6 +1662,8 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 					});
 					goodbyMissedCall = "";
 				}
+*/
+				goodbyMissedCall = "";
 			});
 			return;
 		}
@@ -1678,7 +1680,7 @@ function calleeOfflineAction(onlineStatus,waitForCallee) {
 }
 
 function calleeNotificationAction() {
-	// calleeID is currently offline - check if calleeID can be notified (via twitter msg)
+	// calleeID is currently offline - check if calleeID can be notified (via notification)
 	if(divspinnerframe) {
 		divspinnerframe.style.display = "none";
 	}
@@ -1799,12 +1801,12 @@ function goodby() {
 		// id=format: calleeID|callerName|callerID|ageSecs|msgbox
 		// goodbyMissedCall arrives as urlID but is then tokenized
 		if(wsConn!=null) {
-			gLog('goodbyMissedCall wsSend='+goodbyMissedCall);
+			console.log('goodbyMissedCall missedCall wsSend='+goodbyMissedCall);
 			wsSend("missedcall|"+goodbyMissedCall);
 		} else {
 			// tell server to store a missed call entry
 			// doing sync xhr in goodby/beforeunload (see: last (7th) parameter = true)
-			gLog('goodbyMissedCall syncxhr='+goodbyMissedCall);
+			console.log('goodbyMissedCall /missedCall syncxhr='+goodbyMissedCall);
 			let api = apiPath+"/missedCall?id="+goodbyMissedCall;
 			ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 				   gLog('goodby /missedCall sent to '+goodbyMissedCall);
@@ -1976,7 +1978,7 @@ function notifyConnect(callerName,callerId,callerHost) {
 		"&callerId="+callerId + "&callerName="+callerName + "&callerHost="+callerHost + textModeArg +
 		"&msg="+cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen);
 	xhrTimeout = 30*60*1000; // 30 min extended xhr timeout
-	gLog("notifyCallee api="+api+" timeout="+xhrTimeout);
+	console.log("notifyConnect api="+api+" timeout="+xhrTimeout);
 	ajaxFetch(new XMLHttpRequest(), "GET", api, function(xhr) {
 		//console.log("/notifyCallee?id xhr.responseText="+xhr.responseText);
 		if(divspinnerframe) {
