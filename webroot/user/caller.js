@@ -972,10 +972,6 @@ function fetchMapping(contFunc,idSelectElement,idSelectLabelElem) {
 				//	" idSelectElement.selectedIndex="+idSelectElement.selectedIndex);
 			}
 
-			//if(callerId!=cookieName) {
-			//	callerId = cookieName; // main id
-			//}
-
 			let idOptionAnon = document.createElement('option');
 			idOptionAnon.text = "(incognito)";
 			idOptionAnon.value = "";
@@ -1243,7 +1239,6 @@ function videoOn() {
 function videoOff() {
 	// disable local video (but if rtcConnect, keep local mic on)
 	gLog("videoOff");
-//	myUserMediaDeviceId = null;
 	localVideoHide();
 	if(localStream) {
 		// stop streaming video track
@@ -1314,13 +1309,6 @@ function videoOff() {
 				break;
 			}
 		}
-/*
-		if(rtcConnect) {
-			// if still peer connected, activate the selected audio device
-			// TODO not sure this is needed
-			getStream(false,"videoOff");
-		}
-*/
 	}
 }
 
@@ -1498,14 +1486,8 @@ function calleeOnlineAction(comment) {
 
 			enableCalleeOnlineElement(false);
 
-// TODO android does not need this (anymore)(wrong!), but caller on web does (to fill the audio selector)
-//			if(typeof Android !== "undefined" && Android !== null) {
-//			if(navigator.userAgent.indexOf("Android")>=0 || navigator.userAgent.indexOf("Dalvik")>=0) {
-//			} else 
-			{
-				getStream(false,"calleeOnlineAction2").then(() =>
-					navigator.mediaDevices.enumerateDevices()).then(gotDevices);
-			}
+			getStream(false,"calleeOnlineAction2").then(() =>
+				navigator.mediaDevices.enumerateDevices()).then(gotDevices);
 
 			// so we display a message to prepare the caller hitting the call button manually
 			if(calleeID.startsWith("answie"))  {
@@ -1787,9 +1769,6 @@ function enableCalleeOnlineElement(clearStatus) {
 		showStatus(calleeID,-1,true);
 	}
 
-//	if(clearStatus) {
-//		showStatus("");
-//	}
 	setTimeout(function() {
 		msgbox.value = "";
 		answerButtons.style.display = "grid";
@@ -1874,6 +1853,9 @@ function submitFormDone(idx) {
 		idSelectElement = document.getElementById("idSelect2");
 		if(idSelectElement && idSelectElement.options.length>0 && idSelectElement.selectedIndex>=0) {
 			callerId = idSelectElement.options[idSelectElement.selectedIndex].value;
+
+			// TODO also do getContact(calleeID) to get preferred callerName <- callerNickname ?
+			// otoh: if user does dial-ID, then calleeID may not be stored as contact
 		}
 
 		console.log("submitFormDone calleeID="+calleeID+" callerId="+callerId);
@@ -1896,11 +1878,14 @@ function submitFormDone(idx) {
 				callerId = cookieName;
 			}
 			let callUrl = "https://"+cleanStringParameter(enterDomainValElement.value,true)+"/user/"+calleeID+
-				"?callerId="+callerId + "&callerName="+callerName + "&callerHost="+callerHost +
-				"&contactName="+contactName+"&i="+randId;
+				"?callerId="+callerId + "&callerHost="+callerHost;
+			//if(contactName!="") {
+			//	callUrl += "&contactName="+contactName;
+			//}
 			if(playDialSounds==false) {
 				callUrl += "&ds=false";
 			}
+			callUrl += "&i="+randId;
 			var openOK = false;
 			try {
 				console.log("submitFormDone window.open "+callUrl);
@@ -3089,10 +3074,6 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 	console.log("hangup: message="+message);
 	dialing = false;
 
-//	calleeOnlineElement.classList.remove("disableElement");
-//	msgboxdiv.classList.remove("disableElement");
-//	bottomElement.classList.remove("disableElement");
-
 	textbox.style.display = "none";
 	chatButtonLabel.style.display = "none";
 	connectLocalVideo(true); // forceOff
@@ -3114,8 +3095,6 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 
 	localDescription = null;
 	hangupButton.disabled = true;
-	//dialButton.disabled = false;
-//	onlineIndicator.src="";
 
 	if(peerCon && peerCon.iceConnectionState!="closed") {
 		if(addedAudioTrack) {
@@ -3235,6 +3214,7 @@ function hangup(mustDisconnectCallee,mustcheckCalleeOnline,message) {
 			}
 
 			//console.log("contactName (for storeContactLink)=("+contactName+")");
+			// TODO should not deliver contactName and callerName via URL, may trigger fail2ban
 			let storeContactLink = "https://"+callerHost+"/callee/contacts/store/?id="+callerId+
 				"&contactId="+fullContactId+"&contactName="+contactName+"&callerName="+callerName;
 			storeContactElement.innerHTML = "<a href='"+storeContactLink+"'>Store contact</a>";
