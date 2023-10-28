@@ -48,6 +48,7 @@ window.onload = function() {
 	}
 
 	callerName = ""; // nickname of the caller
+	// TODO should not deliver callerName via URL
 	str = getUrlParams("callerName");
 	if(typeof str!=="undefined" && str!==null && str!=="" && str!=="null") {
 		callerName = cleanStringParameter(str,true,"c1");

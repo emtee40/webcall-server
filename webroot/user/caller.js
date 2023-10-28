@@ -361,7 +361,8 @@ window.onload = function() {
 
 	// showMissedCalls hands over the default webcall nickname with this
 	callerName = "";
-	str = getUrlParams("callerName"); // window.location.search
+	// TODO should not deliver callerName via url (usually arrives via serverSettings.nickname or /getcontact)
+	str = getUrlParams("callerName");
 	if(typeof str!=="undefined" && str!=null && str!="" && str!="undefined" && str!="null" && str!="true") {
 		// this urlArg has a low priority
 		// will be overwritten by the contacts-entry for enterIdValElement.value (calleeID)
@@ -497,7 +498,7 @@ window.onload = function() {
 			// callerId MUST be set now, bc it is currently set to "select"
 			if(callerId!="" && callerId!=cookieName) {
 				// if we override the callerId with a different cookieName
-				// we also clear the callerName (alligned with the old callerId)
+				// we also clear the callerName (aligned with the old callerId)
 				callerName = "";
 			}
 			callerId = cookieName; // main callback id
@@ -1699,13 +1700,10 @@ function calleeNotificationAction() {
 	if(divspinnerframe) {
 		divspinnerframe.style.display = "none";
 	}
+	// TODO callerName may trigger fail2ban (but post is already used for greetingmsg)
 	let api = apiPath+"/canbenotified?id="+calleeID + "&callerId="+callerId +
 		"&callerName="+callerName + "&callerHost="+callerHost;
 	let greetingMsg = cleanStringParameter(msgbox.value,false).substring(0,msgBoxMaxLen);
-	// greetingMsg via GET
-	//if(greetingMsg!="") {
-	//	api += "&msg="+greetingMsg;
-	//}
 
 	// greetingMsg sent via POST
 	gLog('canbenotified api',api);
@@ -1867,14 +1865,18 @@ function confirmNotifyConnect() {
 }
 
 function submitFormDone(idx) {
-	//console.log("submitFormDone() idx="+idx+" callerName="+callerName);
+	console.log("submitFormDone() idx="+idx+" callerName="+callerName);
 	if(idx==1) {
 		// DialID: switch back to default container
 		calleeID = cleanStringParameter(enterIdValElement.value,true); // remove all white spaces
-	//	if(!calleeID.startsWith("#")) {
-	//		if(calleeID.length>11) calleeID = calleeID.substring(0,11);
-	//	}
-		gLog("submitFormDone calleeID="+calleeID);
+
+		// get callerId from 'idSelect2'  idSelectElement.selectedIndex
+		idSelectElement = document.getElementById("idSelect2");
+		if(idSelectElement && idSelectElement.options.length>0 && idSelectElement.selectedIndex>=0) {
+			callerId = idSelectElement.options[idSelectElement.selectedIndex].value;
+		}
+
+		console.log("submitFormDone calleeID="+calleeID+" callerId="+callerId);
 		// TODO .host may have :443 set, while DomainVal may not
 		gLog("submitFormDone targetDomain="+enterDomainValElement.value+" location.host="+location.host);
 		if(cleanStringParameter(enterDomainValElement.value,true) != location.host) {
@@ -1890,6 +1892,7 @@ function submitFormDone(idx) {
 			let randId = ""+Math.floor(Math.random()*1000000);
 			if(callerId=="") {
 				// if user has deliberately selected incognito, this is set to 'none'
+				console.log("submitFormDone empty callerId set to cookieName="+cookieName);
 				callerId = cookieName;
 			}
 			let callUrl = "https://"+cleanStringParameter(enterDomainValElement.value,true)+"/user/"+calleeID+

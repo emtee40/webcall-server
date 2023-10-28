@@ -547,6 +547,10 @@ func missedCall(callerInfo string, remoteAddr string, cause string) {
 		//	urlID, mappingData.CalleeId, mappingData.Assign, urlPath)
 		calleeId = mappingData.CalleeId
 	}
+	logDialID = "";
+	if calleeId != dialID {
+		logDialID = "/"+dialID
+	}
 
 	// find current state of dbUser.StoreMissedCalls via calleeId
 	var dbEntry DbEntry
@@ -594,8 +598,8 @@ func missedCall(callerInfo string, remoteAddr string, cause string) {
 			// ???
 		}
 	}
-	fmt.Printf("missedCall (%s/%s) <- (%s/%s) arrived %ds ago [%s]\n",
-		calleeId, dialID, callerID, callerName, timeOfCall, callerInfo)
+	fmt.Printf("missedCall (%s%s) <- (%s/%s) arrived %ds ago [%s]\n",
+		calleeId, logDialID, callerID, callerName, timeOfCall, callerInfo)
 
 	// TODO if callerName=="" get it from contacts via calleeId?
 
@@ -651,7 +655,7 @@ func missedCall(callerInfo string, remoteAddr string, cause string) {
 func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dialID string,
 		remoteAddr string, remoteAddrWithPort string) {
 	// checks if urlID can be notified (of incoming call)
-	// usually called after /online reports a callee being offline
+	// usually called by caller.js after /online reports that callee (dialID) is offline
 	if urlID=="" {
 		fmt.Printf("! /canbenoti failed on empty urlID rip=%s\n",remoteAddr)
 		fmt.Fprintf(w,"error")
@@ -765,7 +769,7 @@ func httpCanbenotified(w http.ResponseWriter, r *http.Request, urlID string, dia
 	} else
 	// check if dialID is mainlink and is ringMuted/deactivated
 	if dialID==urlID && dbUser.Int2&8==8 {
-		// mainlink is called, but is deactivated
+		// mainID is called, but is deactivated
 		fmt.Printf("/canbenoti (%s) mainlink deactivated <- %s\n", urlID, remoteAddr)
 	} else
 	// check if dialID is mastodonlink, but is ringMuted/deactivated
@@ -881,6 +885,7 @@ func addMissedCall(urlID string, caller CallerInfo, cause string) (error, []Call
 
 	if caller.DialID == caller.CallerID {
 		// don't store missed call from same user
+//tmtmtm maybe not log this?
 		if urlID == caller.DialID {
 			fmt.Printf("missedCall (%s) not storing missedCalls from same ID (%s%s)\n",
 				urlID, callerMainID, caller.CallerID)
