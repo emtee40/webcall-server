@@ -296,7 +296,7 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 				// ensure mappedID is not overlong and does not contain wrong format data (e.g. HTML)
 				mappedID := toks2[0]
 				ringMutedMutex.Lock()
-				if toks2[1] != "true" {
+				if len(toks2)>=2 && toks2[1] != "true" {
 					// this mapping has been deactivated: set ringMuted
 					fmt.Printf("/setmapping (%s) set ringMuted for (%s)\n",calleeID, mappedID)
 					ringMuted[mappedID] = struct{}{}
@@ -309,12 +309,8 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 
 				mappingData := mapping[mappedID]
 				if mappingData.CalleeId != calleeID {
-//					assignedName := toks2[2]
-
-//					fmt.Printf("/setmapping (%s) set (%s)=(%s)\n",calleeID, mappedID, assignedName)
 					fmt.Printf("/setmapping (%s) set (%s)\n",calleeID, mappedID)
 					mappingMutex.Lock()
-//					mapping[mappedID] = MappingDataType{calleeID,assignedName}
 					mapping[mappedID] = MappingDataType{calleeID}
 					mappingMutex.Unlock()
 
