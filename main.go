@@ -365,7 +365,7 @@ func main() {
 //						mapping[toks2[0]] = MappingDataType{calleeID,toks2[2]}
 						mapping[toks2[0]] = MappingDataType{calleeID}
 
-						if toks2[1] == "true" { // active
+						if len(toks2)>=2 && toks2[1] == "true" { // active
 							//fmt.Printf("initloop set mapping from AltIDs %s -> %s (%s)\n",
 							//	toks2[0], calleeID, toks2[2])
 						} else {
