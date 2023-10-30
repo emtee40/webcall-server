@@ -121,6 +121,11 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 		return
 	}
 
+	logDialID := ""
+	if dialID!=urlID {
+		logDialID = "/"+dialID
+	}
+
 	logTxtMsg := callerMsg
 	if logTxtMsg!="" {
 		// do not log actual msg
@@ -258,12 +263,12 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 			// we could not send any notifications (could be hidden online callee has just gone offline)
 			// store call as missed call
 			if(dbUser.StoreMissedCalls) {
-				fmt.Printf("# /notifyCallee (%s/%s) could not send notification: store as missed call\n", urlID, dialID)
+				fmt.Printf("# /notifyCallee (%s%s) could not send notification: store as missed call\n", urlID, logDialID)
 				addMissedCall(urlID,
 					CallerInfo{remoteAddr, callerName, time.Now().Unix(), callerIdLong, dialID, callerMsg},
 						"/notify-notavail")
 			} else {
-				fmt.Printf("# /notifyCallee (%s/%s) could not send notification (no store notif)\n", urlID, dialID)
+				fmt.Printf("# /notifyCallee (%s%s) could not send notification (no store notif)\n", urlID, logDialID)
 			}
 			return
 		}
@@ -411,12 +416,12 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 		}
 
 		if !callerGotConnected {
-			fmt.Printf("/notifyCallee (%s/%s) remove waitingCaller ipAddr %s\n", urlID, dialID, remoteAddrWithPort)
+			fmt.Printf("/notifyCallee (%s%s) remove waitingCaller ipAddr %s\n", urlID, logDialID, remoteAddrWithPort)
 			waitingCallerChanLock.Lock()
 			delete(waitingCallerChanMap, remoteAddrWithPort)
 			waitingCallerChanLock.Unlock()
 		} else {
-			fmt.Printf("/notifyCallee (%s/%s) skip remove waitingCaller ipAddr %s\n", urlID, dialID, remoteAddrWithPort)
+			fmt.Printf("/notifyCallee (%s%s) skip remove waitingCaller ipAddr %s\n", urlID, logDialID, remoteAddrWithPort)
 		}
 
 		waitingCallerDbLock.Lock()
@@ -424,18 +429,18 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 		err = kvCalls.Get(dbWaitingCaller, urlID, &waitingCallerSlice)
 		for idx := range waitingCallerSlice {
 			if waitingCallerSlice[idx].AddrPort == remoteAddrWithPort {
-				fmt.Printf("/notifyCallee (%s/%s) delete from dbWaitingCaller %s\n",
-					urlID, dialID, remoteAddrWithPort)
+				fmt.Printf("/notifyCallee (%s%s) delete from dbWaitingCaller %s\n",
+					urlID, logDialID, remoteAddrWithPort)
 				waitingCallerSlice = append(waitingCallerSlice[:idx], waitingCallerSlice[idx+1:]...)
 				err = kvCalls.Put(dbWaitingCaller, urlID, waitingCallerSlice, false)
 				if err != nil {
-					fmt.Printf("# /notifyCallee (%s/%s) failed to delete from dbWaitingCaller %s\n",
-						urlID, dialID, remoteAddrWithPort)
+					fmt.Printf("# /notifyCallee (%s%s) failed to delete from dbWaitingCaller %s\n",
+						urlID, logDialID, remoteAddrWithPort)
 				}
 				break
 			} else {
-				fmt.Printf("/notifyCallee (%s) leaving waitingCaller %s in dbWaitingCaller for now\n",
-					urlID, remoteAddrWithPort)
+				fmt.Printf("/notifyCallee (%s%s) leaving waitingCaller %s in dbWaitingCaller for now\n",
+					urlID, logDialID, remoteAddrWithPort)
 			}
 		}
 		waitingCallerDbLock.Unlock()
@@ -450,8 +455,8 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 	if callerGaveUp {
 		if dbUser.StoreMissedCalls {
 			// store missed call for caller gave up
-			fmt.Printf("/notifyCallee (%s/%s) store missed call (waiting caller gave up) <- callerID=%s callerName=%s\n",
-				urlID, dialID, callerIdLong, callerName)
+			fmt.Printf("/notifyCallee (%s%s) store missed call (waiting caller gave up) <- callerID=%s callerName=%s\n",
+				urlID, logDialID, callerIdLong, callerName)
 
 			// waitingCaller contains remoteAddrWithPort. for display purposes we need to cut the port
 			addrPort := waitingCaller.AddrPort
@@ -466,12 +471,12 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 		}
 	} else if calleeWsClient==nil {
 		// callee is still offline: don't send waitingCaller update
-		fmt.Printf("/notifyCallee (%s/%s/%s) callee still offline (no waitingCaller) <- callerID=%s callerName=%s\n", 
-			urlID, glUrlID, dialID, callerIdLong, callerName)
+		fmt.Printf("/notifyCallee (%s/%s%s) callee still offline (no waitingCaller) <- callerID=%s callerName=%s\n",
+			urlID, glUrlID, logDialID, callerIdLong, callerName)
 	} else if !callerGotConnected {
 		// send updated waitingCallerSlice + missedCalls
-		fmt.Printf("/notifyCallee (%s/%s/%s) add waiting caller <- callerID=%s callerName=%s\n",
-			urlID, glUrlID, dialID, callerIdLong, callerName)
+		fmt.Printf("/notifyCallee (%s/%s%s) add waiting caller <- callerID=%s callerName=%s\n",
+			urlID, glUrlID, logDialID, callerIdLong, callerName)
 		waitingCallerToCallee(urlID, waitingCallerSlice, nil, calleeWsClient)
 	}
 	return
