@@ -313,10 +313,11 @@ func (h *Hub) closeCallee(cause string) {
 			if !h.LocalP2p { localPeerCon = "relay" }
 			remotePeerCon = "p2p"
 			if !h.RemoteP2p { remotePeerCon = "relay" }
-			fmt.Printf("%s (%s) CALLEEGONE⭕ PEERCONT %ds %s/%s %s <- %s\n",
+			fmt.Printf("%s (%s) ⭕ngoing peercon %ds %s/%s %s <- %s %s\n",
 				h.CalleeClient.connType, h.CalleeClient.calleeID,
 				h.CallDurationSecs, localPeerCon, remotePeerCon,
-				h.CalleeClient.RemoteAddrNoPort, h.CallerIpNoPort)
+				h.CalleeClient.RemoteAddrNoPort, h.CallerIpNoPort,
+				comment)
 
 			// h.peerConHasEnded(comment) // will set h.CallerClient=nil
 		}

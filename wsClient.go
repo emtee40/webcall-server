@@ -1810,7 +1810,8 @@ func (c *WsClient) Close(reason string) {
 
 			fmt.Printf("%s (%s) Close: store empty dbWaitingCaller...\n", c.connType, c.calleeID)
 			//waitingCallerDbLock.Lock()
-			err := kvCalls.Put(dbWaitingCaller, c.calleeID, nil, false)
+			var waitingCallerSlice []CallerInfo
+			err := kvCalls.Put(dbWaitingCaller, c.calleeID, waitingCallerSlice, false)
 			if(err!=nil) {
 				fmt.Printf("# %s (%s) Close: store empty dbWaitingCaller err=%v\n",
 					c.connType, c.calleeID, err)

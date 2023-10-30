@@ -308,16 +308,6 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 		if calleeIsHiddenOnline || (locHub!=nil && locHub.ConnectedCallerIp != "") {
 			if calleeWsClient != nil {
 				calleeWsClient.hub.IsUnHiddenForCallerAddr = ""
-/*
-				//fmt.Printf("/notifyCallee (%s) send waitingCallerSlice len=%d\n",
-				//	urlID, len(waitingCallerSlice))
-				json, err := json.Marshal(waitingCallerSlice)
-				if err != nil {
-					fmt.Printf("# /notifyCallee (%s) json.Marshal(waitingCallerSlice) err=%v\n", urlID, err)
-				} else {
-					calleeWsClient.Write([]byte("waitingCallers|" + string(json)))
-				}
-*/
 				waitingCallerToCallee(urlID, waitingCallerSlice, nil, calleeWsClient)
 			}
 		}
@@ -451,18 +441,6 @@ func httpNotifyCallee(w http.ResponseWriter, r *http.Request, urlID string, dial
 		waitingCallerDbLock.Unlock()
 
 		// waitingCallerSlice was modified, send it to callee
-/*
-		if calleeWsClient == nil {
-			fmt.Printf("# /notifyCallee (%s/%s) can not send waitingCallers to callee\n", urlID, dialID)
-		} else {
-			json, err := json.Marshal(waitingCallerSlice)
-			if err != nil {
-				fmt.Printf("# /notifyCallee (%s/%s) json.Marshal(waitingCallerSlice) err=%v\n", urlID, dialID, err)
-			} else {
-				calleeWsClient.Write([]byte("waitingCallers|" + string(json)))
-			}
-		}
-*/
 		waitingCallerToCallee(urlID, waitingCallerSlice, nil, calleeWsClient)
 
 	} else {
