@@ -1722,15 +1722,16 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 					err := c.hub.CallerClient.Write(message)
 					if err != nil {
 						// caller gone
-						fmt.Printf("# %s (%s) fw msg to caller fail %v\n",
-							c.connType, c.calleeID, err)
+						fmt.Printf("# %s (%s) fw msg (%s) to caller fail %v\n",
+							c.connType, c.calleeID, payload, err)
 						// saw err = 'not connected'
 						c.hub.HubMutex.RUnlock()
 						c.hub.closePeerCon("fw msg to caller "+err.Error())
 						return
 					}
 				} else {
-					fmt.Printf("# %s (%s) fw msg to CallerClient==nil\n", c.connType, c.calleeID)
+					fmt.Printf("# %s (%s) fw msg (%s) to CallerClient==nil\n",
+						c.connType, c.calleeID, payload)
 				}
 			} else {
 				// c is caller
@@ -1738,14 +1739,15 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 					err := c.hub.CalleeClient.Write(message)
 					if err != nil {
 						// callee gone
-						fmt.Printf("# %s (%s) fw msg to callee fail %v\n",
-							c.connType, c.calleeID, err)
+						fmt.Printf("# %s (%s) fw msg (%s) to callee fail %v\n",
+							c.connType, c.calleeID, payload, err)
 						c.hub.HubMutex.RUnlock()
 						c.hub.closeCallee("fw msg to callee: "+err.Error())
 						return
 					}
 				} else {
-					fmt.Printf("# %s (%s) fw msg to CalleeClient==nil\n", c.connType, c.calleeID)
+					fmt.Printf("# %s (%s) fw msg (%s) to CalleeClient==nil\n",
+						c.connType, c.calleeID, payload)
 				}
 			}
 			c.hub.HubMutex.RUnlock()

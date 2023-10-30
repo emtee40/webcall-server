@@ -440,6 +440,35 @@ func httpApiHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	urlID = strings.ToLower(urlID)
 	urlID = strings.TrimSpace(urlID)
+
+	if len(urlID)>11 {
+		tok := strings.Split(urlID, "|")
+		if len(tok) >= 5 {
+			// don't log 5-token (like this: "54281001702||65511272157|1653030153|msgtext")
+		} else if strings.Index(urlID,"@")>=0 {
+			// don't log id's containing @
+		} else {
+			fmt.Printf("! httpApi (%s) long urlID=(%s) %s (%s)\n", calleeID, urlID, remoteAddr, urlPath)
+/*
+// TODO: sometimes urlID looks like: "https://timur.mobi/user/86782648812" or "https://timur.mobi/callee/86782648812"
+			if strings.HasPrefix(urlID,"https://timur.mobi/user/") {
+				urlID = urlID[24:]
+				fmt.Printf("! httpApi (%s) fixed urlID=(%s) %s (%s)\n", calleeID, urlID, remoteAddr, urlPath)
+			}
+
+			if strings.HasPrefix(urlID,"https://timur.mobi/callee/") {
+				urlID = urlID[26:]
+				fmt.Printf("! httpApi (%s) fixed urlID=(%s) %s (%s)\n", calleeID, urlID, remoteAddr, urlPath)
+			}
+*/
+			clientRequestAdd(remoteAddr,3)
+		}
+	} else {
+//		if logWantedFor("http") {
+//			fmt.Printf("httpApi (%s) urlID=(%s) %s (%s)\n", calleeID, urlID, remoteAddr, urlPath)
+//		}
+	}
+
 	dialID := urlID
 	// keep in mind: urlID may be total garbage; don't trust it
 
@@ -454,22 +483,6 @@ func httpApiHandler(w http.ResponseWriter, r *http.Request) {
 				urlID, mappingData.CalleeId, urlPath)
 		}
 		urlID = mappingData.CalleeId
-	}
-
-	if len(urlID)>11 {
-		tok := strings.Split(urlID, "|")
-		if len(tok) >= 5 {
-			// don't log 5-token (like this: "54281001702||65511272157|1653030153|msgtext")
-		} else if strings.Index(urlID,"@")>=0 {
-			// don't log id's containing @
-		} else {
-			fmt.Printf("! httpApi (%s) long urlID=(%s) %s (%s)\n", calleeID, urlID, remoteAddr, urlPath)
-			clientRequestAdd(remoteAddr,3)
-		}
-	} else {
-//		if logWantedFor("http") {
-//			fmt.Printf("httpApi (%s) urlID=(%s) %s (%s)\n", calleeID, urlID, remoteAddr, urlPath)
-//		}
 	}
 
 	nocookie := false
