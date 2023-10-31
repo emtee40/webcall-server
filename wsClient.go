@@ -1708,6 +1708,10 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 
 	if len(payload)>0 {
 		// forward cmd/payload to other client
+		logPayload := payload
+		if len(payload)>20 {
+			logPayload = payload[:30]
+		}
 		if c.hub!=nil {
 			if logWantedFor("wsreceive") {
 				fmt.Printf("%s (%s) recv/fw %s|%s iscallee=%v %s\n",
@@ -1723,7 +1727,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 					if err != nil {
 						// caller gone
 						fmt.Printf("# %s (%s) fw msg (%s) to caller fail %v\n",
-							c.connType, c.calleeID, payload, err)
+							c.connType, c.calleeID, logPayload, err)
 						// saw err = 'not connected'
 						c.hub.HubMutex.RUnlock()
 						c.hub.closePeerCon("fw msg to caller "+err.Error())
@@ -1740,14 +1744,14 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 					if err != nil {
 						// callee gone
 						fmt.Printf("# %s (%s) fw msg (%s) to callee fail %v\n",
-							c.connType, c.calleeID, payload, err)
+							c.connType, c.calleeID, logPayload, err)
 						c.hub.HubMutex.RUnlock()
 						c.hub.closeCallee("fw msg to callee: "+err.Error())
 						return
 					}
 				} else {
 					fmt.Printf("# %s (%s) fw msg (%s) to CalleeClient==nil\n",
-						c.connType, c.calleeID, payload)
+						c.connType, c.calleeID, logPayload)
 				}
 			}
 			c.hub.HubMutex.RUnlock()
