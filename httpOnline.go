@@ -406,7 +406,7 @@ func httpOnline(w http.ResponseWriter, r *http.Request, urlID string, dialID str
 func httpNewId(w http.ResponseWriter, r *http.Request, urlID string, calleeID string, remoteAddr string) {
 	// get a random ID that is not yet used in hubmap
 	if !allowNewAccounts {
-		fmt.Printf("# /newid !allowNewAccounts\n")
+		fmt.Printf("! /newid !allowNewAccounts rip=%s\n",remoteAddr)
 		return
 	}
 

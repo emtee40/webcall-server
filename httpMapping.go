@@ -15,18 +15,18 @@ import (
 
 func httpGetMapping(w http.ResponseWriter, r *http.Request, urlID string, calleeID string, cookie *http.Cookie, remoteAddr string) {
 	if calleeID=="" {
-		fmt.Printf("# /getmapping calleeID empty urlID=%s %s\n",urlID, remoteAddr)
+		fmt.Printf("! /getmapping calleeID empty urlID=%s %s\n",urlID, remoteAddr)
 		fmt.Fprintf(w,"errorNoCalleeID")
 		return
 	}
 	if cookie==nil {
-		fmt.Printf("# /getmapping (%s) fail no cookie %s\n", calleeID, remoteAddr)
+		fmt.Printf("! /getmapping (%s) fail no cookie %s\n", calleeID, remoteAddr)
 		fmt.Fprintf(w,"errorNoCookie")
 		return
 	}
 	// if calleeID!=urlID, that's likely someone trying to run more than one callee in the same browser
 	if urlID!="" && urlID!=calleeID {
-		fmt.Printf("# /getmapping calleeID=%s not urlID=%s %s\n",calleeID, urlID, remoteAddr)
+		fmt.Printf("! /getmapping calleeID=%s not urlID=%s %s\n",calleeID, urlID, remoteAddr)
 		fmt.Fprintf(w,"errorWrongCookie")
 		return
 	}
@@ -49,7 +49,7 @@ func getMapping(calleeID string, remoteAddr string) (int,string) {
 	err := kvMain.Get(dbRegisteredIDs, calleeID, &dbEntry)
 	if err != nil {
 		if strings.Index(err.Error(),"key not found")<0 {
-			fmt.Printf("# getmapping (%s) get dbRegisteredIDs rip=%s err=%v\n", calleeID, remoteAddr, err)
+			fmt.Printf("! getmapping (%s) get dbRegisteredIDs rip=%s err=%v\n", calleeID, remoteAddr, err)
 		}
 		return 1,""
 	}
@@ -59,7 +59,7 @@ func getMapping(calleeID string, remoteAddr string) (int,string) {
 	err = kvMain.Get(dbUserBucket, dbUserKey, &dbUser)
 	if err != nil {
 		if strings.Index(err.Error(),"key not found")<0 {
-			fmt.Printf("# getmapping (%s) get dbUser (%s) rip=%s err=%v\n", calleeID, dbUserKey, remoteAddr, err)
+			fmt.Printf("! getmapping (%s) get dbUser (%s) rip=%s err=%v\n", calleeID, dbUserKey, remoteAddr, err)
 		}
 		return 2,""
 	}
@@ -100,16 +100,16 @@ func isLowercaseWord(s string) bool {
 
 func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, calleeID string, cookie *http.Cookie, remoteAddr string) {
 	if calleeID=="" || calleeID=="undefined" {
-		//fmt.Printf("# /setmapping calleeID empty\n")
+		//fmt.Printf("! /setmapping calleeID empty\n")
 		return
 	}
 	if cookie==nil {
-		fmt.Printf("# /setmapping (%s) fail no cookie %s\n", calleeID, remoteAddr)
+		fmt.Printf("! /setmapping (%s) fail no cookie %s\n", calleeID, remoteAddr)
 		return
 	}
 	// if calleeID!=urlID, that's likely someone trying to run more than one callee in the same browser
 	if urlID!="" && urlID!=calleeID {
-		fmt.Printf("# /setmapping urlID=%s != calleeID=%s %s\n", urlID, calleeID, remoteAddr)
+		fmt.Printf("! /setmapping urlID=%s != calleeID=%s %s\n", urlID, calleeID, remoteAddr)
 		return
 	}
 
@@ -132,7 +132,7 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 	var dbEntry DbEntry
 	err := kvMain.Get(dbRegisteredIDs, calleeID, &dbEntry)
 	if err != nil {
-		fmt.Printf("# /setmapping (%s) get dbEntry data=(%s) err=%v\n",calleeID, data, err)
+		fmt.Printf("! /setmapping (%s) get dbEntry data=(%s) err=%v\n",calleeID, data, err)
 		time.Sleep(1000 * time.Millisecond)
 		fmt.Fprintf(w,"errorGetID")
 		return
@@ -141,7 +141,7 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 	var dbUser DbUser
 	err = kvMain.Get(dbUserBucket, dbUserKey, &dbUser)
 	if err != nil {
-		fmt.Printf("# /setmapping (%s) get dbUser data=(%s) err=%v\n",calleeID, data, err)
+		fmt.Printf("! /setmapping (%s) get dbUser data=(%s) err=%v\n",calleeID, data, err)
 		time.Sleep(1000 * time.Millisecond)
 		fmt.Fprintf(w,"errorGetUser")
 		return
@@ -167,13 +167,13 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 				mappedID := toks2[0]
 				if(!isLowercaseWord(mappedID)) {
 					// found forbidden char
-					fmt.Printf("# /setmapping (%s) mappedID=(%s) special char error\n",calleeID, mappedID)
+					fmt.Printf("! /setmapping (%s) mappedID=(%s) special char error\n",calleeID, mappedID)
 					time.Sleep(1000 * time.Millisecond)
 					fmt.Fprintf(w,"errorFormat")
 					return
 				}
 				if len(mappedID)<3 || len(mappedID)>16 {
-					fmt.Printf("# /setmapping (%s) mappedID=(%s) length error\n",calleeID, mappedID)
+					fmt.Printf("! /setmapping (%s) mappedID=(%s) length error\n",calleeID, mappedID)
 					time.Sleep(1000 * time.Millisecond)
 					fmt.Fprintf(w,"errorLength")
 					return
@@ -202,14 +202,14 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 					assignedName = toks2[2]
 					if(!isWord(assignedName)) {
 						// found forbidden char
-						fmt.Printf("# /setmapping (%s) assignedName=(%s) special char error\n",calleeID, assignedName)
+						fmt.Printf("! /setmapping (%s) assignedName=(%s) special char error\n",calleeID, assignedName)
 						time.Sleep(1000 * time.Millisecond)
 						fmt.Fprintf(w,"errorFormat")
 						return
 					}
 
 					if len(assignedName)>10 {
-						fmt.Printf("# /setmapping (%s) assignedName=(%s) length error\n",calleeID, assignedName)
+						fmt.Printf("! /setmapping (%s) assignedName=(%s) length error\n",calleeID, assignedName)
 						time.Sleep(1000 * time.Millisecond)
 						fmt.Fprintf(w,"errorLength")
 						return
@@ -328,16 +328,16 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 func httpFetchID(w http.ResponseWriter, r *http.Request, urlID string, calleeID string, cookie *http.Cookie, remoteAddr string, startRequestTime time.Time) {
 	// fetch a new unused callee-ID
 	if calleeID=="" || calleeID=="undefined" {
-		//fmt.Printf("# /fetchid calleeID empty\n")
+		//fmt.Printf("! /fetchid calleeID empty\n")
 		return
 	}
 	if cookie==nil {
-		fmt.Printf("# /fetchid (%s) fail no cookie %s\n", calleeID, remoteAddr)
+		fmt.Printf("! /fetchid (%s) fail no cookie %s\n", calleeID, remoteAddr)
 		return
 	}
 	// if calleeID!=urlID, that's likely someone trying to run more than one callee in the same browser
 	if urlID!="" && urlID!=calleeID {
-		fmt.Printf("# /fetchid urlID=%s != calleeID=%s %s\n", urlID, calleeID, remoteAddr)
+		fmt.Printf("! /fetchid urlID=%s != calleeID=%s %s\n", urlID, calleeID, remoteAddr)
 		return
 	}
 
@@ -365,26 +365,11 @@ func httpFetchID(w http.ResponseWriter, r *http.Request, urlID string, calleeID 
 			return
 		}
 
-/*
-		unixTime := startRequestTime.Unix()
-		err = kvMain.Put(dbRegisteredIDs, registerID, DbEntry{unixTime, remoteAddr}, false)
-		if err!=nil {
-			fmt.Printf("# /fetchid (%s) error db=%s bucket=%s put err=%v\n",
-				registerID,dbMainName,dbRegisteredIDs,err)
-			time.Sleep(1000 * time.Millisecond)
-			fmt.Fprintf(w,"errorRegisterFail")
-			// TODO this is bad! got to role back kvMain.Put((dbUser...) from above
-		} else {
-*/
-			// add registerID -> calleeID (assign) to mapping.map
-			mappingMutex.Lock()
-//			mapping[registerID] = MappingDataType{calleeID,"none"}
-			mapping[registerID] = MappingDataType{calleeID}
-			mappingMutex.Unlock()
-			fmt.Fprintf(w,registerID)
-/*
-		}
-*/
+		// add registerID -> calleeID (assign) to mapping.map
+		mappingMutex.Lock()
+		mapping[registerID] = MappingDataType{calleeID}
+		mappingMutex.Unlock()
+		fmt.Fprintf(w,registerID)
 	}
 
 	return
@@ -393,20 +378,20 @@ func httpFetchID(w http.ResponseWriter, r *http.Request, urlID string, calleeID 
 func httpSetAssign(w http.ResponseWriter, r *http.Request, urlID string, calleeID string, cookie *http.Cookie, remoteAddr string) {
 	// urlID is the tmpID to set assigb
 	if calleeID=="" || calleeID=="undefined" {
-		//fmt.Printf("# /setassign calleeID empty\n")
+		//fmt.Printf("! /setassign calleeID empty\n")
 		return
 	}
 	if cookie==nil {
-		fmt.Printf("# /setassign (%s) fail no cookie urlID=%s %s\n", calleeID, urlID, remoteAddr)
+		fmt.Printf("! /setassign (%s) fail no cookie urlID=%s %s\n", calleeID, urlID, remoteAddr)
 		return
 	}
 	if urlID=="" {
-		fmt.Printf("# /setassign (%s) fail urlID empty %s\n", calleeID, urlID, remoteAddr)
+		fmt.Printf("! /setassign (%s) fail urlID empty %s\n", calleeID, urlID, remoteAddr)
 		return
 	}
 	if calleeID!=urlID {
 		// this happens bc someone with calleeID in the cookie is now trying to use urlID via url
-		fmt.Printf("# /setassign urlID(%s) != calleeID(%s) %s ua=%s\n",
+		fmt.Printf("! /setassign urlID(%s) != calleeID(%s) %s ua=%s\n",
 			urlID, calleeID, remoteAddr, r.UserAgent())
 		return
 	}
@@ -437,20 +422,20 @@ func httpSetAssign(w http.ResponseWriter, r *http.Request, urlID string, calleeI
 func httpDeleteMapping(w http.ResponseWriter, r *http.Request, urlID string, calleeID string, cookie *http.Cookie, remoteAddr string) {
 	// urlID is the tmpID to be deleted
 	if calleeID=="" || calleeID=="undefined" {
-		//fmt.Printf("# /deletemapping calleeID empty\n")
+		//fmt.Printf("! /deletemapping calleeID empty\n")
 		return
 	}
 	if cookie==nil {
-		fmt.Printf("# /deletemapping (%s) fail no cookie %s\n", calleeID, remoteAddr)
+		fmt.Printf("! /deletemapping (%s) fail no cookie %s\n", calleeID, remoteAddr)
 		return
 	}
 	if urlID=="" {
-		fmt.Printf("# /deletemapping (%s) fail urlID empty %s\n", calleeID, urlID, remoteAddr)
+		fmt.Printf("! /deletemapping (%s) fail urlID empty %s\n", calleeID, urlID, remoteAddr)
 		return
 	}
 	if calleeID!=urlID {
 		// this happens bc someone with calleeID in the cookie is now trying to use urlID via url
-		fmt.Printf("# /deletemapping urlID(%s) != calleeID(%s) %s ua=%s\n",
+		fmt.Printf("! /deletemapping urlID(%s) != calleeID(%s) %s ua=%s\n",
 			urlID, calleeID, remoteAddr, r.UserAgent())
 		return
 	}
@@ -484,15 +469,6 @@ func httpDeleteMapping(w http.ResponseWriter, r *http.Request, urlID string, cal
 }
 
 func deleteMapping(calleeID string, delID string, remoteAddr string) int {
-/*
-	// unregister delID from dbRegisteredIDs
-	err := kvMain.Delete(dbRegisteredIDs, delID)
-	if err!=nil && strings.Index(err.Error(), "skv key not found") < 0 {
-		fmt.Printf("# deletemapping (%s) fail to delete regID=%s err=%s\n", calleeID, delID, err)
-		return 1
-	}
-*/
-
 	unixTime := time.Now().Unix()
 	fmt.Printf("deletemapping (%s) id=%s rip=%s time=%v\n", calleeID, delID, remoteAddr, unixTime)
 

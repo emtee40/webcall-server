@@ -46,6 +46,8 @@ function makeNewId() {
 		if(!gentle) console.log('xhr.responseText',xhr.responseText);
 		if(xhr.responseText=="") {
 			showStatus("Registration of new callee ID's is not possible at this time. Please try again later. Thank you.<br><br><a href='..'>Back</a>",-1);
+			// hide password form below status line
+			form.style.display = "none";
 		} else if(xhr.responseText.length!=11) {
 			showStatus("Error: "+xhr.responseText+"<br><br><a href='..'>Back</a>",-1);
 		} else {
