@@ -168,6 +168,8 @@ func httpAdmin(kv skv.SKV, w http.ResponseWriter, r *http.Request, urlPath strin
 						daysUsage = (lastActivity-dbEntry.StartTime)/int64(60*60*24)
 					}
 
+// TODO check daysAge, daysUsage, daysSinceLastActivity
+
 					// id 'NA' means: N=notifications on, A=AskUserDialog
 					fmt.Fprintf(w, "%-40s %d %s%s%s%s %d %s %s %4d %3d %3d\n",
 						userId,

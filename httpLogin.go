@@ -78,7 +78,7 @@ func httpLogin(w http.ResponseWriter, r *http.Request, urlID string, dialID stri
 			readConfigLock.RUnlock()
 
 			// NOTE: msg MUST NOT contain apostroph (') characters
-			msg := "The version of WebCall you are using is no longer supported."+
+			msg := "Your WebCall client is no longer supported. It is too old."+
 					" <a href=\"/webcall/update/\">Please upgrade.</a>"
 			fmt.Fprintf(w,msg)
 			return

@@ -438,7 +438,7 @@ func serve(w http.ResponseWriter, r *http.Request, tls bool) {
 	hub.HubMutex.Lock()
 	if hub.CalleeClient==nil {
 		// callee client (1st client)
-		if logWantedFor("attach") {
+		if logWantedFor("attach2") {
 			fmt.Printf("%s (%s) callee conn ws=%d %s\n", client.connType,
 				client.calleeID, wsClientID64, client.RemoteAddr)
 		}
@@ -476,7 +476,7 @@ func serve(w http.ResponseWriter, r *http.Request, tls bool) {
 	}
 	if hub.CallerClient==nil {
 		// caller client (2nd client)
-		if logWantedFor("attach") {
+		if logWantedFor("attach2") {
 			fmt.Printf("%s (%s%s) caller conn ws=%d (%s) %s\n", client.connType, client.calleeID, dialID,
 				wsClientID64, callerIdLong, client.RemoteAddr)
 		}
@@ -604,7 +604,7 @@ func serve(w http.ResponseWriter, r *http.Request, tls bool) {
 					return
 				}
 				if logWantedFor("wsclose") {
-					fmt.Printf("%s (%s) reached14s -> do not force disconnect caller\n",
+					fmt.Printf("%s (%s) reached14s -> not forcing disconnect caller\n",
 						client.connType, client.calleeID)
 				}
 				hub.HubMutex.RUnlock()
@@ -622,7 +622,7 @@ func serve(w http.ResponseWriter, r *http.Request, tls bool) {
 
 			// NO PEERCON: calleroffer received, but after 14s still no peer-connect: this is a webrtc issue
 			// let's assume both sides are still ws-connected. let's send a status msg to both
-			fmt.Printf("%s (%s%s) reached14s NO PEERCON📵 %ds %s <- %s (%s) %v ua=%s\n",
+			fmt.Printf("! %s (%s%s) reached14s NO PEERCON📵 %ds %s <- %s (%s) %v ua=%s\n",
 				client.connType, client.calleeID, dialID, delaySecs, hub.CalleeClient.RemoteAddr,
 				client.RemoteAddr, client.callerID, client.isOnline.Load(), client.userAgent)
 
@@ -721,7 +721,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 			// closeCallee() will call setDeadline(0) and processTimeValues() if this is false; then set it true
 			c.callerTextMsg = ""
 
-			if logWantedFor("attach") {
+			if logWantedFor("attach2") {
 				loginCount := 0
 				calleeLoginMutex.RLock()
 				calleeLoginSlice,ok := calleeLoginMap[c.calleeID]
@@ -756,7 +756,7 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 					// NOTE: msg MUST NOT contain apostroph (') characters
 					msg := "Please upgrade WebCall client to "+
 						   "<a href=\"/webcall/update/\">v"+clientUpdateBelowVersion+"&nbsp;or&nbsp;higher</a>"
-					if logWantedFor("attach") {
+					if logWantedFor("attach2") {
 						fmt.Printf("%s (%s) init %s %s send status %s\n",
 							c.connType, c.calleeID, c.RemoteAddr, c.clientVersion, msg)
 					}
@@ -1722,17 +1722,21 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 				if c.hub.CallerClient!=nil {
 					err := c.hub.CallerClient.Write(message)
 					if err != nil {
-						// caller gone
-						fmt.Printf("# %s (%s) fw msg (%s) to caller fail %v\n",
+						// TODO is caller err fatal?
+						fmt.Printf("! %s (%s) fw msg (%s) to caller fail %v\n",
 							c.connType, c.calleeID, logPayload, err)
 						// saw err = 'not connected'
 						c.hub.HubMutex.RUnlock()
-						c.hub.closePeerCon("fw msg to caller "+err.Error())
+						c.hub.closePeerCon("fw msg to caller: "+err.Error())
 						return
 					}
 				} else {
-					fmt.Printf("# %s (%s) fw msg (%s) to CallerClient==nil\n",
+					// caller gone is NOT fatal
+					fmt.Printf("! %s (%s) fw msg (%s) to CallerClient==nil\n",
 						c.connType, c.calleeID, payload)
+					//c.hub.HubMutex.RUnlock()
+					//c.hub.closePeerCon("fw msg to caller, caller gone")
+					//return
 				}
 			} else {
 				// c is caller
@@ -1747,8 +1751,12 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 						return
 					}
 				} else {
+					// callee gone
 					fmt.Printf("# %s (%s) fw msg (%s) to CalleeClient==nil\n",
 						c.connType, c.calleeID, logPayload)
+					c.hub.HubMutex.RUnlock()
+					c.hub.closeCallee("fw msg to callee, callee gone")
+					return
 				}
 			}
 			c.hub.HubMutex.RUnlock()

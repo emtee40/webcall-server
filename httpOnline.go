@@ -16,6 +16,8 @@ import (
 	"time"
 	"fmt"
 	"io"
+	"os"
+	"bufio"
 )
 
 func httpOnline(w http.ResponseWriter, r *http.Request, urlID string, dialID string, remoteAddr string) {
@@ -410,6 +412,17 @@ func httpNewId(w http.ResponseWriter, r *http.Request, urlID string, calleeID st
 		return
 	}
 
+	{
+		// check for unsupported remoteAddr
+		// TODO get "ipblock.cvs" from config
+		retcode := ipCheck("ipblock.cvs",remoteAddr,false)
+		if retcode>0 {
+			//fmt.Printf("! /newid ipCheck block rip=%s\n",remoteAddr)
+			return
+		}
+		fmt.Printf("/newid ipCheck OK %s %d\n",remoteAddr,retcode)
+	}
+
 	tmpCalleeID,err := GetRandomCalleeID()
 	if err!=nil {
 		fmt.Printf("# /newid GetRandomCalleeID err=%v\n",err)
@@ -434,9 +447,47 @@ func httpNewId(w http.ResponseWriter, r *http.Request, urlID string, calleeID st
 	return
 }
 
+func ipCheck(dbFile string, ip string, verbose bool) int {
+	file, err := os.Open(dbFile)
+	if err != nil {
+		//fmt.Printf("! ipCheck open %s err=%v\n",dbFile,err)
+		return -1 // dbFile not found
+	}
+	defer file.Close()
+
+	country := ""
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line,"#") {
+			if len(line)>1 {
+				if verbose {
+					fmt.Printf("ipCheck %s\n",line)
+				}
+				country = line[1:]
+			}
+			continue
+		}
+
+		toks := strings.Split(scanner.Text(), ",")
+		if len(toks)>=2 {
+			//fmt.Printf(" %s-%s\n",toks[0],toks[1])
+			if ip>toks[0] && ip<toks[1] {
+				fmt.Printf("! ipCheck %s found '%s' %s-%s\n",ip,country,toks[0],toks[1])
+				return 1 // found
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Println(err)
+	}
+	return -2 // not found
+}
+
 func httpRegister(w http.ResponseWriter, r *http.Request, urlID string, urlPath string, remoteAddr string, startRequestTime time.Time) {
 	if !allowNewAccounts {
-		fmt.Printf("# /register newAccounts not allowed urlPath=(%s) %s ua=%s\n",
+		fmt.Printf("! /register newAccounts not allowed urlPath=(%s) %s ua=%s\n",
 			urlPath, remoteAddr, r.UserAgent())
 		return
 	}
@@ -460,7 +511,7 @@ func httpRegister(w http.ResponseWriter, r *http.Request, urlID string, urlPath 
 	}
 
 	if registerID=="" {
-		fmt.Printf("# /register fail no ID urlPath=(%s) mid=(%s) id=%s v=%s ua=%s\n",
+		fmt.Printf("! /register fail no ID urlPath=(%s) mid=(%s) id=%s v=%s ua=%s\n",
 			urlPath, mid, remoteAddr, clientVersion, r.UserAgent())
 		return
 	}
@@ -481,7 +532,7 @@ func httpRegister(w http.ResponseWriter, r *http.Request, urlID string, urlPath 
 			pw = pwData[3:]
 		}
 		if len(pw)<6 {
-			fmt.Printf("# /register (%s) fail pw too short\n",registerID)
+			fmt.Printf("! /register (%s) fail pw too short\n",registerID)
 			fmt.Fprintf(w, "too short")
 			return
 		}

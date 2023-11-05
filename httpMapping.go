@@ -180,7 +180,14 @@ func httpSetMapping(w http.ResponseWriter, r *http.Request, urlID string, callee
 				}
 				if strings.HasPrefix(mappedID,"answie") || strings.HasPrefix(mappedID,"talkback") {
 					// not allowed
-					fmt.Printf("# /setmapping (%s) mappedID=(%s) forbidden error\n",calleeID, mappedID)
+					fmt.Printf("! /setmapping (%s) mappedID=(%s) not allowed\n",calleeID, mappedID)
+					time.Sleep(1000 * time.Millisecond)
+					fmt.Fprintf(w,"errorFormat")
+					return
+				}
+				if strings.HasPrefix(mappedID,"!") {
+					// not allowed
+					fmt.Printf("! /setmapping (%s) mappedID=(%s) not allowed\n",calleeID, mappedID)
 					time.Sleep(1000 * time.Millisecond)
 					fmt.Fprintf(w,"errorFormat")
 					return
