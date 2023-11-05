@@ -16,7 +16,7 @@ import (
 	"math/rand"
 	"golang.org/x/net/html"
 	"github.com/mattn/go-mastodon"
-	"github.com/mehrvarz/webcall/skv"
+	"codeberg.org/timurmobi/webcall/skv"
 	"golang.org/x/crypto/bcrypt"
 	"encoding/gob"
 	"bytes"

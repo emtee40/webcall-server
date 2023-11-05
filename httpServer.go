@@ -24,7 +24,8 @@ import (
 	"path/filepath"
 	"crypto/tls"
 	"embed"
-	"github.com/mehrvarz/webcall/skv"
+//	"github.com/mehrvarz/webcall/skv"
+	"codeberg.org/timurmobi/webcall/skv"
 )
 
 // note: if we use go:embed, config keyword 'htmlPath' must be set to the default value "webroot"

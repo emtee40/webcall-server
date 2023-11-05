@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 	"math/rand"
-	"github.com/mehrvarz/webcall/skv"
+	"codeberg.org/timurmobi/webcall/skv"
 )
 
 // GetOnlineCallee(ID) can tell us (with optional ejectOn1stFound yes/no):

@@ -14,7 +14,7 @@ import (
 	"os/exec"
 	"sync/atomic"
 	"net/http"
-	"github.com/mehrvarz/webcall/skv"
+	"codeberg.org/timurmobi/webcall/skv"
 	"gopkg.in/ini.v1"
 	bolt "go.etcd.io/bbolt"
 )

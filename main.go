@@ -45,8 +45,8 @@ import (
 	"gopkg.in/ini.v1"
 	"golang.org/x/crypto/bcrypt"
 	bolt "go.etcd.io/bbolt"
-	"github.com/mehrvarz/webcall/iptools"
-	"github.com/mehrvarz/webcall/skv"
+	"codeberg.org/timurmobi/webcall/iptools"
+	"codeberg.org/timurmobi/webcall/skv"
 	"github.com/lesismal/nbio/nbhttp"
 	"github.com/lesismal/llib/std/crypto/tls"
 )

@@ -1,4 +1,4 @@
-module github.com/mehrvarz/webcall
+module codeberg.org/timurmobi/webcall
 
 go 1.16
 
