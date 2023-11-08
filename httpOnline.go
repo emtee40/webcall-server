@@ -420,7 +420,9 @@ func httpNewId(w http.ResponseWriter, r *http.Request, urlID string, calleeID st
 			//fmt.Printf("! /newid ipCheck block rip=%s\n",remoteAddr)
 			return
 		}
-		fmt.Printf("/newid ipCheck OK %s %d\n",remoteAddr,retcode)
+		if retcode < -1 {
+			fmt.Printf("/newid ipCheck OK %s %d\n",remoteAddr,retcode)
+		}
 	}
 
 	tmpCalleeID,err := GetRandomCalleeID()

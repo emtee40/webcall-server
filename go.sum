@@ -1,3 +1,5 @@
+codeberg.org/timurmobi/turn/v2 v2.0.15 h1:tz44cIh7ls8E5F2vLre9dUJ4oKWJEqIyGL3m8frb4/4=
+codeberg.org/timurmobi/turn/v2 v2.0.15/go.mod h1:GsD9K+qLlTlBEtKUJszq705RL6MM5y877y+Q9hYsNko=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/andybalholm/brotli v1.0.0 h1:7UCwP93aiSfvWpapti8g88vVVGp2qqtGyePsSuDafo4=
 github.com/andybalholm/brotli v1.0.0/go.mod h1:loMXtMfwqflxFJPmdbJO0a3KNoPuLBgiu3qAvBg8x/Y=
@@ -31,8 +33,6 @@ github.com/lesismal/nbio v1.2.6 h1:B+hXFRVSZRcV5Fm1QMa1AHgI5TqaAITZdGmFNOa+mH8=
 github.com/lesismal/nbio v1.2.6/go.mod h1:S6FsMguvelM1mDOlSeFnochnIHpy15YHD8PGscV8kIs=
 github.com/mattn/go-mastodon v0.0.6 h1:lqU1sOeeIapaDsDUL6udDZIzMb2Wqapo347VZlaOzf0=
 github.com/mattn/go-mastodon v0.0.6/go.mod h1:cg7RFk2pcUfHZw/IvKe1FUzmlq5KnLFqs7eV2PHplV8=
-github.com/mehrvarz/turn/v2 v2.0.12 h1:KTur/T/SIKPLCvv0V/Ebnj9A5OfuOtifwKfC+vzJSbc=
-github.com/mehrvarz/turn/v2 v2.0.12/go.mod h1:PMWy0GUzImOcZoqQ9DK1Xhr3JC/RuX00KY3Vs6UeLG8=
 github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450 h1:j2kD3MT1z4PXCiUllUJF9mWUESr9TWKS7iEKsQ/IipM=
 github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450/go.mod h1:skjdDftzkFALcuGzYSklqYd8gvat6F1gZJ4YPVbkZpM=
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=

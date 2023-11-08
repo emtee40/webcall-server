@@ -891,7 +891,7 @@ function login(retryFlag,comment) {
 		} else {
 			goOffline("error login "+parts[0]);
 
-			// loginStatus may be: "java.net.ConnectException: failed to connect to timur.mobi/66.228.46.43 (port 8443) from /:: (port 0): connect failed: ENETUNREACH (Network is unreachable)"
+			// loginStatus may be: "java.net.ConnectException: failed to connect to ... from /:: (port 0): connect failed: ENETUNREACH (Network is unreachable)"
 			if(loginStatus!="") {
 				// make sure our showStatus() comes after the one ("WebCall server disconnected") from disconnectHost()
 				setTimeout(function() {

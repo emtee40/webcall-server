@@ -3,10 +3,10 @@ module codeberg.org/timurmobi/webcall
 go 1.16
 
 require (
+	codeberg.org/timurmobi/turn/v2 v2.0.15
 	github.com/lesismal/llib v1.1.4
 	github.com/lesismal/nbio v1.2.6
 	github.com/mattn/go-mastodon v0.0.6
-	github.com/mehrvarz/turn/v2 v2.0.12
 	github.com/mrjones/oauth v0.0.0-20190623134757-126b35219450
 	github.com/nxadm/tail v1.4.8
 	github.com/pion/logging v0.2.2

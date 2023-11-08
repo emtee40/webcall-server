@@ -10,7 +10,7 @@ import (
 	"time"
 
 	//"github.com/pion/turn/v2" // see: https://github.com/pion/turn/issues/206#issuecomment-907091251
-	"github.com/mehrvarz/turn/v2" // this _is_ pion/turn but with a minor patch for FF on Android
+	"codeberg.org/timurmobi/turn/v2" // this _is_ pion/turn but with a minor patch for FF on Android
 	"github.com/pion/logging"
 )
 
@@ -83,7 +83,7 @@ func runTurnServer() {
 				maxTalkSecsIfNoP2pTmp := maxTalkSecsIfNoP2p
 				readConfigLock.RUnlock()
 
-				if maxTalkSecsIfNoP2pTmp<=0 || timeSinceFirstFound.Seconds() <= float64(maxTalkSecsIfNoP2pTmp) {
+				if maxTalkSecsIfNoP2pTmp <= 0 || timeSinceFirstFound.Seconds() <= float64(maxTalkSecsIfNoP2pTmp) {
 					foundIp = true
 					foundCalleeId = turnCallee.CalleeID
 					foundByMap = true
@@ -92,9 +92,9 @@ func runTurnServer() {
 					// turn session is outdated, will not anymore be authenticated
 					// check if callee is offline or not connected, in which case we will not log session outdated
 					_, locHub, _, err := GetOnlineCallee(turnCallee.CalleeID, true, true, true, "", "turn")
-					if err==nil && locHub==nil {
+					if err == nil && locHub == nil {
 						// turnCallee.CalleeID is offline: don't log
-					} else if err==nil && locHub.ConnectedCallerIp == "" {
+					} else if err == nil && locHub.ConnectedCallerIp == "" {
 						// turnCallee.CalleeID is online but not connected: don't log
 					} else {
 						fmt.Printf("turnauth (%s) session outdated %s %v %d\n",

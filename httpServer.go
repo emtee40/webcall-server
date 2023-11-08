@@ -24,7 +24,6 @@ import (
 	"path/filepath"
 	"crypto/tls"
 	"embed"
-//	"github.com/mehrvarz/webcall/skv"
 	"codeberg.org/timurmobi/webcall/skv"
 )
 
