@@ -1717,6 +1717,8 @@ func (c *WsClient) handleClientMessage(message []byte, cliWsConn *websocket.Conn
 				fmt.Printf("%s (%s) recv/fw %s|%s iscallee=%v %s\n",
 					c.connType, c.calleeID, cmd, payload, c.isCallee, c.RemoteAddr)
 			}
+			////////////////
+			////////////////
 			c.hub.HubMutex.RLock()
 			if c.isCallee {
 				if c.hub.CallerClient!=nil {
