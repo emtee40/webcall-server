@@ -473,8 +473,9 @@ func ipCheck(dbFile string, ip string, verbose bool) int {
 
 		toks := strings.Split(scanner.Text(), ",")
 		if len(toks)>=2 {
-			//fmt.Printf(" %s-%s\n",toks[0],toks[1])
-			if ip>toks[0] && ip<toks[1] {
+			tok1 := strings.Replace(toks[1], ".255", ".999", -1)
+			//fmt.Printf(" cmp %s %s-%s\n",ip,toks[0],tok1)
+			if ip>=toks[0] && ip<=tok1 {
 				fmt.Printf("! ipCheck %s found '%s' %s-%s\n",ip,country,toks[0],toks[1])
 				return 1 // found
 			}
